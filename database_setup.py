@@ -10,9 +10,9 @@ from datetime import datetime
 import os
 
 class NeshamaDatabase:
-    def __init__(self, db_path='neshama.db'):
+    def __init__(self, db_path=None):
         """Initialize database connection"""
-        self.db_path = db_path
+        self.db_path = db_path or os.environ.get('DATABASE_PATH', 'neshama.db')
         self.conn = None
         self.cursor = None
 
