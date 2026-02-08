@@ -9,6 +9,7 @@ import json
 import sqlite3
 import os
 import re
+import subprocess
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 
@@ -85,6 +86,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_unsubscribe_page(token)
         elif path == '/manage-subscription':
             self.handle_manage_subscription()
+        elif path == '/admin/scrape':
+            self.handle_admin_scrape()
         elif path in self.STATIC_FILES:
             self.serve_static(path)
         else:
@@ -386,6 +389,46 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_json_response({'status': 'success', 'count': count})
         except Exception as e:
             self.send_json_response({'status': 'success', 'count': 0})
+
+    # ── Admin: Scraper ─────────────────────────────────────────
+
+    def handle_admin_scrape(self):
+        """Run scrapers via admin endpoint"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        project_root = os.path.join(FRONTEND_DIR, '..')
+        try:
+            result = subprocess.run(
+                ['python', 'master_scraper.py'],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+                timeout=300
+            )
+            output = result.stdout + '\n' + result.stderr
+            html = f"""<!DOCTYPE html><html><head><title>Scraper Output</title>
+<style>body{{font-family:monospace;background:#1e1e1e;color:#d4d4d4;padding:2rem}}
+pre{{white-space:pre-wrap;word-wrap:break-word}}h1{{color:#D2691E}}</style></head>
+<body><h1>Scraper Output</h1><pre>{output}</pre>
+<p><a href="/api/status" style="color:#D2691E">Check API status</a> |
+<a href="/feed" style="color:#D2691E">View feed</a></p></body></html>"""
+            content = html.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        except subprocess.TimeoutExpired:
+            self.send_error_response('Scraper timed out after 5 minutes', 504)
+        except Exception as e:
+            self.send_error_response(f'Scraper error: {str(e)}', 500)
 
     # ── API: Payment / Stripe ────────────────────────────────
 
