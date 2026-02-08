@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Neshama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .nav {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .nav a {
+            color: var(--terracotta);
+            text-decoration: none;
+            font-size: 1.05rem;
+        }
+
+        .nav a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--terracotta);
+            font-style: italic;
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.8;
+        }
+
+        .hebrew-quote {
+            font-size: 1.3rem;
+            text-align: center;
+            color: var(--terracotta);
+            font-style: italic;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-top: 1px solid var(--light-taupe);
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .hebrew-text {
+            direction: rtl;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .footer-links a:hover { color: var(--terracotta); }
+
+        .footer-copy { font-size: 0.85rem; color: var(--sage); }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">&larr; Back to Neshama</a>
+    </div>
+
+    <div class="container">
+        <h1>About Neshama</h1>
+        <p class="subtitle">Why we built this</p>
+
+        <h2>Nichum Aveilim</h2>
+        <p>
+            In Jewish tradition, <em>nichum aveilim</em> &mdash; comforting the mourner &mdash; is one of
+            the most sacred obligations we carry. It is not merely a kindness; it is a
+            commandment. When someone in our community passes away, showing up matters.
+        </p>
+        <p>
+            But showing up begins with knowing. In a city as large as Toronto, with
+            multiple funeral homes serving the Jewish community, it can be difficult to
+            learn about a passing in time to attend a funeral, pay a shiva call, or simply
+            send a message of comfort.
+        </p>
+
+        <div class="hebrew-quote">
+            <div class="hebrew-text">&#x05DB;&#x05DC; &#x05D9;&#x05E9;&#x05E8;&#x05D0;&#x05DC; &#x05E2;&#x05E8;&#x05D1;&#x05D9;&#x05DD; &#x05D6;&#x05D4; &#x05DC;&#x05D6;&#x05D4;</div>
+            All of Israel are responsible for one another
+        </div>
+
+        <h2>What Neshama Does</h2>
+        <p>
+            Neshama gathers obituary information from Toronto's Jewish funeral homes
+            and presents it in a single, respectful feed. We believe that when the
+            community can easily find this information, more people show up &mdash; at
+            funerals, during shiva, and in the quiet moments after.
+        </p>
+        <p>
+            Every name that appears on Neshama represents a life lived. A parent,
+            a grandparent, a friend, a teacher. Our role is simply to make sure the
+            community knows, so the community can respond.
+        </p>
+
+        <h2>Our Values</h2>
+        <p>
+            <strong>Respect.</strong> Every piece of information is presented with
+            dignity. We do not editorialize, rank, or sensationalize.
+        </p>
+        <p>
+            <strong>Accuracy.</strong> We source information directly from funeral home
+            websites and present it faithfully.
+        </p>
+        <p>
+            <strong>Privacy.</strong> We only display information that funeral homes have
+            already made public. We comply with Canadian privacy law (PIPEDA).
+        </p>
+        <p>
+            <strong>Community.</strong> Neshama exists to strengthen the bonds between us.
+            When one family mourns, we all stand with them.
+        </p>
+
+        <h2>Independent Service</h2>
+        <p>
+            Neshama is an independent project and is not affiliated with any funeral
+            home. Information is aggregated from publicly available sources. If you
+            notice an error or wish to have information removed, please
+            <a href="mailto:contact@neshama.ca" style="color: var(--terracotta);">contact us</a>
+            and we will respond promptly.
+        </p>
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Toronto Jewish community</p>
+    </footer>
+</body>
+</html>

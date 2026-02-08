@@ -1,0 +1,34 @@
+# Database
+neshama.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.*
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (from Puppeteer testing)
+node_modules/
+package-lock.json
+package.json
+
+# Logs
+*.log

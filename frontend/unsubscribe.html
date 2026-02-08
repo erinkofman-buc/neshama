@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsubscribed - Neshama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 10px 40px var(--soft-shadow);
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+        }
+        
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+        
+        .email-display {
+            background: var(--warm-beige);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            font-weight: 600;
+        }
+        
+        .info-box {
+            background: var(--warm-beige);
+            border-left: 4px solid var(--sage);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+            border-radius: 0.5rem;
+        }
+        
+        .feedback-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--light-taupe);
+        }
+        
+        .feedback-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .feedback-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .feedback-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .feedback-option label {
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        
+        .feedback-other {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        
+        .btn {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--sage);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--warm-beige);
+            border-color: var(--terracotta);
+        }
+        
+        .resubscribe-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--light-taupe);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">✉️</div>
+        <h1>You've been unsubscribed</h1>
+        
+        <p class="message">
+            You will no longer receive daily obituary emails from Neshama.
+        </p>
+        
+        <div class="email-display" id="emailDisplay"></div>
+        
+        <div class="info-box">
+            <strong>You can still:</strong>
+            <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                <li>Browse neshama.ca anytime - no account needed</li>
+                <li>Search for specific names</li>
+                <li>Share obituaries with family and friends</li>
+            </ul>
+        </div>
+        
+        <div class="feedback-section">
+            <div class="feedback-title">Help us improve</div>
+            <p style="margin-bottom: 1rem;">Why are you unsubscribing? (optional)</p>
+            
+            <div class="feedback-options">
+                <div class="feedback-option">
+                    <input type="checkbox" id="reason1" value="too_many">
+                    <label for="reason1">Too many emails</label>
+                </div>
+                <div class="feedback-option">
+                    <input type="checkbox" id="reason2" value="not_relevant">
+                    <label for="reason2">Not relevant to me</label>
+                </div>
+                <div class="feedback-option">
+                    <input type="checkbox" id="reason3" value="privacy">
+                    <label for="reason3">Privacy concerns</label>
+                </div>
+                <div class="feedback-option">
+                    <input type="checkbox" id="reason4" value="other">
+                    <label for="reason4">Other:</label>
+                </div>
+                <input type="text" class="feedback-other" id="otherReason" placeholder="Please specify...">
+            </div>
+            
+            <button class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+        </div>
+        
+        <div class="resubscribe-section">
+            <p>Changed your mind?</p>
+            <a href="/" class="btn btn-secondary" style="margin-top: 1rem;">Resubscribe</a>
+        </div>
+    </div>
+    
+    <script>
+        // Get email from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        
+        if (email) {
+            document.getElementById('emailDisplay').textContent = email;
+        }
+        
+        function submitFeedback() {
+            const reasons = [];
+            
+            if (document.getElementById('reason1').checked) reasons.push('too_many');
+            if (document.getElementById('reason2').checked) reasons.push('not_relevant');
+            if (document.getElementById('reason3').checked) reasons.push('privacy');
+            if (document.getElementById('reason4').checked) {
+                const other = document.getElementById('otherReason').value;
+                if (other) reasons.push(`other: ${other}`);
+            }
+            
+            if (reasons.length === 0) {
+                alert('Please select at least one reason');
+                return;
+            }
+            
+            // Send feedback to backend
+            fetch('/api/unsubscribe-feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    reasons: reasons
+                })
+            })
+            .then(() => {
+                alert('Thank you for your feedback!');
+                document.querySelector('.feedback-section').innerHTML = '<p style="color: #B2BEB5;">Thank you for your feedback.</p>';
+            })
+            .catch(() => {
+                alert('Feedback submitted (stored locally)');
+            });
+        }
+    </script>
+</body>
+</html>

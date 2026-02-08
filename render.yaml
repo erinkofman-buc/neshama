@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: neshama
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python database_setup.py
+    startCommand: python frontend/api_server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PORT
+        sync: false
+      - key: DATABASE_PATH
+        value: /data/neshama.db
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+    disk:
+      name: neshama-data
+      mountPath: /data
+      sizeGB: 1

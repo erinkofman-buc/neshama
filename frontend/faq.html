@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Neshama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .nav {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .nav a {
+            color: var(--terracotta);
+            text-decoration: none;
+            font-size: 1.05rem;
+        }
+
+        .nav a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--terracotta);
+            font-style: italic;
+            margin-bottom: 3rem;
+        }
+
+        .faq-item {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.75rem;
+        }
+
+        .faq-answer {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .faq-answer a {
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+
+        .faq-answer a:hover { text-decoration: underline; }
+
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .footer-links a:hover { color: var(--terracotta); }
+
+        .footer-copy { font-size: 0.85rem; color: var(--sage); }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">&larr; Back to Neshama</a>
+    </div>
+
+    <div class="container">
+        <h1>Frequently Asked Questions</h1>
+        <p class="subtitle">Everything you need to know</p>
+
+        <div class="faq-item">
+            <h2 class="faq-question">What is Neshama?</h2>
+            <p class="faq-answer">
+                Neshama is a free service that aggregates obituary listings from
+                Toronto's Jewish funeral homes into one easy-to-read feed. Instead
+                of checking multiple funeral home websites, you can see all current
+                obituaries in one place.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">Which funeral homes are included?</h2>
+            <p class="faq-answer">
+                We currently aggregate from Steeles Memorial Chapel and Benjamin's
+                Park Memorial Chapel. We plan to add more funeral homes serving the
+                Toronto Jewish community over time.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">How often is the information updated?</h2>
+            <p class="faq-answer">
+                Our system checks funeral home websites regularly throughout the day.
+                New obituaries typically appear on Neshama within hours of being
+                posted by the funeral home.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">Is Neshama affiliated with any funeral home?</h2>
+            <p class="faq-answer">
+                No. Neshama is an independent community service. We are not affiliated
+                with, endorsed by, or operated by any funeral home. All information is
+                sourced from publicly available funeral home websites.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">Can I get daily email updates?</h2>
+            <p class="faq-answer">
+                Yes. Subscribe to our free daily digest and you'll receive an email
+                each morning with new obituaries from the previous day. You can
+                subscribe from the feed page or <a href="/feed">visit the feed</a>
+                to sign up.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">How do I request a correction or removal?</h2>
+            <p class="faq-answer">
+                If you notice an error or would like information removed, please
+                email us at <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>.
+                We take accuracy and privacy seriously and will respond within
+                24 hours.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">What does "Neshama" mean?</h2>
+            <p class="faq-answer">
+                Neshama is the Hebrew word for "soul." In Jewish thought,
+                the neshama is the divine spark within each person &mdash; eternal and
+                sacred. We chose this name because every soul deserves to be
+                remembered and honored by the community.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Toronto Jewish community</p>
+    </footer>
+</body>
+</html>

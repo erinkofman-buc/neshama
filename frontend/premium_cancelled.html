@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Cancelled - Neshama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem;
+            box-shadow: 0 10px 40px var(--soft-shadow);
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+        }
+        
+        .message {
+            font-size: 1.2rem;
+            color: var(--sage);
+            margin-bottom: 2rem;
+        }
+        
+        .info-box {
+            background: var(--warm-beige);
+            border-left: 4px solid var(--sage);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box p {
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-box strong {
+            color: var(--dark-brown);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        
+        .btn {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            padding: 1rem 2.5rem;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--sage);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--warm-beige);
+            border-color: var(--terracotta);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">⏸️</div>
+        
+        <h1>Checkout Cancelled</h1>
+        <p class="message">No charges were made to your account</p>
+        
+        <div class="info-box">
+            <p><strong>You can still enjoy Neshama for free:</strong></p>
+            <ul style="margin-top: 0.75rem; padding-left: 1.5rem;">
+                <li>Browse all obituaries</li>
+                <li>Search by name</li>
+                <li>Share with family and friends</li>
+                <li>Receive daily email updates</li>
+            </ul>
+            <p style="margin-top: 1rem;">
+                Upgrade to Premium anytime for instant notifications, calendar integration, and more.
+            </p>
+        </div>
+        
+        <div class="buttons">
+            <a href="/feed" class="btn btn-primary">Back to Feed</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">Try Again</a>
+        </div>
+    </div>
+</body>
+</html>

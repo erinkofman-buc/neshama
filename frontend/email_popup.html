@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Subscription Component - Neshama</title>
+    <style>
+        /* Email Popup Overlay */
+        .email-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(62, 39, 35, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .email-popup-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        /* Popup Modal */
+        .email-popup {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+        
+        /* Close Button */
+        .popup-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: #B2BEB5;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .popup-close:hover {
+            background: #F5F5DC;
+            color: #3E2723;
+        }
+        
+        /* Popup Content */
+        .popup-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #3E2723;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .popup-description {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: #3E2723;
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        /* Form */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .email-input {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            padding: 1rem 1.5rem;
+            border: 2px solid #D4C5B9;
+            border-radius: 3rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .email-input:focus {
+            border-color: #D2691E;
+            box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+        }
+        
+        .email-input::placeholder {
+            color: #B2BEB5;
+        }
+        
+        /* Buttons */
+        .popup-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .btn-subscribe {
+            flex: 1;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            background: #D2691E;
+            color: white;
+            border: none;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-subscribe:hover:not(:disabled) {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
+        }
+        
+        .btn-subscribe:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-later {
+            flex: 1;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: #3E2723;
+            border: 2px solid #B2BEB5;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-later:hover {
+            background: #F5F5DC;
+            border-color: #D2691E;
+        }
+        
+        /* Footer Note */
+        .popup-footer {
+            font-size: 0.95rem;
+            color: #B2BEB5;
+            text-align: center;
+            margin-top: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .success-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #3E2723;
+            margin-bottom: 1rem;
+        }
+        
+        .success-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: #3E2723;
+            line-height: 1.6;
+        }
+        
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .email-popup {
+                padding: 2rem 1.5rem;
+                border-radius: 1rem 1rem 0 0;
+                position: fixed;
+                bottom: 0;
+                max-width: 100%;
+                animation: slideUpMobile 0.4s ease;
+            }
+            
+            .popup-title {
+                font-size: 1.5rem;
+            }
+            
+            .popup-description {
+                font-size: 1rem;
+            }
+            
+            .popup-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUpMobile {
+            from {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Email Subscription Popup -->
+    <div class="email-popup-overlay" id="emailPopup">
+        <div class="email-popup">
+            <button class="popup-close" onclick="closeEmailPopup()" aria-label="Close">×</button>
+            
+            <!-- Form View -->
+            <div id="formView">
+                <h2 class="popup-title">Daily obituary updates via email</h2>
+                <p class="popup-description">
+                    Stay informed when new obituaries are posted. Never miss an opportunity to support our community.
+                </p>
+                
+                <div class="error-message" id="errorMessage"></div>
+                
+                <form class="email-form" onsubmit="handleEmailSubmit(event)">
+                    <input 
+                        type="email" 
+                        class="email-input" 
+                        id="emailInput"
+                        placeholder="Enter your email address"
+                        required
+                        autocomplete="email"
+                    >
+                    
+                    <div class="popup-buttons">
+                        <button type="submit" class="btn-subscribe" id="subscribeBtn">
+                            Get Free Updates
+                        </button>
+                        <button type="button" class="btn-later" onclick="closeEmailPopup()">
+                            Not Now
+                        </button>
+                    </div>
+                </form>
+                
+                <p class="popup-footer">
+                    Free forever. Unsubscribe anytime.<br>
+                    We respect your privacy.
+                </p>
+            </div>
+            
+            <!-- Success View -->
+            <div class="success-message" id="successView">
+                <div class="success-icon">✉️</div>
+                <h2 class="success-title">Check your email!</h2>
+                <p class="success-text">
+                    We sent a confirmation email to <strong id="confirmedEmail"></strong>
+                    <br><br>
+                    Click the link in the email to confirm your subscription.
+                    <br><br>
+                    (Check your spam folder if you don't see it)
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Email Popup Manager
+        class EmailPopupManager {
+            constructor() {
+                this.popup = document.getElementById('emailPopup');
+                this.hasShown = false;
+                this.dismissed = false;
+                this.apiEndpoint = '/api/subscribe';
+                
+                // Check if already subscribed or dismissed recently
+                if (this.shouldShowPopup()) {
+                    this.schedulePopup();
+                }
+            }
+            
+            shouldShowPopup() {
+                // Don't show if already subscribed
+                if (localStorage.getItem('neshama_subscribed') === 'true') {
+                    return false;
+                }
+                
+                // Don't show if dismissed in last 24 hours
+                const dismissedAt = localStorage.getItem('neshama_popup_dismissed');
+                if (dismissedAt) {
+                    const hoursSinceDismissal = (Date.now() - parseInt(dismissedAt)) / (1000 * 60 * 60);
+                    if (hoursSinceDismissal < 24) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            
+            schedulePopup() {
+                // Show after 30 seconds
+                setTimeout(() => {
+                    if (!this.hasShown && !this.dismissed) {
+                        this.showPopup();
+                    }
+                }, 30000); // 30 seconds
+            }
+            
+            showPopup() {
+                this.popup.classList.add('active');
+                this.hasShown = true;
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+            
+            hidePopup() {
+                this.popup.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+            
+            dismiss() {
+                this.dismissed = true;
+                this.hidePopup();
+                localStorage.setItem('neshama_popup_dismissed', Date.now().toString());
+            }
+            
+            async subscribe(email) {
+                try {
+                    const response = await fetch(this.apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        return { success: true };
+                    } else {
+                        return { success: false, error: data.error?.message || 'Subscription failed' };
+                    }
+                } catch (error) {
+                    console.error('Subscription error:', error);
+                    return { success: false, error: 'Unable to connect. Please try again.' };
+                }
+            }
+            
+            showSuccess(email) {
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').classList.add('active');
+                document.getElementById('confirmedEmail').textContent = email;
+                
+                // Store that user has initiated subscription
+                localStorage.setItem('neshama_subscribed', 'true');
+            }
+            
+            showError(message) {
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = message;
+                errorEl.classList.add('active');
+            }
+            
+            hideError() {
+                document.getElementById('errorMessage').classList.remove('active');
+            }
+        }
+        
+        // Global instance
+        let emailPopupManager;
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                emailPopupManager = new EmailPopupManager();
+            });
+        } else {
+            emailPopupManager = new EmailPopupManager();
+        }
+        
+        // Global functions for inline handlers
+        function closeEmailPopup() {
+            if (emailPopupManager) {
+                emailPopupManager.dismiss();
+            }
+        }
+        
+        async function handleEmailSubmit(event) {
+            event.preventDefault();
+            
+            const emailInput = document.getElementById('emailInput');
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            const email = emailInput.value.trim();
+            
+            if (!email) return;
+            
+            // Disable button and show loading
+            subscribeBtn.disabled = true;
+            subscribeBtn.textContent = 'Subscribing...';
+            emailPopupManager.hideError();
+            
+            // Submit subscription
+            const result = await emailPopupManager.subscribe(email);
+            
+            if (result.success) {
+                emailPopupManager.showSuccess(email);
+            } else {
+                emailPopupManager.showError(result.error);
+                subscribeBtn.disabled = false;
+                subscribeBtn.textContent = 'Get Free Updates';
+            }
+        }
+        
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('email-popup-overlay')) {
+                closeEmailPopup();
+            }
+        });
+        
+        // Close popup on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && emailPopupManager) {
+                closeEmailPopup();
+            }
+        });
+    </script>
+</body>
+</html>
