@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Neshama API Server v1.2
+Neshama API Server v1.3
 Serves frontend, API endpoints, email subscriptions (SendGrid double opt-in), and payment integration
+Auto-scrapes on startup to handle Render free tier ephemeral storage
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -10,6 +11,7 @@ import sqlite3
 import os
 import re
 import subprocess
+import threading
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 
@@ -600,6 +602,52 @@ button:hover{background:#c45a1a}</style></head>
         """Custom logging"""
         print(f"[API] {format % args}")
 
+def auto_scrape_on_startup():
+    """Run scrapers in background thread on startup to populate database.
+    Handles Render free tier ephemeral storage - data is lost on restart,
+    so we re-scrape each time the server starts."""
+    project_root = os.path.join(FRONTEND_DIR, '..')
+    try:
+        # Check if database is empty
+        db_path_to_check = DB_PATH
+        if not os.path.exists(db_path_to_check):
+            # Try fallback paths
+            for p in [os.path.join(FRONTEND_DIR, '..', 'neshama.db'), './neshama.db']:
+                if os.path.exists(p):
+                    db_path_to_check = p
+                    break
+
+        needs_scrape = True
+        if os.path.exists(db_path_to_check):
+            try:
+                conn = sqlite3.connect(db_path_to_check)
+                cursor = conn.cursor()
+                cursor.execute('SELECT COUNT(*) FROM obituaries')
+                count = cursor.fetchone()[0]
+                conn.close()
+                if count > 0:
+                    needs_scrape = False
+                    print(f"[Startup] Database has {count} obituaries, skipping auto-scrape")
+            except Exception:
+                pass
+
+        if needs_scrape:
+            print("[Startup] Database empty - running auto-scrape in background...")
+            result = subprocess.run(
+                ['python', 'master_scraper.py'],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+                timeout=300
+            )
+            if result.returncode == 0:
+                print("[Startup] Auto-scrape completed successfully")
+            else:
+                print(f"[Startup] Auto-scrape had issues: {result.stderr[:200]}")
+    except Exception as e:
+        print(f"[Startup] Auto-scrape error (non-fatal): {e}")
+
+
 def run_server(port=None):
     """Start the API server"""
     if port is None:
@@ -607,8 +655,12 @@ def run_server(port=None):
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, NeshamaAPIHandler)
 
+    # Launch auto-scrape in background thread (non-blocking)
+    scrape_thread = threading.Thread(target=auto_scrape_on_startup, daemon=True)
+    scrape_thread.start()
+
     print(f"\n{'='*60}")
-    print(f" NESHAMA API SERVER v1.2")
+    print(f" NESHAMA API SERVER v1.3")
     print(f"{'='*60}")
     print(f"\n Running on: http://0.0.0.0:{port}")
     print(f"\n Pages:")
