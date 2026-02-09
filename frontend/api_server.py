@@ -88,6 +88,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_manage_subscription()
         elif path == '/admin/scrape':
             self.handle_admin_scrape()
+        elif path == '/admin/digest':
+            self.handle_admin_digest()
         elif path in self.STATIC_FILES:
             self.serve_static(path)
         else:
@@ -429,6 +431,28 @@ pre{{white-space:pre-wrap;word-wrap:break-word}}h1{{color:#D2691E}}</style></hea
             self.send_error_response('Scraper timed out after 5 minutes', 504)
         except Exception as e:
             self.send_error_response(f'Scraper error: {str(e)}', 500)
+
+    def handle_admin_digest(self):
+        """Send daily email digest via admin endpoint"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        try:
+            from daily_digest import DailyDigestSender
+            sender = DailyDigestSender(db_path=DB_PATH)
+            result = sender.send_daily_digest()
+            self.send_json_response({
+                'status': 'success',
+                'digest': result
+            })
+        except Exception as e:
+            self.send_error_response(f'Digest error: {str(e)}', 500)
 
     # ── API: Payment / Stripe ────────────────────────────────
 
