@@ -59,6 +59,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/premium-cancelled': ('premium_cancelled.html', 'text/html'),
         '/premium_cancelled.html': ('premium_cancelled.html', 'text/html'),
         '/email_popup.html': ('email_popup.html', 'text/html'),
+        '/premium': ('premium.html', 'text/html'),
+        '/premium.html': ('premium.html', 'text/html'),
+        '/favicon.svg': ('favicon.svg', 'image/svg+xml'),
     }
 
     def do_GET(self):
@@ -136,11 +139,17 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             with open(filepath, 'rb') as f:
                 content = f.read()
             self.send_response(200)
-            self.send_header('Content-Type', f'{content_type}; charset=utf-8')
+            if content_type.startswith('text/') or content_type == 'application/javascript':
+                self.send_header('Content-Type', f'{content_type}; charset=utf-8')
+            else:
+                self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(content)))
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Expires', '0')
+            if content_type in ('image/svg+xml',):
+                self.send_header('Cache-Control', 'public, max-age=86400')
+            else:
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Pragma', 'no-cache')
+                self.send_header('Expires', '0')
             self.end_headers()
             self.wfile.write(content)
         except FileNotFoundError:

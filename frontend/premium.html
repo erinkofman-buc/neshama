@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium - Neshama</title>
+    <meta name="description" content="Upgrade to Neshama Premium for instant notifications, calendar integration, and more. Support our community for just $18/year.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:title" content="Neshama Premium">
+    <meta property="og:description" content="Instant notifications, calendar integration, and more for $18/year.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/premium">
+    <meta property="og:site_name" content="Neshama">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--terracotta); }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #D2691E 0%, #c45a1a 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--sage-dark);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 30px var(--soft-shadow);
+            margin-bottom: 3rem;
+        }
+
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            background: var(--warm-beige);
+            border-bottom: 2px solid var(--light-taupe);
+        }
+
+        .comparison-header div {
+            padding: 1.25rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .comparison-header div:first-child {
+            text-align: left;
+        }
+
+        .col-premium {
+            background: rgba(210, 105, 30, 0.08);
+            color: var(--terracotta);
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border-bottom: 1px solid rgba(212, 197, 185, 0.5);
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row div {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.05rem;
+        }
+
+        .comparison-row div:not(:first-child) {
+            justify-content: center;
+        }
+
+        .comparison-row div:nth-child(3) {
+            background: rgba(210, 105, 30, 0.04);
+        }
+
+        .check { color: #4caf50; font-size: 1.3rem; }
+        .dash { color: var(--light-taupe); font-size: 1.3rem; }
+
+        /* Pricing */
+        .pricing {
+            text-align: center;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 4px 30px var(--soft-shadow);
+            margin-bottom: 3rem;
+        }
+
+        .price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 600;
+            color: var(--terracotta);
+            line-height: 1;
+        }
+
+        .price-currency {
+            font-size: 1.8rem;
+            vertical-align: super;
+        }
+
+        .price-period {
+            font-size: 1.2rem;
+            color: var(--sage-dark);
+            margin-top: 0.5rem;
+        }
+
+        .price-meaning {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            font-style: italic;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1.25rem 3.5rem;
+            border-radius: 3rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--warm-glow);
+        }
+
+        .cta-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--warm-glow);
+        }
+
+        .trust {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .trust span {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+        }
+
+        /* Free section */
+        .free-section {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .free-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .free-section p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .free-btn {
+            display: inline-block;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 1rem 2.5rem;
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--sage);
+            border-radius: 3rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .free-btn:hover {
+            background: var(--warm-beige);
+            border-color: var(--terracotta);
+        }
+
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--terracotta); }
+
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            h1 { font-size: 2.2rem; }
+            .comparison-header div,
+            .comparison-row div {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            .pricing { padding: 2rem 1.5rem; }
+            .price { font-size: 3rem; }
+            .trust { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <div class="badge">PREMIUM</div>
+            <h1>Support Our Community</h1>
+            <p class="subtitle">
+                Upgrade to Premium for powerful features and help keep Neshama running for everyone.
+            </p>
+        </div>
+
+        <div class="comparison">
+            <div class="comparison-header">
+                <div>Feature</div>
+                <div>Free</div>
+                <div class="col-premium">Premium</div>
+            </div>
+
+            <div class="comparison-row">
+                <div>Browse all obituaries</div>
+                <div><span class="check">&#x2713;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Search by name</div>
+                <div><span class="check">&#x2713;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Share with family</div>
+                <div><span class="check">&#x2713;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Daily email digest</div>
+                <div><span class="check">&#x2713;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Instant notifications</div>
+                <div><span class="dash">&mdash;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Add to Google Calendar</div>
+                <div><span class="dash">&mdash;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Follow funeral homes</div>
+                <div><span class="dash">&mdash;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Advanced search &amp; filters</div>
+                <div><span class="dash">&mdash;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Support the community</div>
+                <div><span class="dash">&mdash;</span></div>
+                <div><span class="check">&#x2713;</span></div>
+            </div>
+        </div>
+
+        <div class="pricing">
+            <div class="price">
+                <span class="price-currency">$</span>18
+            </div>
+            <div class="price-period">per year</div>
+            <div class="price-meaning">Chai &#x05D7;&#x05D9; &mdash; a meaningful gift of life</div>
+
+            <button class="cta-btn" onclick="startCheckout()">Upgrade to Premium</button>
+
+            <div class="trust">
+                <span>&#x1F512; Secure payment via Stripe</span>
+                <span>&#x2713; Cancel anytime</span>
+                <span>&#x1F6E1;&#xFE0F; 30-day guarantee</span>
+            </div>
+        </div>
+
+        <div class="free-section">
+            <h2>Not ready to upgrade?</h2>
+            <p>Neshama is completely free to use. Browse obituaries, search by name, and get daily email updates at no cost.</p>
+            <a href="/feed" class="free-btn">Continue with Free</a>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Toronto Jewish community</p>
+    </footer>
+
+    <script>
+        function startCheckout() {
+            var email = localStorage.getItem('user_email');
+            if (!email) {
+                email = prompt('Enter your email address:');
+                if (email && email.includes('@')) {
+                    localStorage.setItem('user_email', email);
+                } else {
+                    return;
+                }
+            }
+
+            var btn = document.querySelector('.cta-btn');
+            btn.disabled = true;
+            btn.textContent = 'Redirecting to checkout...';
+
+            fetch('/api/create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    success_url: window.location.origin + '/premium-success',
+                    cancel_url: window.location.origin + '/premium-cancelled'
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Unable to start checkout. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Upgrade to Premium';
+                }
+            })
+            .catch(function() {
+                alert('Unable to start checkout. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Upgrade to Premium';
+            });
+        }
+    </script>
+</body>
+</html>

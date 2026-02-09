@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neshama - Every Soul Remembered</title>
+    <meta name="description" content="View the latest obituaries from Toronto's Jewish funeral homes. Search by name, share with family, and stay connected to your community.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:title" content="Neshama - Toronto Jewish Obituaries">
+    <meta property="og:description" content="One place to honor every soul in Toronto's Jewish community.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/feed">
+    <meta property="og:site_name" content="Neshama">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -404,6 +412,93 @@
             align-items: center;
             gap: 0.5rem;
             margin-top: 1rem;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--light-taupe);
+            border-top-color: var(--terracotta);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Search highlight */
+        .search-highlight {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+            padding: 0.1em 0.2em;
+            border-radius: 3px;
+        }
+
+        /* Empty state improvements */
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-hint {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            line-height: 1.6;
+        }
+
+        /* Share menu */
+        .share-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .share-toggle {
+            width: 100%;
+        }
+
+        .share-menu {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 0.5rem);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 50;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .share-menu.active {
+            display: block;
+        }
+
+        .share-option {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: white;
+            color: var(--dark-brown);
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .share-option:hover {
+            background: var(--warm-beige);
+        }
+
+        .share-option + .share-option {
+            border-top: 1px solid var(--light-taupe);
         }
         
         /* Load More */
