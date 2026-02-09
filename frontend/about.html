@@ -10,6 +10,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -20,6 +21,13 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
         body {
             font-family: 'Crimson Pro', serif;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
@@ -28,19 +36,54 @@
             min-height: 100vh;
         }
 
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
         .nav {
-            padding: 1.5rem;
-            text-align: center;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
         }
 
-        .nav a {
-            color: var(--terracotta);
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
             text-decoration: none;
-            font-size: 1.05rem;
+            letter-spacing: 0.02em;
         }
 
-        .nav a:hover { text-decoration: underline; }
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--terracotta); }
+
+        .nav-links a.active {
+            color: var(--terracotta);
+            font-weight: 600;
+        }
 
         .container {
             max-width: 700px;
@@ -69,6 +112,9 @@
             margin-top: 2.5rem;
             margin-bottom: 1rem;
             color: var(--dark-brown);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(210, 105, 30, 0.15);
+            display: inline-block;
         }
 
         p {
@@ -82,16 +128,17 @@
             text-align: center;
             color: var(--terracotta);
             font-style: italic;
-            padding: 2rem;
-            margin: 2rem 0;
-            border-top: 1px solid var(--light-taupe);
-            border-bottom: 1px solid var(--light-taupe);
+            padding: 2.5rem 2rem;
+            margin: 2.5rem 0;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
         }
 
         .hebrew-text {
             direction: rtl;
             font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         footer {
@@ -112,17 +159,30 @@
             color: var(--dark-brown);
             text-decoration: none;
             font-size: 1rem;
+            transition: color 0.2s;
         }
 
         .footer-links a:hover { color: var(--terracotta); }
 
-        .footer-copy { font-size: 0.85rem; color: var(--sage); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            h2 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="/">&larr; Back to Neshama</a>
-    </div>
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about" class="active">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+        </div>
+    </nav>
 
     <div class="container">
         <h1>About Neshama</h1>

@@ -10,6 +10,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -20,6 +21,13 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
         body {
             font-family: 'Crimson Pro', serif;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
@@ -28,19 +36,54 @@
             min-height: 100vh;
         }
 
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
         .nav {
-            padding: 1.5rem;
-            text-align: center;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
         }
 
-        .nav a {
-            color: var(--terracotta);
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
             text-decoration: none;
-            font-size: 1.05rem;
+            letter-spacing: 0.02em;
         }
 
-        .nav a:hover { text-decoration: underline; }
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--terracotta); }
+
+        .nav-links a.active {
+            color: var(--terracotta);
+            font-weight: 600;
+        }
 
         .container {
             max-width: 700px;
@@ -57,7 +100,7 @@
 
         .effective-date {
             font-size: 1rem;
-            color: var(--sage);
+            color: var(--sage-dark);
             margin-bottom: 3rem;
         }
 
@@ -68,6 +111,18 @@
             margin-top: 2.5rem;
             margin-bottom: 1rem;
             color: var(--dark-brown);
+        }
+
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .section h2 {
+            margin-top: 0;
         }
 
         p, li {
@@ -90,7 +145,7 @@
             background: var(--warm-beige);
             border-left: 4px solid var(--terracotta);
             padding: 1.25rem 1.5rem;
-            margin: 1.5rem 0;
+            margin: 0 0 2rem 0;
             border-radius: 0 0.5rem 0.5rem 0;
         }
 
@@ -112,17 +167,30 @@
             color: var(--dark-brown);
             text-decoration: none;
             font-size: 1rem;
+            transition: color 0.2s;
         }
 
         .footer-links a:hover { color: var(--terracotta); }
 
-        .footer-copy { font-size: 0.85rem; color: var(--sage); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .section { padding: 1.5rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="/">&larr; Back to Neshama</a>
-    </div>
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy" class="active">Privacy</a>
+        </div>
+    </nav>
 
     <div class="container">
         <h1>Privacy Policy</h1>
@@ -134,112 +202,134 @@
             Canada's Personal Information Protection and Electronic Documents Act (PIPEDA).
         </div>
 
-        <h2>1. Who We Are</h2>
-        <p>
-            Neshama is an independent obituary aggregation service for the Toronto
-            Jewish community. This privacy policy explains how we collect, use, and
-            protect your personal information.
-        </p>
+        <div class="section">
+            <h2>1. Who We Are</h2>
+            <p>
+                Neshama is an independent obituary aggregation service for the Toronto
+                Jewish community. This privacy policy explains how we collect, use, and
+                protect your personal information.
+            </p>
+        </div>
 
-        <h2>2. Information We Collect</h2>
-        <p><strong>Information you provide:</strong></p>
-        <ul>
-            <li>Email address (when you subscribe to daily updates)</li>
-            <li>Name (optional, when subscribing)</li>
-            <li>Payment information (processed by Stripe; we never see your card details)</li>
-        </ul>
+        <div class="section">
+            <h2>2. Information We Collect</h2>
+            <p><strong>Information you provide:</strong></p>
+            <ul>
+                <li>Email address (when you subscribe to daily updates)</li>
+                <li>Name (optional, when subscribing)</li>
+                <li>Payment information (processed by Stripe; we never see your card details)</li>
+            </ul>
 
-        <p><strong>Information collected automatically:</strong></p>
-        <ul>
-            <li>Basic usage data (pages viewed, search queries)</li>
-            <li>Browser type and device information</li>
-            <li>IP address (for security purposes only)</li>
-        </ul>
+            <p><strong>Information collected automatically:</strong></p>
+            <ul>
+                <li>Basic usage data (pages viewed, search queries)</li>
+                <li>Browser type and device information</li>
+                <li>IP address (for security purposes only)</li>
+            </ul>
 
-        <p><strong>Information from public sources:</strong></p>
-        <ul>
-            <li>Obituary data from funeral home websites (publicly available information)</li>
-        </ul>
+            <p><strong>Information from public sources:</strong></p>
+            <ul>
+                <li>Obituary data from funeral home websites (publicly available information)</li>
+            </ul>
+        </div>
 
-        <h2>3. How We Use Your Information</h2>
-        <ul>
-            <li>To send daily obituary digest emails (if subscribed)</li>
-            <li>To process Premium subscription payments</li>
-            <li>To improve the service and fix issues</li>
-            <li>To respond to your inquiries</li>
-        </ul>
-        <p>
-            We do <strong>not</strong> use your information for advertising, profiling,
-            or any purpose unrelated to the Neshama service.
-        </p>
+        <div class="section">
+            <h2>3. How We Use Your Information</h2>
+            <ul>
+                <li>To send daily obituary digest emails (if subscribed)</li>
+                <li>To process Premium subscription payments</li>
+                <li>To improve the service and fix issues</li>
+                <li>To respond to your inquiries</li>
+            </ul>
+            <p>
+                We do <strong>not</strong> use your information for advertising, profiling,
+                or any purpose unrelated to the Neshama service.
+            </p>
+        </div>
 
-        <h2>4. Information Sharing</h2>
-        <p>We do not sell, rent, or share your personal information with third parties, except:</p>
-        <ul>
-            <li><strong>Stripe</strong> &mdash; for payment processing (governed by
-                <a href="https://stripe.com/privacy">Stripe's Privacy Policy</a>)</li>
-            <li><strong>Legal requirements</strong> &mdash; if required by Canadian law
-                or court order</li>
-        </ul>
+        <div class="section">
+            <h2>4. Information Sharing</h2>
+            <p>We do not sell, rent, or share your personal information with third parties, except:</p>
+            <ul>
+                <li><strong>Stripe</strong> &mdash; for payment processing (governed by
+                    <a href="https://stripe.com/privacy">Stripe's Privacy Policy</a>)</li>
+                <li><strong>Legal requirements</strong> &mdash; if required by Canadian law
+                    or court order</li>
+            </ul>
+        </div>
 
-        <h2>5. Data Retention</h2>
-        <ul>
-            <li>Subscriber data: retained while your subscription is active, deleted
-                within 30 days of unsubscribing</li>
-            <li>Payment records: retained as required by Canadian tax law</li>
-            <li>Obituary data: retained indefinitely as a community resource
-                (sourced from public information)</li>
-        </ul>
+        <div class="section">
+            <h2>5. Data Retention</h2>
+            <ul>
+                <li>Subscriber data: retained while your subscription is active, deleted
+                    within 30 days of unsubscribing</li>
+                <li>Payment records: retained as required by Canadian tax law</li>
+                <li>Obituary data: retained indefinitely as a community resource
+                    (sourced from public information)</li>
+            </ul>
+        </div>
 
-        <h2>6. Your Rights Under PIPEDA</h2>
-        <p>As a Canadian resident, you have the right to:</p>
-        <ul>
-            <li><strong>Access</strong> your personal information we hold</li>
-            <li><strong>Correct</strong> inaccurate information</li>
-            <li><strong>Withdraw consent</strong> for data collection (e.g., unsubscribe)</li>
-            <li><strong>Request deletion</strong> of your personal data</li>
-            <li><strong>File a complaint</strong> with the Office of the Privacy
-                Commissioner of Canada</li>
-        </ul>
+        <div class="section">
+            <h2>6. Your Rights Under PIPEDA</h2>
+            <p>As a Canadian resident, you have the right to:</p>
+            <ul>
+                <li><strong>Access</strong> your personal information we hold</li>
+                <li><strong>Correct</strong> inaccurate information</li>
+                <li><strong>Withdraw consent</strong> for data collection (e.g., unsubscribe)</li>
+                <li><strong>Request deletion</strong> of your personal data</li>
+                <li><strong>File a complaint</strong> with the Office of the Privacy
+                    Commissioner of Canada</li>
+            </ul>
+        </div>
 
-        <h2>7. Data Security</h2>
-        <p>
-            We protect your information using industry-standard security measures
-            including encrypted connections (HTTPS), secure database storage, and
-            limited access controls. Payment data is handled entirely by Stripe
-            and never touches our servers.
-        </p>
+        <div class="section">
+            <h2>7. Data Security</h2>
+            <p>
+                We protect your information using industry-standard security measures
+                including encrypted connections (HTTPS), secure database storage, and
+                limited access controls. Payment data is handled entirely by Stripe
+                and never touches our servers.
+            </p>
+        </div>
 
-        <h2>8. Cookies</h2>
-        <p>
-            We use minimal browser storage (localStorage) to remember your
-            preferences such as subscription status. We do not use third-party
-            tracking cookies or advertising pixels.
-        </p>
+        <div class="section">
+            <h2>8. Cookies</h2>
+            <p>
+                We use minimal browser storage (localStorage) to remember your
+                preferences such as subscription status. We do not use third-party
+                tracking cookies or advertising pixels.
+            </p>
+        </div>
 
-        <h2>9. Obituary Information</h2>
-        <p>
-            Obituary information displayed on Neshama is sourced from publicly
-            available funeral home websites. If you are a family member and wish
-            to have information corrected or removed, please contact us and we
-            will respond within 24 hours.
-        </p>
+        <div class="section">
+            <h2>9. Obituary Information</h2>
+            <p>
+                Obituary information displayed on Neshama is sourced from publicly
+                available funeral home websites. If you are a family member and wish
+                to have information corrected or removed, please contact us and we
+                will respond within 24 hours.
+            </p>
+        </div>
 
-        <h2>10. Changes to This Policy</h2>
-        <p>
-            We may update this policy from time to time. Material changes will be
-            communicated via email to subscribers and posted on this page.
-        </p>
+        <div class="section">
+            <h2>10. Changes to This Policy</h2>
+            <p>
+                We may update this policy from time to time. Material changes will be
+                communicated via email to subscribers and posted on this page.
+            </p>
+        </div>
 
-        <h2>11. Contact</h2>
-        <p>
-            For privacy inquiries, data access requests, or corrections:<br>
-            <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>
-        </p>
-        <p>
-            Office of the Privacy Commissioner of Canada:<br>
-            <a href="https://www.priv.gc.ca">www.priv.gc.ca</a> | 1-800-282-1376
-        </p>
+        <div class="section">
+            <h2>11. Contact</h2>
+            <p>
+                For privacy inquiries, data access requests, or corrections:<br>
+                <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>
+            </p>
+            <p>
+                Office of the Privacy Commissioner of Canada:<br>
+                <a href="https://www.priv.gc.ca">www.priv.gc.ca</a> | 1-800-282-1376
+            </p>
+        </div>
     </div>
 
     <footer>

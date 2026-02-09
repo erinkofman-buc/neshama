@@ -10,6 +10,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -20,6 +21,13 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
         body {
             font-family: 'Crimson Pro', serif;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
@@ -28,19 +36,54 @@
             min-height: 100vh;
         }
 
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
         .nav {
-            padding: 1.5rem;
-            text-align: center;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
         }
 
-        .nav a {
-            color: var(--terracotta);
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
             text-decoration: none;
-            font-size: 1.05rem;
+            letter-spacing: 0.02em;
         }
 
-        .nav a:hover { text-decoration: underline; }
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--terracotta); }
+
+        .nav-links a.active {
+            color: var(--terracotta);
+            font-weight: 600;
+        }
 
         .container {
             max-width: 700px;
@@ -63,13 +106,18 @@
         }
 
         .faq-item {
-            margin-bottom: 2.5rem;
-            padding-bottom: 2.5rem;
-            border-bottom: 1px solid var(--light-taupe);
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .faq-item:last-child {
-            border-bottom: none;
+        .faq-item:hover {
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            transform: translateY(-2px);
         }
 
         .faq-question {
@@ -77,12 +125,36 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--dark-brown);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .faq-chevron {
+            font-size: 1.2rem;
+            color: var(--terracotta);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-chevron {
+            transform: rotate(180deg);
         }
 
         .faq-answer {
             font-size: 1.1rem;
             line-height: 1.8;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, margin-top 0.3s ease;
+            margin-top: 0;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            margin-top: 1rem;
         }
 
         .faq-answer a {
@@ -110,24 +182,37 @@
             color: var(--dark-brown);
             text-decoration: none;
             font-size: 1rem;
+            transition: color 0.2s;
         }
 
         .footer-links a:hover { color: var(--terracotta); }
 
-        .footer-copy { font-size: 0.85rem; color: var(--sage); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .faq-item { padding: 1.25rem 1.5rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="/">&larr; Back to Neshama</a>
-    </div>
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about">About</a>
+            <a href="/faq" class="active">FAQ</a>
+            <a href="/privacy">Privacy</a>
+        </div>
+    </nav>
 
     <div class="container">
         <h1>Frequently Asked Questions</h1>
         <p class="subtitle">Everything you need to know</p>
 
-        <div class="faq-item">
-            <h2 class="faq-question">What is Neshama?</h2>
+        <div class="faq-item open">
+            <h2 class="faq-question">What is Neshama? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Neshama is a free service that aggregates obituary listings from
                 Toronto's Jewish funeral homes into one easy-to-read feed. Instead
@@ -137,7 +222,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Which funeral homes are included?</h2>
+            <h2 class="faq-question">Which funeral homes are included? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 We currently aggregate from Steeles Memorial Chapel and Benjamin's
                 Park Memorial Chapel. We plan to add more funeral homes serving the
@@ -146,7 +231,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">How often is the information updated?</h2>
+            <h2 class="faq-question">How often is the information updated? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Our system checks funeral home websites regularly throughout the day.
                 New obituaries typically appear on Neshama within hours of being
@@ -155,7 +240,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Is Neshama affiliated with any funeral home?</h2>
+            <h2 class="faq-question">Is Neshama affiliated with any funeral home? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 No. Neshama is an independent community service. We are not affiliated
                 with, endorsed by, or operated by any funeral home. All information is
@@ -164,7 +249,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Can I get daily email updates?</h2>
+            <h2 class="faq-question">Can I get daily email updates? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Yes. Subscribe to our free daily digest and you'll receive an email
                 each morning with new obituaries from the previous day. You can
@@ -174,7 +259,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">How do I request a correction or removal?</h2>
+            <h2 class="faq-question">How do I request a correction or removal? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 If you notice an error or would like information removed, please
                 email us at <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>.
@@ -184,7 +269,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">What does "Neshama" mean?</h2>
+            <h2 class="faq-question">What does "Neshama" mean? <span class="faq-chevron">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Neshama is the Hebrew word for "soul." In Jewish thought,
                 the neshama is the divine spark within each person &mdash; eternal and
@@ -193,6 +278,20 @@
             </p>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.faq-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                var wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(function(i) {
+                    i.classList.remove('open');
+                });
+                if (!wasOpen) {
+                    item.classList.add('open');
+                }
+            });
+        });
+    </script>
 
     <footer>
         <nav class="footer-links">
