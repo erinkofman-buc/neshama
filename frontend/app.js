@@ -262,7 +262,7 @@ class NeshamaApp {
         // Photo area: circular photo if available, otherwise initials circle
         let photoArea = '';
         if (obit.photo_url) {
-            photoArea = '<div class="card-photo-circle"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" width="140" height="140" loading="lazy" onerror="this.parentElement.innerHTML=\'<span class=card-initials>' + this.escapeHtml(initials) + '</span>\';this.parentElement.classList.add(\'no-photo\')"></div>';
+            photoArea = '<div class="card-photo-circle"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" width="140" height="140" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML=\'<span class=card-initials>' + this.escapeHtml(initials) + '</span>\';this.parentElement.classList.add(\'no-photo\')"></div>';
         } else {
             photoArea = '<div class="card-photo-circle no-photo"><span class="card-initials">' + this.escapeHtml(initials) + '</span></div>';
         }
