@@ -128,6 +128,61 @@
         .fade-in-delay-5 { transition-delay: 0.5s; }
 
         /* ========================================
+           FLOATING NAV
+           ======================================== */
+        .landing-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1rem 2rem;
+            gap: 1.5rem;
+            background: transparent;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .landing-nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 1px 3px rgba(62, 39, 35, 0.06);
+        }
+
+        .landing-nav a {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: var(--dark-brown);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .landing-nav a:hover {
+            opacity: 1;
+            color: var(--dark-brown);
+        }
+
+        .landing-nav .nav-premium-pill {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            background: var(--terracotta);
+            padding: 0.4rem 1.1rem;
+            border-radius: 2rem;
+            opacity: 1;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .landing-nav .nav-premium-pill:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+        }
+
+        /* ========================================
            HERO SECTION
            ======================================== */
         .hero {
@@ -868,6 +923,14 @@
     <!-- Skip navigation for accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
+    <!-- Floating Nav -->
+    <nav class="landing-nav" id="landingNav">
+        <a href="/feed">Feed</a>
+        <a href="/about">About</a>
+        <a href="/faq">FAQ</a>
+        <a href="/premium" class="nav-premium-pill">Premium</a>
+    </nav>
+
     <!-- ============================
          HERO SECTION
          ============================ -->
@@ -1096,6 +1159,20 @@
                     el.classList.add('is-visible');
                 });
             }, 150);
+
+            // -----------------------------------------------
+            // Floating nav background on scroll
+            // -----------------------------------------------
+            var landingNav = document.getElementById('landingNav');
+            if (landingNav) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 80) {
+                        landingNav.classList.add('scrolled');
+                    } else {
+                        landingNav.classList.remove('scrolled');
+                    }
+                }, { passive: true });
+            }
 
             // -----------------------------------------------
             // Hide scroll indicator after user scrolls past hero

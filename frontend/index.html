@@ -95,72 +95,183 @@
         }
 
         /* ══════════════════════════════════════════════════════
-           HEADER - Sticky with Glassmorphism
+           TOP NAVIGATION BAR
            ══════════════════════════════════════════════════════ */
 
-        header {
-            background: linear-gradient(
-                180deg,
-                rgba(250, 249, 246, 0.88) 0%,
-                rgba(245, 245, 220, 0.82) 100%
-            );
-            backdrop-filter: blur(20px) saturate(1.4);
-            -webkit-backdrop-filter: blur(20px) saturate(1.4);
-            border-bottom: 1px solid rgba(212, 197, 185, 0.5);
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.5),
-                0 4px 30px var(--soft-shadow);
+            z-index: 200;
         }
 
-        .header-content {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 1.75rem 1.25rem 1.5rem;
-        }
-
-        h1 {
+        .nav-logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.2rem, 5.5vw, 3.2rem);
-            font-weight: 300;
+            font-size: 1.5rem;
+            font-weight: 500;
             color: var(--dark-brown);
-            text-align: center;
-            margin-bottom: 0.35rem;
-            letter-spacing: 0.04em;
-        }
-
-        .site-title-link {
-            color: inherit;
             text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-            display: inline-block;
+            letter-spacing: 0.03em;
         }
 
-        .site-title-link:hover {
+        .nav-logo:hover {
             opacity: 0.7;
         }
 
-        .tagline {
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--gold);
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            color: var(--sage-dark);
+            text-decoration: none;
+            transition: color 0.2s;
             font-weight: 400;
+        }
+
+        .nav-link:hover {
+            color: var(--dark-brown);
+        }
+
+        .nav-link.active {
+            color: var(--dark-brown);
+            font-weight: 600;
+        }
+
+        .nav-premium-btn {
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            background: var(--terracotta);
+            padding: 0.45rem 1.25rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav-premium-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25);
+            text-decoration: none;
+        }
+
+        .nav-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--dark-brown);
+        }
+
+        .nav-hamburger svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           FILTER BAR
+           ══════════════════════════════════════════════════════ */
+
+        .filter-bar {
+            background: rgba(250, 249, 246, 0.9);
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+            position: sticky;
+            top: 56px;
+            z-index: 100;
+        }
+
+        .filter-bar-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-inline {
+            flex: 1;
+            min-width: 180px;
+            position: relative;
+        }
+
+        .search-inline svg {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            stroke: var(--sage);
+            fill: none;
+            stroke-width: 2;
+            pointer-events: none;
+            transition: stroke 0.2s;
+        }
+
+        .search-inline:focus-within svg {
+            stroke: var(--terracotta);
+        }
+
+        .search-inline input {
+            width: 100%;
+            padding: 0.55rem 1rem 0.55rem 2.5rem;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            font-family: 'Crimson Pro', serif;
+            background: white;
+            color: var(--dark-brown);
+            transition: border-color 0.2s;
+        }
+
+        .search-inline input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+        }
+
+        .search-inline input::placeholder {
+            color: var(--sage);
             font-style: italic;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.02em;
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--light-taupe);
+            flex-shrink: 0;
         }
 
         /* ── City Filter ────────────────────────────────── */
 
         .city-filter {
             display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 0.75rem;
+            gap: 0.35rem;
+            flex-shrink: 0;
         }
 
         .city-btn {
@@ -168,13 +279,12 @@
             background: transparent;
             border: 1px solid var(--light-taupe);
             color: var(--sage-dark);
-            padding: 0.4rem 1rem;
+            padding: 0.35rem 0.875rem;
             border-radius: 2rem;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 400;
             transition: all 0.2s ease;
-            min-height: 36px;
         }
 
         .city-btn:hover {
@@ -193,101 +303,36 @@
 
         .tabs {
             display: flex;
-            gap: 0.625rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 0.75rem;
+            gap: 0.35rem;
+            flex-shrink: 0;
         }
 
         .tab {
             font-family: 'Crimson Pro', serif;
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid var(--sage);
+            background: transparent;
+            border: 1px solid var(--light-taupe);
             color: var(--dark-brown);
-            padding: 0.7rem 1.75rem;
+            padding: 0.35rem 0.875rem;
             border-radius: 2rem;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 400;
-            transition: all 0.3s ease;
-            min-width: 56px;
-            min-height: 48px;
-            letter-spacing: 0.01em;
+            transition: all 0.2s ease;
         }
 
         .tab:hover {
-            background: var(--warm-glow);
             border-color: var(--terracotta);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--soft-shadow);
+            color: var(--terracotta);
         }
 
         .tab.active {
-            background: linear-gradient(135deg, var(--terracotta) 0%, #c45a1a 100%);
+            background: var(--terracotta);
             color: white;
-            border-color: transparent;
-            font-weight: 600;
-            box-shadow: 0 4px 16px var(--warm-glow);
+            border-color: var(--terracotta);
+            font-weight: 500;
         }
 
-        /* ══════════════════════════════════════════════════════
-           SEARCH BAR
-           ══════════════════════════════════════════════════════ */
-
-        .search-container {
-            max-width: 860px;
-            margin: 2rem auto 0;
-            padding: 0 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .search-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke: var(--sage);
-            transition: stroke 0.3s ease;
-        }
-
-        .search-container:focus-within .search-icon svg {
-            stroke: var(--terracotta);
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 1.1rem 1.5rem 1.1rem 3.25rem;
-            font-size: 1.1rem;
-            font-family: 'Crimson Pro', serif;
-            border: 2px solid var(--light-taupe);
-            border-radius: 3rem;
-            background: white;
-            color: var(--dark-brown);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px var(--soft-shadow);
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 6px 24px var(--gold-glow);
-        }
-
-        .search-box::placeholder {
-            color: var(--sage);
-            font-style: italic;
-        }
+        /* Search container removed — search is now inline in filter bar */
 
         /* ══════════════════════════════════════════════════════
            FEED CONTAINER
@@ -395,10 +440,10 @@
         }
 
         .obituary-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-3px);
             box-shadow:
-                0 12px 40px rgba(62, 39, 35, 0.12),
-                0 0 0 1px var(--gold-glow);
+                0 8px 32px rgba(62, 39, 35, 0.1),
+                0 0 0 1px rgba(201, 169, 110, 0.2);
             border-color: var(--gold);
         }
 
@@ -1136,8 +1181,46 @@
            ══════════════════════════════════════════════════════ */
 
         @media (max-width: 768px) {
-            .header-content {
-                padding: 1.25rem 1rem 1.25rem;
+            .nav-center {
+                display: none;
+                position: absolute;
+                top: 56px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid var(--light-taupe);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                gap: 0.75rem;
+                z-index: 199;
+            }
+
+            .nav-center.open {
+                display: flex;
+            }
+
+            .nav-hamburger {
+                display: block;
+            }
+
+            .filter-bar-inner {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .search-inline {
+                width: 100%;
+            }
+
+            .filter-divider {
+                display: none;
+            }
+
+            .city-filter,
+            .tabs {
+                justify-content: center;
+                width: 100%;
             }
 
             .card-body {
@@ -1162,18 +1245,16 @@
         }
 
         @media (max-width: 600px) {
+            .top-nav {
+                padding: 0 1rem;
+            }
+
+            .filter-bar {
+                top: 56px;
+            }
+
             .deceased-name {
                 font-size: 1.65rem;
-            }
-
-            .tabs {
-                gap: 0.35rem;
-            }
-
-            .tab {
-                padding: 0.6rem 1.1rem;
-                font-size: 0.95rem;
-                min-height: 44px;
             }
 
             .card-footer {
@@ -1256,38 +1337,43 @@
 <body>
 
     <!-- ════════════════════════════════════════════════════
-         HEADER
+         TOP NAVIGATION
          ════════════════════════════════════════════════════ -->
-    <header>
-        <div class="header-content">
-            <h1><a href="/" class="site-title-link">Neshama</a></h1>
-            <p class="tagline">Every soul remembered, every life honored</p>
+    <nav class="top-nav">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <a href="/feed" class="nav-link active">Feed</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="/faq" class="nav-link">FAQ</a>
+            <a href="/premium" class="nav-premium-btn">Premium</a>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Open menu">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
 
+    <!-- ════════════════════════════════════════════════════
+         FILTER BAR
+         ════════════════════════════════════════════════════ -->
+    <div class="filter-bar">
+        <div class="filter-bar-inner">
+            <div class="search-inline">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search by name..." id="searchBox" aria-label="Search obituaries by name">
+            </div>
+            <div class="filter-divider"></div>
             <div class="city-filter" id="cityFilter">
-                <button class="city-btn active" data-city="all">All Cities</button>
+                <button class="city-btn active" data-city="all">All</button>
                 <button class="city-btn" data-city="Toronto">Toronto</button>
                 <button class="city-btn" data-city="Montreal">Montreal</button>
             </div>
-
+            <div class="filter-divider"></div>
             <div class="tabs">
                 <button class="tab active" data-tab="today">Today</button>
-                <button class="tab" data-tab="week">This Week</button>
-                <button class="tab" data-tab="month">This Month</button>
+                <button class="tab" data-tab="week">Week</button>
+                <button class="tab" data-tab="month">Month</button>
             </div>
         </div>
-    </header>
-
-    <!-- ════════════════════════════════════════════════════
-         SEARCH BAR
-         ════════════════════════════════════════════════════ -->
-    <div class="search-container">
-        <span class="search-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-        </span>
-        <input type="text" class="search-box" placeholder="Search by name..." id="searchBox" aria-label="Search obituaries by name">
     </div>
 
     <!-- ════════════════════════════════════════════════════
@@ -1380,6 +1466,17 @@
 
     <script>
         // ══════════════════════════════════════════════════════
+        // HAMBURGER MENU TOGGLE
+        // ══════════════════════════════════════════════════════
+        var hamburgerBtn = document.getElementById('hamburgerBtn');
+        var navLinks = document.getElementById('navLinks');
+        if (hamburgerBtn && navLinks) {
+            hamburgerBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('open');
+            });
+        }
+
+        // ══════════════════════════════════════════════════════
         // SCROLL-TRIGGERED FADE-IN ANIMATIONS
         // ══════════════════════════════════════════════════════
 
@@ -1455,15 +1552,11 @@
             }
         }
 
-        // Show popup after 30 seconds for non-subscribers who haven't dismissed
+        // Show popup after 30 seconds for non-subscribers (once per session)
         setTimeout(function() {
             if (localStorage.getItem('neshama_subscribed')) return;
-            var dismissed = localStorage.getItem('neshama_popup_dismissed');
-            if (dismissed) {
-                // Don't show again for 7 days after dismissal
-                var daysSince = (Date.now() - parseInt(dismissed, 10)) / (1000 * 60 * 60 * 24);
-                if (daysSince < 7) return;
-            }
+            if (sessionStorage.getItem('neshama_popup_shown')) return;
+            sessionStorage.setItem('neshama_popup_shown', '1');
             showEmailPopup();
         }, 30000);
 
