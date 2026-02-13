@@ -332,15 +332,13 @@
             font-weight: 500;
         }
 
-        /* Search container removed — search is now inline in filter bar */
-
         /* ══════════════════════════════════════════════════════
            FEED CONTAINER
            ══════════════════════════════════════════════════════ */
 
         .feed {
             max-width: 860px;
-            margin: 2.5rem auto;
+            margin: 1.5rem auto;
             padding: 0 1.25rem;
             position: relative;
             z-index: 1;
@@ -506,6 +504,7 @@
             object-fit: cover;
             object-position: center 20%;
             display: block;
+            image-rendering: -webkit-optimize-contrast;
         }
 
         .card-photo-circle.no-photo {
@@ -523,9 +522,9 @@
             letter-spacing: 0.08em;
         }
 
-        /* Spacer for cards that have the photo circle overlapping */
-        .card-header {
-            margin-bottom: 0;
+        /* Detail rows should left-align within centered card body */
+        .card-body .detail-row {
+            text-align: left;
         }
 
         /* ── Card Body ───────────────────────────────────── */
@@ -1146,6 +1145,15 @@
             display: block;
         }
 
+        .popup-privacy-link {
+            color: var(--sage-dark);
+            text-decoration: underline;
+        }
+
+        .success-description {
+            margin-bottom: 0;
+        }
+
         /* ══════════════════════════════════════════════════════
            ANIMATIONS
            ══════════════════════════════════════════════════════ */
@@ -1420,7 +1428,7 @@
                     Receive a daily digest of new obituaries from Jewish funeral homes. Never miss an opportunity to support our community.
                 </p>
 
-                <div id="errorMessage" style="display:none; background:#ffebee; border:1px solid #ef5350; color:#c62828; padding:0.75rem 1rem; border-radius:0.5rem; margin-bottom:1rem; font-size:0.95rem;"></div>
+                <div id="errorMessage" class="error-message"></div>
 
                 <form id="emailForm" class="email-form">
                     <input type="email" id="emailInput" class="email-input" placeholder="Enter your email address" required autocomplete="email">
@@ -1437,15 +1445,15 @@
 
                 <p class="popup-footer-text">
                     By subscribing, you consent to receive daily email digests from Neshama. Free forever. Unsubscribe anytime.
-                    <br><a href="/privacy" style="color:var(--sage-dark); text-decoration:underline;">Privacy Policy</a>
+                    <br><a href="/privacy" class="popup-privacy-link">Privacy Policy</a>
                 </p>
             </div>
 
             <!-- Success View -->
-            <div id="successView" style="display:none; text-align:center;">
-                <div style="font-size:3rem; margin-bottom:1rem;">&#x2709;&#xFE0F;</div>
+            <div id="successView" class="success-message">
+                <div class="success-icon">&#x2709;&#xFE0F;</div>
                 <h2 class="popup-title">Check your email!</h2>
-                <p class="popup-description" style="margin-bottom:0;">
+                <p class="popup-description success-description">
                     We sent a confirmation email to <strong id="confirmedEmail"></strong>
                     <br><br>Click the link in the email to confirm your subscription.
                     <br><br>(Check your spam folder if you don't see it)
@@ -1575,7 +1583,7 @@
 
                 // Hide any previous error
                 var errEl = document.getElementById('errorMessage');
-                if (errEl) errEl.style.display = 'none';
+                if (errEl) errEl.classList.remove('active');
 
                 fetch('/api/subscribe', {
                     method: 'POST',
@@ -1586,13 +1594,13 @@
                 .then(function(data) {
                     if (data.status === 'success') {
                         document.getElementById('formView').style.display = 'none';
-                        document.getElementById('successView').style.display = 'block';
+                        document.getElementById('successView').classList.add('active');
                         document.getElementById('confirmedEmail').textContent = email;
                         localStorage.setItem('neshama_subscribed', 'true');
                     } else {
                         var errEl = document.getElementById('errorMessage');
                         errEl.textContent = data.message || 'Subscription failed';
-                        errEl.style.display = 'block';
+                        errEl.classList.add('active');
                         subscribeBtn.disabled = false;
                         subscribeBtn.textContent = 'Get Free Updates';
                     }
@@ -1600,7 +1608,7 @@
                 .catch(function() {
                     var errEl = document.getElementById('errorMessage');
                     errEl.textContent = 'Unable to connect. Please try again.';
-                    errEl.style.display = 'block';
+                    errEl.classList.add('active');
                     subscribeBtn.disabled = false;
                     subscribeBtn.textContent = 'Get Free Updates';
                 });
