@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Neshama</title>
-    <meta name="description" content="Learn about Neshama, an independent service aggregating obituaries from Toronto's Jewish funeral homes to help our community fulfill nichum aveilim.">
+    <meta name="description" content="Learn about Neshama, an independent service aggregating obituaries from Toronto's Jewish funeral homes to help our community honor every soul.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta property="og:title" content="About Neshama">
-    <meta property="og:description" content="Why we built Neshama - supporting nichum aveilim in Toronto's Jewish community.">
+    <meta property="og:description" content="Honoring every soul in our community. Learn about Neshama's mission to support nichum aveilim in Toronto's Jewish community.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca/about">
     <meta property="og:site_name" content="Neshama">
@@ -24,6 +24,7 @@
             --cream: #FAF9F6;
             --dark-brown: #3E2723;
             --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
             --soft-shadow: rgba(62, 39, 35, 0.08);
         }
 
@@ -50,6 +51,7 @@
             border-radius: 4px;
         }
 
+        /* ── Navigation ── */
         .nav {
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--light-taupe);
@@ -93,62 +95,266 @@
             font-weight: 600;
         }
 
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 4rem 1.5rem 2.5rem;
         }
 
-        h1 {
+        .hero h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 400;
             margin-bottom: 0.5rem;
         }
 
-        .subtitle {
-            font-size: 1.2rem;
+        .hero .subtitle {
+            font-size: 1.25rem;
             color: var(--terracotta);
             font-style: italic;
-            margin-bottom: 3rem;
+            margin-bottom: 0;
         }
 
-        h2 {
+        /* ── Container ── */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Sections ── */
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.8rem;
             font-weight: 500;
-            margin-top: 2.5rem;
-            margin-bottom: 1rem;
             color: var(--dark-brown);
+            margin-bottom: 1.25rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid rgba(210, 105, 30, 0.15);
             display: inline-block;
         }
 
-        p {
+        .section p {
             font-size: 1.1rem;
+            line-height: 1.85;
             margin-bottom: 1.25rem;
-            line-height: 1.8;
         }
 
-        .hebrew-quote {
-            font-size: 1.3rem;
+        .section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ── What We Do Cards ── */
+        .what-we-do-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 500;
             text-align: center;
-            color: var(--terracotta);
-            font-style: italic;
-            padding: 2.5rem 2rem;
-            margin: 2.5rem 0;
+            margin-bottom: 1.75rem;
+            color: var(--dark-brown);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .what-we-do-heading.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
             background: white;
             border-radius: 1rem;
-            box-shadow: 0 4px 20px var(--soft-shadow);
+            padding: 2rem 1.75rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            text-align: center;
+            transition: all 0.3s ease, opacity 0.6s ease, transform 0.6s ease;
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        .hebrew-text {
-            direction: rtl;
-            font-size: 1.5rem;
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 6px 24px var(--soft-shadow);
+            transform: translateY(-4px);
+        }
+
+        .feature-card.visible:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 1.25rem;
+            border-radius: 50%;
+            background: var(--warm-beige);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--terracotta);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .feature-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--terracotta);
             margin-bottom: 0.75rem;
         }
 
+        .feature-card p {
+            font-size: 1.02rem;
+            line-height: 1.75;
+            margin-bottom: 0;
+        }
+
+        /* ── Values ── */
+        .values-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .values-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .values-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .value-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--warm-beige);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.15rem;
+        }
+
+        .value-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--terracotta);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .value-content strong {
+            font-size: 1.15rem;
+            color: var(--dark-brown);
+        }
+
+        .value-hebrew {
+            color: var(--terracotta);
+            font-weight: 400;
+        }
+
+        /* ── Community ── */
+        .community-section {
+            text-align: center;
+        }
+
+        .community-section h2 {
+            display: block;
+            text-align: center;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .community-badge {
+            display: inline-block;
+            background: var(--warm-beige);
+            border: 1px solid var(--light-taupe);
+            padding: 0.4rem 1.25rem;
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-top: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Contact ── */
+        .contact-section {
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            display: block;
+            text-align: center;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .contact-email {
+            display: inline-block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid rgba(210, 105, 30, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        .contact-email:hover {
+            border-color: var(--terracotta);
+            text-decoration: none;
+        }
+
+        .contact-note {
+            color: var(--sage-dark);
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* ── Footer ── */
         footer {
             padding: 2rem 1.5rem;
             border-top: 1px solid var(--light-taupe);
@@ -174,14 +380,33 @@
 
         .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
 
+        /* ── Links within sections ── */
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+        }
+
         @media (max-width: 600px) {
             .nav { gap: 1rem; }
             .nav-links { gap: 1rem; }
-            h2 { font-size: 1.5rem; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero { padding: 3rem 1.5rem 2rem; }
+            .section { padding: 1.75rem 1.5rem; }
+            .section h2 { font-size: 1.5rem; }
+            .feature-card { padding: 1.5rem 1.25rem; }
+            .values-list li { gap: 1rem; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Navigation -->
     <nav class="nav">
         <a href="/" class="nav-brand">Neshama</a>
         <div class="nav-links">
@@ -192,77 +417,210 @@
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Hero -->
+    <header class="hero">
         <h1>About Neshama</h1>
-        <p class="subtitle">Why we built this</p>
+        <p class="subtitle">Honoring every soul in our community</p>
+    </header>
 
-        <h2>Nichum Aveilim</h2>
-        <p>
-            In Jewish tradition, <em>nichum aveilim</em> &mdash; comforting the mourner &mdash; is one of
-            the most sacred obligations we carry. It is not merely a kindness; it is a
-            commandment. When someone in our community passes away, showing up matters.
-        </p>
-        <p>
-            But showing up begins with knowing. In a city as large as Toronto, with
-            multiple funeral homes serving the Jewish community, it can be difficult to
-            learn about a passing in time to attend a funeral, pay a shiva call, or simply
-            send a message of comfort.
-        </p>
+    <div class="container">
 
-        <div class="hebrew-quote">
-            <div class="hebrew-text">&#x05DB;&#x05DC; &#x05D9;&#x05E9;&#x05E8;&#x05D0;&#x05DC; &#x05E2;&#x05E8;&#x05D1;&#x05D9;&#x05DD; &#x05D6;&#x05D4; &#x05DC;&#x05D6;&#x05D4;</div>
-            All of Israel are responsible for one another
+        <!-- Mission -->
+        <div class="section" data-animate>
+            <h2>Our Mission</h2>
+            <p>
+                In Jewish tradition, honoring the deceased (<em>kavod hamet</em>) and comforting
+                mourners (<em>nichum aveilim</em>) are among the highest mitzvot. Neshama exists
+                to make these sacred obligations easier for our community.
+            </p>
+            <p>
+                We aggregate obituary listings from Toronto's Jewish funeral homes into one
+                respectful feed, so you never miss an opportunity to pay your respects, attend
+                a funeral, or comfort a grieving family.
+            </p>
         </div>
 
-        <h2>What Neshama Does</h2>
-        <p>
-            Neshama gathers obituary information from Toronto's Jewish funeral homes
-            and presents it in a single, respectful feed. We believe that when the
-            community can easily find this information, more people show up &mdash; at
-            funerals, during shiva, and in the quiet moments after.
-        </p>
-        <p>
-            Every name that appears on Neshama represents a life lived. A parent,
-            a grandparent, a friend, a teacher. Our role is simply to make sure the
-            community knows, so the community can respond.
-        </p>
+        <!-- What Neshama Means -->
+        <div class="section" data-animate>
+            <h2>What Does 'Neshama' Mean?</h2>
+            <p>
+                Neshama (<span style="direction:rtl; unicode-bidi:bidi-override;">&#x05E0;&#x05E9;&#x05DE;&#x05D4;</span>)
+                is the Hebrew word for 'soul.' In Jewish mystical thought, the neshama is the
+                highest level of the soul &mdash; the divine spark that connects each person to
+                the Creator. It is eternal, pure, and sacred.
+            </p>
+            <p>
+                We chose this name because every soul deserves to be remembered. Every life,
+                no matter how long or short, leaves an imprint on our community. Neshama ensures
+                that no one is forgotten.
+            </p>
+        </div>
 
-        <h2>Our Values</h2>
-        <p>
-            <strong>Respect.</strong> Every piece of information is presented with
-            dignity. We do not editorialize, rank, or sensationalize.
-        </p>
-        <p>
-            <strong>Accuracy.</strong> We source information directly from funeral home
-            websites and present it faithfully.
-        </p>
-        <p>
-            <strong>Privacy.</strong> We only display information that funeral homes have
-            already made public. We comply with Canadian privacy law (PIPEDA).
-        </p>
-        <p>
-            <strong>Community.</strong> Neshama exists to strengthen the bonds between us.
-            When one family mourns, we all stand with them.
-        </p>
+        <!-- What We Do -->
+        <h2 class="what-we-do-heading" data-animate>What We Do</h2>
+        <div class="feature-grid">
+            <div class="feature-card" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <h3>Aggregate</h3>
+                <p>
+                    We collect obituary listings from Toronto's Jewish funeral homes, currently
+                    including Steeles Memorial Chapel and Benjamin's Park Memorial Chapel.
+                </p>
+            </div>
+            <div class="feature-card" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+                <h3>Inform</h3>
+                <p>
+                    We provide daily email digests, searchable archives, and instant access
+                    to funeral and shiva details so you can be there when it matters.
+                </p>
+            </div>
+            <div class="feature-card" data-animate>
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21c-1.5 0-6-5.1-6-10a6 6 0 1 1 12 0c0 4.9-4.5 10-6 10z" fill="none"/>
+                        <path d="M12 6v7" stroke-width="1.5"/>
+                        <path d="M9 10.5l3 2.5 3-2.5" stroke-width="1.5" fill="none"/>
+                        <circle cx="12" cy="5" r="1" fill="var(--terracotta)" stroke="none"/>
+                    </svg>
+                </div>
+                <h3>Remember</h3>
+                <p>
+                    We offer memorial pages with virtual candles, tributes, and a space for
+                    the community to share memories and honor those we've lost.
+                </p>
+            </div>
+        </div>
 
-        <h2>Independent Service</h2>
-        <p>
-            Neshama is an independent project and is not affiliated with any funeral
-            home. Information is aggregated from publicly available sources. If you
-            notice an error or wish to have information removed, please
-            <a href="mailto:contact@neshama.ca" style="color: var(--terracotta);">contact us</a>
-            and we will respond promptly.
-        </p>
+        <!-- Values -->
+        <div class="section" data-animate>
+            <h2>Our Values</h2>
+            <ul class="values-list">
+                <li>
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <div class="value-content">
+                        <strong>Kavod <span class="value-hebrew">(&#x05DB;&#x05D1;&#x05D5;&#x05D3;)</span> &mdash; Dignity</strong><br>
+                        We treat every listing with the utmost respect and sensitivity.
+                    </div>
+                </li>
+                <li>
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </div>
+                    <div class="value-content">
+                        <strong>Chesed <span class="value-hebrew">(&#x05D7;&#x05E1;&#x05D3;)</span> &mdash; Kindness</strong><br>
+                        Our service is free because supporting the community shouldn't have a price.
+                    </div>
+                </li>
+                <li>
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <div class="value-content">
+                        <strong>Emet <span class="value-hebrew">(&#x05D0;&#x05DE;&#x05EA;)</span> &mdash; Truth</strong><br>
+                        We present accurate information sourced directly from funeral homes.
+                    </div>
+                </li>
+                <li>
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div class="value-content">
+                        <strong>Tzniut <span class="value-hebrew">(&#x05E6;&#x05E0;&#x05D9;&#x05E2;&#x05D5;&#x05EA;)</span> &mdash; Modesty</strong><br>
+                        We operate with restraint &mdash; no ads, no tracking, no exploitation.
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Community -->
+        <div class="section community-section" data-animate>
+            <h2>Serving Toronto Since 2026</h2>
+            <p>
+                Neshama is an independent community service built to strengthen the bonds
+                between members of Toronto's Jewish community. When one family mourns, we
+                all stand with them. Our goal is simple: ensure that no passing goes unnoticed
+                and that every mourner feels the embrace of their community.
+            </p>
+            <div class="community-badge">Not affiliated with any funeral home</div>
+        </div>
+
+        <!-- Contact -->
+        <div class="section contact-section" data-animate>
+            <h2>Get in Touch</h2>
+            <p>
+                <a href="mailto:contact@neshama.ca" class="contact-email">contact@neshama.ca</a>
+            </p>
+            <p class="contact-note">
+                For corrections, removals, or inquiries, we respond within 24 hours.
+            </p>
+        </div>
+
     </div>
 
+    <!-- Footer -->
     <footer>
         <nav class="footer-links">
             <a href="/">Home</a>
+            <a href="/about">About</a>
             <a href="/faq">FAQ</a>
             <a href="/privacy">Privacy Policy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
         <p class="footer-copy">Built with care for the Toronto Jewish community</p>
     </footer>
+
+    <!-- Fade-in Animations -->
+    <script>
+        (function() {
+            var animatedElements = document.querySelectorAll('[data-animate]');
+
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.12,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+
+                animatedElements.forEach(function(el) {
+                    observer.observe(el);
+                });
+            } else {
+                animatedElements.forEach(function(el) {
+                    el.classList.add('visible');
+                });
+            }
+        })();
+    </script>
+
 </body>
 </html>

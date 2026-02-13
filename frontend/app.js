@@ -1,5 +1,5 @@
-// Neshama Frontend Application
-// Handles data loading, filtering, search, share, and UI interactions
+// Neshama Frontend Application v2.0
+// Handles data loading, filtering, search, share, candle lighting, tributes, and UI interactions
 
 class NeshamaApp {
     constructor() {
@@ -8,6 +8,9 @@ class NeshamaApp {
         this.searchQuery = '';
         this.allObituaries = [];
         this.displayedCount = 5;
+        this.tributeCounts = {};
+        this.candleCounts = {};
+        this.scrollObserver = null;
         this.init();
     }
 
@@ -21,7 +24,28 @@ class NeshamaApp {
             searchBox.addEventListener('input', (e) => this.handleSearch(e));
         }
 
+        this.setupScrollObserver();
         this.loadData();
+    }
+
+    setupScrollObserver() {
+        this.scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    this.scrollObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+    }
+
+    observeCards() {
+        document.querySelectorAll('.obituary-card').forEach(card => {
+            this.scrollObserver.observe(card);
+        });
     }
 
     async loadData() {
@@ -39,12 +63,72 @@ class NeshamaApp {
 
             if (data.status === 'success') {
                 this.allObituaries = data.data;
+                await this.loadTributeCounts();
                 this.render();
             } else {
                 this.showError('Failed to load obituaries. Please try again.');
             }
         } catch (error) {
             this.showError('Unable to connect. Please check your internet connection and try again.');
+        }
+    }
+
+    async loadTributeCounts() {
+        try {
+            const response = await fetch(this.apiBase + '/tributes/counts');
+            const data = await response.json();
+            if (data && data.status === 'success' && data.data) {
+                this.tributeCounts = {};
+                data.data.forEach(item => {
+                    this.tributeCounts[item.obituary_id] = item.count;
+                });
+            }
+        } catch (error) {
+            // Tribute counts are non-critical; silently continue
+        }
+    }
+
+    async lightCandle(obituaryId, buttonEl) {
+        try {
+            buttonEl.disabled = true;
+            const response = await fetch(this.apiBase + '/candles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    obituary_id: obituaryId,
+                    lit_by: 'Anonymous'
+                })
+            });
+
+            const data = await response.json();
+
+            // Show success feedback
+            const originalText = buttonEl.innerHTML;
+            buttonEl.innerHTML = '\ud83d\udd6f\ufe0f Candle Lit \u2713';
+            buttonEl.classList.add('candle-lit');
+
+            // Update candle count if returned
+            if (data && data.candle_count !== undefined) {
+                this.candleCounts[obituaryId] = data.candle_count;
+            } else {
+                // Increment locally
+                this.candleCounts[obituaryId] = (this.candleCounts[obituaryId] || 0) + 1;
+            }
+
+            setTimeout(() => {
+                buttonEl.innerHTML = originalText;
+                buttonEl.classList.remove('candle-lit');
+                buttonEl.disabled = false;
+            }, 3000);
+
+        } catch (error) {
+            buttonEl.disabled = false;
+            // Brief error indication
+            const originalText = buttonEl.innerHTML;
+            buttonEl.textContent = 'Could not light candle';
+            setTimeout(() => {
+                buttonEl.innerHTML = originalText;
+            }, 2000);
         }
     }
 
@@ -95,6 +179,39 @@ class NeshamaApp {
         return text.replace(regex, '<mark class="search-highlight">$1</mark>');
     }
 
+    getInitials(name) {
+        if (!name) return '';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) {
+            return parts[0].charAt(0).toUpperCase();
+        }
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    getMemorialUrl(obituaryId) {
+        return '/memorial/' + obituaryId;
+    }
+
+    getShareUrl(obituaryId) {
+        return 'https://neshama.ca/memorial/' + obituaryId;
+    }
+
+    svgIconFuneral() {
+        return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 6c0 0-3 2-3 5v9h6v-9c0-3-3-5-3-5zM6 22h12M9 13h6"/></svg>';
+    }
+
+    svgIconShiva() {
+        return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10l9-7 9 7M5 10v11M19 10v11M9 21v-6h6v6"/></svg>';
+    }
+
+    svgIconLivestream() {
+        return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>';
+    }
+
+    svgIconHeart() {
+        return '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+    }
+
     render() {
         const feed = document.getElementById('feed');
         const loadMoreBtn = document.getElementById('loadMore');
@@ -117,15 +234,16 @@ class NeshamaApp {
             loadMoreBtn.style.display = 'none';
         }
 
-        // Attach event listeners
+        // Attach event listeners for card clicks
         document.querySelectorAll('.obituary-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.btn') && !e.target.closest('.share-menu')) {
+                if (!e.target.closest('.btn') && !e.target.closest('.share-menu') && !e.target.closest('.memorial-link') && !e.target.closest('.btn-candle')) {
                     this.handleCardClick(card.dataset.id);
                 }
             });
         });
 
+        // Share toggle listeners
         document.querySelectorAll('.share-toggle').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -133,6 +251,7 @@ class NeshamaApp {
             });
         });
 
+        // Share option listeners
         document.querySelectorAll('.share-option').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -140,76 +259,153 @@ class NeshamaApp {
                 this.handleShareAction(id, btn.dataset.action);
             });
         });
+
+        // Candle button listeners
+        document.querySelectorAll('.btn-candle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const obituaryId = btn.dataset.id;
+                this.lightCandle(obituaryId, btn);
+            });
+        });
+
+        // Observe cards for scroll animation
+        this.observeCards();
     }
 
     renderCard(obit) {
         const timeAgo = this.getTimeAgo(obit.last_updated);
         const preview = this.getPreview(obit.obituary_text);
-        const sourceInitial = obit.source.charAt(0);
+        const sourceInitial = obit.source ? obit.source.charAt(0).toUpperCase() : '?';
+        const initials = this.getInitials(obit.deceased_name);
+        const tributeCount = this.tributeCounts[obit.id] || 0;
+        const memorialUrl = this.getMemorialUrl(obit.id);
+
         const name = this.searchQuery
             ? this.highlightText(obit.deceased_name, this.searchQuery)
             : obit.deceased_name;
 
-        return '\
-            <div class="obituary-card" data-id="' + obit.id + '">\
-                <div class="card-header">\
-                    <div class="source-icon">' + sourceInitial + '</div>\
-                    <span class="source-name">' + obit.source + '</span>\
-                    <span class="timestamp">' + timeAgo + '</span>\
-                </div>\
-                <div class="card-body">\
-                    <h2 class="deceased-name">' + name + '</h2>\
-                    ' + (obit.hebrew_name ? '<div class="hebrew-name">' + obit.hebrew_name + '</div>' : '') + '\
-                    ' + (obit.funeral_datetime ? '\
-                        <div class="detail-row">\
-                            <span class="detail-icon">\u{1F56F}\uFE0F</span>\
-                            <div class="detail-content">\
-                                <span class="detail-label">Funeral</span>\
-                                ' + obit.funeral_datetime + '\
-                                ' + (obit.funeral_location ? '<br>' + obit.funeral_location : '') + '\
-                            </div>\
-                        </div>' : '') + '\
-                    ' + (obit.shiva_info ? '\
-                        <div class="detail-row">\
-                            <span class="detail-icon">\u{1F3E0}</span>\
-                            <div class="detail-content">\
-                                <span class="detail-label">Shiva</span>\
-                                ' + obit.shiva_info + '\
-                            </div>\
-                        </div>' : '') + '\
-                    ' + (obit.livestream_url ? '\
-                        <div class="livestream-badge">\
-                            \u{1F4FA} Livestream Available\
-                        </div>' : '') + '\
-                    ' + (preview ? '\
-                        <div class="obituary-preview">\
-                            ' + preview + '\
-                            <span class="read-more">Read more \u2192</span>\
-                        </div>' : '') + '\
-                </div>\
-                <div class="card-footer">\
-                    <button class="btn btn-primary" onclick="window.open(\'' + obit.condolence_url + '\', \'_blank\')">\
-                        View Full Obituary\
-                    </button>\
-                    <div class="share-wrapper">\
-                        <button class="btn btn-secondary share-toggle" aria-label="Share">\
-                            Share \u2197\
-                        </button>\
-                        <div class="share-menu">\
-                            <button class="share-option" data-action="copy" title="Copy link">\u{1F517} Copy Link</button>\
-                            <button class="share-option" data-action="whatsapp" title="Share via WhatsApp">\u{1F4AC} WhatsApp</button>\
-                            <button class="share-option" data-action="email" title="Share via email">\u2709\uFE0F Email</button>\
-                        </div>\
-                    </div>\
-                </div>\
-            </div>';
+        const hebrewName = this.searchQuery && obit.hebrew_name
+            ? this.highlightText(obit.hebrew_name, this.searchQuery)
+            : obit.hebrew_name;
+
+        // Photo area: use photo_url if available, otherwise gradient with initials
+        let photoArea = '';
+        if (obit.photo_url) {
+            photoArea = '<div class="card-photo-area" style="background-image: url(\'' + this.escapeAttr(obit.photo_url) + '\'); background-size: cover; background-position: center;"></div>';
+        } else {
+            photoArea = '<div class="card-photo-area"><span class="card-initials">' + this.escapeHtml(initials) + '</span></div>';
+        }
+
+        // Funeral detail row
+        let funeralRow = '';
+        if (obit.funeral_datetime) {
+            funeralRow = '' +
+                '<div class="detail-row">' +
+                    '<span class="detail-icon">' + this.svgIconFuneral() + '</span>' +
+                    '<div class="detail-content">' +
+                        '<span class="detail-label">Funeral</span>' +
+                        this.escapeHtml(obit.funeral_datetime) +
+                        (obit.funeral_location ? '<br>' + this.escapeHtml(obit.funeral_location) : '') +
+                    '</div>' +
+                '</div>';
+        }
+
+        // Shiva detail row
+        let shivaRow = '';
+        if (obit.shiva_info) {
+            shivaRow = '' +
+                '<div class="detail-row">' +
+                    '<span class="detail-icon">' + this.svgIconShiva() + '</span>' +
+                    '<div class="detail-content">' +
+                        '<span class="detail-label">Shiva</span>' +
+                        this.escapeHtml(obit.shiva_info) +
+                    '</div>' +
+                '</div>';
+        }
+
+        // Livestream detail row
+        let livestreamRow = '';
+        if (obit.livestream_url || obit.livestream_available) {
+            livestreamRow = '' +
+                '<div class="detail-row livestream-row">' +
+                    '<span class="detail-icon">' + this.svgIconLivestream() + '</span>' +
+                    '<div class="detail-content">' +
+                        '<span class="detail-label">Livestream</span>' +
+                        (obit.livestream_url
+                            ? '<a href="' + this.escapeAttr(obit.livestream_url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Watch livestream</a>'
+                            : 'Available') +
+                    '</div>' +
+                '</div>';
+        }
+
+        // Obituary preview
+        let previewSection = '';
+        if (preview) {
+            previewSection = '' +
+                '<div class="obituary-preview">' +
+                    this.escapeHtml(preview) +
+                    ' <span class="read-more">Read more \u2192</span>' +
+                '</div>';
+        }
+
+        // Tribute count badge
+        let tributeBadge = '' +
+            '<div class="tribute-count" data-id="' + obit.id + '">' +
+                this.svgIconHeart() +
+                ' <span>' + tributeCount + ' tribute' + (tributeCount !== 1 ? 's' : '') + '</span>' +
+            '</div>';
+
+        return '' +
+            '<div class="obituary-card" data-id="' + obit.id + '">' +
+
+                '<div class="card-header">' +
+                    '<div class="source-icon">' + this.escapeHtml(sourceInitial) + '</div>' +
+                    '<span class="source-name">' + this.escapeHtml(obit.source) + '</span>' +
+                    '<span class="timestamp">' + timeAgo + '</span>' +
+                '</div>' +
+
+                photoArea +
+
+                '<div class="card-body">' +
+                    '<p class="in-memory-label">In Loving Memory</p>' +
+                    '<h2 class="deceased-name">' + name + '</h2>' +
+                    (hebrewName ? '<div class="hebrew-name">' + hebrewName + '</div>' : '') +
+
+                    funeralRow +
+                    shivaRow +
+                    livestreamRow +
+                    previewSection +
+                    tributeBadge +
+                '</div>' +
+
+                '<div class="card-footer">' +
+                    '<a href="' + memorialUrl + '" class="btn btn-primary memorial-link" onclick="event.stopPropagation()">' +
+                        'View Memorial' +
+                    '</a>' +
+                    '<button class="btn btn-candle" data-id="' + obit.id + '" onclick="event.stopPropagation()">' +
+                        '\ud83d\udd6f\ufe0f Light a Candle' +
+                    '</button>' +
+                    '<div class="share-wrapper">' +
+                        '<button class="btn btn-secondary share-toggle" aria-label="Share">' +
+                            'Share \u2197' +
+                        '</button>' +
+                        '<div class="share-menu">' +
+                            '<button class="share-option" data-action="copy" title="Copy link">\ud83d\udd17 Copy Link</button>' +
+                            '<button class="share-option" data-action="whatsapp" title="Share via WhatsApp">\ud83d\udcac WhatsApp</button>' +
+                            '<button class="share-option" data-action="email" title="Share via email">\u2709\ufe0f Email</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+
+            '</div>';
     }
 
     renderEmptyState() {
         if (this.searchQuery) {
             return '\
                 <div class="empty-state">\
-                    <div class="empty-state-icon">\u{1F50D}</div>\
+                    <div class="empty-state-icon">\ud83d\udd0d</div>\
                     <p class="empty-state-title">No results for "' + this.escapeHtml(this.searchQuery) + '"</p>\
                     <p class="empty-state-hint">Try a different spelling or check the other time tabs above.</p>\
                 </div>';
@@ -217,22 +413,33 @@ class NeshamaApp {
         if (this.currentTab === 'today') {
             return '\
                 <div class="empty-state">\
-                    <div class="empty-state-icon">\u{1F54A}\uFE0F</div>\
+                    <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
                     <p class="empty-state-title">No services scheduled for today</p>\
                     <p class="empty-state-hint">Check <strong>"This Week"</strong> or <strong>"This Month"</strong> for recent obituaries.</p>\
                 </div>';
         }
         return '\
             <div class="empty-state">\
-                <div class="empty-state-icon">\u{1F54A}\uFE0F</div>\
+                <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
                 <p>No obituaries found for this period.</p>\
             </div>';
     }
 
     escapeHtml(text) {
+        if (!text) return '';
         var d = document.createElement('div');
         d.textContent = text;
         return d.innerHTML;
+    }
+
+    escapeAttr(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/'/g, '&#39;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 
     getPreview(text) {
@@ -260,10 +467,8 @@ class NeshamaApp {
     }
 
     handleCardClick(id) {
-        var obit = this.allObituaries.find(function(o) { return o.id === id; });
-        if (obit && obit.condolence_url) {
-            window.open(obit.condolence_url, '_blank');
-        }
+        // V2.0: navigate to memorial page instead of external condolence URL
+        window.location.href = this.getMemorialUrl(id);
     }
 
     toggleShareMenu(btn) {
@@ -284,8 +489,9 @@ class NeshamaApp {
         var obit = this.allObituaries.find(function(o) { return o.id === id; });
         if (!obit) return;
 
-        var url = obit.condolence_url;
-        var text = obit.deceased_name + ' - ' + obit.source;
+        // V2.0: share links point to memorial page on neshama.ca
+        var url = this.getShareUrl(id);
+        var text = 'In memory of ' + obit.deceased_name + ' - neshama.ca';
 
         if (action === 'copy') {
             navigator.clipboard.writeText(url).then(function() {
@@ -312,7 +518,7 @@ class NeshamaApp {
         var feed = document.getElementById('feed');
         feed.innerHTML = '\
             <div class="empty-state">\
-                <div class="empty-state-icon">\u26A0\uFE0F</div>\
+                <div class="empty-state-icon">\u26a0\ufe0f</div>\
                 <p>' + message + '</p>\
                 <button onclick="window.app.loadData()" class="btn btn-secondary" style="margin-top:1rem;display:inline-block;">Try Again</button>\
             </div>';

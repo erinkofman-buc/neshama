@@ -106,6 +106,40 @@ class NeshamaDatabase:
             )
         ''')
 
+        # Tributes table - condolence messages left by visitors
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tributes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                obituary_id TEXT NOT NULL,
+                author_name TEXT NOT NULL,
+                message TEXT NOT NULL,
+                relationship TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (obituary_id) REFERENCES obituaries(id)
+            )
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tributes_obituary
+            ON tributes(obituary_id)
+        ''')
+
+        # Candles table - virtual candles lit by visitors
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS candles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                obituary_id TEXT NOT NULL,
+                lit_by TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (obituary_id) REFERENCES obituaries(id)
+            )
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_candles_obituary
+            ON candles(obituary_id)
+        ''')
+
         self.conn.commit()
         self.close()
 

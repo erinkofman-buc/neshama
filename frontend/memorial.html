@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorial - Neshama</title>
+    <meta name="description" content="In loving memory - a memorial page on Neshama.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:title" content="Memorial - Neshama">
+    <meta property="og:description" content="In loving memory.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:site_name" content="Neshama">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* ── Navigation ─────────────────────────────────── */
+
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--terracotta); }
+
+        /* ── Page Container ──────────────────────────────── */
+
+        .memorial-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading & Error States ──────────────────────── */
+
+        .page-loading {
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--light-taupe);
+            border-top-color: var(--terracotta);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .page-loading p {
+            font-size: 1.2rem;
+            color: var(--sage-dark);
+            font-style: italic;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .error-state h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .error-state p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 2rem;
+        }
+
+        .error-state a {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .error-state a:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+        }
+
+        /* ── Hero Section ────────────────────────────────── */
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2.5rem;
+        }
+
+        .hero-photo-wrapper {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 8px 30px var(--soft-shadow);
+        }
+
+        .hero-photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-initials {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+            border: 4px solid white;
+            box-shadow: 0 8px 30px var(--soft-shadow);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 300;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .hero-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.2rem, 6vw, 3.5rem);
+            font-weight: 400;
+            color: var(--dark-brown);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-hebrew {
+            font-size: 1.5rem;
+            color: var(--sage-dark);
+            direction: rtl;
+            margin-bottom: 1.25rem;
+            font-weight: 300;
+        }
+
+        .hero-dates {
+            font-size: 1.1rem;
+            color: var(--dark-brown);
+            line-height: 1.8;
+        }
+
+        .hero-dates span {
+            display: block;
+        }
+
+        .hero-divider {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 2rem auto 0;
+        }
+
+        /* ── Section Styles ──────────────────────────────── */
+
+        .memorial-section {
+            margin-top: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .memorial-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-heading::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--gold);
+            margin: 0.75rem auto 0;
+        }
+
+        /* ── Virtual Candle ──────────────────────────────── */
+
+        .candle-section {
+            text-align: center;
+            padding: 2.5rem 2rem;
+            background: linear-gradient(180deg, rgba(62, 39, 35, 0.03) 0%, rgba(201, 169, 110, 0.08) 100%);
+            border-radius: 1rem;
+            border: 1px solid rgba(201, 169, 110, 0.2);
+        }
+
+        .candle-display {
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .candle-flame-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .candle-flame-container.active {
+            display: flex;
+        }
+
+        .candle-flame {
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(0deg, #ff6600 0%, #ffcc00 40%, #fff5e0 90%);
+            border-radius: 50% 50% 20% 20%;
+            position: relative;
+            animation: flicker 1.5s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.6), 0 0 40px rgba(255, 153, 0, 0.3), 0 0 60px rgba(255, 153, 0, 0.15);
+        }
+
+        .candle-flame::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 25px;
+            background: linear-gradient(0deg, #ff8800 0%, #ffdd44 50%, #fffbe0 100%);
+            border-radius: 50% 50% 20% 20%;
+            top: 8px;
+            left: 4px;
+            animation: innerFlicker 1s ease-in-out infinite alternate;
+        }
+
+        .candle-body {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, #faf5ee 0%, #e8ddd0 100%);
+            border-radius: 2px 2px 4px 4px;
+            margin-top: -2px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-1deg); opacity: 1; }
+            25% { transform: scale(1.02) rotate(1deg); opacity: 0.95; }
+            50% { transform: scale(0.98) rotate(-0.5deg); opacity: 1; }
+            75% { transform: scale(1.01) rotate(0.5deg); opacity: 0.97; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes innerFlicker {
+            0% { transform: scaleY(1); opacity: 0.9; }
+            50% { transform: scaleY(1.05); opacity: 1; }
+            100% { transform: scaleY(0.95); opacity: 0.85; }
+        }
+
+        .candle-count {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .candle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--dark-brown);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .candle-btn:hover {
+            background: #5d4037;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(62, 39, 35, 0.2);
+        }
+
+        .candle-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .candle-btn-icon {
+            font-size: 1.2rem;
+        }
+
+        .candle-lit-message {
+            display: none;
+            font-size: 1rem;
+            color: var(--gold);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .candle-lit-message.active {
+            display: block;
+        }
+
+        /* ── Obituary Text ───────────────────────────────── */
+
+        .obituary-text {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: var(--dark-brown);
+            white-space: pre-wrap;
+            text-align: left;
+        }
+
+        .obituary-text-wrapper {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+        }
+
+        /* ── Service Details ─────────────────────────────── */
+
+        .service-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .service-card-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--warm-beige);
+            border-radius: 0.75rem;
+        }
+
+        .service-card-content {
+            flex: 1;
+        }
+
+        .service-card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.35rem;
+        }
+
+        .service-card-detail {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--dark-brown);
+        }
+
+        .livestream-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .livestream-link:hover { opacity: 0.7; }
+
+        /* ── Tributes Section ────────────────────────────── */
+
+        .tributes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .tribute-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            border-left: 3px solid var(--gold);
+        }
+
+        .tribute-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tribute-author {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--dark-brown);
+        }
+
+        .tribute-relationship {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            font-style: italic;
+        }
+
+        .tribute-message {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .tribute-timestamp {
+            font-size: 0.85rem;
+            color: var(--sage);
+        }
+
+        .no-tributes {
+            text-align: center;
+            padding: 2rem;
+            color: var(--sage-dark);
+            font-style: italic;
+            font-size: 1.05rem;
+        }
+
+        /* ── Tribute Form ────────────────────────────────── */
+
+        .tribute-form-wrapper {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+        }
+
+        .tribute-form-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.35rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: white;
+            color: var(--dark-brown);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--sage);
+        }
+
+        .tribute-submit-btn {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .tribute-submit-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        .tribute-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .form-message {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .form-message.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .form-message.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        /* ── Share Section ────────────────────────────────── */
+
+        .share-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--sage);
+            background: white;
+            color: var(--dark-brown);
+            text-decoration: none;
+        }
+
+        .share-btn:hover {
+            background: var(--warm-beige);
+            border-color: var(--terracotta);
+            transform: translateY(-2px);
+        }
+
+        .share-btn-icon {
+            font-size: 1.1rem;
+        }
+
+        /* ── Funeral Home Link ───────────────────────────── */
+
+        .source-link-section {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .source-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.85rem 2.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .source-link-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        /* ── Footer ──────────────────────────────────────── */
+
+        .site-footer {
+            max-width: 800px;
+            margin: 3rem auto 0;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--terracotta); }
+
+        .footer-copy {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+        }
+
+        /* ── Animations ──────────────────────────────────── */
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero {
+            animation: fadeInUp 0.8s ease backwards;
+        }
+
+        /* ── Responsive ──────────────────────────────────── */
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+
+            .hero-photo-wrapper,
+            .hero-initials {
+                width: 150px;
+                height: 150px;
+            }
+
+            .hero-initials {
+                font-size: 3rem;
+            }
+
+            .hero-name {
+                font-size: 2rem;
+            }
+
+            .hero-hebrew {
+                font-size: 1.25rem;
+            }
+
+            .obituary-text-wrapper {
+                padding: 1.5rem;
+            }
+
+            .service-card {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .tribute-card {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .tribute-form-wrapper {
+                padding: 1.5rem;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .share-btn {
+                justify-content: center;
+            }
+        }
+
+        /* ── Print Styles ────────────────────────────────── */
+
+        @media print {
+            .nav,
+            .candle-section,
+            .tribute-form-wrapper,
+            .share-section,
+            .source-link-section,
+            .site-footer,
+            .candle-btn,
+            .share-buttons {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .memorial-container {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .hero {
+                padding-top: 1rem;
+            }
+
+            .hero-photo-wrapper,
+            .hero-initials {
+                border: 2px solid #ccc;
+                box-shadow: none;
+            }
+
+            .hero-name {
+                color: black;
+            }
+
+            .obituary-text-wrapper {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                padding: 1.5rem;
+            }
+
+            .service-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            .tribute-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-left: 3px solid #999;
+                break-inside: avoid;
+            }
+
+            .memorial-section {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Back to Feed</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <!-- Page Loading State -->
+    <div class="memorial-container" id="pageLoading">
+        <div class="page-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading memorial...</p>
+        </div>
+    </div>
+
+    <!-- Error State (hidden by default) -->
+    <div class="memorial-container" id="errorState" style="display: none;">
+        <div class="error-state">
+            <h2>Memorial Not Found</h2>
+            <p>We could not find the memorial you are looking for. It may have been removed or the link may be incorrect.</p>
+            <a href="/feed">Return to Feed</a>
+        </div>
+    </div>
+
+    <!-- Memorial Content (hidden until loaded) -->
+    <div class="memorial-container" id="memorialContent" style="display: none;">
+
+        <!-- Hero Section -->
+        <section class="hero" id="heroSection">
+            <!-- Photo or initials injected by JS -->
+            <div id="heroPhotoArea"></div>
+            <p class="hero-label">In Loving Memory</p>
+            <h1 class="hero-name" id="heroName"></h1>
+            <p class="hero-hebrew" id="heroHebrew" style="display: none;"></p>
+            <div class="hero-dates" id="heroDates"></div>
+            <div class="hero-divider"></div>
+        </section>
+
+        <!-- Virtual Candle Section -->
+        <section class="memorial-section" id="candleSection">
+            <div class="candle-section">
+                <h2 class="section-heading">Light a Memorial Candle</h2>
+                <div class="candle-display">
+                    <div class="candle-flame-container" id="candleFlame">
+                        <div class="candle-flame"></div>
+                        <div class="candle-body"></div>
+                    </div>
+                </div>
+                <p class="candle-count" id="candleCount"></p>
+                <button class="candle-btn" id="candleBtn" type="button">
+                    <span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span>
+                    Light a Candle
+                </button>
+                <p class="candle-lit-message" id="candleLitMessage">Your candle has been lit. May their memory be a blessing.</p>
+            </div>
+        </section>
+
+        <!-- Obituary Text -->
+        <section class="memorial-section" id="obituarySection" style="display: none;">
+            <h2 class="section-heading">Life &amp; Legacy</h2>
+            <div class="obituary-text-wrapper">
+                <div class="obituary-text" id="obituaryText"></div>
+            </div>
+        </section>
+
+        <!-- Service Details -->
+        <section class="memorial-section" id="servicesSection" style="display: none;">
+            <h2 class="section-heading">Service Details</h2>
+            <div class="service-cards" id="serviceCards"></div>
+        </section>
+
+        <!-- Tributes Section -->
+        <section class="memorial-section" id="tributesSection">
+            <h2 class="section-heading">Tributes &amp; Condolences</h2>
+            <div class="tributes-list" id="tributesList"></div>
+            <div class="tribute-form-wrapper">
+                <h3 class="tribute-form-title">Leave a Tribute</h3>
+                <form id="tributeForm">
+                    <div class="form-group">
+                        <label for="tributeName">Your Name</label>
+                        <input type="text" id="tributeName" name="author_name" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tributeRelationship">Relationship</label>
+                        <select id="tributeRelationship" name="relationship" required>
+                            <option value="" disabled selected>Select your relationship</option>
+                            <option value="Family">Family</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Colleague">Colleague</option>
+                            <option value="Community Member">Community Member</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tributeMessage">Your Message</label>
+                        <textarea id="tributeMessage" name="message" placeholder="Share a memory or message of comfort..." required></textarea>
+                    </div>
+                    <button type="submit" class="tribute-submit-btn" id="tributeSubmitBtn">Submit Tribute</button>
+                    <div class="form-message" id="tributeFormMessage"></div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Share Section -->
+        <section class="memorial-section share-section" id="shareSection">
+            <h2 class="section-heading">Share This Memorial</h2>
+            <div class="share-buttons">
+                <button class="share-btn" id="shareCopy" type="button">
+                    <span class="share-btn-icon">&#x1F517;</span>
+                    Copy Link
+                </button>
+                <a class="share-btn" id="shareWhatsApp" href="#" target="_blank" rel="noopener noreferrer">
+                    <span class="share-btn-icon">&#x1F4AC;</span>
+                    WhatsApp
+                </a>
+                <a class="share-btn" id="shareEmail" href="#">
+                    <span class="share-btn-icon">&#x2709;&#xFE0F;</span>
+                    Email
+                </a>
+                <button class="share-btn" id="sharePrint" type="button">
+                    <span class="share-btn-icon">&#x1F5A8;&#xFE0F;</span>
+                    Print
+                </button>
+            </div>
+        </section>
+
+        <!-- Funeral Home Link -->
+        <section class="source-link-section" id="sourceLinkSection" style="display: none;">
+            <a class="source-link-btn" id="sourceLink" href="#" target="_blank" rel="noopener noreferrer">
+                View on <span id="sourceName"></span> &#x2197;
+            </a>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Toronto Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ── State ──────────────────────────────────────────
+        var obituaryId = null;
+        var obituaryData = null;
+        var candleCountValue = 0;
+
+        // ── Extract Obituary ID from URL ───────────────────
+        // Expected URL format: /memorial/OBITUARY_ID
+        function getObituaryIdFromUrl() {
+            var path = window.location.pathname;
+            var parts = path.split('/');
+            // path = /memorial/some-id => parts = ['', 'memorial', 'some-id']
+            if (parts.length >= 3 && parts[1] === 'memorial') {
+                return decodeURIComponent(parts.slice(2).join('/'));
+            }
+            return null;
+        }
+
+        // ── DOM Helpers ────────────────────────────────────
+        function show(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = '';
+        }
+
+        function hide(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        }
+
+        function setText(id, text) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function setHtml(id, html) {
+            var el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        }
+
+        // ── Escape HTML ────────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ── Format date nicely ─────────────────────────────
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // ── Format relative time ───────────────────────────
+        function timeAgo(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var date = new Date(dateStr);
+                var now = new Date();
+                var diffMs = now - date;
+                var diffMins = Math.floor(diffMs / (1000 * 60));
+                var diffHours = Math.floor(diffMins / 60);
+                var diffDays = Math.floor(diffHours / 24);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return diffMins + (diffMins === 1 ? ' minute' : ' minutes') + ' ago';
+                if (diffHours < 24) return diffHours + (diffHours === 1 ? ' hour' : ' hours') + ' ago';
+                if (diffDays < 7) return diffDays + (diffDays === 1 ? ' day' : ' days') + ' ago';
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // ── Get Initials ──────────────────────────────────
+        function getInitials(name) {
+            if (!name) return '?';
+            var parts = name.trim().split(/\s+/);
+            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+
+        // ── Update Meta Tags ──────────────────────────────
+        function updateMetaTags(obit) {
+            document.title = 'In Loving Memory of ' + obit.deceased_name + ' - Neshama';
+
+            var ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', 'In Loving Memory of ' + obit.deceased_name);
+
+            var desc = obit.obituary_text
+                ? obit.obituary_text.substring(0, 160) + '...'
+                : 'Memorial page for ' + obit.deceased_name + ' on Neshama.';
+            var ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.setAttribute('content', desc);
+            var metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.setAttribute('content', desc);
+
+            var ogUrl = document.querySelector('meta[property="og:url"]');
+            if (ogUrl) ogUrl.setAttribute('content', window.location.href);
+        }
+
+        // ── Populate Hero Section ─────────────────────────
+        function populateHero(obit) {
+            var photoArea = document.getElementById('heroPhotoArea');
+
+            if (obit.photo_url) {
+                photoArea.innerHTML = '<div class="hero-photo-wrapper"><img src="' +
+                    escapeHtml(obit.photo_url) + '" alt="Photo of ' +
+                    escapeHtml(obit.deceased_name) + '"></div>';
+            } else {
+                var initials = getInitials(obit.deceased_name);
+                photoArea.innerHTML = '<div class="hero-initials">' + escapeHtml(initials) + '</div>';
+            }
+
+            setText('heroName', obit.deceased_name);
+
+            if (obit.hebrew_name) {
+                setText('heroHebrew', obit.hebrew_name);
+                show('heroHebrew');
+            }
+
+            var datesHtml = '';
+            if (obit.date_of_death) {
+                datesHtml += '<span>Date of Passing: ' + escapeHtml(formatDate(obit.date_of_death)) + '</span>';
+            }
+            if (obit.yahrzeit_date) {
+                datesHtml += '<span>Yahrzeit: ' + escapeHtml(obit.yahrzeit_date) + '</span>';
+            }
+            if (!datesHtml && obit.last_updated) {
+                datesHtml += '<span>' + escapeHtml(formatDate(obit.last_updated)) + '</span>';
+            }
+            setHtml('heroDates', datesHtml);
+        }
+
+        // ── Populate Obituary Text ────────────────────────
+        function populateObituary(obit) {
+            if (obit.obituary_text && obit.obituary_text.trim()) {
+                setText('obituaryText', obit.obituary_text);
+                show('obituarySection');
+            }
+        }
+
+        // ── Populate Service Details ──────────────────────
+        function populateServices(obit) {
+            var cards = '';
+            var hasServices = false;
+
+            if (obit.funeral_datetime || obit.funeral_location) {
+                hasServices = true;
+                cards += '<div class="service-card">' +
+                    '<div class="service-card-icon">&#x1F56F;&#xFE0F;</div>' +
+                    '<div class="service-card-content">' +
+                    '<div class="service-card-title">Funeral Service</div>' +
+                    '<div class="service-card-detail">';
+                if (obit.funeral_datetime) {
+                    cards += escapeHtml(obit.funeral_datetime);
+                }
+                if (obit.funeral_location) {
+                    cards += '<br>' + escapeHtml(obit.funeral_location);
+                }
+                cards += '</div></div></div>';
+            }
+
+            if (obit.shiva_info) {
+                hasServices = true;
+                cards += '<div class="service-card">' +
+                    '<div class="service-card-icon">&#x1F3E0;</div>' +
+                    '<div class="service-card-content">' +
+                    '<div class="service-card-title">Shiva</div>' +
+                    '<div class="service-card-detail">' + escapeHtml(obit.shiva_info) + '</div>' +
+                    '</div></div>';
+            }
+
+            if (obit.burial_info) {
+                hasServices = true;
+                cards += '<div class="service-card">' +
+                    '<div class="service-card-icon">&#x1FAA6;</div>' +
+                    '<div class="service-card-content">' +
+                    '<div class="service-card-title">Burial</div>' +
+                    '<div class="service-card-detail">' + escapeHtml(obit.burial_info) + '</div>' +
+                    '</div></div>';
+            }
+
+            if (obit.livestream_url) {
+                // Add livestream to the funeral card or as its own card
+                if (!hasServices) {
+                    hasServices = true;
+                }
+                cards += '<div class="service-card">' +
+                    '<div class="service-card-icon">&#x1F4FA;</div>' +
+                    '<div class="service-card-content">' +
+                    '<div class="service-card-title">Livestream</div>' +
+                    '<div class="service-card-detail">' +
+                    '<a href="' + escapeHtml(obit.livestream_url) + '" class="livestream-link" target="_blank" rel="noopener noreferrer">' +
+                    'Watch Livestream &#x2197;</a>' +
+                    '</div></div></div>';
+            }
+
+            if (hasServices) {
+                setHtml('serviceCards', cards);
+                show('servicesSection');
+            }
+        }
+
+        // ── Candle Functions ──────────────────────────────
+        function updateCandleCount(count) {
+            candleCountValue = count;
+            if (count > 0) {
+                setText('candleCount', count + (count === 1 ? ' candle has' : ' candles have') + ' been lit in memory');
+                document.getElementById('candleFlame').classList.add('active');
+            } else {
+                setText('candleCount', 'Be the first to light a memorial candle');
+            }
+        }
+
+        function loadCandleCount() {
+            fetch('/api/candles/' + encodeURIComponent(obituaryId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data && typeof data.count === 'number') {
+                        updateCandleCount(data.count);
+                    } else if (data && typeof data.candle_count === 'number') {
+                        updateCandleCount(data.candle_count);
+                    } else {
+                        updateCandleCount(0);
+                    }
+                })
+                .catch(function() {
+                    updateCandleCount(0);
+                });
+        }
+
+        function lightCandle() {
+            var btn = document.getElementById('candleBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Lighting...';
+
+            fetch('/api/candles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ obituary_id: obituaryId })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                candleCountValue++;
+                updateCandleCount(candleCountValue);
+                document.getElementById('candleFlame').classList.add('active');
+                document.getElementById('candleLitMessage').classList.add('active');
+                btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Candle Lit';
+                btn.disabled = true;
+                // Remember in localStorage
+                localStorage.setItem('candle_' + obituaryId, 'true');
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Light a Candle';
+            });
+        }
+
+        // ── Tributes Functions ────────────────────────────
+        function renderTributes(tributes) {
+            var list = document.getElementById('tributesList');
+
+            if (!tributes || tributes.length === 0) {
+                list.innerHTML = '<div class="no-tributes">No tributes yet. Be the first to share a memory.</div>';
+                return;
+            }
+
+            var html = '';
+            tributes.forEach(function(t) {
+                html += '<div class="tribute-card">' +
+                    '<div class="tribute-header">' +
+                    '<span class="tribute-author">' + escapeHtml(t.author_name || t.author || 'Anonymous') + '</span>' +
+                    (t.relationship ? '<span class="tribute-relationship">' + escapeHtml(t.relationship) + '</span>' : '') +
+                    '</div>' +
+                    '<p class="tribute-message">' + escapeHtml(t.message || t.text || '') + '</p>' +
+                    '<span class="tribute-timestamp">' + timeAgo(t.created_at || t.timestamp || '') + '</span>' +
+                    '</div>';
+            });
+
+            list.innerHTML = html;
+        }
+
+        function loadTributes() {
+            fetch('/api/tributes/' + encodeURIComponent(obituaryId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var tributes = [];
+                    if (Array.isArray(data)) {
+                        tributes = data;
+                    } else if (data && Array.isArray(data.data)) {
+                        tributes = data.data;
+                    } else if (data && Array.isArray(data.tributes)) {
+                        tributes = data.tributes;
+                    }
+                    renderTributes(tributes);
+                })
+                .catch(function() {
+                    renderTributes([]);
+                });
+        }
+
+        function submitTribute(e) {
+            e.preventDefault();
+
+            var btn = document.getElementById('tributeSubmitBtn');
+            var msgEl = document.getElementById('tributeFormMessage');
+            var nameInput = document.getElementById('tributeName');
+            var relSelect = document.getElementById('tributeRelationship');
+            var messageInput = document.getElementById('tributeMessage');
+
+            var authorName = nameInput.value.trim();
+            var relationship = relSelect.value;
+            var message = messageInput.value.trim();
+
+            if (!authorName || !relationship || !message) {
+                msgEl.className = 'form-message error';
+                msgEl.textContent = 'Please fill in all fields.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            msgEl.className = 'form-message';
+            msgEl.style.display = 'none';
+
+            fetch('/api/tributes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    obituary_id: obituaryId,
+                    author_name: authorName,
+                    message: message,
+                    relationship: relationship
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'error') {
+                    throw new Error(data.message || 'Failed to submit tribute.');
+                }
+                msgEl.className = 'form-message success';
+                msgEl.textContent = 'Your tribute has been submitted. Thank you.';
+                nameInput.value = '';
+                relSelect.selectedIndex = 0;
+                messageInput.value = '';
+                btn.disabled = false;
+                btn.textContent = 'Submit Tribute';
+                // Reload tributes to show the new one
+                setTimeout(loadTributes, 500);
+            })
+            .catch(function(err) {
+                msgEl.className = 'form-message error';
+                msgEl.textContent = err.message || 'Unable to submit tribute. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Submit Tribute';
+            });
+        }
+
+        // ── Share Functions ───────────────────────────────
+        function setupShareButtons(obit) {
+            var pageUrl = window.location.href;
+            var shareText = 'In Loving Memory of ' + obit.deceased_name + ' - Neshama';
+
+            // Copy Link
+            document.getElementById('shareCopy').addEventListener('click', function() {
+                var btn = this;
+                navigator.clipboard.writeText(pageUrl).then(function() {
+                    var original = btn.innerHTML;
+                    btn.innerHTML = '<span class="share-btn-icon">&#x2705;</span> Copied!';
+                    setTimeout(function() { btn.innerHTML = original; }, 2000);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    var input = document.createElement('input');
+                    input.value = pageUrl;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(input);
+                    var original = btn.innerHTML;
+                    btn.innerHTML = '<span class="share-btn-icon">&#x2705;</span> Copied!';
+                    setTimeout(function() { btn.innerHTML = original; }, 2000);
+                });
+            });
+
+            // WhatsApp
+            var waLink = document.getElementById('shareWhatsApp');
+            waLink.href = 'https://wa.me/?text=' + encodeURIComponent(shareText + '\n' + pageUrl);
+
+            // Email
+            var emailLink = document.getElementById('shareEmail');
+            emailLink.href = 'mailto:?subject=' + encodeURIComponent(shareText) +
+                '&body=' + encodeURIComponent('I wanted to share this memorial with you:\n\n' +
+                shareText + '\n' + pageUrl + '\n\nFrom Neshama - neshama.ca');
+
+            // Print
+            document.getElementById('sharePrint').addEventListener('click', function() {
+                window.print();
+            });
+        }
+
+        // ── Source Link ───────────────────────────────────
+        function populateSourceLink(obit) {
+            if (obit.condolence_url) {
+                var linkEl = document.getElementById('sourceLink');
+                linkEl.href = obit.condolence_url;
+                setText('sourceName', obit.source || 'Funeral Home');
+                show('sourceLinkSection');
+            }
+        }
+
+        // ── Scroll Animation (Intersection Observer) ─────
+        function initScrollAnimations() {
+            var sections = document.querySelectorAll('.memorial-section');
+
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                sections.forEach(function(section) {
+                    observer.observe(section);
+                });
+            } else {
+                // Fallback: show all immediately
+                sections.forEach(function(section) {
+                    section.classList.add('visible');
+                });
+            }
+        }
+
+        // ── Main Load Function ────────────────────────────
+        function loadMemorial() {
+            obituaryId = getObituaryIdFromUrl();
+
+            if (!obituaryId) {
+                hide('pageLoading');
+                show('errorState');
+                return;
+            }
+
+            fetch('/api/obituary/' + encodeURIComponent(obituaryId))
+                .then(function(r) {
+                    if (!r.ok) throw new Error('Not found');
+                    return r.json();
+                })
+                .then(function(data) {
+                    var obit = null;
+                    if (data && data.data) {
+                        obit = data.data;
+                    } else if (data && data.deceased_name) {
+                        obit = data;
+                    } else if (data && data.status === 'success' && data.obituary) {
+                        obit = data.obituary;
+                    }
+
+                    if (!obit) {
+                        throw new Error('No data');
+                    }
+
+                    obituaryData = obit;
+
+                    // Update meta tags
+                    updateMetaTags(obit);
+
+                    // Populate all sections
+                    populateHero(obit);
+                    populateObituary(obit);
+                    populateServices(obit);
+                    populateSourceLink(obit);
+                    setupShareButtons(obit);
+
+                    // Load candles
+                    loadCandleCount();
+
+                    // Check if user already lit a candle
+                    if (localStorage.getItem('candle_' + obituaryId)) {
+                        var btn = document.getElementById('candleBtn');
+                        btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Candle Lit';
+                        btn.disabled = true;
+                        document.getElementById('candleLitMessage').classList.add('active');
+                    }
+
+                    // Load tributes
+                    loadTributes();
+
+                    // Show content, hide loading
+                    hide('pageLoading');
+                    show('memorialContent');
+
+                    // Init scroll animations after content is visible
+                    requestAnimationFrame(function() {
+                        initScrollAnimations();
+                    });
+                })
+                .catch(function() {
+                    hide('pageLoading');
+                    show('errorState');
+                });
+        }
+
+        // ── Event Listeners ───────────────────────────────
+
+        // Candle button
+        document.getElementById('candleBtn').addEventListener('click', function() {
+            if (!this.disabled) {
+                lightCandle();
+            }
+        });
+
+        // Tribute form
+        document.getElementById('tributeForm').addEventListener('submit', submitTribute);
+
+        // ── Initialize ────────────────────────────────────
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadMemorial);
+        } else {
+            loadMemorial();
+        }
+
+    })();
+    </script>
+</body>
+</html>

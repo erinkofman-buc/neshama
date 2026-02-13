@@ -24,6 +24,7 @@
             --cream: #FAF9F6;
             --dark-brown: #3E2723;
             --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
             --soft-shadow: rgba(62, 39, 35, 0.08);
         }
 
@@ -38,7 +39,7 @@
 
         body {
             font-family: 'Crimson Pro', serif;
-            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            background: var(--cream);
             color: var(--dark-brown);
             line-height: 1.7;
             min-height: 100vh;
@@ -58,8 +59,11 @@
             justify-content: center;
             gap: 2rem;
             flex-wrap: wrap;
-            background: rgba(255,255,255,0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .nav-brand {
@@ -93,44 +97,94 @@
             font-weight: 600;
         }
 
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
+        /* Hero header */
+        .page-hero {
+            background: linear-gradient(135deg, var(--warm-beige) 0%, var(--cream) 50%, rgba(201, 169, 110, 0.1) 100%);
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-taupe);
         }
 
-        h1 {
+        .page-hero h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.8rem;
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
             font-weight: 400;
             margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
         }
 
-        .subtitle {
+        .page-hero .subtitle {
             font-size: 1.2rem;
             color: var(--terracotta);
             font-style: italic;
-            margin-bottom: 3rem;
+            margin-bottom: 0;
+        }
+
+        .page-hero .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            color: var(--gold);
+        }
+
+        .page-hero .divider::before, .page-hero .divider::after {
+            content: '';
+            width: 50px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.5;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 4rem;
         }
 
         .faq-item {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             background: white;
             border-radius: 1rem;
             padding: 1.75rem 2rem;
             box-shadow: 0 2px 12px var(--soft-shadow);
             transition: all 0.3s ease;
             cursor: pointer;
+            border: 1px solid transparent;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .faq-item:nth-child(1) { animation-delay: 0.05s; }
+        .faq-item:nth-child(2) { animation-delay: 0.1s; }
+        .faq-item:nth-child(3) { animation-delay: 0.15s; }
+        .faq-item:nth-child(4) { animation-delay: 0.2s; }
+        .faq-item:nth-child(5) { animation-delay: 0.25s; }
+        .faq-item:nth-child(6) { animation-delay: 0.3s; }
+        .faq-item:nth-child(7) { animation-delay: 0.35s; }
+        .faq-item:nth-child(8) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .faq-item:hover {
             box-shadow: 0 4px 20px var(--soft-shadow);
             transform: translateY(-2px);
+            border-color: rgba(201, 169, 110, 0.3);
+        }
+
+        .faq-item.open {
+            border-color: var(--terracotta);
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .faq-question {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 600;
             color: var(--dark-brown);
             margin-bottom: 0;
@@ -140,14 +194,23 @@
             gap: 1rem;
         }
 
-        .faq-chevron {
-            font-size: 1.2rem;
-            color: var(--terracotta);
-            transition: transform 0.3s ease;
+        .faq-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--warm-beige);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: var(--terracotta);
+            font-size: 0.9rem;
         }
 
-        .faq-item.open .faq-chevron {
+        .faq-item.open .faq-icon {
+            background: var(--terracotta);
+            color: white;
             transform: rotate(180deg);
         }
 
@@ -156,21 +219,65 @@
             line-height: 1.8;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease, margin-top 0.3s ease;
+            transition: max-height 0.4s ease, margin-top 0.3s ease, padding-top 0.3s ease;
             margin-top: 0;
+            padding-top: 0;
+            border-top: 0px solid transparent;
         }
 
         .faq-item.open .faq-answer {
             max-height: 300px;
             margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--light-taupe);
         }
 
         .faq-answer a {
             color: var(--terracotta);
             text-decoration: none;
+            font-weight: 500;
         }
 
         .faq-answer a:hover { text-decoration: underline; }
+
+        /* CTA at bottom */
+        .faq-cta {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .faq-cta h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .faq-cta p {
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-cta a {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.85rem 2.5rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .faq-cta a:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
+        }
 
         footer {
             padding: 2rem 1.5rem;
@@ -201,6 +308,7 @@
             .nav { gap: 1rem; }
             .nav-links { gap: 1rem; }
             .faq-item { padding: 1.25rem 1.5rem; }
+            .page-hero { padding: 3rem 1.5rem 2rem; }
         }
     </style>
 </head>
@@ -215,12 +323,15 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="page-hero">
         <h1>Frequently Asked Questions</h1>
         <p class="subtitle">Everything you need to know</p>
+        <div class="divider"><span>&#x2727;</span></div>
+    </div>
 
+    <div class="container">
         <div class="faq-item open">
-            <h2 class="faq-question">What is Neshama? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">What is Neshama? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Neshama is a free service that aggregates obituary listings from
                 Toronto's Jewish funeral homes into one easy-to-read feed. Instead
@@ -230,7 +341,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Which funeral homes are included? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">Which funeral homes are included? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 We currently aggregate from Steeles Memorial Chapel and Benjamin's
                 Park Memorial Chapel. We plan to add more funeral homes serving the
@@ -239,7 +350,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">How often is the information updated? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">How often is the information updated? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Our system checks funeral home websites regularly throughout the day.
                 New obituaries typically appear on Neshama within hours of being
@@ -248,7 +359,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Is Neshama affiliated with any funeral home? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">Is Neshama affiliated with any funeral home? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 No. Neshama is an independent community service. We are not affiliated
                 with, endorsed by, or operated by any funeral home. All information is
@@ -257,7 +368,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">Can I get daily email updates? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">Can I get daily email updates? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Yes. Subscribe to our free daily digest and you'll receive an email
                 each morning with new obituaries from the previous day. You can
@@ -267,7 +378,7 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">How do I request a correction or removal? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">How do I request a correction or removal? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 If you notice an error or would like information removed, please
                 email us at <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>.
@@ -277,13 +388,29 @@
         </div>
 
         <div class="faq-item">
-            <h2 class="faq-question">What does "Neshama" mean? <span class="faq-chevron">&#x25BE;</span></h2>
+            <h2 class="faq-question">Can I light a candle or leave a tribute? <span class="faq-icon">&#x25BE;</span></h2>
+            <p class="faq-answer">
+                Yes. Each obituary has a memorial page where you can light a virtual
+                memorial candle and leave a written tribute or condolence message.
+                These tributes are visible to the family and community as a digital
+                condolence book.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h2 class="faq-question">What does "Neshama" mean? <span class="faq-icon">&#x25BE;</span></h2>
             <p class="faq-answer">
                 Neshama is the Hebrew word for "soul." In Jewish thought,
                 the neshama is the divine spark within each person &mdash; eternal and
                 sacred. We chose this name because every soul deserves to be
                 remembered and honored by the community.
             </p>
+        </div>
+
+        <div class="faq-cta">
+            <h3>Still have questions?</h3>
+            <p>We're here to help. Reach out anytime.</p>
+            <a href="mailto:contact@neshama.ca">Contact Us</a>
         </div>
     </div>
 

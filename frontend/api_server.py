@@ -82,6 +82,25 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_status()
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
+        elif path == '/api/community-stats':
+            self.get_community_stats()
+        elif path == '/api/tributes/counts':
+            self.get_tribute_counts()
+        # Single obituary API
+        elif path.startswith('/api/obituary/'):
+            obit_id = path[len('/api/obituary/'):]
+            self.get_single_obituary(obit_id)
+        # Tributes API
+        elif path.startswith('/api/tributes/'):
+            obit_id = path[len('/api/tributes/'):]
+            self.get_tributes(obit_id)
+        # Candles API
+        elif path.startswith('/api/candles/'):
+            obit_id = path[len('/api/candles/'):]
+            self.get_candle_count(obit_id)
+        # Memorial pages
+        elif path.startswith('/memorial/'):
+            self.serve_memorial_page()
         # Dynamic routes for email confirmation and unsubscribe
         elif path.startswith('/confirm/'):
             token = path[len('/confirm/'):]
@@ -113,6 +132,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_subscribe(body)
         elif path == '/api/unsubscribe-feedback':
             self.handle_unsubscribe_feedback(body)
+        elif path == '/api/tributes':
+            self.handle_submit_tribute(body)
+        elif path == '/api/candles':
+            self.handle_light_candle(body)
         elif path == '/api/create-checkout':
             self.handle_create_checkout(body)
         elif path == '/webhook':
@@ -403,6 +426,209 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_json_response({'status': 'success', 'count': 0})
 
+    # ── API: Single Obituary & Memorial ─────────────────────────
+
+    def get_single_obituary(self, obit_id):
+        """Get a single obituary by ID"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM obituaries WHERE id = ?', (obit_id,))
+            row = cursor.fetchone()
+            conn.close()
+
+            if row:
+                self.send_json_response({'status': 'success', 'data': dict(row)})
+            else:
+                self.send_json_response({'status': 'error', 'message': 'Obituary not found'}, 404)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def serve_memorial_page(self):
+        """Serve the memorial page template (JS handles data loading)"""
+        filepath = os.path.join(FRONTEND_DIR, 'memorial.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    # ── API: Tributes ─────────────────────────────────────────
+
+    def get_tributes(self, obit_id):
+        """Get tributes for an obituary"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT * FROM tributes WHERE obituary_id = ? ORDER BY created_at DESC',
+                (obit_id,)
+            )
+            tributes = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            self.send_json_response({'status': 'success', 'data': tributes, 'count': len(tributes)})
+        except Exception as e:
+            self.send_json_response({'status': 'success', 'data': [], 'count': 0})
+
+    def get_tribute_counts(self):
+        """Get tribute counts for all obituaries"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT obituary_id, COUNT(*) as count FROM tributes GROUP BY obituary_id'
+            )
+            counts = {row[0]: row[1] for row in cursor.fetchall()}
+            conn.close()
+            self.send_json_response({'status': 'success', 'data': counts})
+        except Exception as e:
+            self.send_json_response({'status': 'success', 'data': {}})
+
+    def handle_submit_tribute(self, body):
+        """Handle tribute submission"""
+        try:
+            data = json.loads(body)
+            obit_id = data.get('obituary_id', '').strip()
+            author = data.get('author_name', '').strip()
+            message = data.get('message', '').strip()
+            relationship = data.get('relationship', '').strip()
+
+            if not obit_id or not author or not message:
+                self.send_json_response({'status': 'error', 'message': 'Name and message are required'}, 400)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+            cursor.execute(
+                'INSERT INTO tributes (obituary_id, author_name, message, relationship, created_at) VALUES (?, ?, ?, ?, ?)',
+                (obit_id, author, message, relationship, now)
+            )
+            conn.commit()
+            tribute_id = cursor.lastrowid
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'message': 'Tribute submitted',
+                'id': tribute_id
+            })
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    # ── API: Candles ──────────────────────────────────────────
+
+    def get_candle_count(self, obit_id):
+        """Get candle count for an obituary"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) FROM candles WHERE obituary_id = ?', (obit_id,))
+            count = cursor.fetchone()[0]
+            conn.close()
+            self.send_json_response({'status': 'success', 'count': count})
+        except Exception as e:
+            self.send_json_response({'status': 'success', 'count': 0})
+
+    def handle_light_candle(self, body):
+        """Handle lighting a virtual candle"""
+        try:
+            data = json.loads(body)
+            obit_id = data.get('obituary_id', '').strip()
+            lit_by = data.get('lit_by', 'Anonymous').strip()
+
+            if not obit_id:
+                self.send_json_response({'status': 'error', 'message': 'Obituary ID required'}, 400)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+            cursor.execute(
+                'INSERT INTO candles (obituary_id, lit_by, created_at) VALUES (?, ?, ?)',
+                (obit_id, lit_by, now)
+            )
+            conn.commit()
+            cursor.execute('SELECT COUNT(*) FROM candles WHERE obituary_id = ?', (obit_id,))
+            count = cursor.fetchone()[0]
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'message': 'Candle lit',
+                'count': count
+            })
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    # ── API: Community Stats ──────────────────────────────────
+
+    def get_community_stats(self):
+        """Get community-wide statistics"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('SELECT COUNT(*) FROM obituaries')
+            total_obituaries = cursor.fetchone()[0]
+
+            total_tributes = 0
+            try:
+                cursor.execute('SELECT COUNT(*) FROM tributes')
+                total_tributes = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            total_candles = 0
+            try:
+                cursor.execute('SELECT COUNT(*) FROM candles')
+                total_candles = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            sub_count = 0
+            try:
+                cursor.execute('SELECT COUNT(*) FROM subscribers WHERE confirmed = TRUE')
+                sub_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'souls_remembered': total_obituaries,
+                    'tributes_left': total_tributes,
+                    'candles_lit': total_candles,
+                    'community_members': sub_count
+                }
+            })
+        except Exception as e:
+            self.send_json_response({
+                'status': 'success',
+                'data': {'souls_remembered': 0, 'tributes_left': 0, 'candles_lit': 0, 'community_members': 0}
+            })
+
     # ── Admin: Scraper ─────────────────────────────────────────
 
     def handle_admin_scrape(self):
@@ -660,12 +886,13 @@ def run_server(port=None):
     scrape_thread.start()
 
     print(f"\n{'='*60}")
-    print(f" NESHAMA API SERVER v1.3")
+    print(f" NESHAMA API SERVER v2.0")
     print(f"{'='*60}")
     print(f"\n Running on: http://0.0.0.0:{port}")
     print(f"\n Pages:")
     print(f"   /                          - Landing page")
     print(f"   /feed                      - Obituary feed")
+    print(f"   /memorial/{{id}}             - Memorial page")
     print(f"   /about                     - About")
     print(f"   /faq                       - FAQ")
     print(f"   /privacy                   - Privacy Policy")
@@ -676,10 +903,17 @@ def run_server(port=None):
     print(f"   /premium-cancelled         - Payment cancelled")
     print(f"\n API Endpoints:")
     print(f"   GET  /api/obituaries       - All obituaries")
+    print(f"   GET  /api/obituary/{{id}}    - Single obituary")
     print(f"   GET  /api/search?q=name    - Search")
     print(f"   GET  /api/status           - Database stats")
+    print(f"   GET  /api/community-stats  - Community statistics")
+    print(f"   GET  /api/tributes/{{id}}    - Tributes for obituary")
+    print(f"   GET  /api/tributes/counts  - All tribute counts")
+    print(f"   GET  /api/candles/{{id}}     - Candle count for obituary")
     print(f"   GET  /api/subscribers/count - Subscriber count")
-    print(f"   POST /api/subscribe        - Email subscription (double opt-in)")
+    print(f"   POST /api/subscribe        - Email subscription")
+    print(f"   POST /api/tributes         - Submit tribute")
+    print(f"   POST /api/candles          - Light a candle")
     print(f"   POST /api/unsubscribe-feedback - Unsubscribe feedback")
     print(f"   POST /api/create-checkout  - Stripe checkout")
     print(f"   POST /webhook              - Stripe webhook")

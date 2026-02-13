@@ -24,6 +24,7 @@
             --cream: #FAF9F6;
             --dark-brown: #3E2723;
             --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
             --soft-shadow: rgba(62, 39, 35, 0.08);
         }
 
@@ -38,7 +39,7 @@
 
         body {
             font-family: 'Crimson Pro', serif;
-            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            background: var(--cream);
             color: var(--dark-brown);
             line-height: 1.7;
             min-height: 100vh;
@@ -58,8 +59,50 @@
             justify-content: center;
             gap: 2rem;
             flex-wrap: wrap;
-            background: rgba(255,255,255,0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Page hero */
+        .page-hero {
+            background: linear-gradient(135deg, var(--warm-beige) 0%, var(--cream) 50%, rgba(201, 169, 110, 0.1) 100%);
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .page-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .page-hero .effective-date {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 0;
+        }
+
+        .page-hero .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            color: var(--gold);
+        }
+
+        .page-hero .divider::before, .page-hero .divider::after {
+            content: '';
+            width: 50px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.5;
         }
 
         .nav-brand {
@@ -96,20 +139,7 @@
         .container {
             max-width: 700px;
             margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
-        }
-
-        h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.8rem;
-            font-weight: 400;
-            margin-bottom: 0.5rem;
-        }
-
-        .effective-date {
-            font-size: 1rem;
-            color: var(--sage-dark);
-            margin-bottom: 3rem;
+            padding: 2.5rem 1.5rem 4rem;
         }
 
         h2 {
@@ -125,8 +155,34 @@
             background: white;
             border-radius: 1rem;
             padding: 2rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             box-shadow: 0 2px 12px var(--soft-shadow);
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .section:hover {
+            border-color: rgba(201, 169, 110, 0.2);
+            box-shadow: 0 4px 20px var(--soft-shadow);
+        }
+
+        .section:nth-child(1) { animation-delay: 0.05s; }
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.15s; }
+        .section:nth-child(4) { animation-delay: 0.2s; }
+        .section:nth-child(5) { animation-delay: 0.25s; }
+        .section:nth-child(6) { animation-delay: 0.3s; }
+        .section:nth-child(7) { animation-delay: 0.35s; }
+        .section:nth-child(8) { animation-delay: 0.4s; }
+        .section:nth-child(9) { animation-delay: 0.45s; }
+        .section:nth-child(10) { animation-delay: 0.5s; }
+        .section:nth-child(11) { animation-delay: 0.55s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .section h2 {
@@ -200,10 +256,13 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="page-hero">
         <h1>Privacy Policy</h1>
         <p class="effective-date">Effective: February 2026</p>
+        <div class="divider"><span>&#x2727;</span></div>
+    </div>
 
+    <div class="container">
         <div class="highlight">
             <strong>Summary:</strong> We collect minimal data, only what's needed to
             operate the service. We never sell your information. We comply with
