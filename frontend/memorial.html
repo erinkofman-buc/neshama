@@ -193,6 +193,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center 20%;
             display: block;
         }
 
@@ -886,7 +887,7 @@
             <a href="/privacy">Privacy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
-        <p class="footer-copy">Built with care for the Toronto Jewish community</p>
+        <p class="footer-copy">Built with care for the Jewish community</p>
     </footer>
 
     <script>
@@ -1010,7 +1011,7 @@
             if (obit.photo_url) {
                 photoArea.innerHTML = '<div class="hero-photo-wrapper"><img src="' +
                     escapeHtml(obit.photo_url) + '" alt="Photo of ' +
-                    escapeHtml(obit.deceased_name) + '"></div>';
+                    escapeHtml(obit.deceased_name) + '" loading="lazy" onerror="this.parentElement.outerHTML=\'<div class=hero-initials>' + escapeHtml(getInitials(obit.deceased_name)) + '</div>\'"></div>';
             } else {
                 var initials = getInitials(obit.deceased_name);
                 photoArea.innerHTML = '<div class="hero-initials">' + escapeHtml(initials) + '</div>';
