@@ -12,13 +12,15 @@ import os
 # Import individual scrapers
 from steeles_scraper import SteelesScraper
 from benjamins_scraper import BenjaminsScraper
+from paperman_scraper import PapermanScraper
 from database_setup import NeshamaDatabase
 
 class MasterScraper:
     def __init__(self):
         self.scrapers = [
             ('Steeles', SteelesScraper()),
-            ('Benjamin\'s', BenjaminsScraper())
+            ('Benjamin\'s', BenjaminsScraper()),
+            ('Paperman', PapermanScraper())
         ]
         self.db = NeshamaDatabase()
 
@@ -82,7 +84,7 @@ class MasterScraper:
                 return stats
 
         print(f"❌ Scraper '{scraper_name}' not found")
-        print("Available scrapers: steeles, benjamins")
+        print("Available scrapers: steeles, benjamins, paperman")
         return None
 
     def check_database_status(self):
@@ -164,7 +166,7 @@ def main():
 
         if command == 'status':
             master.check_database_status()
-        elif command in ['steeles', 'benjamins']:
+        elif command in ['steeles', 'benjamins', 'paperman']:
             master.run_single_scraper(command)
         elif command == 'all':
             master.run_all_scrapers()
@@ -174,6 +176,7 @@ def main():
             print("  all         - Run all scrapers (default)")
             print("  steeles     - Run Steeles scraper only")
             print("  benjamins   - Run Benjamin's scraper only")
+            print("  paperman    - Run Paperman scraper only")
             print("  status      - Show database statistics")
     else:
         # Default: run all scrapers

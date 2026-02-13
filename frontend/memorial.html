@@ -289,131 +289,6 @@
             margin: 0.75rem auto 0;
         }
 
-        /* ── Virtual Candle ──────────────────────────────── */
-
-        .candle-section {
-            text-align: center;
-            padding: 2.5rem 2rem;
-            background: linear-gradient(180deg, rgba(62, 39, 35, 0.03) 0%, rgba(201, 169, 110, 0.08) 100%);
-            border-radius: 1rem;
-            border: 1px solid rgba(201, 169, 110, 0.2);
-        }
-
-        .candle-display {
-            margin-bottom: 1.5rem;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .candle-flame-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .candle-flame-container.active {
-            display: flex;
-        }
-
-        .candle-flame {
-            width: 20px;
-            height: 40px;
-            background: linear-gradient(0deg, #ff6600 0%, #ffcc00 40%, #fff5e0 90%);
-            border-radius: 50% 50% 20% 20%;
-            position: relative;
-            animation: flicker 1.5s ease-in-out infinite alternate;
-            box-shadow: 0 0 20px rgba(255, 153, 0, 0.6), 0 0 40px rgba(255, 153, 0, 0.3), 0 0 60px rgba(255, 153, 0, 0.15);
-        }
-
-        .candle-flame::before {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 25px;
-            background: linear-gradient(0deg, #ff8800 0%, #ffdd44 50%, #fffbe0 100%);
-            border-radius: 50% 50% 20% 20%;
-            top: 8px;
-            left: 4px;
-            animation: innerFlicker 1s ease-in-out infinite alternate;
-        }
-
-        .candle-body {
-            width: 30px;
-            height: 50px;
-            background: linear-gradient(180deg, #faf5ee 0%, #e8ddd0 100%);
-            border-radius: 2px 2px 4px 4px;
-            margin-top: -2px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-
-        @keyframes flicker {
-            0% { transform: scale(1) rotate(-1deg); opacity: 1; }
-            25% { transform: scale(1.02) rotate(1deg); opacity: 0.95; }
-            50% { transform: scale(0.98) rotate(-0.5deg); opacity: 1; }
-            75% { transform: scale(1.01) rotate(0.5deg); opacity: 0.97; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        @keyframes innerFlicker {
-            0% { transform: scaleY(1); opacity: 0.9; }
-            50% { transform: scaleY(1.05); opacity: 1; }
-            100% { transform: scaleY(0.95); opacity: 0.85; }
-        }
-
-        .candle-count {
-            font-size: 1rem;
-            color: var(--sage-dark);
-            margin-bottom: 1.5rem;
-            font-style: italic;
-        }
-
-        .candle-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--dark-brown);
-            color: white;
-            border: none;
-            padding: 0.85rem 2rem;
-            border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.05rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .candle-btn:hover {
-            background: #5d4037;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(62, 39, 35, 0.2);
-        }
-
-        .candle-btn:disabled {
-            opacity: 0.6;
-            cursor: default;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .candle-btn-icon {
-            font-size: 1.2rem;
-        }
-
-        .candle-lit-message {
-            display: none;
-            font-size: 1rem;
-            color: var(--gold);
-            margin-top: 1rem;
-            font-style: italic;
-        }
-
-        .candle-lit-message.active {
-            display: block;
-        }
-
         /* ── Obituary Text ───────────────────────────────── */
 
         .obituary-text {
@@ -825,12 +700,10 @@
 
         @media print {
             .nav,
-            .candle-section,
             .tribute-form-wrapper,
             .share-section,
             .source-link-section,
             .site-footer,
-            .candle-btn,
             .share-buttons {
                 display: none !important;
             }
@@ -925,25 +798,6 @@
             <p class="hero-hebrew" id="heroHebrew" style="display: none;"></p>
             <div class="hero-dates" id="heroDates"></div>
             <div class="hero-divider"></div>
-        </section>
-
-        <!-- Virtual Candle Section -->
-        <section class="memorial-section" id="candleSection">
-            <div class="candle-section">
-                <h2 class="section-heading">Light a Memorial Candle</h2>
-                <div class="candle-display">
-                    <div class="candle-flame-container" id="candleFlame">
-                        <div class="candle-flame"></div>
-                        <div class="candle-body"></div>
-                    </div>
-                </div>
-                <p class="candle-count" id="candleCount"></p>
-                <button class="candle-btn" id="candleBtn" type="button">
-                    <span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span>
-                    Light a Candle
-                </button>
-                <p class="candle-lit-message" id="candleLitMessage">Your candle has been lit. May their memory be a blessing.</p>
-            </div>
         </section>
 
         <!-- Obituary Text -->
@@ -1042,7 +896,6 @@
         // ── State ──────────────────────────────────────────
         var obituaryId = null;
         var obituaryData = null;
-        var candleCountValue = 0;
 
         // ── Extract Obituary ID from URL ───────────────────
         // Expected URL format: /memorial/OBITUARY_ID
@@ -1251,61 +1104,6 @@
                 setHtml('serviceCards', cards);
                 show('servicesSection');
             }
-        }
-
-        // ── Candle Functions ──────────────────────────────
-        function updateCandleCount(count) {
-            candleCountValue = count;
-            if (count > 0) {
-                setText('candleCount', count + (count === 1 ? ' candle has' : ' candles have') + ' been lit in memory');
-                document.getElementById('candleFlame').classList.add('active');
-            } else {
-                setText('candleCount', 'Be the first to light a memorial candle');
-            }
-        }
-
-        function loadCandleCount() {
-            fetch('/api/candles/' + encodeURIComponent(obituaryId))
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (data && typeof data.count === 'number') {
-                        updateCandleCount(data.count);
-                    } else if (data && typeof data.candle_count === 'number') {
-                        updateCandleCount(data.candle_count);
-                    } else {
-                        updateCandleCount(0);
-                    }
-                })
-                .catch(function() {
-                    updateCandleCount(0);
-                });
-        }
-
-        function lightCandle() {
-            var btn = document.getElementById('candleBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Lighting...';
-
-            fetch('/api/candles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ obituary_id: obituaryId })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                candleCountValue++;
-                updateCandleCount(candleCountValue);
-                document.getElementById('candleFlame').classList.add('active');
-                document.getElementById('candleLitMessage').classList.add('active');
-                btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Candle Lit';
-                btn.disabled = true;
-                // Remember in localStorage
-                localStorage.setItem('candle_' + obituaryId, 'true');
-            })
-            .catch(function() {
-                btn.disabled = false;
-                btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Light a Candle';
-            });
         }
 
         // ── Tributes Functions ────────────────────────────
@@ -1529,17 +1327,6 @@
                     populateSourceLink(obit);
                     setupShareButtons(obit);
 
-                    // Load candles
-                    loadCandleCount();
-
-                    // Check if user already lit a candle
-                    if (localStorage.getItem('candle_' + obituaryId)) {
-                        var btn = document.getElementById('candleBtn');
-                        btn.innerHTML = '<span class="candle-btn-icon">&#x1F56F;&#xFE0F;</span> Candle Lit';
-                        btn.disabled = true;
-                        document.getElementById('candleLitMessage').classList.add('active');
-                    }
-
                     // Load tributes
                     loadTributes();
 
@@ -1559,13 +1346,6 @@
         }
 
         // ── Event Listeners ───────────────────────────────
-
-        // Candle button
-        document.getElementById('candleBtn').addEventListener('click', function() {
-            if (!this.disabled) {
-                lightCandle();
-            }
-        });
 
         // Tribute form
         document.getElementById('tributeForm').addEventListener('submit', submitTribute);

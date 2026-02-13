@@ -153,6 +153,42 @@
             letter-spacing: 0.02em;
         }
 
+        /* ── City Filter ────────────────────────────────── */
+
+        .city-filter {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .city-btn {
+            font-family: 'Crimson Pro', serif;
+            background: transparent;
+            border: 1px solid var(--light-taupe);
+            color: var(--sage-dark);
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            min-height: 36px;
+        }
+
+        .city-btn:hover {
+            border-color: var(--gold);
+            color: var(--dark-brown);
+        }
+
+        .city-btn.active {
+            background: var(--dark-brown);
+            color: white;
+            border-color: var(--dark-brown);
+            font-weight: 500;
+        }
+
         /* ── Filter Tabs ─────────────────────────────────── */
 
         .tabs {
@@ -405,46 +441,53 @@
             font-style: italic;
         }
 
-        /* ── Card Photo Area (Decorative Gradient) ───────── */
+        /* ── Card Photo Circle ──────────────────────────── */
 
-        .card-photo-area {
-            height: 80px;
-            background: linear-gradient(
-                135deg,
-                var(--dark-brown) 0%,
-                #5D4037 30%,
-                var(--gold) 70%,
-                #d4b87a 100%
-            );
+        .card-photo-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: -60px auto 1rem;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 4px 16px var(--soft-shadow);
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-photo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+        }
+
+        .card-photo-circle.no-photo {
+            background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        .card-photo-area::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5C20 18.57 18.43 17 16.5 17S13 18.57 13 20.5 14.57 24 16.5 24 20 22.43 20 20.5z' fill='%23ffffff' fill-opacity='0.05'/%3E%3C/svg%3E");
-            opacity: 0.3;
-        }
-
-        .card-photo-area .initials {
+        .card-photo-circle .card-initials {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            letter-spacing: 0.15em;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1;
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: white;
+            letter-spacing: 0.08em;
+        }
+
+        /* Spacer for cards that have the photo circle overlapping */
+        .card-header {
+            margin-bottom: 0;
         }
 
         /* ── Card Body ───────────────────────────────────── */
 
         .card-body {
-            padding: 2rem 1.75rem 1.5rem;
+            padding: 0.5rem 1.75rem 1.5rem;
+            text-align: center;
         }
 
         /* "In Loving Memory" label */
@@ -667,20 +710,6 @@
             border-color: var(--gold);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px var(--soft-shadow);
-        }
-
-        .btn-candle {
-            background: linear-gradient(135deg, rgba(201, 169, 110, 0.15) 0%, rgba(201, 169, 110, 0.08) 100%);
-            color: var(--gold);
-            border: 1px solid rgba(201, 169, 110, 0.35);
-            font-weight: 500;
-        }
-
-        .btn-candle:hover {
-            background: linear-gradient(135deg, rgba(201, 169, 110, 0.25) 0%, rgba(201, 169, 110, 0.15) 100%);
-            border-color: var(--gold);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px var(--gold-glow);
         }
 
         /* ── Memorial Link ───────────────────────────────── */
@@ -1161,8 +1190,14 @@
                 top: calc(100% + 0.5rem);
             }
 
-            .card-photo-area {
-                height: 64px;
+            .card-photo-circle {
+                width: 100px;
+                height: 100px;
+                margin-top: -50px;
+            }
+
+            .card-photo-circle .card-initials {
+                font-size: 1.8rem;
             }
 
             .in-memory-label {
@@ -1227,6 +1262,12 @@
         <div class="header-content">
             <h1><a href="/" class="site-title-link">Neshama</a></h1>
             <p class="tagline">Every soul remembered, every life honored</p>
+
+            <div class="city-filter" id="cityFilter">
+                <button class="city-btn active" data-city="all">All Cities</button>
+                <button class="city-btn" data-city="Toronto">Toronto</button>
+                <button class="city-btn" data-city="Montreal">Montreal</button>
+            </div>
 
             <div class="tabs">
                 <button class="tab active" data-tab="today">Today</button>

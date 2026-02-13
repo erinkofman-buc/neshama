@@ -73,7 +73,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
         # API endpoints
         if path == '/api/obituaries':
-            self.get_obituaries()
+            query_params = parse_qs(parsed_path.query)
+            city_filter = query_params.get('city', [None])[0]
+            self.get_obituaries(city_filter)
         elif path == '/api/search':
             query_params = parse_qs(parsed_path.query)
             search_query = query_params.get('q', [''])[0]
@@ -94,10 +96,6 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/tributes/'):
             obit_id = path[len('/api/tributes/'):]
             self.get_tributes(obit_id)
-        # Candles API
-        elif path.startswith('/api/candles/'):
-            obit_id = path[len('/api/candles/'):]
-            self.get_candle_count(obit_id)
         # Memorial pages
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
@@ -134,8 +132,6 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_unsubscribe_feedback(body)
         elif path == '/api/tributes':
             self.handle_submit_tribute(body)
-        elif path == '/api/candles':
-            self.handle_light_candle(body)
         elif path == '/api/create-checkout':
             self.handle_create_checkout(body)
         elif path == '/webhook':
@@ -182,15 +178,18 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     # ── API: Obituaries ──────────────────────────────────────
 
-    def get_obituaries(self):
-        """Get all obituaries from database"""
+    def get_obituaries(self, city=None):
+        """Get all obituaries from database, optionally filtered by city"""
         try:
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            cursor.execute('SELECT * FROM obituaries ORDER BY last_updated DESC')
+            if city:
+                cursor.execute('SELECT * FROM obituaries WHERE city = ? ORDER BY last_updated DESC', (city,))
+            else:
+                cursor.execute('SELECT * FROM obituaries ORDER BY last_updated DESC')
             obituaries = [dict(row) for row in cursor.fetchall()]
             conn.close()
 
@@ -530,55 +529,6 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(str(e))
 
-    # ── API: Candles ──────────────────────────────────────────
-
-    def get_candle_count(self, obit_id):
-        """Get candle count for an obituary"""
-        try:
-            db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) FROM candles WHERE obituary_id = ?', (obit_id,))
-            count = cursor.fetchone()[0]
-            conn.close()
-            self.send_json_response({'status': 'success', 'count': count})
-        except Exception as e:
-            self.send_json_response({'status': 'success', 'count': 0})
-
-    def handle_light_candle(self, body):
-        """Handle lighting a virtual candle"""
-        try:
-            data = json.loads(body)
-            obit_id = data.get('obituary_id', '').strip()
-            lit_by = data.get('lit_by', 'Anonymous').strip()
-
-            if not obit_id:
-                self.send_json_response({'status': 'error', 'message': 'Obituary ID required'}, 400)
-                return
-
-            db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            now = datetime.now().isoformat()
-            cursor.execute(
-                'INSERT INTO candles (obituary_id, lit_by, created_at) VALUES (?, ?, ?)',
-                (obit_id, lit_by, now)
-            )
-            conn.commit()
-            cursor.execute('SELECT COUNT(*) FROM candles WHERE obituary_id = ?', (obit_id,))
-            count = cursor.fetchone()[0]
-            conn.close()
-
-            self.send_json_response({
-                'status': 'success',
-                'message': 'Candle lit',
-                'count': count
-            })
-        except json.JSONDecodeError:
-            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
-        except Exception as e:
-            self.send_error_response(str(e))
-
     # ── API: Community Stats ──────────────────────────────────
 
     def get_community_stats(self):
@@ -598,13 +548,6 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass
 
-            total_candles = 0
-            try:
-                cursor.execute('SELECT COUNT(*) FROM candles')
-                total_candles = cursor.fetchone()[0]
-            except Exception:
-                pass
-
             sub_count = 0
             try:
                 cursor.execute('SELECT COUNT(*) FROM subscribers WHERE confirmed = TRUE')
@@ -619,14 +562,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 'data': {
                     'souls_remembered': total_obituaries,
                     'tributes_left': total_tributes,
-                    'candles_lit': total_candles,
                     'community_members': sub_count
                 }
             })
         except Exception as e:
             self.send_json_response({
                 'status': 'success',
-                'data': {'souls_remembered': 0, 'tributes_left': 0, 'candles_lit': 0, 'community_members': 0}
+                'data': {'souls_remembered': 0, 'tributes_left': 0, 'community_members': 0}
             })
 
     # ── Admin: Scraper ─────────────────────────────────────────
@@ -909,11 +851,9 @@ def run_server(port=None):
     print(f"   GET  /api/community-stats  - Community statistics")
     print(f"   GET  /api/tributes/{{id}}    - Tributes for obituary")
     print(f"   GET  /api/tributes/counts  - All tribute counts")
-    print(f"   GET  /api/candles/{{id}}     - Candle count for obituary")
     print(f"   GET  /api/subscribers/count - Subscriber count")
     print(f"   POST /api/subscribe        - Email subscription")
     print(f"   POST /api/tributes         - Submit tribute")
-    print(f"   POST /api/candles          - Light a candle")
     print(f"   POST /api/unsubscribe-feedback - Unsubscribe feedback")
     print(f"   POST /api/create-checkout  - Stripe checkout")
     print(f"   POST /webhook              - Stripe webhook")

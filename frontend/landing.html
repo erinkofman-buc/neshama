@@ -195,114 +195,7 @@
             width: 100%;
         }
 
-        /* Memorial candle - purely decorative */
-        .candle-container {
-            position: absolute;
-            top: 28px;
-            right: 40px;
-            width: 40px;
-            height: 80px;
-            opacity: 0.35;
-            pointer-events: none;
-        }
-
-        .candle-body {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 14px;
-            height: 44px;
-            background: linear-gradient(to bottom, #f5eedd, #e8dcc8);
-            border-radius: 2px 2px 1px 1px;
-        }
-
-        .candle-wick {
-            position: absolute;
-            bottom: 44px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 8px;
-            background: var(--dark-brown);
-            border-radius: 1px;
-        }
-
-        .candle-flame {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 22px;
-        }
-
-        .candle-flame-inner {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 22px;
-            background: radial-gradient(
-                ellipse at 50% 90%,
-                #fff8e7 0%,
-                #ffd666 30%,
-                #f0a030 55%,
-                var(--terracotta) 80%,
-                transparent 100%
-            );
-            border-radius: 50% 50% 40% 40% / 70% 70% 40% 40%;
-            animation: flicker 2.5s ease-in-out infinite alternate;
-        }
-
-        .candle-flame-inner::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 5px;
-            height: 10px;
-            background: radial-gradient(
-                ellipse at 50% 80%,
-                #fffbe6 0%,
-                #ffe082 60%,
-                transparent 100%
-            );
-            border-radius: 50% 50% 40% 40% / 70% 70% 40% 40%;
-            animation: flickerInner 1.8s ease-in-out infinite alternate;
-        }
-
-        .candle-glow {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(
-                circle at center,
-                rgba(255, 214, 102, 0.2) 0%,
-                transparent 70%
-            );
-            animation: glowPulse 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes flicker {
-            0%   { transform: translateX(-50%) scale(1) rotate(-1deg); }
-            20%  { transform: translateX(-50%) scale(1.04) rotate(0.5deg); }
-            40%  { transform: translateX(-50%) scale(0.97) rotate(-0.5deg); }
-            60%  { transform: translateX(-50%) scale(1.02) rotate(1deg); }
-            80%  { transform: translateX(-50%) scale(0.99) rotate(-0.5deg); }
-            100% { transform: translateX(-50%) scale(1.03) rotate(0deg); }
-        }
-
-        @keyframes flickerInner {
-            0%   { opacity: 0.8; transform: translateX(-50%) scaleY(1); }
-            50%  { opacity: 1; transform: translateX(-50%) scaleY(1.08); }
-            100% { opacity: 0.85; transform: translateX(-50%) scaleY(0.95); }
-        }
+        /* Placeholder for removed decorative element */
 
         @keyframes glowPulse {
             0%   { opacity: 0.5; transform: translateX(-50%) scale(1); }
@@ -897,12 +790,6 @@
                 gap: 12px;
             }
 
-            .candle-container {
-                right: 20px;
-                top: 20px;
-                opacity: 0.25;
-            }
-
             .hero {
                 padding: 60px 20px 50px;
             }
@@ -936,9 +823,6 @@
                 animation: none;
             }
 
-            .candle-flame-inner,
-            .candle-flame-inner::after,
-            .candle-glow,
             .scroll-indicator__arrow {
                 animation: none;
             }
@@ -988,16 +872,6 @@
          HERO SECTION
          ============================ -->
     <section class="hero" role="banner" aria-label="Welcome to Neshama">
-        <!-- Decorative candle -->
-        <div class="candle-container" aria-hidden="true">
-            <div class="candle-glow"></div>
-            <div class="candle-flame">
-                <div class="candle-flame-inner"></div>
-            </div>
-            <div class="candle-wick"></div>
-            <div class="candle-body"></div>
-        </div>
-
         <div class="hero-content" id="main-content">
             <div class="hero-brand fade-in">
                 <h1 class="hero-title">Neshama</h1>
@@ -1080,7 +954,7 @@
                         </svg>
                     </div>
                     <h3 class="feature-card__title">Honor &amp; Remember</h3>
-                    <p class="feature-card__text">Light virtual candles, leave tributes, share memories.</p>
+                    <p class="feature-card__text">Leave tributes, share memories, and honor loved ones.</p>
                 </article>
             </div>
         </div>

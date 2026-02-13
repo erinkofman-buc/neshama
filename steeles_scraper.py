@@ -67,7 +67,8 @@ class SteelesScraper:
             data = {
                 'source': self.source_name,
                 'source_url': url,
-                'condolence_url': url
+                'condolence_url': url,
+                'city': 'Toronto'
             }
 
             # Extract deceased name

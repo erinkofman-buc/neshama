@@ -50,6 +50,7 @@ class NeshamaDatabase:
                 livestream_url TEXT,
                 livestream_available INTEGER DEFAULT 0,
                 photo_url TEXT,
+                city TEXT DEFAULT 'Toronto',
                 scraped_at TEXT NOT NULL,
                 first_seen TEXT NOT NULL,
                 last_updated TEXT NOT NULL,
@@ -84,6 +85,11 @@ class NeshamaDatabase:
         self.cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_obituary_name
             ON obituaries(deceased_name)
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_obituary_city
+            ON obituaries(city)
         ''')
 
         self.cursor.execute('''
@@ -122,22 +128,6 @@ class NeshamaDatabase:
         self.cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_tributes_obituary
             ON tributes(obituary_id)
-        ''')
-
-        # Candles table - virtual candles lit by visitors
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS candles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                obituary_id TEXT NOT NULL,
-                lit_by TEXT,
-                created_at TEXT NOT NULL,
-                FOREIGN KEY (obituary_id) REFERENCES obituaries(id)
-            )
-        ''')
-
-        self.cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_candles_obituary
-            ON candles(obituary_id)
         ''')
 
         self.conn.commit()
@@ -220,9 +210,9 @@ class NeshamaDatabase:
                     date_of_death, yahrzeit_date, funeral_datetime,
                     funeral_location, burial_location, shiva_info,
                     obituary_text, condolence_url, livestream_url,
-                    livestream_available, photo_url, scraped_at,
+                    livestream_available, photo_url, city, scraped_at,
                     first_seen, last_updated, content_hash
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 obit_id,
                 obituary_data['source'],
@@ -240,6 +230,7 @@ class NeshamaDatabase:
                 obituary_data.get('livestream_url'),
                 1 if obituary_data.get('livestream_url') else 0,
                 obituary_data.get('photo_url'),
+                obituary_data.get('city', 'Toronto'),
                 now,
                 now,
                 now,
