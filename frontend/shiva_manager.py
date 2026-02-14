@@ -101,6 +101,31 @@ class ShivaManager:
         d = datetime.strptime(date_str, '%Y-%m-%d')
         return d.weekday() in (4, 5)  # 4=Friday, 5=Saturday
 
+    MAX_FIELD_LENGTH = 500
+    MAX_TEXT_LENGTH = 2000
+
+    def _sanitize_text(self, value, max_len=None):
+        """Truncate text fields to prevent abuse."""
+        if not value:
+            return value
+        limit = max_len or self.MAX_FIELD_LENGTH
+        return str(value)[:limit].strip()
+
+    def _validate_url(self, url):
+        """Validate URL starts with http:// or https:// to prevent javascript: XSS."""
+        if not url:
+            return url
+        url = url.strip()
+        if url.lower().startswith(('http://', 'https://')):
+            return url
+        return None
+
+    def _validate_email(self, email):
+        """Basic server-side email validation."""
+        if not email or '@' not in email or '.' not in email.split('@')[-1]:
+            return None
+        return email.strip().lower()[:254]
+
     def _validate_date_range(self, start_date, end_date):
         """Validate that dates are proper ISO format and end >= start."""
         try:
@@ -130,6 +155,16 @@ class ShivaManager:
 
         if not data.get('privacy_consent'):
             return {'status': 'error', 'message': 'Privacy consent is required'}
+
+        # Validate email
+        clean_email = self._validate_email(data.get('organizer_email', ''))
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email address'}
+
+        # Validate donation_url (prevent javascript: XSS)
+        donation_url = self._validate_url(data.get('donation_url', '').strip())
+        if data.get('donation_url', '').strip() and not donation_url:
+            return {'status': 'error', 'message': 'Donation URL must start with http:// or https://'}
 
         # Validate dates
         valid, err = self._validate_date_range(data['shiva_start_date'], data['shiva_end_date'])
@@ -165,21 +200,21 @@ class ShivaManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
             ''', (
                 support_id,
-                data['obituary_id'].strip(),
-                data['organizer_name'].strip(),
-                data['organizer_email'].strip().lower(),
-                data.get('organizer_phone', '').strip() or None,
-                data['organizer_relationship'].strip(),
-                data['family_name'].strip(),
-                data['shiva_address'].strip(),
-                data.get('shiva_city', '').strip() or None,
-                data['shiva_start_date'].strip(),
-                data['shiva_end_date'].strip(),
+                self._sanitize_text(data['obituary_id']),
+                self._sanitize_text(data['organizer_name'], 200),
+                clean_email,
+                self._sanitize_text(data.get('organizer_phone', ''), 30) or None,
+                self._sanitize_text(data['organizer_relationship'], 50),
+                self._sanitize_text(data['family_name'], 200),
+                self._sanitize_text(data['shiva_address']),
+                self._sanitize_text(data.get('shiva_city', ''), 100) or None,
+                data['shiva_start_date'].strip()[:10],
+                data['shiva_end_date'].strip()[:10],
                 1 if data.get('pause_shabbat', True) else 0,
-                data.get('dietary_notes', '').strip() or None,
-                data.get('special_instructions', '').strip() or None,
-                data.get('donation_url', '').strip() or None,
-                data.get('donation_label', '').strip() or None,
+                self._sanitize_text(data.get('dietary_notes', ''), self.MAX_TEXT_LENGTH) or None,
+                self._sanitize_text(data.get('special_instructions', ''), self.MAX_TEXT_LENGTH) or None,
+                donation_url,
+                self._sanitize_text(data.get('donation_label', ''), 200) or None,
                 magic_token,
                 1,
                 now
@@ -282,6 +317,12 @@ class ShivaManager:
                 val = data[field]
                 if field == 'pause_shabbat':
                     val = 1 if val else 0
+                elif field == 'donation_url':
+                    val = self._validate_url(val) if val else None
+                elif field in ('dietary_notes', 'special_instructions'):
+                    val = self._sanitize_text(val, self.MAX_TEXT_LENGTH)
+                else:
+                    val = self._sanitize_text(val)
                 vals.append(val)
 
         if not sets:
@@ -312,8 +353,13 @@ class ShivaManager:
         if data['meal_type'] not in ('Lunch', 'Dinner'):
             return {'status': 'error', 'message': 'Meal type must be Lunch or Dinner'}
 
+        # Validate email
+        vol_email = self._validate_email(data.get('volunteer_email', ''))
+        if not vol_email:
+            return {'status': 'error', 'message': 'Invalid email address'}
+
         support_id = data['shiva_support_id'].strip()
-        meal_date = data['meal_date'].strip()
+        meal_date = data['meal_date'].strip()[:10]
 
         conn = self._get_conn()
         cursor = conn.cursor()
@@ -356,6 +402,12 @@ class ShivaManager:
 
         now = datetime.now().isoformat()
         try:
+            num_servings = 4
+            try:
+                num_servings = max(1, min(50, int(data.get('num_servings', 4))))
+            except (ValueError, TypeError):
+                pass
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
@@ -364,13 +416,13 @@ class ShivaManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
-                data['volunteer_name'].strip(),
-                data['volunteer_email'].strip().lower(),
-                data.get('volunteer_phone', '').strip() or None,
+                self._sanitize_text(data['volunteer_name'], 200),
+                vol_email,
+                self._sanitize_text(data.get('volunteer_phone', ''), 30) or None,
                 meal_date,
                 data['meal_type'].strip(),
-                data.get('meal_description', '').strip() or None,
-                int(data.get('num_servings', 4)),
+                self._sanitize_text(data.get('meal_description', ''), self.MAX_TEXT_LENGTH) or None,
+                num_servings,
                 1,
                 now
             ))
