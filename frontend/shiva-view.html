@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiva Support - Neshama</title>
+    <meta name="description" content="Help coordinate meals and support for a family during their shiva period.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* ── Navigation ─────────────────────────────────── */
+
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); }
+
+        /* ── Page Container ──────────────────────────────── */
+
+        .page-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading & Error States ──────────────────────── */
+
+        .page-loading {
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--light-taupe);
+            border-top-color: var(--terracotta);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .page-loading p { font-size: 1.2rem; color: var(--sage-dark); font-style: italic; }
+
+        .error-state {
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .error-state h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .error-state p { font-size: 1.1rem; color: var(--sage-dark); margin-bottom: 2rem; }
+
+        .error-state a {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .error-state a:hover { background: #c45a1a; transform: translateY(-2px); }
+
+        /* ── Hero Section ────────────────────────────────── */
+
+        .shiva-hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .shiva-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .shiva-hero .dates {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .shiva-hero .memorial-link {
+            display: inline-block;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        .shiva-hero .memorial-link:hover { opacity: 0.7; }
+
+        .hero-divider {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 1.5rem auto 0;
+        }
+
+        /* ── Info Cards ──────────────────────────────────── */
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+        }
+
+        .info-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-brown);
+        }
+
+        .info-card p {
+            font-size: 1rem;
+            color: var(--dark-brown);
+            line-height: 1.6;
+        }
+
+        .donation-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .donation-link:hover { opacity: 0.7; }
+
+        /* ── Meal Calendar ────────────────────────────────── */
+
+        .calendar-section {
+            margin: 2.5rem 0;
+        }
+
+        .section-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--dark-brown);
+        }
+
+        .section-heading::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--gold);
+            margin: 0.75rem auto 0;
+        }
+
+        .meal-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .meal-day {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .meal-day.shabbat {
+            opacity: 0.5;
+        }
+
+        .meal-day-header {
+            padding: 0.75rem 1.25rem;
+            background: var(--cream);
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meal-day.shabbat .meal-day-header {
+            background: #f5f0e8;
+        }
+
+        .shabbat-label {
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .meal-slots {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .meal-slot {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--cream);
+        }
+
+        .meal-slot:first-child {
+            border-right: 1px solid var(--cream);
+        }
+
+        .meal-slot-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--sage-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-slot-filled {
+            font-size: 0.95rem;
+            color: var(--dark-brown);
+        }
+
+        .meal-slot-filled .volunteer-name {
+            font-weight: 600;
+        }
+
+        .meal-slot-filled .meal-desc {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin-top: 0.15rem;
+        }
+
+        .meal-slot-open {
+            text-align: center;
+        }
+
+        .signup-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .signup-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+        }
+
+        /* ── Signup Modal ────────────────────────────────── */
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal .modal-subtitle {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.35rem;
+        }
+
+        .form-group label .optional {
+            font-weight: 400;
+            color: var(--sage-dark);
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: white;
+            color: var(--dark-brown);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--sage);
+        }
+
+        .consent-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            margin: 1.25rem 0;
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-taupe);
+        }
+
+        .consent-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+            accent-color: var(--terracotta);
+        }
+
+        .consent-group label {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--dark-brown);
+        }
+
+        .consent-group label a { color: var(--terracotta); }
+
+        .modal-btn-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover { border-color: var(--dark-brown); }
+
+        .form-error {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .form-error.active { display: block; }
+
+        /* ── Address Reveal ──────────────────────────────── */
+
+        .address-reveal {
+            display: none;
+        }
+
+        .address-reveal.active {
+            display: block;
+        }
+
+        .address-card {
+            background: #e8f5e9;
+            border: 2px solid #a5d6a7;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .address-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+        }
+
+        .address-card .thank-you {
+            font-size: 1rem;
+            color: #2e7d32;
+            margin-bottom: 1rem;
+        }
+
+        .address-card .address-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .address-card .instructions-text {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            font-style: italic;
+        }
+
+        /* ── Archived State ──────────────────────────────── */
+
+        .archived-notice {
+            text-align: center;
+            padding: 2rem;
+            background: var(--cream);
+            border-radius: 1rem;
+            margin: 2rem 0;
+        }
+
+        .archived-notice p {
+            color: var(--sage-dark);
+            font-size: 1.1rem;
+        }
+
+        /* ── Footer ──────────────────────────────────────── */
+
+        .site-footer {
+            max-width: 800px;
+            margin: 3rem auto 0;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* ── Responsive ──────────────────────────────────── */
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .info-cards { grid-template-columns: 1fr; }
+            .meal-slots { grid-template-columns: 1fr; }
+            .meal-slot:first-child { border-right: none; }
+            .modal { padding: 1.5rem; border-radius: 1rem; }
+            .modal-btn-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <!-- Loading State -->
+    <div class="page-container" id="pageLoading">
+        <div class="page-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading support page...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="page-container" id="errorState" style="display: none;">
+        <div class="error-state">
+            <h2>Support Page Not Found</h2>
+            <p>This support page may have been archived or the link may be incorrect.</p>
+            <a href="/feed">Return to Feed</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-container" id="mainContent" style="display: none;">
+
+        <!-- Hero -->
+        <section class="shiva-hero">
+            <h1 id="familyName"></h1>
+            <p class="dates" id="shivaDates"></p>
+            <a class="memorial-link" id="memorialLink" href="#" style="display: none;">View Memorial &#x2197;</a>
+            <div class="hero-divider"></div>
+        </section>
+
+        <!-- Info Cards -->
+        <div class="info-cards" id="infoCards">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Address Reveal (shown after signup) -->
+        <div class="address-reveal" id="addressReveal">
+            <div class="address-card">
+                <h3>Thank You for Helping</h3>
+                <p class="thank-you">Your kindness means so much to the family.</p>
+                <p class="address-text" id="revealedAddress"></p>
+                <p class="instructions-text" id="revealedInstructions"></p>
+            </div>
+        </div>
+
+        <!-- Meal Calendar -->
+        <section class="calendar-section">
+            <h2 class="section-heading">Meal Calendar</h2>
+            <div class="meal-grid" id="mealGrid">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal-overlay" id="signupModal">
+        <div class="modal">
+            <h2>Help Coordinate a Meal</h2>
+            <p class="modal-subtitle" id="modalSubtitle"></p>
+
+            <div class="form-group">
+                <label for="volName">Your Name</label>
+                <input type="text" id="volName" placeholder="Your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="volEmail">Your Email</label>
+                <input type="email" id="volEmail" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="volPhone">Phone <span class="optional">(optional)</span></label>
+                <input type="tel" id="volPhone" placeholder="(416) 555-0123">
+            </div>
+
+            <div class="form-group">
+                <label for="mealDesc">What are you bringing? <span class="optional">(optional)</span></label>
+                <textarea id="mealDesc" placeholder="e.g., Chicken soup, salad, and bread..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="numServings">Number of Servings</label>
+                <select id="numServings">
+                    <option value="2">2 servings</option>
+                    <option value="4" selected>4 servings</option>
+                    <option value="6">6 servings</option>
+                    <option value="8">8 servings</option>
+                    <option value="10">10+ servings</option>
+                </select>
+            </div>
+
+            <div class="consent-group">
+                <input type="checkbox" id="volConsent" required>
+                <label for="volConsent">
+                    I consent to sharing my name and contact details with the family and organizer.
+                    My information will be deleted 30 days after the shiva period ends.
+                    <a href="/privacy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div class="form-error" id="signupError"></div>
+
+            <div class="modal-btn-row">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" id="signupSubmitBtn" onclick="submitSignup()">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        var supportId = null;
+        var supportData = null;
+        var mealsData = [];
+        var selectedDate = null;
+        var selectedMealType = null;
+
+        // ── Extract support ID from URL ─────────────────
+        function getSupportIdFromUrl() {
+            var path = window.location.pathname;
+            var parts = path.split('/');
+            if (parts.length >= 3 && parts[1] === 'shiva') {
+                return decodeURIComponent(parts.slice(2).join('/'));
+            }
+            return null;
+        }
+
+        // ── Escape HTML ─────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ── Format date ─────────────────────────────────
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr + 'T12:00:00');
+                return d.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr + 'T12:00:00');
+                return d.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function formatDateRange(start, end) {
+            try {
+                var s = new Date(start + 'T12:00:00');
+                var e = new Date(end + 'T12:00:00');
+                var opts = { month: 'long', day: 'numeric' };
+                return s.toLocaleDateString('en-US', opts) + ' \u2013 ' +
+                    e.toLocaleDateString('en-US', Object.assign({}, opts, { year: 'numeric' }));
+            } catch (err) {
+                return start + ' - ' + end;
+            }
+        }
+
+        // ── DOM Helpers ─────────────────────────────────
+        function show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
+        function hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+        // ── Load Support Data ───────────────────────────
+        function loadSupportPage() {
+            supportId = getSupportIdFromUrl();
+            if (!supportId) {
+                hide('pageLoading');
+                show('errorState');
+                return;
+            }
+
+            Promise.all([
+                fetch('/api/shiva/' + encodeURIComponent(supportId)).then(function(r) { return r.json(); }),
+                fetch('/api/shiva/' + encodeURIComponent(supportId) + '/meals').then(function(r) { return r.json(); })
+            ])
+            .then(function(results) {
+                var shivaResult = results[0];
+                var mealsResult = results[1];
+
+                if (!shivaResult || shivaResult.status !== 'success' || !shivaResult.data) {
+                    throw new Error('Not found');
+                }
+
+                supportData = shivaResult.data;
+                mealsData = (mealsResult && mealsResult.data) || [];
+
+                if (supportData.status === 'archived') {
+                    renderArchived();
+                    return;
+                }
+
+                renderPage();
+            })
+            .catch(function() {
+                hide('pageLoading');
+                show('errorState');
+            });
+        }
+
+        // ── Render Archived State ───────────────────────
+        function renderArchived() {
+            hide('pageLoading');
+            document.getElementById('familyName').textContent = supportData.family_name || 'Support Page';
+            var main = document.getElementById('mainContent');
+            main.innerHTML = '<section class="shiva-hero"><h1>' + escapeHtml(supportData.family_name) +
+                '</h1><div class="hero-divider"></div></section>' +
+                '<div class="archived-notice"><p>This shiva support page has been archived. ' +
+                'Thank you to everyone who helped coordinate meals.</p></div>';
+            show('mainContent');
+        }
+
+        // ── Render Main Page ────────────────────────────
+        function renderPage() {
+            // Title
+            document.title = supportData.family_name + ' - Shiva Support - Neshama';
+            document.getElementById('familyName').textContent = supportData.family_name;
+
+            // Dates
+            if (supportData.shiva_start_date && supportData.shiva_end_date) {
+                document.getElementById('shivaDates').textContent =
+                    formatDateRange(supportData.shiva_start_date, supportData.shiva_end_date);
+            }
+
+            // Memorial link
+            if (supportData.obituary_id && supportData.obituary_id !== 'unknown') {
+                var ml = document.getElementById('memorialLink');
+                ml.href = '/memorial/' + encodeURIComponent(supportData.obituary_id);
+                ml.style.display = '';
+            }
+
+            // Info cards
+            renderInfoCards();
+
+            // Meal calendar
+            renderMealCalendar();
+
+            hide('pageLoading');
+            show('mainContent');
+        }
+
+        // ── Render Info Cards ───────────────────────────
+        function renderInfoCards() {
+            var html = '';
+
+            if (supportData.dietary_notes) {
+                html += '<div class="info-card"><h3>Dietary Notes</h3><p>' +
+                    escapeHtml(supportData.dietary_notes) + '</p></div>';
+            }
+
+            if (supportData.donation_url) {
+                html += '<div class="info-card"><h3>' +
+                    escapeHtml(supportData.donation_label || 'Donate') + '</h3>' +
+                    '<a class="donation-link" href="' + escapeHtml(supportData.donation_url) +
+                    '" target="_blank" rel="noopener noreferrer">Make a Donation &#x2197;</a></div>';
+            }
+
+            // Organizer info
+            html += '<div class="info-card"><h3>Organized by</h3><p>' +
+                escapeHtml(supportData.organizer_name) +
+                (supportData.organizer_relationship ? ' (' + escapeHtml(supportData.organizer_relationship) + ')' : '') +
+                '</p></div>';
+
+            document.getElementById('infoCards').innerHTML = html;
+        }
+
+        // ── Render Meal Calendar ────────────────────────
+        function renderMealCalendar() {
+            if (!supportData.shiva_start_date || !supportData.shiva_end_date) return;
+
+            var start = new Date(supportData.shiva_start_date + 'T12:00:00');
+            var end = new Date(supportData.shiva_end_date + 'T12:00:00');
+
+            // Build signup lookup
+            var signupMap = {};
+            mealsData.forEach(function(m) {
+                var key = m.meal_date + '_' + m.meal_type;
+                signupMap[key] = m;
+            });
+
+            var html = '';
+            var current = new Date(start);
+
+            while (current <= end) {
+                var dateStr = current.toISOString().split('T')[0];
+                var dayOfWeek = current.getDay();
+                var isFriday = dayOfWeek === 5;
+                var isSaturday = dayOfWeek === 6;
+                var isShabbat = isFriday || isSaturday;
+                var isPaused = isShabbat && supportData.pause_shabbat;
+
+                var dayClass = 'meal-day' + (isPaused ? ' shabbat' : '');
+                html += '<div class="' + dayClass + '">';
+                html += '<div class="meal-day-header"><span>' + formatDate(dateStr) + '</span>';
+                if (isPaused) {
+                    html += '<span class="shabbat-label">Shabbat</span>';
+                }
+                html += '</div>';
+
+                if (!isPaused) {
+                    html += '<div class="meal-slots">';
+
+                    // Lunch slot
+                    var lunchKey = dateStr + '_Lunch';
+                    if (signupMap[lunchKey]) {
+                        var l = signupMap[lunchKey];
+                        html += '<div class="meal-slot"><div class="meal-slot-label">Lunch</div>' +
+                            '<div class="meal-slot-filled"><span class="volunteer-name">' +
+                            escapeHtml(l.volunteer_name) + '</span>' +
+                            (l.meal_description ? '<div class="meal-desc">' + escapeHtml(l.meal_description) + '</div>' : '') +
+                            '</div></div>';
+                    } else {
+                        html += '<div class="meal-slot meal-slot-open"><div class="meal-slot-label">Lunch</div>' +
+                            '<button class="signup-btn" onclick="openSignup(\'' + dateStr + '\',\'Lunch\')">' +
+                            'Help coordinate</button></div>';
+                    }
+
+                    // Dinner slot
+                    var dinnerKey = dateStr + '_Dinner';
+                    if (signupMap[dinnerKey]) {
+                        var d = signupMap[dinnerKey];
+                        html += '<div class="meal-slot"><div class="meal-slot-label">Dinner</div>' +
+                            '<div class="meal-slot-filled"><span class="volunteer-name">' +
+                            escapeHtml(d.volunteer_name) + '</span>' +
+                            (d.meal_description ? '<div class="meal-desc">' + escapeHtml(d.meal_description) + '</div>' : '') +
+                            '</div></div>';
+                    } else {
+                        html += '<div class="meal-slot meal-slot-open"><div class="meal-slot-label">Dinner</div>' +
+                            '<button class="signup-btn" onclick="openSignup(\'' + dateStr + '\',\'Dinner\')">' +
+                            'Help coordinate</button></div>';
+                    }
+
+                    html += '</div>'; // meal-slots
+                } else {
+                    html += '<div style="padding:1rem 1.25rem;text-align:center;color:var(--sage-dark);font-style:italic;">' +
+                        'Paused for Shabbat</div>';
+                }
+
+                html += '</div>'; // meal-day
+                current.setDate(current.getDate() + 1);
+            }
+
+            document.getElementById('mealGrid').innerHTML = html;
+        }
+
+        // ── Open Signup Modal ───────────────────────────
+        window.openSignup = function(date, mealType) {
+            selectedDate = date;
+            selectedMealType = mealType;
+
+            document.getElementById('modalSubtitle').textContent =
+                mealType + ' on ' + formatDate(date);
+
+            // Reset form
+            document.getElementById('volName').value = '';
+            document.getElementById('volEmail').value = '';
+            document.getElementById('volPhone').value = '';
+            document.getElementById('mealDesc').value = '';
+            document.getElementById('numServings').value = '4';
+            document.getElementById('volConsent').checked = false;
+            document.getElementById('signupError').classList.remove('active');
+            document.getElementById('signupSubmitBtn').disabled = false;
+            document.getElementById('signupSubmitBtn').textContent = 'Sign Up';
+
+            document.getElementById('signupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        // ── Close Modal ─────────────────────────────────
+        window.closeModal = function() {
+            document.getElementById('signupModal').classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        // Close modal on overlay click
+        document.getElementById('signupModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ── Submit Signup ───────────────────────────────
+        window.submitSignup = function() {
+            var name = document.getElementById('volName').value.trim();
+            var email = document.getElementById('volEmail').value.trim();
+            var consent = document.getElementById('volConsent').checked;
+            var errEl = document.getElementById('signupError');
+            var btn = document.getElementById('signupSubmitBtn');
+
+            if (!name || !email) {
+                errEl.textContent = 'Please fill in your name and email.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+                errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (!consent) {
+                errEl.textContent = 'Please accept the privacy consent to continue.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing up...';
+            errEl.classList.remove('active');
+
+            var payload = {
+                volunteer_name: name,
+                volunteer_email: email,
+                volunteer_phone: document.getElementById('volPhone').value.trim(),
+                meal_date: selectedDate,
+                meal_type: selectedMealType,
+                meal_description: document.getElementById('mealDesc').value.trim(),
+                num_servings: parseInt(document.getElementById('numServings').value),
+                privacy_consent: true
+            };
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    closeModal();
+                    // Reveal address
+                    revealAddress(data.shiva_address, data.shiva_city, data.special_instructions);
+                    // Refresh calendar
+                    refreshMeals();
+                } else {
+                    throw new Error(data.message || 'Failed to sign up');
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = 'Sign Up';
+                errEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errEl.classList.add('active');
+            });
+        };
+
+        // ── Reveal Address ──────────────────────────────
+        function revealAddress(address, city, instructions) {
+            var addrText = address || '';
+            if (city) addrText += ', ' + city;
+
+            document.getElementById('revealedAddress').textContent = addrText;
+            document.getElementById('revealedInstructions').textContent = instructions || '';
+            document.getElementById('addressReveal').classList.add('active');
+
+            // Scroll to it
+            document.getElementById('addressReveal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ── Refresh Meals ───────────────────────────────
+        function refreshMeals() {
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/meals')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    mealsData = (data && data.data) || [];
+                    renderMealCalendar();
+                })
+                .catch(function() {});
+        }
+
+        // ── Initialize ──────────────────────────────────
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSupportPage);
+        } else {
+            loadSupportPage();
+        }
+
+    })();
+    </script>
+</body>
+</html>

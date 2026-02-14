@@ -40,6 +40,17 @@ except Exception:
     STRIPE_AVAILABLE = False
     payment_mgr = None
 
+# Optional Shiva Support import
+try:
+    from shiva_manager import ShivaManager
+    shiva_mgr = ShivaManager(db_path=DB_PATH)
+    SHIVA_AVAILABLE = True
+    print(f"  Shiva support: Available")
+except Exception as e:
+    SHIVA_AVAILABLE = False
+    shiva_mgr = None
+    print(f"  Shiva support: Not available ({e})")
+
 class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     STATIC_FILES = {
@@ -64,6 +75,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/premium': ('premium.html', 'text/html'),
         '/premium.html': ('premium.html', 'text/html'),
         '/favicon.svg': ('favicon.svg', 'image/svg+xml'),
+        '/shiva/organize': ('shiva-organize.html', 'text/html'),
+        '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
     }
 
     def do_GET(self):
@@ -96,6 +109,19 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/tributes/'):
             obit_id = path[len('/api/tributes/'):]
             self.get_tributes(obit_id)
+        # Shiva API endpoints
+        elif path.startswith('/api/shiva/obituary/'):
+            obit_id = path[len('/api/shiva/obituary/'):]
+            self.get_shiva_by_obituary(obit_id)
+        elif path.startswith('/api/shiva/') and path.endswith('/meals'):
+            support_id = path[len('/api/shiva/'):-len('/meals')]
+            self.get_shiva_meals(support_id)
+        elif path.startswith('/api/shiva/') and not path.endswith('/meals'):
+            support_id = path[len('/api/shiva/'):]
+            self.get_shiva_details(support_id)
+        # Shiva pages
+        elif path.startswith('/shiva/') and not path.startswith('/shiva/organize'):
+            self.serve_shiva_page()
         # Memorial pages
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
@@ -136,6 +162,24 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_create_checkout(body)
         elif path == '/webhook':
             self.handle_webhook(body)
+        elif path == '/api/shiva':
+            self.handle_create_shiva(body)
+        elif path.startswith('/api/shiva/') and path.endswith('/signup'):
+            support_id = path[len('/api/shiva/'):-len('/signup')]
+            self.handle_meal_signup(support_id, body)
+        else:
+            self.send_404()
+
+    def do_PUT(self):
+        """Handle PUT requests"""
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length) if content_length > 0 else b''
+
+        if path.startswith('/api/shiva/'):
+            support_id = path[len('/api/shiva/'):]
+            self.handle_update_shiva(support_id, body)
         else:
             self.send_404()
 
@@ -143,13 +187,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Handle CORS preflight requests"""
         self.send_response(200)
         self.send_cors_headers()
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
         self.end_headers()
 
     def send_cors_headers(self):
         """Send CORS headers"""
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature')
 
     def serve_static(self, path):
@@ -731,6 +775,105 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    # ── API: Shiva Support ─────────────────────────────────
+
+    def serve_shiva_page(self):
+        """Serve the shiva community view page (JS handles data loading)"""
+        filepath = os.path.join(FRONTEND_DIR, 'shiva-view.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    def get_shiva_by_obituary(self, obit_id):
+        """Check if shiva support exists for an obituary"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'not_found', 'message': 'Shiva support not available'})
+            return
+        result = shiva_mgr.get_support_by_obituary(obit_id)
+        self.send_json_response(result)
+
+    def get_shiva_details(self, support_id):
+        """Get shiva support page details (no address)"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'not_found'})
+            return
+        # Check for organizer token in query params
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [None])[0]
+
+        if token:
+            result = shiva_mgr.get_support_for_organizer(support_id, token)
+        else:
+            result = shiva_mgr.get_support_by_id(support_id)
+        self.send_json_response(result)
+
+    def get_shiva_meals(self, support_id):
+        """Get meal signups for a shiva support page"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'success', 'data': []})
+            return
+        result = shiva_mgr.get_signups(support_id)
+        self.send_json_response(result)
+
+    def handle_create_shiva(self, body):
+        """Create a new shiva support page"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.create_support(data)
+            status_code = 200 if result['status'] in ('success', 'duplicate') else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_meal_signup(self, support_id, body):
+        """Handle volunteer meal signup"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            data['shiva_support_id'] = support_id
+            result = shiva_mgr.signup_meal(data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_update_shiva(self, support_id, body):
+        """Handle organizer update to shiva support page"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.pop('magic_token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization token required'}, 401)
+                return
+            result = shiva_mgr.update_support(support_id, token, data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     # ── Helpers ──────────────────────────────────────────────
 
     def get_db_path(self):
@@ -843,6 +986,8 @@ def run_server(port=None):
     print(f"   /manage-subscription       - Stripe customer portal")
     print(f"   /premium-success           - Payment success")
     print(f"   /premium-cancelled         - Payment cancelled")
+    print(f"   /shiva/organize            - Set up shiva support")
+    print(f"   /shiva/{{id}}               - Community support page")
     print(f"\n API Endpoints:")
     print(f"   GET  /api/obituaries       - All obituaries")
     print(f"   GET  /api/obituary/{{id}}    - Single obituary")
@@ -857,8 +1002,22 @@ def run_server(port=None):
     print(f"   POST /api/unsubscribe-feedback - Unsubscribe feedback")
     print(f"   POST /api/create-checkout  - Stripe checkout")
     print(f"   POST /webhook              - Stripe webhook")
+    print(f"   GET  /api/shiva/obituary/{{id}} - Check shiva support")
+    print(f"   GET  /api/shiva/{{id}}      - Shiva support details")
+    print(f"   GET  /api/shiva/{{id}}/meals - Meal signups")
+    print(f"   POST /api/shiva            - Create shiva support")
+    print(f"   POST /api/shiva/{{id}}/signup - Volunteer meal signup")
+    print(f"   PUT  /api/shiva/{{id}}      - Update shiva support")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
+    print(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
+
+    # Archive expired shiva support pages
+    if SHIVA_AVAILABLE:
+        try:
+            shiva_mgr.archive_expired()
+        except Exception as e:
+            print(f"  Shiva archive check: {e}")
     print(f"\n Press Ctrl+C to stop")
     print(f"{'='*60}\n")
 

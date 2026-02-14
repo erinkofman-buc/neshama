@@ -535,6 +535,82 @@
             border: 1px solid #ef5350;
         }
 
+        /* ── Support the Family Section ──────────────────── */
+
+        .support-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            border-left: 3px solid var(--terracotta);
+        }
+
+        .support-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .support-summary {
+            font-size: 1rem;
+            color: var(--dark-brown);
+            line-height: 1.7;
+            margin-bottom: 1.25rem;
+        }
+
+        .support-summary span {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .support-cta-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .support-cta-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        .support-organize-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--sage-dark);
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .support-organize-link:hover { color: var(--terracotta); }
+
+        .support-donation-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .support-donation-link:hover { opacity: 0.7; }
+
         /* ── Share Section ────────────────────────────────── */
 
         .share-buttons {
@@ -706,7 +782,8 @@
             .share-section,
             .source-link-section,
             .site-footer,
-            .share-buttons {
+            .share-buttons,
+            #supportSection {
                 display: none !important;
             }
 
@@ -815,6 +892,14 @@
         <section class="memorial-section" id="servicesSection" style="display: none;">
             <h2 class="section-heading">Service Details</h2>
             <div class="service-cards" id="serviceCards"></div>
+        </section>
+
+        <!-- Support the Family (shown if shiva support exists or as setup link) -->
+        <section class="memorial-section" id="supportSection" style="display: none;">
+            <h2 class="section-heading">Support the Family</h2>
+            <div class="support-card" id="supportCard">
+                <!-- Populated by JS -->
+            </div>
         </section>
 
         <!-- Tributes Section -->
@@ -1209,6 +1294,47 @@
             });
         }
 
+        // ── Shiva Support ───────────────────────────────
+        function checkShivaSupport(obitId) {
+            fetch('/api/shiva/obituary/' + encodeURIComponent(obitId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var card = document.getElementById('supportCard');
+                    if (data.status === 'success' && data.data) {
+                        var s = data.data;
+                        var html = '<h3>' + escapeHtml(s.family_name) + '</h3>';
+                        html += '<div class="support-summary">';
+                        if (s.shiva_start_date && s.shiva_end_date) {
+                            html += '<span>Shiva: ' + escapeHtml(formatDate(s.shiva_start_date)) +
+                                    ' &ndash; ' + escapeHtml(formatDate(s.shiva_end_date)) + '</span>';
+                        }
+                        if (s.dietary_notes) {
+                            html += '<span>Dietary notes: ' + escapeHtml(s.dietary_notes) + '</span>';
+                        }
+                        html += '</div>';
+                        html += '<a class="support-cta-btn" href="/shiva/' + encodeURIComponent(s.id) + '">Help coordinate meals</a>';
+                        if (s.donation_url) {
+                            html += '<br><a class="support-donation-link" href="' + escapeHtml(s.donation_url) +
+                                    '" target="_blank" rel="noopener noreferrer">' +
+                                    escapeHtml(s.donation_label || 'Make a donation') + ' &#x2197;</a>';
+                        }
+                        card.innerHTML = html;
+                        show('supportSection');
+                    } else {
+                        // No support exists - show setup link
+                        card.innerHTML = '<p style="text-align:center;color:var(--sage-dark);margin-bottom:1rem;">' +
+                            'No meal coordination has been set up yet for this family.</p>' +
+                            '<div style="text-align:center;">' +
+                            '<a class="support-cta-btn" href="/shiva/organize?obit=' + encodeURIComponent(obitId) +
+                            '">Set up support for this family</a></div>';
+                        show('supportSection');
+                    }
+                })
+                .catch(function() {
+                    // Silently fail - don't show section if API unavailable
+                });
+        }
+
         // ── Share Functions ───────────────────────────────
         function setupShareButtons(obit) {
             var pageUrl = window.location.href;
@@ -1332,6 +1458,9 @@
 
                     // Load tributes
                     loadTributes();
+
+                    // Check for shiva support
+                    checkShivaSupport(obit.id || obituaryId);
 
                     // Show content, hide loading
                     hide('pageLoading');

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Shiva Support - Neshama</title>
+    <meta name="description" content="Help coordinate meal delivery for a family during their shiva period.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* ── Navigation ─────────────────────────────────── */
+
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; }
+
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); }
+
+        /* ── Page Container ──────────────────────────────── */
+
+        .page-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 2rem;
+        }
+
+        .memorial-context {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        /* ── Progress Stepper ────────────────────────────── */
+
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stepper-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--light-taupe);
+            transition: all 0.3s ease;
+        }
+
+        .stepper-dot.active {
+            background: var(--terracotta);
+            transform: scale(1.2);
+        }
+
+        .stepper-dot.completed {
+            background: var(--gold);
+        }
+
+        .stepper-line {
+            width: 40px;
+            height: 2px;
+            background: var(--light-taupe);
+            transition: background 0.3s ease;
+        }
+
+        .stepper-line.completed {
+            background: var(--gold);
+        }
+
+        /* ── Step Card ───────────────────────────────────── */
+
+        .step-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            display: none;
+        }
+
+        .step-card.active { display: block; }
+
+        .step-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--dark-brown);
+        }
+
+        /* ── Form Elements ───────────────────────────────── */
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.35rem;
+        }
+
+        .form-group label .optional {
+            font-weight: 400;
+            color: var(--sage-dark);
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: white;
+            color: var(--dark-brown);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--sage);
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin-top: 0.3rem;
+        }
+
+        .privacy-notice {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            background: rgba(210, 105, 30, 0.05);
+            border-left: 3px solid var(--terracotta);
+            padding: 0.75rem 1rem;
+            margin-top: 0.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        /* ── Toggle ──────────────────────────────────────── */
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--light-taupe);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--terracotta);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(22px);
+        }
+
+        .toggle-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+
+        .toggle-hint {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin-left: calc(48px + 0.75rem);
+            margin-top: -0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Consent Checkbox ────────────────────────────── */
+
+        .consent-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-taupe);
+        }
+
+        .consent-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+            accent-color: var(--terracotta);
+        }
+
+        .consent-group label {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--dark-brown);
+        }
+
+        .consent-group label a {
+            color: var(--terracotta);
+        }
+
+        /* ── Buttons ─────────────────────────────────────── */
+
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+            padding: 0.85rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--dark-brown);
+        }
+
+        /* ── Review Summary ──────────────────────────────── */
+
+        .review-summary {
+            margin-bottom: 1.5rem;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--cream);
+            font-size: 0.95rem;
+        }
+
+        .review-label {
+            color: var(--sage-dark);
+            font-weight: 400;
+        }
+
+        .review-value {
+            color: var(--dark-brown);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        /* ── Success State ───────────────────────────────── */
+
+        .success-state {
+            text-align: center;
+            display: none;
+        }
+
+        .success-state.active { display: block; }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-state h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .success-state p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+
+        .magic-link-box {
+            background: var(--cream);
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+
+        .magic-link-box strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-brown);
+        }
+
+        .copy-link-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-link-btn:hover { background: #c45a1a; }
+
+        /* ── Duplicate Warning ───────────────────────────── */
+
+        .duplicate-warning {
+            display: none;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .duplicate-warning.active { display: block; }
+
+        .duplicate-warning p {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        /* ── Error Message ───────────────────────────────── */
+
+        .form-error {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .form-error.active { display: block; }
+
+        /* ── Footer ──────────────────────────────────────── */
+
+        .site-footer {
+            max-width: 640px;
+            margin: 3rem auto 0;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* ── Responsive ──────────────────────────────────── */
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .step-card { padding: 1.5rem; }
+            .btn-row { flex-direction: column; }
+            .review-item { flex-direction: column; gap: 0.25rem; }
+            .review-value { text-align: left; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <h1 class="page-title">Help Coordinate Support</h1>
+        <p class="page-subtitle">Set up meal coordination for a family during their shiva</p>
+        <p class="memorial-context" id="memorialContext" style="display: none;"></p>
+
+        <!-- Progress Stepper -->
+        <div class="stepper" id="stepper">
+            <div class="stepper-dot active" data-step="1"></div>
+            <div class="stepper-line" data-line="1"></div>
+            <div class="stepper-dot" data-step="2"></div>
+            <div class="stepper-line" data-line="2"></div>
+            <div class="stepper-dot" data-step="3"></div>
+        </div>
+
+        <!-- Duplicate Warning -->
+        <div class="duplicate-warning" id="duplicateWarning">
+            <p><strong>A support page already exists</strong> for this memorial.</p>
+            <p id="duplicateInfo"></p>
+            <a id="duplicateLink" href="#" class="btn-primary" style="display:inline-block;text-decoration:none;">View existing support page</a>
+        </div>
+
+        <!-- Step 1: Your Information -->
+        <div class="step-card active" id="step1">
+            <h2 class="step-title">Your Information</h2>
+
+            <div class="form-group">
+                <label for="organizerName">Your Name</label>
+                <input type="text" id="organizerName" placeholder="Your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="organizerEmail">Your Email</label>
+                <input type="email" id="organizerEmail" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="organizerPhone">Phone <span class="optional">(optional)</span></label>
+                <input type="tel" id="organizerPhone" placeholder="(416) 555-0123">
+            </div>
+
+            <div class="form-group">
+                <label for="organizerRelationship">Your Relationship to the Family</label>
+                <select id="organizerRelationship" required>
+                    <option value="" disabled selected>Select relationship</option>
+                    <option value="Family">Family</option>
+                    <option value="Friend">Friend</option>
+                </select>
+            </div>
+
+            <div class="consent-group">
+                <input type="checkbox" id="privacyConsent1" required>
+                <label for="privacyConsent1">
+                    I consent to Neshama storing my contact information to coordinate shiva support.
+                    My information will only be shared with the family and will be deleted 30 days after the shiva period ends.
+                    <a href="/privacy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div class="form-error" id="step1Error"></div>
+
+            <div class="btn-row">
+                <button class="btn-primary" onclick="goToStep(2)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Shiva Details -->
+        <div class="step-card" id="step2">
+            <h2 class="step-title">Shiva Details</h2>
+
+            <div class="form-group">
+                <label for="familyName">Family Name</label>
+                <input type="text" id="familyName" placeholder="The Cohen Family" required>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaAddress">Shiva Address</label>
+                <input type="text" id="shivaAddress" placeholder="123 Main Street, Apt 4B" required>
+                <div class="privacy-notice">This address will only be shared with confirmed volunteers who sign up to bring a meal.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaCity">City</label>
+                <input type="text" id="shivaCity" placeholder="Toronto">
+            </div>
+
+            <div class="form-group">
+                <label for="shivaStartDate">Start Date</label>
+                <input type="date" id="shivaStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaEndDate">End Date</label>
+                <input type="date" id="shivaEndDate" required>
+                <div class="form-hint">Typically 7 days from the start</div>
+            </div>
+
+            <div class="toggle-group">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="pauseShabbat" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Pause for Shabbat</span>
+            </div>
+            <p class="toggle-hint">Meal coordination will pause from Friday sunset to Saturday sunset</p>
+
+            <div class="form-group">
+                <label for="dietaryNotes">Dietary Notes <span class="optional">(optional)</span></label>
+                <textarea id="dietaryNotes" placeholder="e.g., Strictly kosher, nut allergy, vegetarian options welcome..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="specialInstructions">Special Instructions <span class="optional">(optional)</span></label>
+                <textarea id="specialInstructions" placeholder="e.g., Please use side entrance, ring doorbell twice..."></textarea>
+            </div>
+
+            <div class="form-error" id="step2Error"></div>
+
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+                <button class="btn-primary" onclick="goToStep(3)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Optional Extras + Review -->
+        <div class="step-card" id="step3">
+            <h2 class="step-title">Review &amp; Submit</h2>
+
+            <div class="form-group">
+                <label for="donationUrl">Donation Link <span class="optional">(optional)</span></label>
+                <input type="url" id="donationUrl" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label for="donationLabel">Donation Label <span class="optional">(optional)</span></label>
+                <input type="text" id="donationLabel" placeholder="In memory of...">
+            </div>
+
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;margin:1.5rem 0 1rem;">Summary</h3>
+            <div class="review-summary" id="reviewSummary">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="form-error" id="step3Error"></div>
+
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                <button class="btn-primary" id="submitBtn" onclick="submitForm()">Set Up Support Page</button>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div class="success-state" id="successState">
+            <div class="success-icon">&#x2705;</div>
+            <h2>Support Page Created</h2>
+            <p>The community can now sign up to help coordinate meals.</p>
+            <div class="magic-link-box" id="magicLinkBox">
+                <strong>Save this link to edit your support page later:</strong>
+                <span id="magicLinkUrl"></span>
+                <br>
+                <button class="copy-link-btn" onclick="copyMagicLink()">Copy Link</button>
+            </div>
+            <a id="viewPageLink" href="#" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:1rem;">View Support Page</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        var currentStep = 1;
+        var obituaryId = null;
+        var createdId = null;
+        var createdToken = null;
+
+        // ── Get obit ID from URL params ─────────────────
+        function getObitIdFromUrl() {
+            var params = new URLSearchParams(window.location.search);
+            return params.get('obit') || null;
+        }
+
+        // ── Escape HTML ─────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ── Load obituary context ───────────────────────
+        function loadObituaryContext() {
+            obituaryId = getObitIdFromUrl();
+            if (!obituaryId) return;
+
+            fetch('/api/obituary/' + encodeURIComponent(obituaryId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var obit = data.data || data;
+                    if (obit && obit.deceased_name) {
+                        var ctx = document.getElementById('memorialContext');
+                        ctx.textContent = 'In memory of ' + obit.deceased_name;
+                        ctx.style.display = '';
+
+                        // Pre-fill city if available
+                        if (obit.city) {
+                            document.getElementById('shivaCity').value = obit.city;
+                        }
+                    }
+                })
+                .catch(function() {});
+        }
+
+        // ── Set default dates ───────────────────────────
+        function setDefaultDates() {
+            var today = new Date();
+            var start = today.toISOString().split('T')[0];
+            document.getElementById('shivaStartDate').value = start;
+
+            var end = new Date(today);
+            end.setDate(end.getDate() + 7);
+            document.getElementById('shivaEndDate').value = end.toISOString().split('T')[0];
+        }
+
+        // ── Step Navigation ─────────────────────────────
+        window.goToStep = function(step) {
+            // Validate current step before advancing
+            if (step > currentStep) {
+                if (!validateStep(currentStep)) return;
+            }
+
+            // Hide all steps
+            for (var i = 1; i <= 3; i++) {
+                var el = document.getElementById('step' + i);
+                if (el) el.classList.remove('active');
+            }
+
+            // Show target step
+            var target = document.getElementById('step' + step);
+            if (target) target.classList.add('active');
+
+            // Update stepper dots
+            var dots = document.querySelectorAll('.stepper-dot');
+            var lines = document.querySelectorAll('.stepper-line');
+            dots.forEach(function(dot) {
+                var s = parseInt(dot.getAttribute('data-step'));
+                dot.classList.remove('active', 'completed');
+                if (s === step) dot.classList.add('active');
+                else if (s < step) dot.classList.add('completed');
+            });
+            lines.forEach(function(line) {
+                var l = parseInt(line.getAttribute('data-line'));
+                line.classList.remove('completed');
+                if (l < step) line.classList.add('completed');
+            });
+
+            currentStep = step;
+
+            // Build review on step 3
+            if (step === 3) buildReview();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // ── Validation ──────────────────────────────────
+        function validateStep(step) {
+            if (step === 1) {
+                var name = document.getElementById('organizerName').value.trim();
+                var email = document.getElementById('organizerEmail').value.trim();
+                var rel = document.getElementById('organizerRelationship').value;
+                var consent = document.getElementById('privacyConsent1').checked;
+                var errEl = document.getElementById('step1Error');
+
+                if (!name || !email || !rel) {
+                    errEl.textContent = 'Please fill in all required fields.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+                    errEl.textContent = 'Please enter a valid email address.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                if (!consent) {
+                    errEl.textContent = 'Please accept the privacy consent to continue.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                errEl.classList.remove('active');
+                return true;
+            }
+
+            if (step === 2) {
+                var family = document.getElementById('familyName').value.trim();
+                var addr = document.getElementById('shivaAddress').value.trim();
+                var start = document.getElementById('shivaStartDate').value;
+                var end = document.getElementById('shivaEndDate').value;
+                var errEl = document.getElementById('step2Error');
+
+                if (!family || !addr || !start || !end) {
+                    errEl.textContent = 'Please fill in all required fields.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                if (new Date(end) < new Date(start)) {
+                    errEl.textContent = 'End date must be on or after start date.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                errEl.classList.remove('active');
+                return true;
+            }
+
+            return true;
+        }
+
+        // ── Build Review Summary ────────────────────────
+        function buildReview() {
+            var items = [
+                ['Organizer', document.getElementById('organizerName').value],
+                ['Email', document.getElementById('organizerEmail').value],
+                ['Relationship', document.getElementById('organizerRelationship').value],
+                ['Family', document.getElementById('familyName').value],
+                ['City', document.getElementById('shivaCity').value || '(not specified)'],
+                ['Start', document.getElementById('shivaStartDate').value],
+                ['End', document.getElementById('shivaEndDate').value],
+                ['Shabbat pause', document.getElementById('pauseShabbat').checked ? 'Yes' : 'No'],
+            ];
+
+            var diet = document.getElementById('dietaryNotes').value.trim();
+            if (diet) items.push(['Dietary', diet.substring(0, 80) + (diet.length > 80 ? '...' : '')]);
+
+            var html = '';
+            items.forEach(function(item) {
+                html += '<div class="review-item"><span class="review-label">' +
+                    escapeHtml(item[0]) + '</span><span class="review-value">' +
+                    escapeHtml(item[1]) + '</span></div>';
+            });
+
+            document.getElementById('reviewSummary').innerHTML = html;
+        }
+
+        // ── Submit Form ─────────────────────────────────
+        window.submitForm = function() {
+            var btn = document.getElementById('submitBtn');
+            var errEl = document.getElementById('step3Error');
+
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            errEl.classList.remove('active');
+
+            var payload = {
+                obituary_id: obituaryId || 'unknown',
+                organizer_name: document.getElementById('organizerName').value.trim(),
+                organizer_email: document.getElementById('organizerEmail').value.trim(),
+                organizer_phone: document.getElementById('organizerPhone').value.trim(),
+                organizer_relationship: document.getElementById('organizerRelationship').value,
+                family_name: document.getElementById('familyName').value.trim(),
+                shiva_address: document.getElementById('shivaAddress').value.trim(),
+                shiva_city: document.getElementById('shivaCity').value.trim(),
+                shiva_start_date: document.getElementById('shivaStartDate').value,
+                shiva_end_date: document.getElementById('shivaEndDate').value,
+                pause_shabbat: document.getElementById('pauseShabbat').checked,
+                dietary_notes: document.getElementById('dietaryNotes').value.trim(),
+                special_instructions: document.getElementById('specialInstructions').value.trim(),
+                donation_url: document.getElementById('donationUrl').value.trim(),
+                donation_label: document.getElementById('donationLabel').value.trim(),
+                privacy_consent: true
+            };
+
+            // Check for duplicate first
+            fetch('/api/shiva/obituary/' + encodeURIComponent(payload.obituary_id))
+                .then(function(r) { return r.json(); })
+                .then(function(dupData) {
+                    if (dupData.status === 'success' && dupData.data) {
+                        // Duplicate exists
+                        btn.disabled = false;
+                        btn.textContent = 'Set Up Support Page';
+                        var warn = document.getElementById('duplicateWarning');
+                        var info = document.getElementById('duplicateInfo');
+                        var link = document.getElementById('duplicateLink');
+                        info.textContent = 'Set up on ' + new Date(dupData.data.created_at).toLocaleDateString();
+                        link.href = '/shiva/' + dupData.data.id;
+                        warn.classList.add('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                    // No duplicate, proceed to create
+                    return createSupport(payload, btn, errEl);
+                })
+                .catch(function() {
+                    // API check failed, try creating anyway
+                    return createSupport(payload, btn, errEl);
+                });
+        };
+
+        function createSupport(payload, btn, errEl) {
+            return fetch('/api/shiva', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    createdId = data.id;
+                    createdToken = data.magic_token;
+                    showSuccess();
+                } else if (data.status === 'duplicate') {
+                    btn.disabled = false;
+                    btn.textContent = 'Set Up Support Page';
+                    var warn = document.getElementById('duplicateWarning');
+                    var info = document.getElementById('duplicateInfo');
+                    var link = document.getElementById('duplicateLink');
+                    info.textContent = 'Originally organized by ' + escapeHtml(data.existing_organizer_first_name || 'someone');
+                    link.href = '/shiva/' + data.existing_id;
+                    warn.classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    throw new Error(data.message || 'Failed to create support page');
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = 'Set Up Support Page';
+                errEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errEl.classList.add('active');
+            });
+        }
+
+        // ── Show Success State ──────────────────────────
+        function showSuccess() {
+            // Hide all steps and stepper
+            for (var i = 1; i <= 3; i++) {
+                var el = document.getElementById('step' + i);
+                if (el) el.classList.remove('active');
+            }
+            document.getElementById('stepper').style.display = 'none';
+            document.getElementById('duplicateWarning').classList.remove('active');
+
+            var pageUrl = window.location.origin + '/shiva/' + createdId;
+            var editUrl = pageUrl + '?token=' + createdToken;
+
+            document.getElementById('magicLinkUrl').textContent = editUrl;
+            document.getElementById('viewPageLink').href = pageUrl;
+
+            document.getElementById('successState').classList.add('active');
+        }
+
+        // ── Copy Magic Link ─────────────────────────────
+        window.copyMagicLink = function() {
+            var url = document.getElementById('magicLinkUrl').textContent;
+            navigator.clipboard.writeText(url).then(function() {
+                var btn = document.querySelector('.copy-link-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(function() { btn.textContent = 'Copy Link'; }, 2000);
+            }).catch(function() {
+                // Fallback
+                var input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+            });
+        };
+
+        // ── Initialize ──────────────────────────────────
+        loadObituaryContext();
+        setDefaultDates();
+
+    })();
+    </script>
+</body>
+</html>
