@@ -159,6 +159,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_unsubscribe_page(token)
         elif path == '/manage-subscription':
             self.handle_manage_subscription()
+        elif path == '/admin/backup':
+            self.handle_admin_backup()
         elif path == '/admin/scrape':
             self.handle_admin_scrape()
         elif path == '/admin/scrape-status':
@@ -179,7 +181,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length) if content_length > 0 else b''
 
-        if path == '/api/subscribe':
+        if path == '/admin/restore':
+            self.handle_admin_restore(body)
+        elif path == '/api/subscribe':
             self.handle_subscribe(body)
         elif path == '/api/unsubscribe-feedback':
             self.handle_unsubscribe_feedback(body)
@@ -362,6 +366,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             if EMAIL_AVAILABLE:
                 result = subscription_mgr.subscribe(email)
+                if result.get('status') == 'success' and SHIVA_AVAILABLE:
+                    shiva_mgr._trigger_backup()
                 self.send_json_response(result)
             else:
                 # Fallback: direct insert (no double opt-in)
@@ -375,6 +381,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 ''', (email, now, now))
                 conn.commit()
                 conn.close()
+                if SHIVA_AVAILABLE:
+                    shiva_mgr._trigger_backup()
                 self.send_json_response({
                     'status': 'success',
                     'message': 'Successfully subscribed to daily updates!'
@@ -604,6 +612,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             tribute_id = cursor.lastrowid
             conn.close()
 
+            if SHIVA_AVAILABLE:
+                shiva_mgr._trigger_backup()
+
             self.send_json_response({
                 'status': 'success',
                 'message': 'Tribute submitted',
@@ -764,6 +775,54 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_error_response(f'Digest error: {str(e)}', 500)
 
+    # ── Admin: Backup / Restore ─────────────────────────────
+
+    def handle_admin_backup(self):
+        """Return full backup JSON of all critical tables."""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        if not SHIVA_AVAILABLE:
+            self.send_error_response('Shiva manager not available', 503)
+            return
+
+        data = shiva_mgr.get_backup_data()
+        self.send_json_response(data)
+
+    def handle_admin_restore(self, body):
+        """Restore from uploaded backup JSON."""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        if not SHIVA_AVAILABLE:
+            self.send_error_response('Shiva manager not available', 503)
+            return
+
+        try:
+            data = json.loads(body)
+            restored = shiva_mgr.restore_from_data(data)
+            self.send_json_response({
+                'status': 'success',
+                'message': f'Restored {restored} rows',
+                'rows_restored': restored
+            })
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     # ── API: Payment / Stripe ────────────────────────────────
 
     def handle_create_checkout(self, body):
@@ -910,6 +969,8 @@ button:hover{background:#c45a1a}</style></head>
         try:
             data = json.loads(body)
             result = shiva_mgr.submit_caterer_application(data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -926,6 +987,8 @@ button:hover{background:#c45a1a}</style></head>
             self.send_error_response('Unauthorized', 403)
             return
         result = shiva_mgr.approve_caterer(caterer_id)
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
         status_code = 200 if result['status'] == 'success' else 400
         self.send_json_response(result, status_code)
 
@@ -938,6 +1001,8 @@ button:hover{background:#c45a1a}</style></head>
             self.send_error_response('Unauthorized', 403)
             return
         result = shiva_mgr.reject_caterer(caterer_id)
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
         status_code = 200 if result['status'] == 'success' else 400
         self.send_json_response(result, status_code)
 
@@ -1014,6 +1079,7 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.create_support(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
+                shiva_mgr._trigger_backup()
             status_code = 200 if result['status'] in ('success', 'duplicate') else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1032,6 +1098,7 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.signup_meal(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('meal_signup', support_id)
+                shiva_mgr._trigger_backup()
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1052,6 +1119,8 @@ button:hover{background:#c45a1a}</style></head>
                 self.send_json_response({'status': 'error', 'message': 'Token and signup_id required'}, 400)
                 return
             result = shiva_mgr.remove_signup(support_id, signup_id, token)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1087,6 +1156,8 @@ button:hover{background:#c45a1a}</style></head>
                 self.send_json_response({'status': 'error', 'message': 'Authorization token required'}, 401)
                 return
             result = shiva_mgr.update_support(support_id, token, data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1235,6 +1306,8 @@ def run_server(port=None):
     print(f"   GET  /api/caterers/pending - Pending applications (admin)")
     print(f"   POST /api/caterers/{{id}}/approve - Approve caterer (admin)")
     print(f"   POST /api/caterers/{{id}}/reject  - Reject caterer (admin)")
+    print(f"   GET  /admin/backup             - Download backup JSON (admin)")
+    print(f"   POST /admin/restore            - Upload backup JSON (admin)")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
     print(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
@@ -1262,6 +1335,15 @@ def run_server(port=None):
             })
         except Exception as e:
             print(f"  Caterer seed: {e}")
+        # Auto-restore from backup if critical tables are empty
+        try:
+            if shiva_mgr.needs_restore():
+                print("[Startup] Critical tables empty — restoring from backup.json...")
+                shiva_mgr.restore_from_file()
+            else:
+                print("  Backup restore: not needed")
+        except Exception as e:
+            print(f"  Backup restore: {e}")
     print(f"\n Press Ctrl+C to stop")
     print(f"{'='*60}\n")
 

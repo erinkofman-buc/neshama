@@ -9,6 +9,8 @@ import sqlite3
 import uuid
 import secrets
 import os
+import json
+import threading
 from datetime import datetime, timedelta
 
 
@@ -945,3 +947,124 @@ class ShivaManager:
             return {'status': 'error', 'message': str(e)}
         finally:
             conn.close()
+
+    # ── Backup & Restore ─────────────────────────────────────
+
+    BACKUP_TABLES = [
+        'shiva_support', 'meal_signups', 'caterer_partners',
+        'donation_links', 'shiva_reports',
+    ]
+
+    def _get_backup_path(self):
+        """Return backup.json path next to the database file."""
+        return os.path.join(os.path.dirname(os.path.abspath(self.db_path)), 'backup.json')
+
+    def get_backup_data(self):
+        """Export all critical tables (including subscribers/tributes) as a dict."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        tables = {}
+
+        for table in self.BACKUP_TABLES:
+            try:
+                cursor.execute(f'SELECT * FROM {table}')
+                columns = [desc[0] for desc in cursor.description]
+                tables[table] = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            except Exception:
+                tables[table] = []
+
+        # Also back up subscribers and tributes (managed by api_server directly)
+        for table in ('subscribers', 'tributes'):
+            try:
+                cursor.execute(f'SELECT * FROM {table}')
+                columns = [desc[0] for desc in cursor.description]
+                tables[table] = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            except Exception:
+                tables[table] = []
+
+        conn.close()
+        return {
+            'version': 1,
+            'exported_at': datetime.now().isoformat(),
+            'tables': tables
+        }
+
+    def backup_to_file(self):
+        """Write all critical tables to backup.json next to the database."""
+        try:
+            data = self.get_backup_data()
+            backup_path = self._get_backup_path()
+            tmp_path = backup_path + '.tmp'
+            with open(tmp_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, backup_path)
+            row_count = sum(len(rows) for rows in data['tables'].values())
+            print(f"[Backup] Saved {row_count} rows to {backup_path}")
+        except Exception as e:
+            print(f"[Backup] Error: {e}")
+
+    def restore_from_data(self, data):
+        """Restore tables from a backup data dict. Uses INSERT OR IGNORE to avoid duplicates."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        restored = 0
+
+        all_tables = self.BACKUP_TABLES + ['subscribers', 'tributes']
+        tables = data.get('tables', {})
+
+        for table in all_tables:
+            rows = tables.get(table, [])
+            if not rows:
+                continue
+            columns = list(rows[0].keys())
+            placeholders = ', '.join(['?'] * len(columns))
+            col_names = ', '.join(columns)
+            for row in rows:
+                try:
+                    cursor.execute(
+                        f'INSERT OR IGNORE INTO {table} ({col_names}) VALUES ({placeholders})',
+                        [row.get(c) for c in columns]
+                    )
+                    restored += cursor.rowcount
+                except Exception as e:
+                    print(f"[Restore] Skipping row in {table}: {e}")
+
+        conn.commit()
+        conn.close()
+        print(f"[Restore] Restored {restored} rows across {len(all_tables)} tables")
+        return restored
+
+    def restore_from_file(self):
+        """Restore from backup.json if it exists."""
+        backup_path = self._get_backup_path()
+        if not os.path.exists(backup_path):
+            print("[Restore] No backup file found")
+            return 0
+        try:
+            with open(backup_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            print(f"[Restore] Loading backup from {data.get('exported_at', 'unknown')}")
+            return self.restore_from_data(data)
+        except Exception as e:
+            print(f"[Restore] Error reading backup: {e}")
+            return 0
+
+    def needs_restore(self):
+        """Return True if shiva_support table is empty AND backup.json exists."""
+        backup_path = self._get_backup_path()
+        if not os.path.exists(backup_path):
+            return False
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) FROM shiva_support')
+            count = cursor.fetchone()[0]
+            conn.close()
+            return count == 0
+        except Exception:
+            return True
+
+    def _trigger_backup(self):
+        """Run backup_to_file in a background thread to avoid slowing responses."""
+        thread = threading.Thread(target=self.backup_to_file, daemon=True)
+        thread.start()
