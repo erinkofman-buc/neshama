@@ -172,6 +172,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/signup'):
             support_id = path[len('/api/shiva/'):-len('/signup')]
             self.handle_meal_signup(support_id, body)
+        elif path.startswith('/api/shiva/') and path.endswith('/report'):
+            support_id = path[len('/api/shiva/'):-len('/report')]
+            self.handle_shiva_report(support_id, body)
         else:
             self.send_404()
 
@@ -871,6 +874,22 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    def handle_shiva_report(self, support_id, body):
+        """Handle report of a shiva support page"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            data['shiva_support_id'] = support_id
+            result = shiva_mgr.report_page(data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     def handle_update_shiva(self, support_id, body):
         """Handle organizer update to shiva support page"""
         if not SHIVA_AVAILABLE:
@@ -1023,6 +1042,7 @@ def run_server(port=None):
     print(f"   GET  /api/shiva/{{id}}/meals - Meal signups")
     print(f"   POST /api/shiva            - Create shiva support")
     print(f"   POST /api/shiva/{{id}}/signup - Volunteer meal signup")
+    print(f"   POST /api/shiva/{{id}}/report - Report shiva page")
     print(f"   PUT  /api/shiva/{{id}}      - Update shiva support")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")

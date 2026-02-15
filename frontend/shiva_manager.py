@@ -93,8 +93,21 @@ class ShivaManager:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_shiva_status ON shiva_support(status)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_meals_shiva ON meal_signups(shiva_support_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_meals_date ON meal_signups(meal_date)')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_support_id TEXT NOT NULL,
+                reporter_name TEXT NOT NULL,
+                reporter_email TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (shiva_support_id) REFERENCES shiva_support(id)
+            )
+        ''')
+
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_event ON shiva_analytics(event_type)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_date ON shiva_analytics(created_at)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_reports_shiva ON shiva_reports(shiva_support_id)')
 
         conn.commit()
         conn.close()
@@ -592,6 +605,44 @@ class ShivaManager:
             conn.close()
         except Exception:
             pass
+
+    def report_page(self, data):
+        """Report a shiva support page as potentially unauthorized."""
+        required = ['shiva_support_id', 'reporter_name', 'reporter_email', 'reason']
+        for field in required:
+            if not data.get(field, '').strip():
+                return {'status': 'error', 'message': f'Missing required field: {field}'}
+
+        clean_email = self._validate_email(data.get('reporter_email', ''))
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email address'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify the support page exists
+        cursor.execute('SELECT id FROM shiva_support WHERE id = ?', (data['shiva_support_id'],))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Support page not found'}
+
+        try:
+            cursor.execute('''
+                INSERT INTO shiva_reports (shiva_support_id, reporter_name, reporter_email, reason, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                data['shiva_support_id'],
+                self._sanitize_text(data['reporter_name'], 200),
+                clean_email,
+                self._sanitize_text(data['reason'], self.MAX_TEXT_LENGTH),
+                datetime.now().isoformat()
+            ))
+            conn.commit()
+            return {'status': 'success', 'message': 'Report submitted. We will review this page.'}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+        finally:
+            conn.close()
 
     def get_analytics(self):
         """Get analytics summary counts."""
