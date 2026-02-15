@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Partner Caterer - Neshama</title>
+    <meta name="description" content="Apply to join the Neshama caterer directory. Help families sitting shiva with quality meal options.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* ── Navigation ── */
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+        .nav-brand:hover { opacity: 0.7; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); text-decoration: none; }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 3.5rem 1.5rem 2rem;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subtitle {
+            font-size: 1.15rem;
+            color: var(--sage-dark);
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── Form Container ── */
+        .form-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--light-taupe);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.35rem;
+            color: var(--dark-brown);
+        }
+
+        .optional {
+            font-weight: 300;
+            color: var(--sage-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="url"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: 0.75rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            color: var(--dark-brown);
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--terracotta);
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-hint {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            margin-top: 0.3rem;
+        }
+
+        /* ── Toggles ── */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--light-taupe);
+            border-radius: 24px;
+            transition: background 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--terracotta);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        .toggle-label {
+            font-size: 1rem;
+            color: var(--dark-brown);
+        }
+
+        /* ── Radio Group ── */
+        .radio-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.35rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            accent-color: var(--terracotta);
+            width: 16px;
+            height: 16px;
+        }
+
+        .radio-option span {
+            font-size: 1rem;
+        }
+
+        /* ── Consent ── */
+        .consent-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 0.75rem;
+        }
+
+        .consent-group input[type="checkbox"] {
+            margin-top: 0.3rem;
+            accent-color: var(--terracotta);
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .consent-group label {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--dark-brown);
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 0.9rem 2rem;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover { background: #c45a1a; }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* ── Error / Success ── */
+        .form-error {
+            display: none;
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-error.active { display: block; }
+
+        .success-card {
+            display: none;
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            text-align: center;
+        }
+
+        .success-card.active { display: block; }
+
+        .success-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .success-card p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .success-card a {
+            display: inline-block;
+            border: 1.5px solid var(--terracotta);
+            color: var(--terracotta);
+            padding: 0.7rem 2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .success-card a:hover {
+            background: var(--terracotta);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); text-decoration: none; }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .hero h1 { font-size: 2rem; }
+            .hero { padding: 2.5rem 1.5rem 1.5rem; }
+            .form-card { padding: 1.75rem 1.5rem; }
+            .radio-group { flex-direction: column; gap: 0.5rem; }
+            .footer-links { gap: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/shiva/caterers">Caterers</a>
+            <a href="/shiva/guide">Shiva Guide</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Become a Partner Caterer</h1>
+        <p class="subtitle">Join the Neshama directory and help families in your community during their time of mourning</p>
+    </header>
+
+    <div class="form-container">
+
+        <div id="applicationForm">
+            <div class="form-card">
+                <h2>Business Information</h2>
+
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" placeholder="Your Catering Company" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactName">Contact Person</label>
+                    <input type="text" id="contactName" placeholder="Full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="you@business.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone <span class="optional">(optional)</span></label>
+                    <input type="tel" id="phone" placeholder="(416) 555-0123">
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Website <span class="optional">(optional)</span></label>
+                    <input type="url" id="website" placeholder="https://www.yourbusiness.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="instagram">Instagram <span class="optional">(optional)</span></label>
+                    <input type="text" id="instagram" placeholder="@yourbusiness">
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>Service Details</h2>
+
+                <div class="form-group">
+                    <label for="deliveryArea">Delivery Area</label>
+                    <input type="text" id="deliveryArea" placeholder="e.g., Greater Toronto Area, North York, Thornhill" required>
+                    <div class="form-hint">Cities or neighborhoods you serve</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Kosher Level</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="kosherLevel" value="certified_kosher">
+                            <span>Certified Kosher</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="kosherLevel" value="kosher_style" checked>
+                            <span>Kosher-style</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="kosherLevel" value="not_kosher">
+                            <span>Not Kosher</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="hasDelivery" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">We offer delivery</span>
+                </div>
+
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="hasOnlineOrdering">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">We accept online orders</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Price Range</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="priceRange" value="$">
+                            <span>$ (Budget-friendly)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="priceRange" value="$$" checked>
+                            <span>$$ (Mid-range)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="priceRange" value="$$$">
+                            <span>$$$ (Premium)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shivaMenuDescription">Shiva Meal Offerings</label>
+                    <textarea id="shivaMenuDescription" placeholder="Describe the meals and platters you offer for shiva houses. Include menu options, serving sizes, and any special accommodations you can make..." required></textarea>
+                    <div class="form-hint">Help families understand what you can provide</div>
+                </div>
+            </div>
+
+            <div class="consent-group">
+                <input type="checkbox" id="privacyConsent">
+                <label for="privacyConsent">
+                    I consent to Neshama listing my business information in the caterer directory.
+                    I understand that my contact details will be publicly visible to families seeking shiva meal support.
+                    I can request removal at any time by contacting <a href="mailto:contact@neshama.ca">contact@neshama.ca</a>.
+                </label>
+            </div>
+
+            <div class="form-error" id="formError"></div>
+
+            <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Submit Application</button>
+        </div>
+
+        <div class="success-card" id="successCard">
+            <h2>Thank You</h2>
+            <p>
+                We&rsquo;ve received your application and will review it within 48 hours.
+                You&rsquo;ll receive an email once your listing is live.
+            </p>
+            <a href="/shiva/caterers">View Caterer Directory</a>
+        </div>
+
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+        function submitApplication() {
+            var btn = document.getElementById('submitBtn');
+            var errEl = document.getElementById('formError');
+            errEl.classList.remove('active');
+
+            // Validate required fields
+            var businessName = document.getElementById('businessName').value.trim();
+            var contactName = document.getElementById('contactName').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var deliveryArea = document.getElementById('deliveryArea').value.trim();
+            var menuDesc = document.getElementById('shivaMenuDescription').value.trim();
+            var consent = document.getElementById('privacyConsent').checked;
+
+            if (!businessName || !contactName || !email || !deliveryArea || !menuDesc) {
+                errEl.textContent = 'Please fill in all required fields.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            if (!consent) {
+                errEl.textContent = 'Please agree to the privacy consent to continue.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            var kosherLevel = 'kosher_style';
+            var kosherRadios = document.querySelectorAll('input[name="kosherLevel"]');
+            kosherRadios.forEach(function(r) { if (r.checked) kosherLevel = r.value; });
+
+            var priceRange = '$$';
+            var priceRadios = document.querySelectorAll('input[name="priceRange"]');
+            priceRadios.forEach(function(r) { if (r.checked) priceRange = r.value; });
+
+            var payload = {
+                business_name: businessName,
+                contact_name: contactName,
+                email: email,
+                phone: document.getElementById('phone').value.trim(),
+                website: document.getElementById('website').value.trim(),
+                instagram: document.getElementById('instagram').value.trim(),
+                delivery_area: deliveryArea,
+                kosher_level: kosherLevel,
+                has_delivery: document.getElementById('hasDelivery').checked,
+                has_online_ordering: document.getElementById('hasOnlineOrdering').checked,
+                price_range: priceRange,
+                shiva_menu_description: menuDesc,
+                privacy_consent: true
+            };
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            fetch('/api/caterers/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    document.getElementById('applicationForm').style.display = 'none';
+                    document.getElementById('successCard').classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    errEl.textContent = result.message || 'Something went wrong. Please try again.';
+                    errEl.classList.add('active');
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Application';
+                }
+            })
+            .catch(function() {
+                errEl.textContent = 'Network error. Please check your connection and try again.';
+                errEl.classList.add('active');
+                btn.disabled = false;
+                btn.textContent = 'Submit Application';
+            });
+        }
+    </script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

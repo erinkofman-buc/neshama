@@ -106,6 +106,30 @@ class ShivaManager:
             )
         ''')
 
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS caterer_partners (
+                id TEXT PRIMARY KEY,
+                business_name TEXT NOT NULL,
+                contact_name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT,
+                website TEXT,
+                instagram TEXT,
+                delivery_area TEXT NOT NULL,
+                kosher_level TEXT NOT NULL DEFAULT 'not_kosher',
+                has_delivery INTEGER DEFAULT 0,
+                has_online_ordering INTEGER DEFAULT 0,
+                price_range TEXT DEFAULT '$$',
+                shiva_menu_description TEXT NOT NULL,
+                logo_url TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        ''')
+
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_caterer_status ON caterer_partners(status)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_caterer_email ON caterer_partners(email)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_event ON shiva_analytics(event_type)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_date ON shiva_analytics(created_at)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_reports_shiva ON shiva_reports(shiva_support_id)')
@@ -711,3 +735,213 @@ class ShivaManager:
         counts = {row['event_type']: row['count'] for row in cursor.fetchall()}
         conn.close()
         return {'status': 'success', 'data': counts}
+
+    # ── Caterer Partners ──────────────────────────────────────
+
+    def submit_caterer_application(self, data):
+        """Submit a caterer partner application."""
+        required = ['business_name', 'contact_name', 'email', 'delivery_area',
+                     'kosher_level', 'shiva_menu_description']
+        for field in required:
+            if not data.get(field, '').strip():
+                return {'status': 'error', 'message': f'Missing required field: {field}'}
+
+        if not data.get('privacy_consent'):
+            return {'status': 'error', 'message': 'Privacy consent is required'}
+
+        clean_email = self._validate_email(data.get('email', ''))
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email address'}
+
+        website = self._validate_url(data.get('website', '').strip()) if data.get('website', '').strip() else None
+        if data.get('website', '').strip() and not website:
+            return {'status': 'error', 'message': 'Website must start with http:// or https://'}
+
+        valid_kosher = ('certified_kosher', 'kosher_style', 'not_kosher')
+        kosher = data.get('kosher_level', '').strip()
+        if kosher not in valid_kosher:
+            return {'status': 'error', 'message': 'Invalid kosher level'}
+
+        valid_price = ('$', '$$', '$$$')
+        price = data.get('price_range', '$$').strip()
+        if price not in valid_price:
+            price = '$$'
+
+        caterer_id = str(uuid.uuid4())
+        now = datetime.now().isoformat()
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Check for duplicate application by email
+        cursor.execute('SELECT id, status FROM caterer_partners WHERE email = ?', (clean_email,))
+        existing = cursor.fetchone()
+        if existing:
+            conn.close()
+            status = dict(existing)['status']
+            if status == 'approved':
+                return {'status': 'error', 'message': 'This email is already registered as an approved caterer.'}
+            elif status == 'pending':
+                return {'status': 'error', 'message': 'An application with this email is already pending review.'}
+
+        try:
+            cursor.execute('''
+                INSERT INTO caterer_partners (
+                    id, business_name, contact_name, email, phone, website, instagram,
+                    delivery_area, kosher_level, has_delivery, has_online_ordering,
+                    price_range, shiva_menu_description, logo_url,
+                    status, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+            ''', (
+                caterer_id,
+                self._sanitize_text(data['business_name'], 200),
+                self._sanitize_text(data['contact_name'], 200),
+                clean_email,
+                self._sanitize_text(data.get('phone', ''), 30) or None,
+                website,
+                self._sanitize_text(data.get('instagram', ''), 200) or None,
+                self._sanitize_text(data['delivery_area']),
+                kosher,
+                1 if data.get('has_delivery') else 0,
+                1 if data.get('has_online_ordering') else 0,
+                price,
+                self._sanitize_text(data['shiva_menu_description'], self.MAX_TEXT_LENGTH),
+                self._validate_url(data.get('logo_url', '').strip()) if data.get('logo_url', '').strip() else None,
+                now, now
+            ))
+            conn.commit()
+            return {'status': 'success', 'id': caterer_id}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+        finally:
+            conn.close()
+
+    def get_pending_applications(self):
+        """Get all pending caterer applications (admin only)."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM caterer_partners WHERE status = 'pending'
+            ORDER BY created_at DESC
+        ''')
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return {'status': 'success', 'data': rows}
+
+    def approve_caterer(self, caterer_id):
+        """Approve a caterer application."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM caterer_partners WHERE id = ?', (caterer_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Caterer not found'}
+        cursor.execute(
+            'UPDATE caterer_partners SET status = ?, updated_at = ? WHERE id = ?',
+            ('approved', datetime.now().isoformat(), caterer_id)
+        )
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Caterer approved'}
+
+    def reject_caterer(self, caterer_id):
+        """Reject a caterer application."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM caterer_partners WHERE id = ?', (caterer_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Caterer not found'}
+        cursor.execute(
+            'UPDATE caterer_partners SET status = ?, updated_at = ? WHERE id = ?',
+            ('rejected', datetime.now().isoformat(), caterer_id)
+        )
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Caterer rejected'}
+
+    def get_approved_caterers(self):
+        """Get all approved caterers (public)."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, business_name, contact_name, email, phone, website, instagram,
+                   delivery_area, kosher_level, has_delivery, has_online_ordering,
+                   price_range, shiva_menu_description, logo_url, created_at
+            FROM caterer_partners WHERE status = 'approved'
+            ORDER BY created_at ASC
+        ''')
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return {'status': 'success', 'data': rows}
+
+    def get_caterers_filtered(self, filters):
+        """Get approved caterers with optional filters."""
+        conditions = ["status = 'approved'"]
+        params = []
+
+        if filters.get('kosher'):
+            conditions.append("kosher_level IN ('certified_kosher', 'kosher_style')")
+        if filters.get('delivery'):
+            conditions.append('has_delivery = 1')
+        if filters.get('online_ordering'):
+            conditions.append('has_online_ordering = 1')
+
+        where = ' AND '.join(conditions)
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute(f'''
+            SELECT id, business_name, contact_name, email, phone, website, instagram,
+                   delivery_area, kosher_level, has_delivery, has_online_ordering,
+                   price_range, shiva_menu_description, logo_url, created_at
+            FROM caterer_partners WHERE {where}
+            ORDER BY created_at ASC
+        ''', params)
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return {'status': 'success', 'data': rows}
+
+    def seed_caterer(self, data):
+        """Seed a pre-approved caterer (for initial data). Skips if email exists."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM caterer_partners WHERE email = ?',
+                        (data.get('email', ''),))
+        if cursor.fetchone():
+            conn.close()
+            return {'status': 'exists'}
+
+        caterer_id = str(uuid.uuid4())
+        now = datetime.now().isoformat()
+        try:
+            cursor.execute('''
+                INSERT INTO caterer_partners (
+                    id, business_name, contact_name, email, phone, website, instagram,
+                    delivery_area, kosher_level, has_delivery, has_online_ordering,
+                    price_range, shiva_menu_description, logo_url,
+                    status, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', ?, ?)
+            ''', (
+                caterer_id,
+                data.get('business_name', ''),
+                data.get('contact_name', ''),
+                data.get('email', ''),
+                data.get('phone'),
+                data.get('website'),
+                data.get('instagram'),
+                data.get('delivery_area', ''),
+                data.get('kosher_level', 'kosher_style'),
+                1 if data.get('has_delivery') else 0,
+                1 if data.get('has_online_ordering') else 0,
+                data.get('price_range', '$$'),
+                data.get('shiva_menu_description', ''),
+                data.get('logo_url'),
+                now, now
+            ))
+            conn.commit()
+            return {'status': 'success', 'id': caterer_id}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+        finally:
+            conn.close()

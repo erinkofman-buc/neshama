@@ -95,6 +95,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-guide.html': ('shiva-guide.html', 'text/html'),
         '/shiva/caterers': ('shiva-caterers.html', 'text/html'),
         '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
+        '/shiva/caterers/apply': ('shiva-caterer-apply.html', 'text/html'),
+        '/shiva-caterer-apply.html': ('shiva-caterer-apply.html', 'text/html'),
     }
 
     def do_GET(self):
@@ -127,6 +129,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/tributes/'):
             obit_id = path[len('/api/tributes/'):]
             self.get_tributes(obit_id)
+        # Caterer API endpoints
+        elif path == '/api/caterers':
+            self.get_caterers()
+        elif path.startswith('/api/caterers/pending'):
+            self.get_pending_caterers()
         # Shiva API endpoints
         elif path.startswith('/api/shiva/obituary/'):
             obit_id = path[len('/api/shiva/obituary/'):]
@@ -182,6 +189,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_create_checkout(body)
         elif path == '/webhook':
             self.handle_webhook(body)
+        elif path == '/api/caterers/apply':
+            self.handle_caterer_apply(body)
+        elif path.startswith('/api/caterers/') and path.endswith('/approve'):
+            caterer_id = path[len('/api/caterers/'):-len('/approve')]
+            self.handle_caterer_approve(caterer_id)
+        elif path.startswith('/api/caterers/') and path.endswith('/reject'):
+            caterer_id = path[len('/api/caterers/'):-len('/reject')]
+            self.handle_caterer_reject(caterer_id)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
@@ -847,6 +862,85 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    # ── API: Caterer Partners ─────────────────────────────
+
+    def _check_admin_token(self):
+        """Verify admin token from query params."""
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [''])[0]
+        admin_token = os.environ.get('ADMIN_TOKEN', 'neshama-admin-2026')
+        return token == admin_token
+
+    def get_caterers(self):
+        """Get approved caterers with optional filters"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'success', 'data': []})
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        filters = {
+            'kosher': query_params.get('kosher', [None])[0] == 'true',
+            'delivery': query_params.get('delivery', [None])[0] == 'true',
+            'online_ordering': query_params.get('online_ordering', [None])[0] == 'true',
+        }
+        has_filters = any(filters.values())
+        if has_filters:
+            result = shiva_mgr.get_caterers_filtered(filters)
+        else:
+            result = shiva_mgr.get_approved_caterers()
+        self.send_json_response(result)
+
+    def get_pending_caterers(self):
+        """Get pending caterer applications (admin only)"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        if not self._check_admin_token():
+            self.send_error_response('Unauthorized', 403)
+            return
+        result = shiva_mgr.get_pending_applications()
+        self.send_json_response(result)
+
+    def handle_caterer_apply(self, body):
+        """Handle caterer application submission"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.submit_caterer_application(data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_caterer_approve(self, caterer_id):
+        """Approve a caterer application (admin only)"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        if not self._check_admin_token():
+            self.send_error_response('Unauthorized', 403)
+            return
+        result = shiva_mgr.approve_caterer(caterer_id)
+        status_code = 200 if result['status'] == 'success' else 400
+        self.send_json_response(result, status_code)
+
+    def handle_caterer_reject(self, caterer_id):
+        """Reject a caterer application (admin only)"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        if not self._check_admin_token():
+            self.send_error_response('Unauthorized', 403)
+            return
+        result = shiva_mgr.reject_caterer(caterer_id)
+        status_code = 200 if result['status'] == 'success' else 400
+        self.send_json_response(result, status_code)
+
     # ── API: Shiva Support ─────────────────────────────────
 
     def serve_shiva_page(self):
@@ -1136,16 +1230,38 @@ def run_server(port=None):
     print(f"   POST /api/shiva/{{id}}/report - Report shiva page")
     print(f"   POST /api/shiva/{{id}}/remove-signup - Remove signup (organizer)")
     print(f"   PUT  /api/shiva/{{id}}      - Update shiva support")
+    print(f"   GET  /api/caterers         - Approved caterers")
+    print(f"   POST /api/caterers/apply   - Caterer application")
+    print(f"   GET  /api/caterers/pending - Pending applications (admin)")
+    print(f"   POST /api/caterers/{{id}}/approve - Approve caterer (admin)")
+    print(f"   POST /api/caterers/{{id}}/reject  - Reject caterer (admin)")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
     print(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
 
-    # Archive expired shiva support pages
+    # Archive expired shiva support pages + seed caterer data
     if SHIVA_AVAILABLE:
         try:
             shiva_mgr.archive_expired()
         except Exception as e:
             print(f"  Shiva archive check: {e}")
+        # Seed Jem Salads as pre-approved caterer
+        try:
+            shiva_mgr.seed_caterer({
+                'business_name': 'Jem Salads',
+                'contact_name': 'Jem Salads Team',
+                'email': 'info@jemsalads.com',
+                'phone': '(416) 785-6161',
+                'website': 'https://www.jemsalads.com',
+                'delivery_area': 'Toronto',
+                'kosher_level': 'kosher_style',
+                'has_delivery': True,
+                'has_online_ordering': False,
+                'price_range': '$$',
+                'shiva_menu_description': 'Jem Salads specializes in fresh, wholesome platters and prepared meals with a focus on quality ingredients and generous portions. They have extensive experience catering shiva meals and understand the specific needs of mourning families \u2014 from dietary requirements to flexible delivery timing. Platters and hot meals available, feeds 10\u201350+.',
+            })
+        except Exception as e:
+            print(f"  Caterer seed: {e}")
     print(f"\n Press Ctrl+C to stop")
     print(f"{'='*60}\n")
 
