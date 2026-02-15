@@ -321,6 +321,31 @@
             color: var(--sage-dark);
         }
 
+        /* ── Disclaimers ── */
+        .caterer-disclaimer {
+            font-size: 0.8rem;
+            color: var(--sage-dark);
+            line-height: 1.5;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--light-taupe);
+            font-style: italic;
+        }
+
+        .page-disclaimer {
+            text-align: center;
+            padding: 1.5rem 0 0;
+        }
+
+        .page-disclaimer p {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
         /* ── Footer ── */
         footer {
             padding: 2rem 1.5rem;
@@ -401,6 +426,10 @@
 
         <div class="guide-link-section">
             <p>Planning meals yourself? Read our <a href="/shiva/guide">guide to coordinating shiva support</a>.</p>
+        </div>
+
+        <div class="page-disclaimer">
+            <p>Neshama provides this directory as a community resource. Listed caterers are independent businesses. Neshama does not endorse, guarantee, or assume responsibility for the quality, safety, or delivery of any products or services. Please verify dietary certifications and requirements directly with the caterer.</p>
         </div>
 
     </div>
@@ -506,6 +535,8 @@
                     html += '<a href="https://instagram.com/' + escapeHtml(ig) + '" target="_blank" rel="noopener">@' + escapeHtml(ig) + '</a>';
                 }
                 html += '</div>';
+
+                html += '<p class="caterer-disclaimer">Neshama provides this directory as a community resource. Listed caterers are independent businesses. Neshama does not endorse, guarantee, or assume responsibility for the quality, safety, or delivery of any products or services. Please verify dietary certifications and requirements directly with the caterer.</p>';
 
                 html += '</div>';
             });

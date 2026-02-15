@@ -353,6 +353,37 @@
             text-decoration: none;
         }
 
+        /* ── Terms Card ── */
+        .terms-card {
+            background: var(--cream);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-card p {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-card ol {
+            padding-left: 1.25rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--dark-brown);
+        }
+
+        .terms-card ol li {
+            margin-bottom: 0.25rem;
+        }
+
         /* ── Footer ── */
         footer {
             padding: 2rem 1.5rem;
@@ -504,6 +535,25 @@
                 </div>
             </div>
 
+            <div class="terms-card">
+                <h3>Caterer Partner Terms</h3>
+                <p>By listing on Neshama, you agree that:</p>
+                <ol>
+                    <li>All information provided is accurate and current.</li>
+                    <li>You are solely responsible for the quality and safety of your products and services.</li>
+                    <li>You will maintain all required food safety certifications.</li>
+                    <li>Neshama acts only as a directory and assumes no liability for orders, delivery, or customer satisfaction.</li>
+                    <li>Neshama reserves the right to remove any listing at any time.</li>
+                </ol>
+            </div>
+
+            <div class="consent-group">
+                <input type="checkbox" id="termsConsent">
+                <label for="termsConsent">
+                    I agree to the Neshama Caterer Partner Terms
+                </label>
+            </div>
+
             <div class="consent-group">
                 <input type="checkbox" id="privacyConsent">
                 <label for="privacyConsent">
@@ -562,6 +612,12 @@
 
             if (!email.includes('@') || !email.includes('.')) {
                 errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            if (!document.getElementById('termsConsent').checked) {
+                errEl.textContent = 'Please agree to the Caterer Partner Terms to continue.';
                 errEl.classList.add('active');
                 return;
             }
