@@ -82,6 +82,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/apple-touch-icon.png': ('apple-touch-icon.png', 'image/png'),
         '/shiva/organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
+        '/shiva/guide': ('shiva-guide.html', 'text/html'),
+        '/shiva-guide.html': ('shiva-guide.html', 'text/html'),
+        '/shiva/caterers': ('shiva-caterers.html', 'text/html'),
+        '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
     }
 
     def do_GET(self):
@@ -125,7 +129,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
         # Shiva pages
-        elif path.startswith('/shiva/') and not path.startswith('/shiva/organize'):
+        elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
         # Memorial pages
         elif path.startswith('/memorial/'):

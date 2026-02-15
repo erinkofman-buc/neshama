@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Guide to Coordinating Shiva Support - Neshama</title>
+    <meta name="description" content="A practical guide to coordinating meals and support for a family sitting shiva. Tips on planning, dietary needs, delivery, and more.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Neshama">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* ── Navigation ── */
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); text-decoration: none; }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 4rem 1.5rem 2.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--sage-dark);
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── Container ── */
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Sections ── */
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(210, 105, 30, 0.15);
+            display: inline-block;
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            line-height: 1.85;
+            margin-bottom: 1.25rem;
+        }
+
+        .section p:last-child { margin-bottom: 0; }
+
+        .section ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.25rem;
+        }
+
+        .section ul:last-child { margin-bottom: 0; }
+
+        .section ul li {
+            font-size: 1.1rem;
+            line-height: 1.85;
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.6rem;
+        }
+
+        .section ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.7em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--terracotta);
+        }
+
+        .section ul li:last-child { margin-bottom: 0; }
+
+        .tip-box {
+            background: var(--cream);
+            border-left: 3px solid var(--gold);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1.25rem 0;
+            font-size: 1.05rem;
+        }
+
+        .tip-box strong {
+            color: var(--terracotta);
+        }
+
+        /* ── CTA ── */
+        .cta-section {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .cta-section h2 {
+            display: block;
+            text-align: center;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .cta-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.15);
+            text-decoration: none;
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); text-decoration: none; }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero { padding: 3rem 1.5rem 2rem; }
+            .section { padding: 1.75rem 1.5rem; }
+            .section h2 { font-size: 1.5rem; }
+            .footer-links { gap: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/shiva/caterers">Caterers</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Coordinating Shiva Support</h1>
+        <p class="subtitle">A practical guide for volunteers helping a family with meals during shiva</p>
+    </header>
+
+    <div class="container">
+
+        <div class="section" data-animate>
+            <h2>Before You Begin</h2>
+            <p>
+                The most important step is the first one: confirm that the family wants help
+                with meals. Some families prefer to handle things themselves, and that's okay.
+                If they do want help, a short conversation will save everyone time later.
+            </p>
+            <p>Ask the family or a close family member:</p>
+            <ul>
+                <li>Do they want meals coordinated, or are they handling it?</li>
+                <li>Any dietary restrictions? Kosher level, allergies, vegetarian?</li>
+                <li>How many people are expected at the house each day?</li>
+                <li>What are the visiting hours?</li>
+                <li>Will they pause meals for Shabbat?</li>
+                <li>Is there a preferred drop-off time and entrance?</li>
+            </ul>
+            <div class="tip-box">
+                <strong>Tip:</strong> If you can't reach the family directly, ask the
+                closest friend or relative. Getting these basics right matters more than
+                getting started quickly.
+            </div>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Planning the Meal Calendar</h2>
+            <p>
+                A typical shiva lasts 3 to 7 days. Families usually need two meals per day:
+                a lighter lunch and a fuller dinner. Plan for 15 to 25 people at dinner
+                during the first few days, fewer as the week goes on.
+            </p>
+            <ul>
+                <li><strong>Lunch:</strong> Lighter fare &mdash; salads, sandwiches, quiche, soup. Many visitors come in the evening, so lunch is usually for family and close friends.</li>
+                <li><strong>Dinner:</strong> The main meal. Hearty dishes that feed a crowd &mdash; chicken, rice, stews, pasta.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>The first meal:</strong> The meal immediately after the burial
+                (<em>Seudat Havra'ah</em>) is traditionally provided by the community,
+                not the mourners. This usually includes hard-boiled eggs, bread, and
+                simple comfort food. If you're organizing, this is the first meal to fill.
+            </div>
+            <p>
+                Set up a shared calendar or use a tool like the
+                <a href="/shiva/organize">Neshama Shiva Support page</a> to let people
+                sign up for specific days and meals. This avoids the problem of everyone
+                bringing food on Day 1 and nothing on Day 5.
+            </p>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Dietary Considerations</h2>
+            <p>
+                If the family keeps kosher, this is essential to get right. Don't guess &mdash;
+                ask the family directly about their level of observance.
+            </p>
+            <ul>
+                <li><strong>Kosher basics:</strong> No mixing meat and dairy in the same meal. No pork or shellfish. Look for a hechsher (kosher certification symbol) on packaged food.</li>
+                <li><strong>Strictly kosher:</strong> Some families only eat food prepared in a kosher kitchen or from a certified kosher caterer. Ask before cooking at home.</li>
+                <li><strong>When in doubt, go vegetarian.</strong> A vegetarian or dairy meal sidesteps most kosher concerns and works for almost everyone.</li>
+                <li>Ask about common allergies: nuts, gluten, dairy.</li>
+                <li>Label everything you bring &mdash; ingredients, dairy or pareve, whether it contains nuts.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>Safe choices:</strong> Pasta with marinara sauce, vegetable soup,
+                green salads, fruit platters, and baked goods (dairy or pareve) are almost
+                always welcome.
+            </div>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Delivery Tips</h2>
+            <p>
+                Delivering a shiva meal isn't like dropping off a dinner party contribution.
+                The family is grieving and the house is often full of visitors. Keep it simple
+                and respectful.
+            </p>
+            <ul>
+                <li><strong>Use disposable containers.</strong> The family should not have to wash, return, or keep track of anyone's dishes. Aluminum pans with lids are ideal.</li>
+                <li><strong>Label everything.</strong> Name of the dish, key ingredients, dairy/meat/pareve, reheating instructions.</li>
+                <li><strong>Include serving utensils.</strong> Disposable serving spoons and tongs so the family doesn't need to find their own.</li>
+                <li><strong>Drop off quietly.</strong> Ring the bell, hand off the food, express brief condolences if appropriate, and go. Don't expect to stay and visit unless invited.</li>
+                <li><strong>Coordinate timing.</strong> Deliver 30 to 60 minutes before the meal will be served so there's time to set up.</li>
+            </ul>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Day by Day</h2>
+            <p>
+                Each day of shiva has a different energy. Understanding this helps you plan
+                what's needed.
+            </p>
+            <ul>
+                <li><strong>Day 1:</strong> The day of the burial. The house is full, emotions are raw, and there's a lot of activity. The Seudat Havra'ah is the priority. Many people bring food spontaneously &mdash; coordination is especially valuable here to avoid 15 trays of pasta and no salad.</li>
+                <li><strong>Days 2&ndash;3:</strong> Still busy with visitors. Large dinners are needed. Lunch is lighter but important.</li>
+                <li><strong>Days 4&ndash;5:</strong> Calmer. Fewer visitors, but the family still needs meals. This is when volunteer signups tend to drop off &mdash; make sure these days are covered.</li>
+                <li><strong>Days 6&ndash;7:</strong> The quietest days. Smaller portions are fine. The family may be exhausted and appreciates simple, comforting food.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>Common gap:</strong> The middle-to-end days are when families most
+                need help, but it's when the fewest people sign up. When coordinating,
+                gently steer volunteers toward Days 4&ndash;7.
+            </div>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>After Shiva</h2>
+            <p>
+                When shiva ends, the world moves on &mdash; but grief doesn't. The family
+                is suddenly alone in a quiet house, returning to daily life while still
+                mourning. This is when a meal on the doorstep means the most.
+            </p>
+            <p>
+                Consider organizing one or two meals for the week after shiva ends. A
+                home-cooked dinner on the first night after shiva, or a few lunches during
+                the first week back at work, can make an enormous difference.
+            </p>
+            <p>
+                You don't need a formal system for this &mdash; just a text message:
+                <em>"I'd like to bring dinner on Tuesday. What time works?"</em>
+            </p>
+        </div>
+
+        <div class="section cta-section" data-animate>
+            <h2>Ready to Coordinate?</h2>
+            <p>
+                Set up a Shiva Support page to organize meals, share the calendar with
+                the community, and make sure every day is covered.
+            </p>
+            <a href="/shiva/organize" class="cta-btn">Set Up a Support Page</a>
+        </div>
+
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+        (function() {
+            var els = document.querySelectorAll('[data-animate]');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+                els.forEach(function(el) { observer.observe(el); });
+            } else {
+                els.forEach(function(el) { el.classList.add('visible'); });
+            }
+        })();
+    </script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>
