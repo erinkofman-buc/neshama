@@ -606,6 +606,53 @@ class ShivaManager:
         except Exception:
             pass
 
+    def get_signups_for_organizer(self, support_id, magic_token):
+        """Get full meal signup details for organizer. Includes email/phone."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        cursor.execute('''
+            SELECT id, meal_date, meal_type, volunteer_name, volunteer_email,
+                   volunteer_phone, meal_description, num_servings, created_at
+            FROM meal_signups
+            WHERE shiva_support_id = ?
+            ORDER BY meal_date, meal_type
+        ''', (support_id,))
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        return {'status': 'success', 'data': rows}
+
+    def remove_signup(self, support_id, signup_id, magic_token):
+        """Remove a meal signup. Requires organizer magic_token."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        try:
+            cursor.execute('DELETE FROM meal_signups WHERE id = ? AND shiva_support_id = ?',
+                            (int(signup_id), support_id))
+            if cursor.rowcount == 0:
+                conn.close()
+                return {'status': 'error', 'message': 'Signup not found'}
+            conn.commit()
+            return {'status': 'success', 'message': 'Signup removed'}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+        finally:
+            conn.close()
+
     def report_page(self, data):
         """Report a shiva support page as potentially unauthorized."""
         required = ['shiva_support_id', 'reporter_name', 'reporter_email', 'reason']

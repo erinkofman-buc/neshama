@@ -169,6 +169,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_webhook(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
+        elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
+            support_id = path[len('/api/shiva/'):-len('/remove-signup')]
+            self.handle_remove_signup(support_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/signup'):
             support_id = path[len('/api/shiva/'):-len('/signup')]
             self.handle_meal_signup(support_id, body)
@@ -834,7 +837,14 @@ button:hover{background:#c45a1a}</style></head>
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'success', 'data': []})
             return
-        result = shiva_mgr.get_signups(support_id)
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [None])[0]
+
+        if token:
+            result = shiva_mgr.get_signups_for_organizer(support_id, token)
+        else:
+            result = shiva_mgr.get_signups(support_id)
         self.send_json_response(result)
 
     def handle_create_shiva(self, body):
@@ -867,6 +877,26 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.signup_meal(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('meal_signup', support_id)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_remove_signup(self, support_id, body):
+        """Handle organizer removing a meal signup"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('magic_token', '')
+            signup_id = data.get('signup_id')
+            if not token or not signup_id:
+                self.send_json_response({'status': 'error', 'message': 'Token and signup_id required'}, 400)
+                return
+            result = shiva_mgr.remove_signup(support_id, signup_id, token)
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1043,6 +1073,7 @@ def run_server(port=None):
     print(f"   POST /api/shiva            - Create shiva support")
     print(f"   POST /api/shiva/{{id}}/signup - Volunteer meal signup")
     print(f"   POST /api/shiva/{{id}}/report - Report shiva page")
+    print(f"   POST /api/shiva/{{id}}/remove-signup - Remove signup (organizer)")
     print(f"   PUT  /api/shiva/{{id}}      - Update shiva support")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
