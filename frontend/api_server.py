@@ -40,6 +40,15 @@ except Exception:
     STRIPE_AVAILABLE = False
     payment_mgr = None
 
+# Background scrape status tracking
+_scrape_status = {
+    'running': False,
+    'last_started': None,
+    'last_completed': None,
+    'last_result': None,
+    'last_error': None,
+}
+
 # Optional Shiva Support import
 try:
     from shiva_manager import ShivaManager
@@ -145,6 +154,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_manage_subscription()
         elif path == '/admin/scrape':
             self.handle_admin_scrape()
+        elif path == '/admin/scrape-status':
+            self.handle_scrape_status()
         elif path == '/admin/digest':
             self.handle_admin_digest()
         elif path in self.STATIC_FILES:
@@ -633,7 +644,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     # ── Admin: Scraper ─────────────────────────────────────────
 
     def handle_admin_scrape(self):
-        """Run scrapers via admin endpoint"""
+        """Run scrapers via admin endpoint (async - returns immediately)"""
+        global _scrape_status
         admin_secret = os.environ.get('ADMIN_SECRET', '')
         if admin_secret:
             parsed_path = urlparse(self.path)
@@ -643,32 +655,77 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_error_response('Unauthorized', 403)
                 return
 
-        project_root = os.path.join(FRONTEND_DIR, '..')
-        try:
-            result = subprocess.run(
-                ['python', 'master_scraper.py'],
-                capture_output=True,
-                text=True,
-                cwd=project_root,
-                timeout=300
-            )
-            output = result.stdout + '\n' + result.stderr
-            html = f"""<!DOCTYPE html><html><head><title>Scraper Output</title>
-<style>body{{font-family:monospace;background:#1e1e1e;color:#d4d4d4;padding:2rem}}
-pre{{white-space:pre-wrap;word-wrap:break-word}}h1{{color:#D2691E}}</style></head>
-<body><h1>Scraper Output</h1><pre>{output}</pre>
-<p><a href="/api/status" style="color:#D2691E">Check API status</a> |
-<a href="/feed" style="color:#D2691E">View feed</a></p></body></html>"""
-            content = html.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(content)))
-            self.end_headers()
-            self.wfile.write(content)
-        except subprocess.TimeoutExpired:
-            self.send_error_response('Scraper timed out after 5 minutes', 504)
-        except Exception as e:
-            self.send_error_response(f'Scraper error: {str(e)}', 500)
+        if _scrape_status['running']:
+            self.send_json_response({
+                'status': 'already_running',
+                'message': 'Scraper is already running',
+                'started': _scrape_status['last_started']
+            })
+            return
+
+        # Mark as running and return 200 immediately
+        _scrape_status['running'] = True
+        _scrape_status['last_started'] = datetime.now().isoformat()
+        _scrape_status['last_result'] = None
+        _scrape_status['last_error'] = None
+
+        def run_scrape_background():
+            global _scrape_status
+            project_root = os.path.join(FRONTEND_DIR, '..')
+            try:
+                result = subprocess.run(
+                    ['python', 'master_scraper.py'],
+                    capture_output=True,
+                    text=True,
+                    cwd=project_root,
+                    timeout=300
+                )
+                _scrape_status['last_result'] = {
+                    'returncode': result.returncode,
+                    'stdout': result.stdout[-2000:] if result.stdout else '',
+                    'stderr': result.stderr[-500:] if result.stderr else '',
+                }
+                _scrape_status['last_completed'] = datetime.now().isoformat()
+                print(f"[Scraper] Background scrape completed (exit code {result.returncode})")
+            except subprocess.TimeoutExpired:
+                _scrape_status['last_error'] = 'Scraper timed out after 5 minutes'
+                _scrape_status['last_completed'] = datetime.now().isoformat()
+                print("[Scraper] Background scrape timed out")
+            except Exception as e:
+                _scrape_status['last_error'] = str(e)
+                _scrape_status['last_completed'] = datetime.now().isoformat()
+                print(f"[Scraper] Background scrape error: {e}")
+            finally:
+                _scrape_status['running'] = False
+
+        thread = threading.Thread(target=run_scrape_background, daemon=True)
+        thread.start()
+
+        self.send_json_response({
+            'status': 'started',
+            'message': 'Scraper started in background',
+            'started': _scrape_status['last_started'],
+            'check_status': '/admin/scrape-status'
+        })
+
+    def handle_scrape_status(self):
+        """Check the status of the background scraper"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        self.send_json_response({
+            'running': _scrape_status['running'],
+            'last_started': _scrape_status['last_started'],
+            'last_completed': _scrape_status['last_completed'],
+            'last_result': _scrape_status['last_result'],
+            'last_error': _scrape_status['last_error'],
+        })
 
     def handle_admin_digest(self):
         """Send daily email digest via admin endpoint"""
