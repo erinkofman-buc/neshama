@@ -660,6 +660,12 @@
             <p class="toggle-hint">Meal coordination will pause from Friday sunset to Saturday sunset</p>
 
             <div class="form-group">
+                <label for="guestsPerMeal">Number of People to Feed per Meal</label>
+                <input type="number" id="guestsPerMeal" value="20" min="1" max="200">
+                <div class="form-hint">Approximate number of people expected at each meal</div>
+            </div>
+
+            <div class="form-group">
                 <label for="dietaryNotes">Dietary Notes <span class="optional">(optional)</span></label>
                 <textarea id="dietaryNotes" placeholder="e.g., Strictly kosher, nut allergy, vegetarian options welcome..."></textarea>
             </div>
@@ -891,6 +897,7 @@
                 ['Start', document.getElementById('shivaStartDate').value],
                 ['End', document.getElementById('shivaEndDate').value],
                 ['Shabbat pause', document.getElementById('pauseShabbat').checked ? 'Yes' : 'No'],
+                ['Guests per meal', document.getElementById('guestsPerMeal').value],
             ];
 
             var diet = document.getElementById('dietaryNotes').value.trim();
@@ -927,6 +934,7 @@
                 shiva_start_date: document.getElementById('shivaStartDate').value,
                 shiva_end_date: document.getElementById('shivaEndDate').value,
                 pause_shabbat: document.getElementById('pauseShabbat').checked,
+                guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
                 donation_url: document.getElementById('donationUrl').value.trim(),

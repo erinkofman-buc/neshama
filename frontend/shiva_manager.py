@@ -38,6 +38,7 @@ class ShivaManager:
                 shiva_start_date TEXT NOT NULL,
                 shiva_end_date TEXT NOT NULL,
                 pause_shabbat INTEGER DEFAULT 1,
+                guests_per_meal INTEGER DEFAULT 20,
                 dietary_notes TEXT,
                 special_instructions TEXT,
                 donation_url TEXT,
@@ -108,6 +109,12 @@ class ShivaManager:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_event ON shiva_analytics(event_type)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_date ON shiva_analytics(created_at)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_reports_shiva ON shiva_reports(shiva_support_id)')
+
+        # Migration: add guests_per_meal column if missing (for existing databases)
+        try:
+            cursor.execute('SELECT guests_per_meal FROM shiva_support LIMIT 1')
+        except Exception:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN guests_per_meal INTEGER DEFAULT 20')
 
         conn.commit()
         conn.close()
@@ -218,10 +225,10 @@ class ShivaManager:
                 INSERT INTO shiva_support (
                     id, obituary_id, organizer_name, organizer_email, organizer_phone,
                     organizer_relationship, family_name, shiva_address, shiva_city,
-                    shiva_start_date, shiva_end_date, pause_shabbat,
+                    shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
                     status, magic_token, privacy_consent, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['obituary_id']),
@@ -235,6 +242,7 @@ class ShivaManager:
                 data['shiva_start_date'].strip()[:10],
                 data['shiva_end_date'].strip()[:10],
                 1 if data.get('pause_shabbat', True) else 0,
+                max(1, min(200, int(data.get('guests_per_meal', 20)))),
                 self._sanitize_text(data.get('dietary_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 self._sanitize_text(data.get('special_instructions', ''), self.MAX_TEXT_LENGTH) or None,
                 donation_url,
@@ -263,7 +271,7 @@ class ShivaManager:
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
-                   pause_shabbat, dietary_notes, special_instructions,
+                   pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
@@ -283,7 +291,7 @@ class ShivaManager:
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
-                   pause_shabbat, dietary_notes, special_instructions,
+                   pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, created_at
             FROM shiva_support
             WHERE id = ?
@@ -329,7 +337,7 @@ class ShivaManager:
 
         updatable = [
             'family_name', 'shiva_address', 'shiva_city', 'shiva_start_date',
-            'shiva_end_date', 'pause_shabbat', 'dietary_notes',
+            'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
             'special_instructions', 'donation_url', 'donation_label'
         ]
 
@@ -341,6 +349,8 @@ class ShivaManager:
                 val = data[field]
                 if field == 'pause_shabbat':
                     val = 1 if val else 0
+                elif field == 'guests_per_meal':
+                    val = max(1, min(200, int(val) if val else 20))
                 elif field == 'donation_url':
                     val = self._validate_url(val) if val else None
                 elif field in ('dietary_notes', 'special_instructions'):

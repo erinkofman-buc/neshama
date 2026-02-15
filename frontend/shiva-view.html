@@ -1272,6 +1272,11 @@
 
         function renderInfoCards() {
             var html = '';
+            if (supportData.guests_per_meal) {
+                html += '<div class="info-card"><h3>Guests per Meal</h3><p>' +
+                    escapeHtml(String(supportData.guests_per_meal)) +
+                    ' people expected</p></div>';
+            }
             if (supportData.dietary_notes) {
                 html += '<div class="info-card"><h3>Dietary Notes</h3><p>' +
                     escapeHtml(supportData.dietary_notes) + '</p></div>';
