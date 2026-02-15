@@ -789,6 +789,11 @@ button:hover{background:#c45a1a}</style></head>
             self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
             self.end_headers()
             self.wfile.write(content)
+            # Track page view
+            if SHIVA_AVAILABLE:
+                path = urlparse(self.path).path
+                support_id = path[len('/shiva/'):] if path.startswith('/shiva/') else None
+                shiva_mgr.track_event('page_view', support_id)
         except FileNotFoundError:
             self.send_404()
 
@@ -831,7 +836,11 @@ button:hover{background:#c45a1a}</style></head>
             return
         try:
             data = json.loads(body)
+            obit_id = data.get('obituary_id')
+            shiva_mgr.track_event('organize_start', obit_id)
             result = shiva_mgr.create_support(data)
+            if result['status'] == 'success':
+                shiva_mgr.track_event('organize_complete', obit_id)
             status_code = 200 if result['status'] in ('success', 'duplicate') else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -848,6 +857,8 @@ button:hover{background:#c45a1a}</style></head>
             data = json.loads(body)
             data['shiva_support_id'] = support_id
             result = shiva_mgr.signup_meal(data)
+            if result['status'] == 'success':
+                shiva_mgr.track_event('meal_signup', support_id)
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:

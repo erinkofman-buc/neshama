@@ -79,11 +79,22 @@ class ShivaManager:
             )
         ''')
 
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_analytics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                obituary_id TEXT,
+                created_at TEXT NOT NULL
+            )
+        ''')
+
         # Indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_shiva_obituary ON shiva_support(obituary_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_shiva_status ON shiva_support(status)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_meals_shiva ON meal_signups(shiva_support_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_meals_date ON meal_signups(meal_date)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_event ON shiva_analytics(event_type)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_date ON shiva_analytics(created_at)')
 
         conn.commit()
         conn.close()
@@ -565,3 +576,30 @@ class ShivaManager:
         if count > 0:
             print(f"[Shiva] Archived {count} expired support page(s)")
         return count
+
+    # ── Analytics ─────────────────────────────────────────────
+
+    def track_event(self, event_type, obituary_id=None):
+        """Record an analytics event. Fire-and-forget, never raises."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute(
+                'INSERT INTO shiva_analytics (event_type, obituary_id, created_at) VALUES (?, ?, ?)',
+                (event_type, obituary_id, datetime.now().isoformat())
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+    def get_analytics(self):
+        """Get analytics summary counts."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT event_type, COUNT(*) as count FROM shiva_analytics GROUP BY event_type'
+        )
+        counts = {row['event_type']: row['count'] for row in cursor.fetchall()}
+        conn.close()
+        return {'status': 'success', 'data': counts}
