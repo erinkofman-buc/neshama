@@ -75,6 +75,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/premium': ('premium.html', 'text/html'),
         '/premium.html': ('premium.html', 'text/html'),
         '/favicon.svg': ('favicon.svg', 'image/svg+xml'),
+        '/manifest.json': ('manifest.json', 'application/manifest+json'),
+        '/sw.js': ('sw.js', 'application/javascript'),
+        '/icon-192.png': ('icon-192.png', 'image/png'),
+        '/icon-512.png': ('icon-512.png', 'image/png'),
+        '/apple-touch-icon.png': ('apple-touch-icon.png', 'image/png'),
         '/shiva/organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
     }
@@ -204,12 +209,12 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             with open(filepath, 'rb') as f:
                 content = f.read()
             self.send_response(200)
-            if content_type.startswith('text/') or content_type == 'application/javascript':
+            if content_type.startswith('text/') or content_type in ('application/javascript', 'application/manifest+json'):
                 self.send_header('Content-Type', f'{content_type}; charset=utf-8')
             else:
                 self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(content)))
-            if content_type in ('image/svg+xml',):
+            if content_type in ('image/svg+xml', 'image/png', 'application/manifest+json'):
                 self.send_header('Cache-Control', 'public, max-age=86400')
             else:
                 self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
