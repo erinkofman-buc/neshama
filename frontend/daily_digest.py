@@ -130,6 +130,7 @@ class DailyDigestSender:
         html += """
             <div class="footer">
                 <p><a href="https://neshama.ca">View all on Neshama.ca</a></p>
+                <p style="margin-bottom: 15px;"><a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color: #D2691E; text-decoration: none;">Visiting a shiva? See what to bring &rarr;</a></p>
                 <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="mailto:contact@neshama.ca">Contact Us</a></p>
                 <p style="margin-top: 15px;">
                     Neshama - Every soul remembered<br>

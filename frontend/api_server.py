@@ -97,6 +97,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
         '/shiva/caterers/apply': ('shiva-caterer-apply.html', 'text/html'),
         '/shiva-caterer-apply.html': ('shiva-caterer-apply.html', 'text/html'),
+        '/shiva-essentials': ('shiva-essentials.html', 'text/html'),
+        '/shiva-essentials.html': ('shiva-essentials.html', 'text/html'),
+        '/what-to-bring-to-a-shiva': ('what-to-bring-to-a-shiva.html', 'text/html'),
+        '/what-to-bring-to-a-shiva.html': ('what-to-bring-to-a-shiva.html', 'text/html'),
+        '/directory': ('directory.html', 'text/html'),
+        '/directory.html': ('directory.html', 'text/html'),
+        '/sitemap.xml': ('sitemap.xml', 'application/xml'),
     }
 
     def do_GET(self):
