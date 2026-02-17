@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor - Neshama Directory</title>
+    <meta name="description" content="View vendor details in the Neshama food vendor directory.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection { background: rgba(210, 105, 30, 0.2); color: var(--dark-brown); }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .nav {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-taupe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-brand:hover { opacity: 0.7; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); text-decoration: none; }
+
+        .breadcrumb {
+            max-width: 760px;
+            margin: 1.5rem auto 0;
+            padding: 0 1.5rem;
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+        }
+
+        .breadcrumb a { color: var(--sage-dark); }
+        .breadcrumb a:hover { color: var(--terracotta); }
+        .breadcrumb span { margin: 0 0.4rem; }
+
+        .container {
+            max-width: 760px;
+            margin: 1.5rem auto 0;
+            padding: 0 1.5rem 4rem;
+        }
+
+        .vendor-header {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .vendor-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .vendor-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 400;
+        }
+
+        .kosher-badge {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.35rem 0.85rem;
+            border-radius: 1rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .vendor-category {
+            font-size: 1rem;
+            color: var(--terracotta);
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+
+        .vendor-description {
+            font-size: 1.1rem;
+            line-height: 1.85;
+        }
+
+        .vendor-info {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .vendor-info h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(210, 105, 30, 0.15);
+            display: inline-block;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            font-size: 1.05rem;
+            border-bottom: 1px solid var(--cream);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--sage-dark);
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+
+        .info-value a { word-break: break-all; }
+
+        .quote-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .quote-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-section > p {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.25rem;
+        }
+
+        .quote-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .quote-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.15);
+            text-decoration: none;
+        }
+
+        .quote-btn:disabled {
+            background: var(--sage);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── Lead Form ── */
+        .lead-form { display: none; margin-top: 1.25rem; }
+        .lead-form.visible { display: block; }
+
+        .form-row {
+            margin-bottom: 1rem;
+        }
+
+        .form-row label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            color: var(--dark-brown);
+        }
+
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            color: var(--dark-brown);
+            background: var(--cream);
+            transition: border-color 0.2s;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .form-row textarea { min-height: 100px; resize: vertical; }
+
+        .form-row-half {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-msg {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 1rem;
+            display: none;
+        }
+
+        .form-msg.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .form-msg.error {
+            display: block;
+            background: #fce4ec;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: var(--terracotta);
+            font-weight: 600;
+        }
+
+        /* ── Loading / Not Found ── */
+        .page-msg {
+            text-align: center;
+            padding: 6rem 1.5rem;
+        }
+
+        .page-msg h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-msg p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); text-decoration: none; }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        @media (max-width: 600px) {
+            .nav { gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .vendor-header h1 { font-size: 1.9rem; }
+            .vendor-header, .vendor-info, .quote-section { padding: 1.75rem 1.5rem; }
+            .form-row-half { grid-template-columns: 1fr; }
+            .footer-links { gap: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="/" class="nav-brand">Neshama</a>
+        <div class="nav-links">
+            <a href="/feed">Feed</a>
+            <a href="/shiva/caterers">Caterers</a>
+            <a href="/shiva-essentials">Essentials</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
+    <!-- Loading state -->
+    <div class="page-msg" id="loadingState">
+        <h2>Loading...</h2>
+    </div>
+
+    <!-- Not Found state -->
+    <div class="page-msg" id="notFoundState" style="display:none;">
+        <h2>Vendor Not Found</h2>
+        <p>This vendor may have been removed or the link may be incorrect.</p>
+        <p style="margin-top:1rem;"><a href="/directory">&larr; Back to Directory</a></p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display:none;">
+
+        <div class="breadcrumb">
+            <a href="/">Home</a><span>&rsaquo;</span>
+            <a href="/directory">Directory</a><span>&rsaquo;</span>
+            <span id="breadcrumbName"></span>
+        </div>
+
+        <div class="container">
+
+            <div class="vendor-header">
+                <div class="vendor-header-top">
+                    <h1 id="vendorName"></h1>
+                    <span class="kosher-badge" id="kosherBadge" style="display:none;">COR Certified</span>
+                </div>
+                <div class="vendor-category" id="vendorCategory"></div>
+                <p class="vendor-description" id="vendorDesc"></p>
+            </div>
+
+            <div class="vendor-info">
+                <h2>Contact &amp; Details</h2>
+                <div id="infoRows"></div>
+            </div>
+
+            <div class="quote-section">
+                <h2>Request a Quote</h2>
+                <p>Interested in this vendor for a shiva meal or event? Send them a request and they'll get back to you.</p>
+                <button class="quote-btn" id="quoteBtn" onclick="toggleForm()">Request a Quote</button>
+
+                <div class="lead-form" id="leadForm">
+                    <div class="form-row-half">
+                        <div class="form-row">
+                            <label for="leadName">Your Name *</label>
+                            <input type="text" id="leadName" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="leadEmail">Your Email *</label>
+                            <input type="email" id="leadEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-row-half">
+                        <div class="form-row">
+                            <label for="leadEventType">Event Type</label>
+                            <select id="leadEventType">
+                                <option value="">Select...</option>
+                                <option value="shiva">Shiva Meals</option>
+                                <option value="community_event">Community Event</option>
+                                <option value="private_event">Private Event</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="leadDate">Event Date</label>
+                            <input type="date" id="leadDate">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="leadGuests">Estimated Guests</label>
+                        <input type="number" id="leadGuests" min="1" max="500" placeholder="e.g. 25">
+                    </div>
+                    <div class="form-row">
+                        <label for="leadMessage">Message</label>
+                        <textarea id="leadMessage" placeholder="Any details about dietary needs, timing, or special requests..."></textarea>
+                    </div>
+                    <button class="quote-btn" id="submitBtn" onclick="submitLead()">Send Request</button>
+                    <div class="form-msg" id="formMsg"></div>
+                </div>
+            </div>
+
+            <a href="/directory" class="back-link">&larr; Back to Directory</a>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/shiva-essentials">Shiva Essentials</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/directory">Directory</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        var vendor = null;
+        var slug = window.location.pathname.replace('/directory/', '').replace(/\/$/, '');
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str || ''));
+            return div.innerHTML;
+        }
+
+        function loadVendor() {
+            fetch('/api/vendors/' + encodeURIComponent(slug))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success' && data.data) {
+                        vendor = data.data;
+                        renderVendor();
+                    } else {
+                        showNotFound();
+                    }
+                })
+                .catch(function() {
+                    showNotFound();
+                });
+        }
+
+        function renderVendor() {
+            var v = vendor;
+            document.title = v.name + ' - Neshama Directory';
+
+            document.getElementById('vendorName').textContent = v.name;
+            document.getElementById('breadcrumbName').textContent = v.name;
+            document.getElementById('vendorCategory').textContent = v.category;
+            document.getElementById('vendorDesc').textContent = v.description || '';
+
+            if (v.kosher_status === 'COR') {
+                document.getElementById('kosherBadge').style.display = 'inline-block';
+            }
+
+            // Build info rows
+            var rows = '';
+            if (v.address) {
+                rows += '<div class="info-row"><span class="info-label">Address</span><span class="info-value">' + escapeHtml(v.address) + '</span></div>';
+            }
+            if (v.neighborhood) {
+                rows += '<div class="info-row"><span class="info-label">Area</span><span class="info-value">' + escapeHtml(v.neighborhood) + '</span></div>';
+            }
+            if (v.phone) {
+                rows += '<div class="info-row"><span class="info-label">Phone</span><span class="info-value"><a href="tel:' + escapeHtml(v.phone) + '">' + escapeHtml(v.phone) + '</a></span></div>';
+            }
+            if (v.website) {
+                var displayUrl = v.website.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(v.website) + '" target="_blank" rel="noopener">' + escapeHtml(displayUrl) + '</a></span></div>';
+            }
+            rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">' + (v.kosher_status === 'COR' ? 'COR Certified' : 'Not certified kosher') + '</span></div>';
+            rows += '<div class="info-row"><span class="info-label">Delivery</span><span class="info-value">' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span></div>';
+
+            document.getElementById('infoRows').innerHTML = rows;
+
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function showNotFound() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('notFoundState').style.display = 'block';
+        }
+
+        // Expose functions to global scope for onclick
+        window.toggleForm = function() {
+            var form = document.getElementById('leadForm');
+            var btn = document.getElementById('quoteBtn');
+            if (form.classList.contains('visible')) {
+                form.classList.remove('visible');
+                btn.textContent = 'Request a Quote';
+            } else {
+                form.classList.add('visible');
+                btn.textContent = 'Hide Form';
+            }
+        };
+
+        window.submitLead = function() {
+            var name = document.getElementById('leadName').value.trim();
+            var email = document.getElementById('leadEmail').value.trim();
+            var eventType = document.getElementById('leadEventType').value;
+            var eventDate = document.getElementById('leadDate').value;
+            var guests = document.getElementById('leadGuests').value;
+            var message = document.getElementById('leadMessage').value.trim();
+            var msgEl = document.getElementById('formMsg');
+            var submitBtn = document.getElementById('submitBtn');
+
+            if (!name || !email) {
+                msgEl.className = 'form-msg error';
+                msgEl.textContent = 'Please fill in your name and email.';
+                return;
+            }
+
+            if (email.indexOf('@') === -1) {
+                msgEl.className = 'form-msg error';
+                msgEl.textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            fetch('/api/vendor-leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    vendor_id: vendor.id,
+                    vendor_name: vendor.name,
+                    contact_name: name,
+                    contact_email: email,
+                    event_type: eventType,
+                    event_date: eventDate,
+                    estimated_guests: guests ? parseInt(guests) : null,
+                    message: message
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    msgEl.className = 'form-msg success';
+                    msgEl.textContent = 'Your request has been sent! The vendor will receive your details and reach out to you directly.';
+                    submitBtn.textContent = 'Sent!';
+                } else {
+                    msgEl.className = 'form-msg error';
+                    msgEl.textContent = data.message || 'Something went wrong. Please try again.';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Send Request';
+                }
+            })
+            .catch(function() {
+                msgEl.className = 'form-msg error';
+                msgEl.textContent = 'Unable to send request. Please try again.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Request';
+            });
+        };
+
+        if (slug) {
+            loadVendor();
+        } else {
+            showNotFound();
+        }
+    })();
+    </script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

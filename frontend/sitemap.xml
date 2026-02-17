@@ -10,5 +10,5 @@
   <url><loc>https://neshama.ca/shiva/caterers</loc><priority>0.6</priority></url>
   <url><loc>https://neshama.ca/shiva-essentials</loc><priority>0.8</priority></url>
   <url><loc>https://neshama.ca/what-to-bring-to-a-shiva</loc><priority>0.8</priority></url>
-  <url><loc>https://neshama.ca/directory</loc><priority>0.5</priority></url>
+  <url><loc>https://neshama.ca/directory</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
 </urlset>

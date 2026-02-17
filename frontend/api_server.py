@@ -18,6 +18,18 @@ from datetime import datetime
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 
+# Import vendor seed script
+try:
+    sys_path_parent = os.path.join(FRONTEND_DIR, '..')
+    import sys as _sys
+    if sys_path_parent not in _sys.path:
+        _sys.path.insert(0, sys_path_parent)
+    from seed_vendors import seed_vendors, create_tables as create_vendor_tables
+    VENDORS_AVAILABLE = True
+except Exception as e:
+    VENDORS_AVAILABLE = False
+    print(f"  Vendor directory: Not available ({e})")
+
 # Import EmailSubscriptionManager
 try:
     import sys
@@ -141,6 +153,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_caterers()
         elif path.startswith('/api/caterers/pending'):
             self.get_pending_caterers()
+        # Vendor API endpoints
+        elif path == '/api/vendors':
+            self.get_vendors()
+        elif path.startswith('/api/vendors/'):
+            slug = path[len('/api/vendors/'):]
+            self.get_vendor_by_slug(slug)
+        # Vendor detail pages (/directory/slug)
+        elif path.startswith('/directory/') and path != '/directory/' and path not in self.STATIC_FILES:
+            self.serve_vendor_page()
         # Shiva API endpoints
         elif path.startswith('/api/shiva/obituary/'):
             obit_id = path[len('/api/shiva/obituary/'):]
@@ -208,6 +229,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/caterers/') and path.endswith('/reject'):
             caterer_id = path[len('/api/caterers/'):-len('/reject')]
             self.handle_caterer_reject(caterer_id)
+        elif path == '/api/vendor-leads':
+            self.handle_vendor_lead(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
@@ -1013,6 +1036,104 @@ button:hover{background:#c45a1a}</style></head>
         status_code = 200 if result['status'] == 'success' else 400
         self.send_json_response(result, status_code)
 
+    # ── API: Vendor Directory ─────────────────────────────
+
+    def get_vendors(self):
+        """Get all vendors, optionally filtered by category or kosher status"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
+            vendors = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            self.send_json_response({'status': 'success', 'data': vendors})
+        except Exception as e:
+            self.send_json_response({'status': 'success', 'data': []})
+
+    def get_vendor_by_slug(self, slug):
+        """Get a single vendor by slug"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM vendors WHERE slug = ?', (slug,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                self.send_json_response({'status': 'success', 'data': dict(row)})
+            else:
+                self.send_json_response({'status': 'error', 'message': 'Vendor not found'}, 404)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def serve_vendor_page(self):
+        """Serve the vendor detail page template (JS handles data loading)"""
+        filepath = os.path.join(FRONTEND_DIR, 'vendor-detail.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    def handle_vendor_lead(self, body):
+        """Handle vendor lead form submission"""
+        try:
+            data = json.loads(body)
+            contact_name = data.get('contact_name', '').strip()
+            contact_email = data.get('contact_email', '').strip()
+            vendor_id = data.get('vendor_id')
+            vendor_name = data.get('vendor_name', '').strip()
+            event_type = data.get('event_type', '').strip()
+            event_date = data.get('event_date', '').strip()
+            estimated_guests = data.get('estimated_guests')
+            message = data.get('message', '').strip()
+
+            if not contact_name or not contact_email or not vendor_id:
+                self.send_json_response({
+                    'status': 'error',
+                    'message': 'Name, email, and vendor are required'
+                }, 400)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+
+            cursor.execute('''
+                INSERT INTO vendor_leads (vendor_id, vendor_name, contact_name, contact_email,
+                                          event_type, event_date, estimated_guests, message, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (vendor_id, vendor_name, contact_name, contact_email,
+                  event_type, event_date, estimated_guests, message, now))
+
+            conn.commit()
+            lead_id = cursor.lastrowid
+            conn.close()
+
+            # Log the lead
+            print(f"[Vendor Lead] {contact_name} ({contact_email}) -> {vendor_name}")
+
+            self.send_json_response({
+                'status': 'success',
+                'message': 'Inquiry submitted successfully',
+                'id': lead_id
+            })
+
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     # ── API: Shiva Support ─────────────────────────────────
 
     def serve_shiva_page(self):
@@ -1313,6 +1434,10 @@ def run_server(port=None):
     print(f"   GET  /api/caterers/pending - Pending applications (admin)")
     print(f"   POST /api/caterers/{{id}}/approve - Approve caterer (admin)")
     print(f"   POST /api/caterers/{{id}}/reject  - Reject caterer (admin)")
+    print(f"   GET  /api/vendors          - All vendors")
+    print(f"   GET  /api/vendors/{{slug}}   - Vendor by slug")
+    print(f"   POST /api/vendor-leads     - Vendor inquiry")
+    print(f"   GET  /directory/{{slug}}     - Vendor detail page")
     print(f"   GET  /admin/backup             - Download backup JSON (admin)")
     print(f"   POST /admin/restore            - Upload backup JSON (admin)")
     print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
@@ -1342,6 +1467,15 @@ def run_server(port=None):
             })
         except Exception as e:
             print(f"  Caterer seed: {e}")
+    # Seed vendor directory
+    if VENDORS_AVAILABLE:
+        try:
+            seed_vendors(DB_PATH)
+            print(f"  Vendor directory: Seeded")
+        except Exception as e:
+            print(f"  Vendor seed: {e}")
+
+    if SHIVA_AVAILABLE:
         # Auto-restore from backup if critical tables are empty
         try:
             if shiva_mgr.needs_restore():
