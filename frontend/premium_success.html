@@ -30,10 +30,6 @@
             color: var(--dark-brown);
             line-height: 1.7;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
         }
         
         .container {
@@ -223,7 +219,14 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <nav style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--light-taupe); display: flex; align-items: center; justify-content: center; gap: 2rem; background: rgba(255,255,255,0.6);">
+        <a href="/" style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--dark-brown); text-decoration: none;">Neshama</a>
+        <div style="display: flex; gap: 1.5rem;">
+            <a href="/feed" style="color: var(--dark-brown); text-decoration: none; font-size: 1rem;">Feed</a>
+            <a href="/about" style="color: var(--dark-brown); text-decoration: none; font-size: 1rem;">About</a>
+        </div>
+    </nav>
+    <div class="container" style="margin: 3rem auto; padding: 4rem 4rem;">
         <div class="success-icon">✨</div>
         
         <h1>Welcome to Neshama Premium!</h1>
