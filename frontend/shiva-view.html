@@ -902,6 +902,7 @@
             <a href="/feed">Feed</a>
             <a href="/shiva/guide">Shiva Guide</a>
             <a href="/shiva-essentials">Essentials</a>
+            <a href="/gifts">Gifts</a>
             <a href="/about">About</a>
         </div>
     </nav>
@@ -939,6 +940,35 @@
             Preparing for shiva? See our <a href="/shiva-essentials" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
         </div>
 
+        <!-- Private Page Notice (shown when page is private and visitor has no access) -->
+        <div id="privateNotice" style="display: none;">
+            <div style="background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin: 1.5rem 0; border: 1px solid var(--light-taupe);">
+                <p style="font-size: 1.1rem; line-height: 1.6; color: var(--dark-brown); margin-bottom: 1rem;">This shiva page is private. The family has chosen to coordinate meals through direct invitations.</p>
+                <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.5rem;">If you know the family, you can request access below.</p>
+                <button onclick="showAccessForm()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 1.05rem; cursor: pointer;">Request Access</button>
+            </div>
+            <div id="accessForm" style="display: none; background: white; border-radius: 1rem; padding: 2rem; margin-top: 1rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--dark-brown);">Request Access</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Name</label>
+                    <input type="text" id="accessName" placeholder="Your full name" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Email</label>
+                    <input type="email" id="accessEmail" placeholder="your@email.com" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">How do you know the family? <span style="color: var(--sage-dark); font-weight: 400;">(optional)</span></label>
+                    <textarea id="accessMessage" placeholder="e.g., Neighbour, colleague, friend from shul..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+                <div id="accessError" style="display: none; color: #c0392b; font-size: 0.9rem; margin-bottom: 1rem;"></div>
+                <button id="accessSubmitBtn" onclick="submitAccessRequest()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 1.05rem; cursor: pointer; width: 100%;">Send Request</button>
+            </div>
+            <div id="accessSuccess" style="display: none; background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin-top: 1rem;">
+                <p style="font-size: 1.1rem; color: var(--dark-brown); line-height: 1.6;">Your request has been sent. You'll receive an email when the organizer responds.</p>
+            </div>
+        </div>
+
         <!-- Organizer Banner -->
         <div class="organizer-banner" id="organizerBanner" style="display: none;">
             <p>Organizer view &mdash; you can manage signups below</p>
@@ -957,9 +987,52 @@
         </div>
 
         <!-- Meal Calendar -->
-        <section class="calendar-section">
+        <section class="calendar-section" id="calendarSection">
             <h2 class="section-heading">Meal Schedule</h2>
             <div class="meal-calendar" id="mealCalendar"></div>
+        </section>
+
+        <!-- Send Something Thoughtful -->
+        <section id="giftSection" style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--light-taupe);">
+            <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 500; color: var(--terracotta); text-align: center; margin-bottom: 0.4rem;">Send Something Thoughtful</h2>
+            <p style="text-align: center; color: var(--sage-dark); font-size: 1rem; margin-bottom: 1.5rem;">Can't be there in person? Send comfort to the family.</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem;">
+                <a href="/gifts?category=shiva-platters" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127869;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Shiva Platters</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">Ready-to-serve meals</div>
+                </a>
+                <a href="/gifts?category=baked-goods" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#129360;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Baked Goods</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">Pastries, cakes &amp; rugelach</div>
+                </a>
+                <a href="/gifts?category=chocolate" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127851;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Chocolate &amp; Sweets</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">Sweet treats &amp; candy</div>
+                </a>
+                <a href="/gifts?category=fruit-nuts" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127822;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Fruit &amp; Nuts</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">Baskets &amp; dried fruit trays</div>
+                </a>
+                <a href="/gifts?category=gift-baskets" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127873;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Gift Baskets</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">Curated comfort packages</div>
+                </a>
+                <a href="/gifts?category=kosher" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#10017;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Kosher Certified</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">COR &amp; certified options</div>
+                </a>
+                <a href="/gifts/plant-a-tree" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127795;</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Plant a Tree</div>
+                    <div style="font-size: 0.8rem; color: var(--sage-dark);">A living memorial in Israel</div>
+                </a>
+            </div>
         </section>
     </div>
 
@@ -1095,6 +1168,7 @@
             <a href="/faq">FAQ</a>
             <a href="/shiva-essentials">Shiva Essentials</a>
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/gifts">Send a Gift</a>
             <a href="/directory">Directory</a>
             <a href="/privacy">Privacy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
@@ -1115,6 +1189,8 @@
         var currentServings = 4;
         var isOrganizerMode = false;
         var organizerToken = null;
+        var accessToken = null;
+        var isPrivateLimited = false;
         var lastSignupAddress = null;
 
         // ── URL Parsing ─────────────────────────────────
@@ -1178,6 +1254,10 @@
             organizerToken = getTokenFromUrl();
             isOrganizerMode = !!organizerToken;
 
+            // Check for access token (for private pages)
+            var params = new URLSearchParams(window.location.search);
+            accessToken = params.get('access') || null;
+
             if (!supportId) {
                 hide('pageLoading');
                 show('errorState');
@@ -1189,6 +1269,8 @@
             if (organizerToken) {
                 shivaUrl += '?token=' + encodeURIComponent(organizerToken);
                 mealsUrl += '?token=' + encodeURIComponent(organizerToken);
+            } else if (accessToken) {
+                shivaUrl += '?access=' + encodeURIComponent(accessToken);
             }
 
             Promise.all([
@@ -1205,9 +1287,15 @@
 
                 supportData = shivaResult.data;
                 mealsData = (mealsResult && mealsResult.data) || [];
+                isPrivateLimited = (shivaResult.access === 'limited');
 
                 if (supportData.status === 'archived') {
                     renderArchived();
+                    return;
+                }
+
+                if (isPrivateLimited) {
+                    renderPrivateLimited();
                     return;
                 }
 
@@ -1230,6 +1318,91 @@
                 '<div class="archived-notice"><p>This shiva support page has been archived. ' +
                 'Thank you to everyone who helped coordinate meals.</p></div>';
             show('mainContent');
+        }
+
+        // ── Render Private Limited View ─────────────────
+
+        function renderPrivateLimited() {
+            document.title = supportData.family_name + ' - Shiva Support - Neshama';
+            document.getElementById('familyName').textContent = supportData.family_name;
+
+            if (supportData.shiva_start_date && supportData.shiva_end_date) {
+                document.getElementById('shivaDates').textContent =
+                    formatDateRange(supportData.shiva_start_date, supportData.shiva_end_date);
+            }
+
+            if (supportData.obituary_id && supportData.obituary_id !== 'unknown') {
+                var ml = document.getElementById('memorialLink');
+                ml.href = '/memorial/' + encodeURIComponent(supportData.obituary_id);
+                ml.style.display = '';
+            }
+
+            // Hide sections that require access
+            hide('infoCards');
+            hide('addressReveal');
+            var calSec = document.getElementById('calendarSection');
+            if (calSec) calSec.style.display = 'none';
+
+            // Show private notice
+            show('privateNotice');
+
+            hide('pageLoading');
+            show('mainContent');
+        }
+
+        function showAccessForm() {
+            show('accessForm');
+        }
+
+        function submitAccessRequest() {
+            var name = document.getElementById('accessName').value.trim();
+            var email = document.getElementById('accessEmail').value.trim();
+            var message = document.getElementById('accessMessage').value.trim();
+            var errEl = document.getElementById('accessError');
+            var btn = document.getElementById('accessSubmitBtn');
+
+            errEl.style.display = 'none';
+
+            if (!name || !email) {
+                errEl.textContent = 'Please enter your name and email.';
+                errEl.style.display = '';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            fetch('/api/shiva-access/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shiva_id: supportId,
+                    requester_name: name,
+                    requester_email: email,
+                    message: message
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    hide('accessForm');
+                    show('accessSuccess');
+                } else if (result.status === 'already_approved' && result.access_token) {
+                    // Already approved — reload with token
+                    window.location.href = '/shiva/' + encodeURIComponent(supportId) + '?access=' + encodeURIComponent(result.access_token);
+                } else {
+                    errEl.textContent = result.message || 'Something went wrong.';
+                    errEl.style.display = '';
+                    btn.disabled = false;
+                    btn.textContent = 'Send Request';
+                }
+            })
+            .catch(function() {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.style.display = '';
+                btn.disabled = false;
+                btn.textContent = 'Send Request';
+            });
         }
 
         // ── Render Main Page ────────────────────────────

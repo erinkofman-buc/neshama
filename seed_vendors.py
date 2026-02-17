@@ -32,6 +32,7 @@ def create_tables(conn):
             name TEXT NOT NULL,
             slug TEXT UNIQUE NOT NULL,
             category TEXT NOT NULL,
+            vendor_type TEXT DEFAULT 'food',
             description TEXT,
             address TEXT,
             neighborhood TEXT,
@@ -39,6 +40,7 @@ def create_tables(conn):
             website TEXT,
             kosher_status TEXT DEFAULT 'not_certified',
             delivery INTEGER DEFAULT 0,
+            delivery_area TEXT,
             image_url TEXT,
             featured INTEGER DEFAULT 0,
             created_at TEXT NOT NULL
@@ -74,6 +76,18 @@ def create_tables(conn):
     cursor.execute('''
         CREATE INDEX IF NOT EXISTS idx_leads_vendor ON vendor_leads(vendor_id)
     ''')
+
+    # Migration: add vendor_type column if missing
+    try:
+        cursor.execute('SELECT vendor_type FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN vendor_type TEXT DEFAULT 'food'")
+
+    # Migration: add delivery_area column if missing
+    try:
+        cursor.execute('SELECT delivery_area FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN delivery_area TEXT")
 
     conn.commit()
 
@@ -520,8 +534,145 @@ VENDORS = [
 ]
 
 
+# 11 Toronto-area gift vendors (local, lead capture)
+GIFT_VENDORS = [
+    {
+        'name': 'Baskets n\' Stuf',
+        'category': 'Gift Baskets, Shiva Platters',
+        'description': 'Kosher gift baskets and shiva platters. Beautiful arrangements with fresh fruit, baked goods, and gourmet treats. Experienced in shiva deliveries.',
+        'address': 'Bathurst & Steeles, North York, ON',
+        'neighborhood': 'North York',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Dani Gifts',
+        'category': 'Gift Baskets, Chocolate',
+        'description': 'Kosher gift baskets, chocolate boxes, and treats. Specializes in shiva gifts with tasteful packaging and prompt delivery.',
+        'address': '401 Magnetic Dr, North York, ON',
+        'neighborhood': 'North York',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Ely\'s Fine Foods',
+        'category': 'Shiva Platters, Gift Baskets',
+        'description': 'Kosher shiva platters and fine food gift baskets. Prepared meals, deli trays, and curated gift packages for mourning families.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Nutcracker Sweet / Baskits',
+        'category': 'Gift Baskets, Gourmet',
+        'description': 'Premium gift baskets and gourmet packages. Known for stunning presentation and high-quality products. Ships Canada-wide. Kosher options available.',
+        'address': '3717 Chesswood Dr, Toronto, ON',
+        'neighborhood': 'North York',
+        'phone': '',
+        'website': 'https://www.baskits.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA + Canada-wide',
+    },
+    {
+        'name': 'Gifts for Every Reason',
+        'category': 'Gift Baskets',
+        'description': 'Curated gift baskets for shiva and condolence. Kosher options available. Thoughtful packaging with same-day delivery in GTA.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Romi\'s Bakery',
+        'category': 'Baked Goods',
+        'description': 'Artisanal baked goods and pastries. Beautiful cookie boxes, cakes, and pastry platters. A warm, personal touch for a shiva home.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Local',
+    },
+    {
+        'name': 'Edible Arrangements',
+        'category': 'Fruit',
+        'description': 'Fresh fruit arrangements and bouquets. Same-day delivery available at 7 GTA locations. Fruit is inherently kosher — a safe, universally appreciated gift.',
+        'address': 'Multiple GTA locations',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': 'https://www.ediblearrangements.ca',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA + same-day',
+    },
+    {
+        'name': 'Fruitate',
+        'category': 'Fruit',
+        'description': 'Beautiful fruit arrangements and displays. Fresh, colourful, and healthy. A thoughtful and refreshing gift for a shiva home.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Local',
+    },
+    {
+        'name': 'Epic Baskets',
+        'category': 'Fruit, Gift Baskets',
+        'description': 'Fresh fruit baskets and gourmet gift packages. Same-day delivery in GTA. Beautiful presentation for a meaningful gift.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA + same-day',
+    },
+    {
+        'name': 'My Baskets',
+        'category': 'Fruit, Gift Baskets',
+        'description': 'Fruit and gift baskets with free delivery over $100 in the GTA. Wide variety of sympathy and condolence baskets.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA (free over $100)',
+    },
+    {
+        'name': 'Butzi Gift Baskets',
+        'category': 'Gift Baskets',
+        'description': 'Gourmet gift baskets and sympathy packages. Same-day delivery in Toronto and GTA. Known for generous portions and beautiful wrapping.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': '',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA + same-day',
+    },
+]
+
+
 def seed_vendors(db_path=None):
-    """Seed the vendors table with data"""
+    """Seed the vendors table with food and gift vendor data"""
     path = db_path or DB_PATH
     conn = sqlite3.connect(path)
     create_tables(conn)
@@ -531,6 +682,7 @@ def seed_vendors(db_path=None):
     inserted = 0
     skipped = 0
 
+    # Seed food vendors
     for v in VENDORS:
         slug = slugify(v['name'])
         # Check if already exists
@@ -540,9 +692,9 @@ def seed_vendors(db_path=None):
             continue
 
         cursor.execute('''
-            INSERT INTO vendors (name, slug, category, description, address, neighborhood,
-                                 phone, website, kosher_status, delivery, image_url, featured, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
+                                 phone, website, kosher_status, delivery, delivery_area, image_url, featured, created_at)
+            VALUES (?, ?, ?, 'food', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             v['name'],
             slug,
@@ -554,15 +706,48 @@ def seed_vendors(db_path=None):
             v.get('website', ''),
             v.get('kosher_status', 'not_certified'),
             v.get('delivery', 0),
+            v.get('delivery_area', ''),
             v.get('image_url'),
             v.get('featured', 0),
             now,
         ))
         inserted += 1
 
+    # Seed gift vendors
+    gift_inserted = 0
+    for v in GIFT_VENDORS:
+        slug = slugify(v['name'])
+        cursor.execute('SELECT id FROM vendors WHERE slug = ?', (slug,))
+        if cursor.fetchone():
+            skipped += 1
+            continue
+
+        cursor.execute('''
+            INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
+                                 phone, website, kosher_status, delivery, delivery_area, image_url, featured, created_at)
+            VALUES (?, ?, ?, 'gift', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            v['name'],
+            slug,
+            v['category'],
+            v.get('description', ''),
+            v.get('address', ''),
+            v.get('neighborhood', ''),
+            v.get('phone', ''),
+            v.get('website', ''),
+            v.get('kosher_status', 'not_certified'),
+            v.get('delivery', 0),
+            v.get('delivery_area', ''),
+            v.get('image_url'),
+            v.get('featured', 0),
+            now,
+        ))
+        gift_inserted += 1
+        inserted += 1
+
     conn.commit()
     conn.close()
-    print(f"Vendor seed complete: {inserted} inserted, {skipped} skipped (already exist)")
+    print(f"Vendor seed complete: {inserted} inserted ({gift_inserted} gift), {skipped} skipped (already exist)")
     return inserted
 
 

@@ -551,6 +551,7 @@
         <div class="nav-links">
             <a href="/feed">Feed</a>
             <a href="/shiva-essentials">Essentials</a>
+            <a href="/gifts">Gifts</a>
             <a href="/about">About</a>
         </div>
     </nav>
@@ -643,6 +644,15 @@
                 <label for="shivaCity">City</label>
                 <input type="text" id="shivaCity" placeholder="Toronto">
             </div>
+
+            <div class="toggle-group" style="margin-top: 1rem;">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="privacyToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Keep this shiva page private</span>
+            </div>
+            <p class="toggle-hint">Only people you approve can see the address, dietary details, and meal signup. The family name and shiva dates will still be visible.</p>
 
             <div class="form-group">
                 <label for="shivaStartDate">Start Date</label>
@@ -738,6 +748,7 @@
             <a href="/faq">FAQ</a>
             <a href="/shiva-essentials">Shiva Essentials</a>
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/gifts">Send a Gift</a>
             <a href="/directory">Directory</a>
             <a href="/privacy">Privacy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
@@ -947,6 +958,7 @@
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
                 donation_url: document.getElementById('donationUrl').value.trim(),
                 donation_label: document.getElementById('donationLabel').value.trim(),
+                privacy: document.getElementById('privacyToggle').checked ? 'private' : 'public',
                 privacy_consent: true
             };
 

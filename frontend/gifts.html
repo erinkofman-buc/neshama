@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Something Thoughtful - Neshama</title>
+    <meta name="description" content="Comfort gifts, care packages, and shiva gift baskets for families during their mourning period. Local GTA vendors and Canada-wide delivery.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Crimson Pro', serif; background: var(--cream); color: var(--dark-brown); line-height: 1.6; }
+
+        /* Nav */
+        .nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: white; border-bottom: 1px solid var(--light-taupe); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--dark-brown); text-decoration: none; }
+        .nav-links { display: flex; gap: 1.2rem; align-items: center; }
+        .nav-links a { color: var(--sage-dark); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--terracotta); }
+
+        /* Hero */
+        .page-hero { text-align: center; padding: 2.5rem 1.5rem 1.5rem; }
+        .page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem; }
+        .page-hero p { font-size: 1.1rem; color: var(--sage-dark); max-width: 600px; margin: 0 auto; }
+
+        /* Category Pills */
+        .category-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; padding: 0 1.5rem 1.5rem; max-width: 900px; margin: 0 auto; }
+        .pill { padding: 0.5rem 1.1rem; border-radius: 2rem; border: 1.5px solid var(--light-taupe); background: white; color: var(--sage-dark); font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .pill:hover, .pill.active { background: var(--terracotta); color: white; border-color: var(--terracotta); }
+
+        /* Vendor Grid */
+        .vendor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.2rem; padding: 0 1.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+        .vendor-card { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--light-taupe); transition: transform 0.15s, box-shadow 0.15s; }
+        .vendor-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(62,39,35,0.08); }
+        .vendor-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.3rem; }
+        .vendor-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+        .badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 1rem; }
+        .badge-kosher { background: #e8f5e9; color: #2e7d32; }
+        .badge-category { background: #fff3e0; color: #e65100; }
+        .badge-delivery { background: #e3f2fd; color: #1565c0; }
+        .vendor-desc { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5; }
+        .vendor-cta { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 0.95rem; text-decoration: none; text-align: center; cursor: pointer; transition: background 0.2s; }
+        .cta-local { background: var(--terracotta); color: white; border: none; }
+        .cta-local:hover { background: #c45a1a; }
+        .cta-affiliate { background: white; color: var(--terracotta); border: 2px solid var(--terracotta); }
+        .cta-affiliate:hover { background: var(--terracotta); color: white; }
+
+        /* Plant a Tree Banner */
+        .tree-banner { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 1rem; padding: 2rem; text-align: center; max-width: 1100px; margin: 0 auto 2rem; }
+        .tree-banner h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #2e7d32; margin-bottom: 0.5rem; }
+        .tree-banner p { color: #33691e; font-size: 1rem; margin-bottom: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .tree-banner a { display: inline-block; background: #2e7d32; color: white; padding: 0.7rem 2rem; border-radius: 2rem; text-decoration: none; font-size: 1rem; }
+        .tree-banner a:hover { background: #1b5e20; }
+
+        /* Lead Capture Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 1.5rem; padding: 2rem; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 0.3rem; }
+        .modal-subtitle { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.5rem; }
+        .modal .form-group { margin-bottom: 1rem; }
+        .modal label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.9rem; }
+        .modal input, .modal textarea, .modal select { width: 100%; padding: 0.7rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; }
+        .modal textarea { resize: vertical; }
+        .modal-btns { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+        .modal-btns button { flex: 1; padding: 0.75rem; border-radius: 2rem; font-family: inherit; font-size: 1rem; cursor: pointer; }
+        .btn-cancel { background: var(--cream); color: var(--dark-brown); border: 1px solid var(--light-taupe); }
+        .btn-submit { background: var(--terracotta); color: white; border: none; }
+        .form-error { color: #c0392b; font-size: 0.9rem; display: none; margin-top: 0.5rem; }
+        .form-success { color: #2e7d32; font-size: 0.95rem; text-align: center; padding: 1rem; }
+
+        /* Disclaimer */
+        .disclaimer { max-width: 700px; margin: 0 auto 2rem; padding: 0 1.5rem; text-align: center; font-size: 0.85rem; color: var(--sage-dark); }
+        .disclaimer a { color: var(--terracotta); text-decoration: none; }
+
+        /* Footer */
+        .site-footer { text-align: center; padding: 2rem 1.5rem; border-top: 1px solid var(--light-taupe); margin-top: 2rem; background: white; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 0.8rem; }
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* No Results */
+        .no-results { text-align: center; padding: 3rem 1.5rem; color: var(--sage-dark); }
+        .no-results h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--dark-brown); }
+
+        @media (max-width: 600px) {
+            .nav-links { gap: 0.8rem; font-size: 0.9rem; }
+            .vendor-grid { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
+            .category-pills { padding: 0 1rem 1rem; }
+            .tree-banner { margin: 0 1rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="/" class="nav-brand">Neshama</a>
+    <div class="nav-links">
+        <a href="/feed">Feed</a>
+        <a href="/shiva/guide">Shiva Guide</a>
+        <a href="/shiva-essentials">Essentials</a>
+        <a href="/gifts">Gifts</a>
+        <a href="/about">About</a>
+    </div>
+</nav>
+
+<div class="page-hero">
+    <h1>Send Something Thoughtful</h1>
+    <p>Comfort gifts and care packages for families during shiva</p>
+</div>
+
+<div class="category-pills" id="categoryPills">
+    <a class="pill active" data-cat="all" onclick="filterCategory('all', this)">All</a>
+    <a class="pill" data-cat="shiva-platters" onclick="filterCategory('shiva-platters', this)">Shiva Platters</a>
+    <a class="pill" data-cat="baked-goods" onclick="filterCategory('baked-goods', this)">Baked Goods</a>
+    <a class="pill" data-cat="chocolate" onclick="filterCategory('chocolate', this)">Chocolate &amp; Sweets</a>
+    <a class="pill" data-cat="fruit-nuts" onclick="filterCategory('fruit-nuts', this)">Fruit &amp; Nuts</a>
+    <a class="pill" data-cat="gift-baskets" onclick="filterCategory('gift-baskets', this)">Gift Baskets</a>
+    <a class="pill" data-cat="kosher" onclick="filterCategory('kosher', this)">Kosher Certified</a>
+</div>
+
+<!-- Plant a Tree Banner -->
+<div class="tree-banner" id="treeBanner" style="margin: 0 1.5rem 1.5rem;">
+    <h3>&#127795; Plant a Tree in Israel</h3>
+    <p>A living memorial through the Jewish National Fund. A certificate is sent to the family. One of the most meaningful Jewish memorial traditions.</p>
+    <a href="https://www.jnf.ca/plant-a-tree/" target="_blank" rel="noopener">Plant a Tree &rarr;</a>
+</div>
+
+<div class="vendor-grid" id="vendorGrid">
+    <!-- Populated by JS -->
+</div>
+
+<div class="no-results" id="noResults" style="display: none;">
+    <h3>No vendors found</h3>
+    <p>Try selecting a different category above.</p>
+</div>
+
+<p class="disclaimer">
+    Some links on this page are affiliate links. When you make a purchase through these links, Neshama may earn a small commission at no extra cost to you. This helps us maintain the platform and serve the community.
+    <br>Looking for food vendors for shiva meals? <a href="/directory">Browse our food vendor directory &rarr;</a>
+</p>
+
+<!-- Lead Capture Modal -->
+<div class="modal-overlay" id="leadModal">
+    <div class="modal">
+        <div id="leadFormView">
+            <h2 id="leadVendorName">Request a Quote</h2>
+            <p class="modal-subtitle">We'll connect you with this vendor</p>
+            <div class="form-group">
+                <label for="leadName">Your Name</label>
+                <input type="text" id="leadName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="leadEmail">Your Email</label>
+                <input type="email" id="leadEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="leadEventType">Occasion</label>
+                <select id="leadEventType">
+                    <option value="shiva">Shiva</option>
+                    <option value="community">Community Event</option>
+                    <option value="private">Private Event</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="leadDate">Date Needed</label>
+                <input type="date" id="leadDate">
+            </div>
+            <div class="form-group">
+                <label for="leadGuests">Estimated Guests</label>
+                <input type="number" id="leadGuests" placeholder="20" min="1">
+            </div>
+            <div class="form-group">
+                <label for="leadMessage">Message <span style="font-weight:400;color:var(--sage-dark);">(optional)</span></label>
+                <textarea id="leadMessage" rows="3" placeholder="Any specific requirements or questions..."></textarea>
+            </div>
+            <div class="form-error" id="leadError"></div>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeLeadModal()">Cancel</button>
+                <button class="btn-submit" id="leadSubmitBtn" onclick="submitLead()">Send Inquiry</button>
+            </div>
+        </div>
+        <div id="leadSuccessView" style="display: none;">
+            <div class="form-success">
+                <p style="font-size: 2rem; margin-bottom: 0.5rem;">&#10003;</p>
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 0.5rem;">Inquiry Sent</h3>
+                <p>We've received your request. The vendor will be in touch soon.</p>
+                <button class="btn-cancel" onclick="closeLeadModal()" style="margin-top: 1rem; width: 100%;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <nav class="footer-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/faq">FAQ</a>
+        <a href="/shiva-essentials">Shiva Essentials</a>
+        <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+        <a href="/gifts">Send a Gift</a>
+        <a href="/directory">Directory</a>
+        <a href="/privacy">Privacy</a>
+        <a href="mailto:contact@neshama.ca">Contact</a>
+    </nav>
+    <p class="footer-copy">Built with care for the Jewish community</p>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    var localVendors = [];
+    var currentCategory = 'all';
+    var selectedVendor = null;
+
+    // Affiliate vendors (hardcoded, not in DB)
+    var affiliateVendors = [
+        {
+            name: 'Challah & Co.',
+            category: 'Baked Goods, Gift Baskets',
+            categories: ['baked-goods', 'gift-baskets', 'kosher'],
+            kosher_status: 'OU, OK, Star-K',
+            description: 'Beautiful kosher gift baskets and challah packages. Specializes in shiva baskets with baked goods, treats, and comforting items. Ships to Canada and US.',
+            delivery_area: 'US + Canada',
+            url: 'https://www.challahandco.com/kosher-gift-baskets/shiva-baskets.html',
+            type: 'affiliate'
+        },
+        {
+            name: 'Gifting Kosher',
+            category: 'Gift Baskets, Shiva Platters',
+            categories: ['gift-baskets', 'shiva-platters', 'kosher'],
+            kosher_status: 'Kosher certified',
+            description: 'Curated kosher shiva gift baskets. A thoughtful way to show you care. Delivered across Canada and the US.',
+            delivery_area: 'Canada + US',
+            url: 'https://giftingkosher.com/collections/shiva-gift-baskets',
+            type: 'affiliate'
+        },
+        {
+            name: 'Glitter Gift Baskets',
+            category: 'Gift Baskets, Chocolate',
+            categories: ['gift-baskets', 'chocolate', 'kosher'],
+            kosher_status: 'Kosher certified',
+            description: 'Kosher shiva gift baskets with chocolate, treats, and gourmet items. Beautiful presentation with Canada-wide delivery.',
+            delivery_area: 'Canada-wide',
+            url: 'https://glittergiftbaskets.ca/collections/shiva-gift-baskets',
+            type: 'affiliate'
+        },
+        {
+            name: 'The Sweet Basket',
+            category: 'Gift Baskets, Chocolate',
+            categories: ['gift-baskets', 'chocolate', 'kosher'],
+            kosher_status: 'Kosher',
+            description: 'Kosher shiva gift baskets filled with sweets, chocolate, and comforting treats. Ships Canada-wide.',
+            delivery_area: 'Canada-wide',
+            url: 'https://www.thesweetbasket.com/product/kosher-shiva-gift-basket/',
+            type: 'affiliate'
+        },
+        {
+            name: 'Kosher Gift Baskets',
+            category: 'Gift Baskets',
+            categories: ['gift-baskets', 'kosher'],
+            kosher_status: 'Various',
+            description: 'Browse a wide selection of kosher shiva gift baskets on Amazon.ca. Fast delivery with Prime.',
+            delivery_area: 'Canada',
+            url: 'https://www.amazon.ca/s?k=kosher+shiva+gift+basket&tag=neshama07-20',
+            type: 'affiliate'
+        },
+        {
+            name: 'Chocolate & Sweets Gifts',
+            category: 'Chocolate',
+            categories: ['chocolate'],
+            kosher_status: 'Various',
+            description: 'Kosher chocolate gift boxes and sweet treat collections. Perfect for bringing comfort to a shiva home.',
+            delivery_area: 'Canada',
+            url: 'https://www.amazon.ca/s?k=kosher+chocolate+gift+box&tag=neshama07-20',
+            type: 'affiliate'
+        },
+        {
+            name: 'Dried Fruit & Nut Trays',
+            category: 'Fruit & Nuts',
+            categories: ['fruit-nuts'],
+            kosher_status: 'Various',
+            description: 'Gift trays with dried fruit and premium nuts. A healthy, universally appreciated gift for mourning families.',
+            delivery_area: 'Canada',
+            url: 'https://www.amazon.ca/s?k=dried+fruit+nut+gift+tray&tag=neshama07-20',
+            type: 'affiliate'
+        },
+        {
+            name: 'Sympathy Gift Baskets',
+            category: 'Gift Baskets',
+            categories: ['gift-baskets'],
+            kosher_status: 'Various',
+            description: 'Thoughtfully curated sympathy baskets. A meaningful way to express condolences when you can\'t be there in person.',
+            delivery_area: 'Canada',
+            url: 'https://www.amazon.ca/s?k=sympathy+gift+basket&tag=neshama07-20',
+            type: 'affiliate'
+        }
+    ];
+
+    // Category mapping for local vendors
+    var categoryMap = {
+        'shiva-platters': ['Shiva Platters', 'shiva platters'],
+        'baked-goods': ['Baked Goods', 'baked goods'],
+        'chocolate': ['Chocolate', 'chocolate', 'Sweets', 'sweets'],
+        'fruit-nuts': ['Fruit', 'fruit', 'Nuts', 'nuts'],
+        'gift-baskets': ['Gift Baskets', 'gift baskets', 'Gourmet', 'gourmet'],
+        'kosher': [] // special: filter by kosher_status
+    };
+
+    function matchesCategory(vendor, cat) {
+        if (cat === 'all') return true;
+        if (cat === 'kosher') {
+            if (vendor.type === 'affiliate') {
+                return vendor.categories && vendor.categories.indexOf('kosher') >= 0;
+            }
+            return vendor.kosher_status && vendor.kosher_status !== 'not_certified';
+        }
+        // Affiliate vendors have explicit categories array
+        if (vendor.type === 'affiliate') {
+            return vendor.categories && vendor.categories.indexOf(cat) >= 0;
+        }
+        // Local vendors: match category text
+        var terms = categoryMap[cat] || [];
+        var vendorCat = (vendor.category || '').toLowerCase();
+        for (var i = 0; i < terms.length; i++) {
+            if (vendorCat.indexOf(terms[i].toLowerCase()) >= 0) return true;
+        }
+        return false;
+    }
+
+    function renderVendors() {
+        var grid = document.getElementById('vendorGrid');
+        var allVendors = [];
+
+        // Mix local and affiliate vendors
+        localVendors.forEach(function(v) {
+            v.type = 'local';
+            allVendors.push(v);
+        });
+        affiliateVendors.forEach(function(v) {
+            allVendors.push(v);
+        });
+
+        // Filter
+        var filtered = allVendors.filter(function(v) {
+            return matchesCategory(v, currentCategory);
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            document.getElementById('noResults').style.display = '';
+            return;
+        }
+        document.getElementById('noResults').style.display = 'none';
+
+        var html = '';
+        filtered.forEach(function(v) {
+            html += '<div class="vendor-card">';
+            html += '<div class="vendor-name">' + escapeHtml(v.name) + '</div>';
+            html += '<div class="vendor-badges">';
+            html += '<span class="badge badge-category">' + escapeHtml(v.category) + '</span>';
+            if (v.kosher_status && v.kosher_status !== 'not_certified' && v.kosher_status !== 'Various') {
+                html += '<span class="badge badge-kosher">' + escapeHtml(v.kosher_status) + '</span>';
+            }
+            if (v.delivery_area) {
+                html += '<span class="badge badge-delivery">' + escapeHtml(v.delivery_area) + '</span>';
+            } else if (v.delivery) {
+                html += '<span class="badge badge-delivery">Delivers</span>';
+            }
+            html += '</div>';
+            html += '<p class="vendor-desc">' + escapeHtml(v.description) + '</p>';
+
+            if (v.type === 'affiliate') {
+                html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
+            } else {
+                html += '<button class="vendor-cta cta-local" onclick="openLeadModal(' + v.id + ', \'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')">Request a Quote</button>';
+            }
+            html += '</div>';
+        });
+        grid.innerHTML = html;
+    }
+
+    function filterCategory(cat, el) {
+        currentCategory = cat;
+        var pills = document.querySelectorAll('.pill');
+        for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+        if (el) el.classList.add('active');
+
+        // Show/hide tree banner based on category
+        var treeBanner = document.getElementById('treeBanner');
+        if (treeBanner) treeBanner.style.display = (cat === 'all') ? '' : 'none';
+
+        renderVendors();
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Lead Modal
+    window.openLeadModal = function(vendorId, vendorName) {
+        selectedVendor = { id: vendorId, name: vendorName };
+        document.getElementById('leadVendorName').textContent = vendorName;
+        document.getElementById('leadFormView').style.display = '';
+        document.getElementById('leadSuccessView').style.display = 'none';
+        document.getElementById('leadError').style.display = 'none';
+        document.getElementById('leadModal').classList.add('active');
+    };
+
+    window.closeLeadModal = function() {
+        document.getElementById('leadModal').classList.remove('active');
+        // Reset form
+        document.getElementById('leadName').value = '';
+        document.getElementById('leadEmail').value = '';
+        document.getElementById('leadMessage').value = '';
+        document.getElementById('leadDate').value = '';
+        document.getElementById('leadGuests').value = '';
+    };
+
+    window.submitLead = function() {
+        var name = document.getElementById('leadName').value.trim();
+        var email = document.getElementById('leadEmail').value.trim();
+        var errEl = document.getElementById('leadError');
+        var btn = document.getElementById('leadSubmitBtn');
+
+        if (!name || !email) {
+            errEl.textContent = 'Please enter your name and email.';
+            errEl.style.display = '';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        errEl.style.display = 'none';
+
+        fetch('/api/vendor-leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vendor_id: selectedVendor.id,
+                vendor_name: selectedVendor.name,
+                contact_name: name,
+                contact_email: email,
+                event_type: document.getElementById('leadEventType').value,
+                event_date: document.getElementById('leadDate').value,
+                estimated_guests: parseInt(document.getElementById('leadGuests').value) || null,
+                message: document.getElementById('leadMessage').value.trim()
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            if (result.status === 'success') {
+                document.getElementById('leadFormView').style.display = 'none';
+                document.getElementById('leadSuccessView').style.display = '';
+            } else {
+                errEl.textContent = result.message || 'Something went wrong.';
+                errEl.style.display = '';
+            }
+            btn.disabled = false;
+            btn.textContent = 'Send Inquiry';
+        })
+        .catch(function() {
+            errEl.textContent = 'Network error. Please try again.';
+            errEl.style.display = '';
+            btn.disabled = false;
+            btn.textContent = 'Send Inquiry';
+        });
+    };
+
+    // Expose filterCategory globally
+    window.filterCategory = filterCategory;
+
+    // Load local vendors from API
+    fetch('/api/gift-vendors')
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            if (result.status === 'success') {
+                localVendors = result.data || [];
+            }
+        })
+        .catch(function() {})
+        .then(function() {
+            // Check URL params for pre-selected category
+            var params = new URLSearchParams(window.location.search);
+            var cat = params.get('category');
+            if (cat) {
+                var pill = document.querySelector('.pill[data-cat="' + cat + '"]');
+                if (pill) {
+                    filterCategory(cat, pill);
+                    return;
+                }
+            }
+            renderVendors();
+        });
+})();
+</script>
+
+</body>
+</html>

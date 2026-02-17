@@ -130,17 +130,41 @@ class ShivaManager:
             )
         ''')
 
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_access_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_id TEXT NOT NULL,
+                requester_name TEXT NOT NULL,
+                requester_email TEXT NOT NULL,
+                message TEXT,
+                status TEXT DEFAULT 'pending',
+                access_token TEXT,
+                organizer_key TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                responded_at TEXT,
+                FOREIGN KEY (shiva_id) REFERENCES shiva_support(id)
+            )
+        ''')
+
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_caterer_status ON caterer_partners(status)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_caterer_email ON caterer_partners(email)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_event ON shiva_analytics(event_type)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_analytics_date ON shiva_analytics(created_at)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_reports_shiva ON shiva_reports(shiva_support_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_access_shiva ON shiva_access_requests(shiva_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_access_token ON shiva_access_requests(access_token)')
 
         # Migration: add guests_per_meal column if missing (for existing databases)
         try:
             cursor.execute('SELECT guests_per_meal FROM shiva_support LIMIT 1')
         except Exception:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN guests_per_meal INTEGER DEFAULT 20')
+
+        # Migration: add privacy column if missing
+        try:
+            cursor.execute('SELECT privacy FROM shiva_support LIMIT 1')
+        except Exception:
+            cursor.execute("ALTER TABLE shiva_support ADD COLUMN privacy TEXT DEFAULT 'public'")
 
         conn.commit()
         conn.close()
@@ -246,6 +270,10 @@ class ShivaManager:
         conn = self._get_conn()
         cursor = conn.cursor()
 
+        privacy = data.get('privacy', 'public')
+        if privacy not in ('public', 'private'):
+            privacy = 'public'
+
         try:
             cursor.execute('''
                 INSERT INTO shiva_support (
@@ -253,8 +281,8 @@ class ShivaManager:
                     organizer_relationship, family_name, shiva_address, shiva_city,
                     shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
-                    status, magic_token, privacy_consent, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+                    status, magic_token, privacy_consent, privacy, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['obituary_id']),
@@ -275,6 +303,7 @@ class ShivaManager:
                 self._sanitize_text(data.get('donation_label', ''), 200) or None,
                 magic_token,
                 1,
+                privacy,
                 now
             ))
             conn.commit()
@@ -298,7 +327,7 @@ class ShivaManager:
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, created_at
+                   donation_url, donation_label, status, privacy, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -310,24 +339,63 @@ class ShivaManager:
             return {'status': 'success', 'data': dict(row)}
         return {'status': 'not_found', 'message': 'No active support page for this memorial'}
 
-    def get_support_by_id(self, support_id):
-        """Get support page by ID. Address EXCLUDED from public response."""
+    def get_support_by_id(self, support_id, access_token=None):
+        """Get support page by ID. Address EXCLUDED from public response.
+        For private pages, dietary_notes and special_instructions are also excluded
+        unless a valid access_token is provided."""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, created_at
+                   donation_url, donation_label, status, privacy, created_at
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
         row = cursor.fetchone()
-        conn.close()
 
-        if row:
-            return {'status': 'success', 'data': dict(row)}
-        return {'status': 'not_found', 'message': 'Support page not found'}
+        if not row:
+            conn.close()
+            return {'status': 'not_found', 'message': 'Support page not found'}
+
+        data = dict(row)
+
+        # For private pages, check access token
+        if data.get('privacy') == 'private':
+            has_access = False
+            if access_token:
+                cursor.execute('''
+                    SELECT id FROM shiva_access_requests
+                    WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
+                ''', (support_id, access_token))
+                has_access = cursor.fetchone() is not None
+
+            if not has_access:
+                # Return limited data for private pages
+                conn.close()
+                return {
+                    'status': 'success',
+                    'data': {
+                        'id': data['id'],
+                        'obituary_id': data['obituary_id'],
+                        'organizer_name': data['organizer_name'],
+                        'organizer_relationship': data['organizer_relationship'],
+                        'family_name': data['family_name'],
+                        'shiva_city': data.get('shiva_city'),
+                        'shiva_start_date': data['shiva_start_date'],
+                        'shiva_end_date': data['shiva_end_date'],
+                        'status': data['status'],
+                        'privacy': 'private',
+                        'created_at': data['created_at'],
+                    },
+                    'access': 'limited'
+                }
+            else:
+                data['access'] = 'granted'
+
+        conn.close()
+        return {'status': 'success', 'data': data}
 
     # ── Get Support (Organizer - includes address) ────────────
 
@@ -364,7 +432,7 @@ class ShivaManager:
         updatable = [
             'family_name', 'shiva_address', 'shiva_city', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
-            'special_instructions', 'donation_url', 'donation_label'
+            'special_instructions', 'donation_url', 'donation_label', 'privacy'
         ]
 
         sets = []
@@ -373,7 +441,9 @@ class ShivaManager:
             if field in data:
                 sets.append(f'{field} = ?')
                 val = data[field]
-                if field == 'pause_shabbat':
+                if field == 'privacy':
+                    val = val if val in ('public', 'private') else 'public'
+                elif field == 'pause_shabbat':
                     val = 1 if val else 0
                 elif field == 'guests_per_meal':
                     val = max(1, min(200, int(val) if val else 20))
@@ -395,6 +465,152 @@ class ShivaManager:
         conn.close()
 
         return {'status': 'success', 'message': 'Support page updated'}
+
+    # ── Privacy / Access Requests ─────────────────────────────
+
+    def create_access_request(self, data):
+        """Create an access request for a private shiva page."""
+        shiva_id = data.get('shiva_id', '').strip()
+        name = self._sanitize_text(data.get('requester_name', ''), 200)
+        email = self._validate_email(data.get('requester_email', ''))
+        message = self._sanitize_text(data.get('message', ''), self.MAX_TEXT_LENGTH)
+
+        if not shiva_id or not name or not email:
+            return {'status': 'error', 'message': 'Name and email are required'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify shiva page exists and is private
+        cursor.execute('SELECT id, family_name, organizer_email, privacy FROM shiva_support WHERE id = ?', (shiva_id,))
+        shiva = cursor.fetchone()
+        if not shiva:
+            conn.close()
+            return {'status': 'error', 'message': 'Shiva page not found'}
+        if shiva['privacy'] != 'private':
+            conn.close()
+            return {'status': 'error', 'message': 'This shiva page is public'}
+
+        # Check for duplicate pending request
+        cursor.execute('''
+            SELECT id FROM shiva_access_requests
+            WHERE shiva_id = ? AND requester_email = ? AND status = 'pending'
+        ''', (shiva_id, email))
+        if cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'You already have a pending request'}
+
+        # Check if already approved
+        cursor.execute('''
+            SELECT access_token FROM shiva_access_requests
+            WHERE shiva_id = ? AND requester_email = ? AND status = 'approved'
+        ''', (shiva_id, email))
+        existing = cursor.fetchone()
+        if existing:
+            conn.close()
+            return {'status': 'already_approved', 'message': 'You already have access', 'access_token': existing['access_token']}
+
+        organizer_key = secrets.token_urlsafe(24)
+        now = datetime.now().isoformat()
+
+        cursor.execute('''
+            INSERT INTO shiva_access_requests (shiva_id, requester_name, requester_email,
+                                               message, status, organizer_key, created_at)
+            VALUES (?, ?, ?, ?, 'pending', ?, ?)
+        ''', (shiva_id, name, email, message, organizer_key, now))
+        conn.commit()
+        request_id = cursor.lastrowid
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': 'Access request submitted',
+            'request_id': request_id,
+            'organizer_email': shiva['organizer_email'],
+            'family_name': shiva['family_name'],
+            'requester_name': name,
+            'requester_email': email,
+            'requester_message': message,
+            'organizer_key': organizer_key,
+        }
+
+    def approve_access_request(self, request_id, organizer_key):
+        """Approve an access request. Returns requester info for email."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT r.*, s.family_name, s.id as shiva_id
+            FROM shiva_access_requests r
+            JOIN shiva_support s ON r.shiva_id = s.id
+            WHERE r.id = ? AND r.organizer_key = ?
+        ''', (request_id, organizer_key))
+        req = cursor.fetchone()
+
+        if not req:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid request or key'}
+        if req['status'] != 'pending':
+            conn.close()
+            return {'status': 'error', 'message': f'Request already {req["status"]}'}
+
+        access_token = secrets.token_urlsafe(32)
+        now = datetime.now().isoformat()
+
+        cursor.execute('''
+            UPDATE shiva_access_requests
+            SET status = 'approved', access_token = ?, responded_at = ?
+            WHERE id = ?
+        ''', (access_token, now, request_id))
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'Access granted to {req["requester_name"]}',
+            'requester_name': req['requester_name'],
+            'requester_email': req['requester_email'],
+            'family_name': req['family_name'],
+            'shiva_id': req['shiva_id'],
+            'access_token': access_token,
+        }
+
+    def deny_access_request(self, request_id, organizer_key):
+        """Deny an access request. Returns requester info for email."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT r.*, s.family_name
+            FROM shiva_access_requests r
+            JOIN shiva_support s ON r.shiva_id = s.id
+            WHERE r.id = ? AND r.organizer_key = ?
+        ''', (request_id, organizer_key))
+        req = cursor.fetchone()
+
+        if not req:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid request or key'}
+        if req['status'] != 'pending':
+            conn.close()
+            return {'status': 'error', 'message': f'Request already {req["status"]}'}
+
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            UPDATE shiva_access_requests
+            SET status = 'denied', responded_at = ?
+            WHERE id = ?
+        ''', (now, request_id))
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'Request from {req["requester_name"]} denied',
+            'requester_name': req['requester_name'],
+            'requester_email': req['requester_email'],
+            'family_name': req['family_name'],
+        }
 
     # ── Meal Signup ───────────────────────────────────────────
 

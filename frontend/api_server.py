@@ -115,6 +115,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/what-to-bring-to-a-shiva.html': ('what-to-bring-to-a-shiva.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
+        '/gifts': ('gifts.html', 'text/html'),
+        '/gifts.html': ('gifts.html', 'text/html'),
+        '/gifts/plant-a-tree': ('plant-a-tree.html', 'text/html'),
+        '/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/sitemap.xml': ('sitemap.xml', 'application/xml'),
     }
 
@@ -156,12 +160,19 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         # Vendor API endpoints
         elif path == '/api/vendors':
             self.get_vendors()
+        elif path == '/api/gift-vendors':
+            self.get_gift_vendors()
         elif path.startswith('/api/vendors/'):
             slug = path[len('/api/vendors/'):]
             self.get_vendor_by_slug(slug)
         # Vendor detail pages (/directory/slug)
         elif path.startswith('/directory/') and path != '/directory/' and path not in self.STATIC_FILES:
             self.serve_vendor_page()
+        # Shiva access request routes (must be before /api/shiva/ catch-all)
+        elif path == '/api/shiva-access/approve':
+            self.handle_access_approve()
+        elif path == '/api/shiva-access/deny':
+            self.handle_access_deny()
         # Shiva API endpoints
         elif path.startswith('/api/shiva/obituary/'):
             obit_id = path[len('/api/shiva/obituary/'):]
@@ -231,6 +242,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_caterer_reject(caterer_id)
         elif path == '/api/vendor-leads':
             self.handle_vendor_lead(body)
+        elif path == '/api/shiva-access/request':
+            self.handle_access_request(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
@@ -1039,13 +1052,30 @@ button:hover{background:#c45a1a}</style></head>
     # ── API: Vendor Directory ─────────────────────────────
 
     def get_vendors(self):
-        """Get all vendors, optionally filtered by category or kosher status"""
+        """Get food vendors"""
         try:
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
+            try:
+                cursor.execute("SELECT * FROM vendors WHERE vendor_type = 'food' ORDER BY featured DESC, name ASC")
+            except Exception:
+                cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
+            vendors = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            self.send_json_response({'status': 'success', 'data': vendors})
+        except Exception as e:
+            self.send_json_response({'status': 'success', 'data': []})
+
+    def get_gift_vendors(self):
+        """Get gift vendors"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM vendors WHERE vendor_type = 'gift' ORDER BY featured DESC, name ASC")
             vendors = [dict(row) for row in cursor.fetchall()]
             conn.close()
             self.send_json_response({'status': 'success', 'data': vendors})
@@ -1169,15 +1199,16 @@ button:hover{background:#c45a1a}</style></head>
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'not_found'})
             return
-        # Check for organizer token in query params
+        # Check for organizer token or access token in query params
         parsed_path = urlparse(self.path)
         query_params = parse_qs(parsed_path.query)
         token = query_params.get('token', [None])[0]
+        access_token = query_params.get('access', [None])[0]
 
         if token:
             result = shiva_mgr.get_support_for_organizer(support_id, token)
         else:
-            result = shiva_mgr.get_support_by_id(support_id)
+            result = shiva_mgr.get_support_by_id(support_id, access_token=access_token)
         self.send_json_response(result)
 
     def get_shiva_meals(self, support_id):
@@ -1292,6 +1323,230 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    # ── API: Shiva Access Requests ────────────────────────────
+
+    def handle_access_request(self, body):
+        """Handle access request for a private shiva page"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.create_access_request(data)
+
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+                # Send email to organizer
+                self._send_access_request_email(result)
+
+            status_code = 200 if result['status'] in ('success', 'already_approved') else 400
+            # Don't expose organizer_email/key to client
+            safe_result = {
+                'status': result['status'],
+                'message': result.get('message', '')
+            }
+            if result['status'] == 'already_approved':
+                safe_result['access_token'] = result['access_token']
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_access_approve(self):
+        """Approve an access request via organizer email link"""
+        if not SHIVA_AVAILABLE:
+            self.send_error_response('Not available', 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        request_id = query_params.get('request_id', [''])[0]
+        organizer_key = query_params.get('organizer_key', [''])[0]
+
+        if not request_id or not organizer_key:
+            self._serve_access_result_page('Error', 'Invalid approval link.')
+            return
+
+        result = shiva_mgr.approve_access_request(request_id, organizer_key)
+
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
+            # Send approval email to requester
+            self._send_access_approved_email(result)
+            self._serve_access_result_page(
+                'Access Granted',
+                f'{result["requester_name"]} can now view the full {result["family_name"]} shiva page.'
+            )
+        else:
+            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
+
+    def handle_access_deny(self):
+        """Deny an access request via organizer email link"""
+        if not SHIVA_AVAILABLE:
+            self.send_error_response('Not available', 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        request_id = query_params.get('request_id', [''])[0]
+        organizer_key = query_params.get('organizer_key', [''])[0]
+
+        if not request_id or not organizer_key:
+            self._serve_access_result_page('Error', 'Invalid link.')
+            return
+
+        result = shiva_mgr.deny_access_request(request_id, organizer_key)
+
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
+            # Send denial email to requester
+            self._send_access_denied_email(result)
+            self._serve_access_result_page(
+                'Request Declined',
+                f'The request from {result["requester_name"]} has been declined.'
+            )
+        else:
+            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
+
+    def _serve_access_result_page(self, title, message):
+        """Serve a simple result page for approve/deny actions"""
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} - Neshama</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {{ font-family: 'Crimson Pro', serif; background: linear-gradient(135deg, #FAF9F6 0%, #F5F5DC 100%); color: #3E2723; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }}
+        .container {{ max-width: 500px; background: white; border-radius: 1.5rem; padding: 3rem; box-shadow: 0 10px 40px rgba(62,39,35,0.08); text-align: center; }}
+        h1 {{ font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; margin-bottom: 1rem; }}
+        p {{ font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem; }}
+        .btn {{ display: inline-block; background: #D2691E; color: white; padding: 0.75rem 2rem; border-radius: 2rem; text-decoration: none; font-family: 'Crimson Pro', serif; font-size: 1.1rem; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{title}</h1>
+        <p>{message}</p>
+        <a href="/" class="btn">Return to Neshama</a>
+    </div>
+</body>
+</html>"""
+        content = html.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header('Content-Length', str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
+    def _send_access_request_email(self, result):
+        """Send email to organizer about new access request"""
+        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
+            print(f"[Access] Would email {result['organizer_email']}: access request from {result['requester_name']}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            approve_url = f"{base_url}/api/shiva-access/approve?request_id={result['request_id']}&organizer_key={result['organizer_key']}"
+            deny_url = f"{base_url}/api/shiva-access/deny?request_id={result['request_id']}&organizer_key={result['organizer_key']}"
+
+            msg_line = ''
+            if result.get('requester_message'):
+                msg_line = f'<p style="background:#FAF9F6;padding:1rem;border-radius:0.5rem;border-left:3px solid #D2691E;margin:1rem 0;">They wrote: "{result["requester_message"]}"</p>'
+
+            html = f"""
+            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
+                <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Request</h2>
+                <p><strong>{result['requester_name']}</strong> ({result['requester_email']}) is requesting access to the <strong>{result['family_name']}</strong> shiva page.</p>
+                {msg_line}
+                <div style="margin:2rem 0;">
+                    <a href="{approve_url}" style="display:inline-block;background:#4CAF50;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;margin-right:1rem;font-size:1rem;">Approve</a>
+                    <a href="{deny_url}" style="display:inline-block;background:#f44336;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">Deny</a>
+                </div>
+                <p style="font-size:0.85rem;color:#B2BEB5;">You are receiving this because you organized the {result['family_name']} shiva page on Neshama.</p>
+            </div>"""
+
+            message = Mail(
+                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                to_emails=To(result['organizer_email']),
+                subject=f"Shiva access request from {result['requester_name']}",
+                html_content=Content("text/html", html)
+            )
+            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
+            sg.send(message)
+            print(f"[Access] Sent request email to organizer: {result['organizer_email']}")
+        except Exception as e:
+            print(f"[Access] Failed to send request email: {e}")
+
+    def _send_access_approved_email(self, result):
+        """Send approval email to requester with access link"""
+        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
+            print(f"[Access] Would email {result['requester_email']}: approved for {result['family_name']}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            access_url = f"{base_url}/shiva/{result['shiva_id']}?access={result['access_token']}"
+
+            html = f"""
+            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
+                <h2 style="color:#D2691E;font-size:1.5rem;">You've Been Approved</h2>
+                <p>The organizer of the <strong>{result['family_name']}</strong> shiva has approved your request.</p>
+                <p>You can now view the full shiva details including address, dietary information, and sign up to bring a meal.</p>
+                <div style="margin:2rem 0;text-align:center;">
+                    <a href="{access_url}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">View Shiva Details</a>
+                </div>
+                <p style="font-size:0.9rem;color:#B2BEB5;">Bookmark this link to access the page again later.</p>
+            </div>"""
+
+            message = Mail(
+                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                to_emails=To(result['requester_email']),
+                subject=f"You've been approved \u2014 {result['family_name']} shiva details",
+                html_content=Content("text/html", html)
+            )
+            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
+            sg.send(message)
+            print(f"[Access] Sent approval email to: {result['requester_email']}")
+        except Exception as e:
+            print(f"[Access] Failed to send approval email: {e}")
+
+    def _send_access_denied_email(self, result):
+        """Send denial email to requester"""
+        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
+            print(f"[Access] Would email {result['requester_email']}: denied for {result['family_name']}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+
+            html = f"""
+            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
+                <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Update</h2>
+                <p>The organizer of the <strong>{result['family_name']}</strong> shiva has chosen to manage meal coordination privately.</p>
+                <p>Thank you for your thoughtfulness. Your care and compassion mean a great deal to the family during this difficult time.</p>
+                <p style="font-size:0.9rem;color:#B2BEB5;margin-top:2rem;">Neshama \u2014 Every soul remembered</p>
+            </div>"""
+
+            message = Mail(
+                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                to_emails=To(result['requester_email']),
+                subject='Shiva access update',
+                html_content=Content("text/html", html)
+            )
+            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
+            sg.send(message)
+            print(f"[Access] Sent denial email to: {result['requester_email']}")
+        except Exception as e:
+            print(f"[Access] Failed to send denial email: {e}")
 
     # ── Helpers ──────────────────────────────────────────────
 
