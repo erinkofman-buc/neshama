@@ -249,6 +249,63 @@
 
         .donation-link:hover { opacity: 0.7; }
 
+        /* ── Recommended Caterers ─────────────────────────── */
+
+        .caterer-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--light-taupe);
+        }
+
+        .caterer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .caterer-rec-card {
+            background: white;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.8rem;
+            padding: 1.1rem;
+            text-decoration: none;
+            color: var(--dark-brown);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: block;
+        }
+
+        .caterer-rec-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--soft-shadow);
+        }
+
+        .caterer-rec-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .caterer-rec-detail {
+            font-size: 0.82rem;
+            color: var(--sage-dark);
+            line-height: 1.4;
+        }
+
+        .caterer-fallback {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .caterer-fallback a {
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .caterer-fallback a:hover { opacity: 0.7; }
+
         /* ── Meal Calendar ────────────────────────────────── */
 
         .calendar-section {
@@ -993,6 +1050,9 @@
             <div class="meal-calendar" id="mealCalendar"></div>
         </section>
 
+        <!-- Recommended Caterers -->
+        <section id="catererSection" style="display:none;"></section>
+
         <!-- Send Something Thoughtful -->
         <section id="giftSection" style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--light-taupe);">
             <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 500; color: var(--terracotta); text-align: center; margin-bottom: 0.4rem;">Send Something Thoughtful</h2>
@@ -1449,6 +1509,7 @@
 
             renderInfoCards();
             renderMealCalendar();
+            renderRecommendedCaterers();
 
             hide('pageLoading');
             show('mainContent');
@@ -1474,6 +1535,77 @@
                     '" target="_blank" rel="noopener noreferrer">Make a Donation &#x2197;</a></div>';
             }
             document.getElementById('infoCards').innerHTML = html;
+        }
+
+        // ── Render Recommended Caterers ─────────────────
+
+        function renderRecommendedCaterers() {
+            var section = document.getElementById('catererSection');
+            var raw = supportData.recommended_vendors;
+            var slugs = [];
+
+            if (raw) {
+                try { slugs = JSON.parse(raw); } catch(e) {}
+            }
+
+            if (!slugs || !slugs.length) {
+                // Show generic fallback
+                section.className = 'caterer-section';
+                section.innerHTML =
+                    '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                    '<div class="caterer-fallback">' +
+                    '<a href="/directory">Browse kosher caterers in your area &#8594;</a>' +
+                    '</div>';
+                section.style.display = '';
+                return;
+            }
+
+            // Fetch vendors and filter to recommended slugs
+            fetch('/api/vendors')
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (!result || result.status !== 'success' || !result.data) return;
+
+                var slugSet = {};
+                slugs.forEach(function(s) { slugSet[s] = true; });
+
+                var matched = result.data.filter(function(v) { return slugSet[v.slug]; });
+                if (!matched.length) return;
+
+                var html = '<h2 class="section-heading">Family\'s Recommended Caterers</h2>';
+                html += '<p style="text-align:center;color:var(--sage-dark);font-size:0.95rem;margin-top:-0.75rem;">The family recommends these local caterers for shiva meals</p>';
+                html += '<div class="caterer-grid">';
+
+                matched.forEach(function(v) {
+                    var dest = v.website || ('/vendors/' + encodeURIComponent(v.slug));
+                    var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
+                        '&dest=' + encodeURIComponent(dest);
+
+                    html += '<a class="caterer-rec-card" href="' + escapeHtml(trackUrl) +
+                        '" target="_blank" rel="noopener noreferrer">';
+                    html += '<div class="caterer-rec-name">' + escapeHtml(v.name) + '</div>';
+                    if (v.neighborhood) {
+                        html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
+                    }
+                    if (v.kosher_status) {
+                        html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
+                    }
+                    if (v.phone) {
+                        html += '<div class="caterer-rec-detail">' + escapeHtml(v.phone) + '</div>';
+                    }
+                    html += '</a>';
+                });
+
+                html += '</div>';
+                html += '<div class="caterer-fallback"><a href="/directory">Browse all caterers &#8594;</a></div>';
+
+                section.className = 'caterer-section';
+                section.innerHTML = html;
+                section.style.display = '';
+            })
+            .catch(function() {
+                // Silently fail - not critical
+            });
         }
 
         // ── Render Meal Calendar ────────────────────────

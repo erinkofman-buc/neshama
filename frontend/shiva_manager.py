@@ -165,6 +165,12 @@ class ShivaManager:
         except Exception:
             cursor.execute("ALTER TABLE shiva_support ADD COLUMN privacy TEXT DEFAULT 'public'")
 
+        # Migration: add recommended_vendors column if missing
+        try:
+            cursor.execute('SELECT recommended_vendors FROM shiva_support LIMIT 1')
+        except Exception:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN recommended_vendors TEXT')
+
         # Migration: convert 'unknown' obituary_ids to NULL
         cursor.execute("UPDATE shiva_support SET obituary_id = NULL WHERE obituary_id IN ('unknown', '')")
 
@@ -303,6 +309,15 @@ class ShivaManager:
         if privacy not in ('public', 'private'):
             privacy = 'public'
 
+        # Validate recommended_vendors (JSON array of slugs, max 5)
+        recommended_vendors = None
+        raw_vendors = data.get('recommended_vendors')
+        if raw_vendors and isinstance(raw_vendors, list):
+            # Sanitize: only keep strings, max 5
+            clean_slugs = [str(s).strip()[:100] for s in raw_vendors if s][:5]
+            if clean_slugs:
+                recommended_vendors = json.dumps(clean_slugs)
+
         try:
             cursor.execute('''
                 INSERT INTO shiva_support (
@@ -310,8 +325,8 @@ class ShivaManager:
                     organizer_relationship, family_name, shiva_address, shiva_city,
                     shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
-                    status, magic_token, privacy_consent, privacy, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
+                    status, magic_token, privacy_consent, privacy, recommended_vendors, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -333,6 +348,7 @@ class ShivaManager:
                 magic_token,
                 1,
                 privacy,
+                recommended_vendors,
                 now
             ))
             conn.commit()
@@ -358,7 +374,7 @@ class ShivaManager:
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, privacy, created_at
+                   donation_url, donation_label, status, privacy, recommended_vendors, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -380,7 +396,7 @@ class ShivaManager:
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, privacy, created_at
+                   donation_url, donation_label, status, privacy, recommended_vendors, created_at
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -463,7 +479,8 @@ class ShivaManager:
         updatable = [
             'family_name', 'shiva_address', 'shiva_city', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
-            'special_instructions', 'donation_url', 'donation_label', 'privacy'
+            'special_instructions', 'donation_url', 'donation_label', 'privacy',
+            'recommended_vendors'
         ]
 
         sets = []
@@ -480,6 +497,12 @@ class ShivaManager:
                     val = max(1, min(200, int(val) if val else 20))
                 elif field == 'donation_url':
                     val = self._validate_url(val) if val else None
+                elif field == 'recommended_vendors':
+                    if isinstance(val, list):
+                        clean_slugs = [str(s).strip()[:100] for s in val if s][:5]
+                        val = json.dumps(clean_slugs) if clean_slugs else None
+                    else:
+                        val = None
                 elif field in ('dietary_notes', 'special_instructions'):
                     val = self._sanitize_text(val, self.MAX_TEXT_LENGTH)
                 else:
