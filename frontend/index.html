@@ -217,6 +217,22 @@
             flex-wrap: wrap;
         }
 
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--sage-dark);
+            white-space: nowrap;
+        }
+
         .search-inline {
             flex: 1;
             min-width: 180px;
@@ -350,6 +366,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
+            align-items: stretch;
         }
 
         .feed > .loading,
@@ -899,6 +916,8 @@
             margin-bottom: 0;
             border: none;
             box-shadow: none;
+            display: flex;
+            flex-direction: column;
         }
 
         .obituary-card.visible {
@@ -946,6 +965,9 @@
         .card-body {
             padding: 1.25rem;
             text-align: left;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .card-source {
@@ -992,6 +1014,7 @@
             justify-content: space-between;
             padding-top: 0.75rem;
             border-top: 1px solid rgba(212, 197, 185, 0.3);
+            margin-top: auto;
         }
 
         .card-tributes {
@@ -1400,10 +1423,14 @@
                 display: none;
             }
 
+            .filter-group {
+                width: 100%;
+                justify-content: center;
+            }
+
             .city-filter,
             .tabs {
                 justify-content: center;
-                width: 100%;
             }
 
             .card-body {
@@ -1576,16 +1603,22 @@
                 <input type="text" placeholder="Search by name..." id="searchBox" aria-label="Search obituaries by name">
             </div>
             <div class="filter-divider"></div>
-            <div class="city-filter" id="cityFilter">
-                <button class="city-btn active" data-city="all">All</button>
-                <button class="city-btn" data-city="Toronto">Toronto</button>
-                <button class="city-btn" data-city="Montreal">Montreal</button>
+            <div class="filter-group">
+                <span class="filter-label">Location</span>
+                <div class="city-filter" id="cityFilter">
+                    <button class="city-btn active" data-city="all">All</button>
+                    <button class="city-btn" data-city="Toronto">Toronto</button>
+                    <button class="city-btn" data-city="Montreal">Montreal</button>
+                </div>
             </div>
             <div class="filter-divider"></div>
-            <div class="tabs">
-                <button class="tab active" data-tab="today">Today</button>
-                <button class="tab" data-tab="week">Week</button>
-                <button class="tab" data-tab="month">Month</button>
+            <div class="filter-group">
+                <span class="filter-label">Period</span>
+                <div class="tabs">
+                    <button class="tab active" data-tab="today">Today</button>
+                    <button class="tab" data-tab="week">Week</button>
+                    <button class="tab" data-tab="month">Month</button>
+                </div>
             </div>
         </div>
     </div>
