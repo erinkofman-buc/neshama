@@ -29,7 +29,7 @@ class ShivaManager:
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS shiva_support (
                 id TEXT PRIMARY KEY,
-                obituary_id TEXT NOT NULL,
+                obituary_id TEXT,
                 organizer_name TEXT NOT NULL,
                 organizer_email TEXT NOT NULL,
                 organizer_phone TEXT,
@@ -49,8 +49,7 @@ class ShivaManager:
                 magic_token TEXT NOT NULL,
                 privacy_consent INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
-                archived_at TEXT,
-                FOREIGN KEY (obituary_id) REFERENCES obituaries(id)
+                archived_at TEXT
             )
         ''')
 
@@ -166,6 +165,16 @@ class ShivaManager:
         except Exception:
             cursor.execute("ALTER TABLE shiva_support ADD COLUMN privacy TEXT DEFAULT 'public'")
 
+        # Migration: convert 'unknown' obituary_ids to NULL
+        cursor.execute("UPDATE shiva_support SET obituary_id = NULL WHERE obituary_id IN ('unknown', '')")
+
+        # Unique index: only one active shiva page per obituary
+        cursor.execute('''
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_shiva_obituary_unique
+            ON shiva_support(obituary_id)
+            WHERE obituary_id IS NOT NULL AND status = 'active'
+        ''')
+
         conn.commit()
         conn.close()
 
@@ -222,11 +231,17 @@ class ShivaManager:
 
     # ── Create Support Page ───────────────────────────────────
 
+    def _normalize_obituary_id(self, obit_id):
+        """Normalize obituary_id: treat 'unknown', empty string as None."""
+        if not obit_id or str(obit_id).strip() in ('unknown', ''):
+            return None
+        return str(obit_id).strip()
+
     def create_support(self, data):
         """Create a new shiva support page.
         Returns: {status, id, magic_token} or {status, error}
         """
-        required = ['obituary_id', 'organizer_name', 'organizer_email',
+        required = ['organizer_name', 'organizer_email',
                      'organizer_relationship', 'family_name', 'shiva_address',
                      'shiva_start_date', 'shiva_end_date']
 
@@ -252,16 +267,30 @@ class ShivaManager:
         if not valid:
             return {'status': 'error', 'message': err}
 
-        # Check for duplicates
-        dup = self.check_duplicate_organizer(data['obituary_id'], data['organizer_email'])
-        if dup and dup.get('exists'):
-            return {
-                'status': 'duplicate',
-                'message': 'A support page already exists for this memorial.',
-                'existing_organizer_first_name': dup.get('organizer_first_name', ''),
-                'existing_id': dup.get('id', ''),
-                'created_at': dup.get('created_at', '')
-            }
+        # Normalize obituary_id
+        obit_id = self._normalize_obituary_id(data.get('obituary_id'))
+
+        # Check for duplicates by obituary_id
+        if obit_id:
+            dup = self.check_duplicate_organizer(obit_id, data['organizer_email'])
+            if dup and dup.get('exists'):
+                return {
+                    'status': 'duplicate',
+                    'message': 'A support page already exists for this memorial.',
+                    'existing_organizer_first_name': dup.get('organizer_first_name', ''),
+                    'existing_id': dup.get('id', ''),
+                    'created_at': dup.get('created_at', '')
+                }
+
+        # Fuzzy name match for standalone pages (no obituary_id)
+        if not obit_id and not data.get('_skip_similar'):
+            similar = self.find_similar_shiva(data['family_name'])
+            if similar:
+                return {
+                    'status': 'similar_found',
+                    'message': 'We found existing shiva pages with a similar family name.',
+                    'matches': similar
+                }
 
         support_id = str(uuid.uuid4())
         magic_token = secrets.token_urlsafe(32)
@@ -285,7 +314,7 @@ class ShivaManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
             ''', (
                 support_id,
-                self._sanitize_text(data['obituary_id']),
+                obit_id,
                 self._sanitize_text(data['organizer_name'], 200),
                 clean_email,
                 self._sanitize_text(data.get('organizer_phone', ''), 30) or None,
@@ -321,6 +350,8 @@ class ShivaManager:
 
     def get_support_by_obituary(self, obituary_id):
         """Get active support page for an obituary. Address EXCLUDED."""
+        if not obituary_id or obituary_id in ('unknown', ''):
+            return {'status': 'not_found', 'message': 'No obituary ID provided'}
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -797,6 +828,8 @@ class ShivaManager:
 
     def check_duplicate_organizer(self, obituary_id, organizer_email):
         """Check if a support page already exists for this obituary."""
+        if not obituary_id:
+            return {'exists': False}
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -818,6 +851,50 @@ class ShivaManager:
                 'created_at': row['created_at']
             }
         return {'exists': False}
+
+    def find_similar_shiva(self, family_name):
+        """Find active shiva pages with a similar family name (fuzzy match).
+        Used to prevent duplicate standalone shiva pages."""
+        if not family_name or len(family_name.strip()) < 2:
+            return []
+
+        name = family_name.strip().lower()
+        # Strip common prefixes like "The", "Family" for matching
+        clean = name.replace('the ', '').replace(' family', '').strip()
+        if len(clean) < 2:
+            return []
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        # Search for active shiva pages created in last 60 days with similar family name
+        cutoff = (datetime.now() - timedelta(days=60)).isoformat()
+        cursor.execute('''
+            SELECT id, family_name, shiva_start_date, shiva_end_date, organizer_name, created_at
+            FROM shiva_support
+            WHERE status = 'active' AND created_at > ?
+            ORDER BY created_at DESC
+        ''', (cutoff,))
+        rows = cursor.fetchall()
+        conn.close()
+
+        matches = []
+        for row in rows:
+            row = dict(row)
+            existing_name = (row['family_name'] or '').lower()
+            existing_clean = existing_name.replace('the ', '').replace(' family', '').strip()
+            # Match if the core family name is contained in either direction
+            if clean in existing_clean or existing_clean in clean:
+                first_name = row['organizer_name'].split()[0] if row['organizer_name'] else ''
+                matches.append({
+                    'id': row['id'],
+                    'family_name': row['family_name'],
+                    'shiva_start_date': row['shiva_start_date'],
+                    'shiva_end_date': row['shiva_end_date'],
+                    'organizer_first_name': first_name,
+                    'created_at': row['created_at']
+                })
+
+        return matches[:5]  # Return at most 5 matches
 
     # ── Auto-Archive ──────────────────────────────────────────
 

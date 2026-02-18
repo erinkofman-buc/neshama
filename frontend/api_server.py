@@ -1283,11 +1283,14 @@ button:hover{background:#c45a1a}</style></head>
             data = json.loads(body)
             obit_id = data.get('obituary_id')
             shiva_mgr.track_event('organize_start', obit_id)
+            # Allow force_create to bypass fuzzy name matching
+            if data.get('force_create'):
+                data['_skip_similar'] = True
             result = shiva_mgr.create_support(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
                 shiva_mgr._trigger_backup()
-            status_code = 200 if result['status'] in ('success', 'duplicate') else 400
+            status_code = 200 if result['status'] in ('success', 'duplicate', 'similar_found') else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)

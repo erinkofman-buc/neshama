@@ -494,6 +494,40 @@
             font-size: 1rem;
         }
 
+        .similar-match {
+            background: white;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .similar-match-info {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .similar-match-info strong {
+            display: block;
+        }
+
+        .similar-match-info span {
+            color: var(--sage-dark);
+            font-size: 0.85rem;
+        }
+
+        .similar-match a {
+            flex-shrink: 0;
+            font-size: 0.85rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
         /* ── Error Message ───────────────────────────────── */
 
         .form-error {
@@ -580,6 +614,14 @@
             <p><strong>A support page already exists</strong> for this memorial.</p>
             <p id="duplicateInfo"></p>
             <a id="duplicateLink" href="#" class="btn-primary" style="display:inline-block;text-decoration:none;">View existing support page</a>
+        </div>
+
+        <!-- Similar Match Warning -->
+        <div class="duplicate-warning" id="similarWarning">
+            <p><strong>We found existing shiva pages for a similar family name.</strong></p>
+            <p style="font-size:0.9rem;color:var(--sage-dark);margin-bottom:0.75rem;">If one of these is for the same family, please use the existing page instead of creating a duplicate.</p>
+            <div id="similarMatches"></div>
+            <button onclick="dismissSimilar()" class="btn-secondary" style="margin-top:0.75rem;font-size:0.9rem;">None of these — create new page</button>
         </div>
 
         <!-- Step 1: Your Information -->
@@ -765,6 +807,7 @@
         var obituaryId = null;
         var createdId = null;
         var createdToken = null;
+        var forceCreate = false;
 
         // ── Get obit ID from URL params ─────────────────
         function getObitIdFromUrl() {
@@ -785,6 +828,21 @@
             obituaryId = getObitIdFromUrl();
             if (!obituaryId) return;
 
+            // Check if shiva page already exists for this obituary
+            fetch('/api/shiva/obituary/' + encodeURIComponent(obituaryId))
+                .then(function(r) { return r.json(); })
+                .then(function(dupData) {
+                    if (dupData.status === 'success' && dupData.data) {
+                        var warn = document.getElementById('duplicateWarning');
+                        var info = document.getElementById('duplicateInfo');
+                        var link = document.getElementById('duplicateLink');
+                        info.textContent = 'Organized by ' + escapeHtml(dupData.data.organizer_name.split(' ')[0]) + ' on ' + new Date(dupData.data.created_at).toLocaleDateString();
+                        link.href = '/shiva/' + dupData.data.id;
+                        warn.classList.add('active');
+                    }
+                })
+                .catch(function() {});
+
             fetch('/api/obituary/' + encodeURIComponent(obituaryId))
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
@@ -793,6 +851,16 @@
                         var ctx = document.getElementById('memorialContext');
                         ctx.textContent = 'In memory of ' + obit.deceased_name;
                         ctx.style.display = '';
+
+                        // Pre-fill family name from deceased name
+                        var parts = obit.deceased_name.trim().split(/\s+/);
+                        if (parts.length > 0) {
+                            var lastName = parts[parts.length - 1];
+                            var familyField = document.getElementById('familyName');
+                            if (!familyField.value) {
+                                familyField.value = 'The ' + lastName + ' Family';
+                            }
+                        }
 
                         // Pre-fill city if available
                         if (obit.city) {
@@ -943,7 +1011,7 @@
             errEl.classList.remove('active');
 
             var payload = {
-                obituary_id: obituaryId || 'unknown',
+                obituary_id: obituaryId || null,
                 organizer_name: document.getElementById('organizerName').value.trim(),
                 organizer_email: document.getElementById('organizerEmail').value.trim(),
                 organizer_phone: document.getElementById('organizerPhone').value.trim(),
@@ -963,30 +1031,11 @@
                 privacy_consent: true
             };
 
-            // Check for duplicate first
-            fetch('/api/shiva/obituary/' + encodeURIComponent(payload.obituary_id))
-                .then(function(r) { return r.json(); })
-                .then(function(dupData) {
-                    if (dupData.status === 'success' && dupData.data) {
-                        // Duplicate exists
-                        btn.disabled = false;
-                        btn.textContent = 'Set Up Support Page';
-                        var warn = document.getElementById('duplicateWarning');
-                        var info = document.getElementById('duplicateInfo');
-                        var link = document.getElementById('duplicateLink');
-                        info.textContent = 'Set up on ' + new Date(dupData.data.created_at).toLocaleDateString();
-                        link.href = '/shiva/' + dupData.data.id;
-                        warn.classList.add('active');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        return;
-                    }
-                    // No duplicate, proceed to create
-                    return createSupport(payload, btn, errEl);
-                })
-                .catch(function() {
-                    // API check failed, try creating anyway
-                    return createSupport(payload, btn, errEl);
-                });
+            if (forceCreate) {
+                payload.force_create = true;
+            }
+
+            createSupport(payload, btn, errEl);
         };
 
         function createSupport(payload, btn, errEl) {
@@ -1011,6 +1060,10 @@
                     link.href = '/shiva/' + data.existing_id;
                     warn.classList.add('active');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (data.status === 'similar_found') {
+                    btn.disabled = false;
+                    btn.textContent = 'Set Up Support Page';
+                    showSimilarMatches(data.matches);
                 } else {
                     throw new Error(data.message || 'Failed to create support page');
                 }
@@ -1023,6 +1076,37 @@
             });
         }
 
+        function showSimilarMatches(matches) {
+            var container = document.getElementById('similarMatches');
+            var html = '';
+            matches.forEach(function(m) {
+                var dateRange = '';
+                if (m.shiva_start_date) {
+                    dateRange = new Date(m.shiva_start_date + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                    if (m.shiva_end_date) {
+                        dateRange += ' \u2013 ' + new Date(m.shiva_end_date + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                    }
+                }
+                html += '<div class="similar-match">';
+                html += '<div class="similar-match-info">';
+                html += '<strong>' + escapeHtml(m.family_name) + '</strong>';
+                html += '<span>' + (dateRange ? dateRange + ' \u00b7 ' : '') + 'Organized by ' + escapeHtml(m.organizer_first_name) + '</span>';
+                html += '</div>';
+                html += '<a href="/shiva/' + encodeURIComponent(m.id) + '">View \u2192</a>';
+                html += '</div>';
+            });
+            container.innerHTML = html;
+            document.getElementById('similarWarning').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.dismissSimilar = function() {
+            document.getElementById('similarWarning').classList.remove('active');
+            forceCreate = true;
+            // Re-submit the form
+            window.submitForm();
+        };
+
         // ── Show Success State ──────────────────────────
         function showSuccess() {
             // Hide all steps and stepper
@@ -1032,6 +1116,7 @@
             }
             document.getElementById('stepper').style.display = 'none';
             document.getElementById('duplicateWarning').classList.remove('active');
+            document.getElementById('similarWarning').classList.remove('active');
 
             var pageUrl = window.location.origin + '/shiva/' + createdId;
             var editUrl = pageUrl + '?token=' + createdToken;
