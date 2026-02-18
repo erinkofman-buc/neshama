@@ -10,6 +10,7 @@ import time
 import re
 from datetime import datetime
 from database_setup import NeshamaDatabase
+from shiva_parser import extract_shiva_info
 
 class SteelesScraper:
     def __init__(self):
@@ -114,6 +115,16 @@ class SteelesScraper:
                 yahrzeit_match = re.search(r'Yahrzeit:?\s*([^\n.]+)', full_text, re.IGNORECASE)
                 if yahrzeit_match:
                     data['yahrzeit_date'] = self.clean_text(yahrzeit_match.group(1))
+
+            # Extract structured shiva info from obituary text
+            if data.get('obituary_text'):
+                shiva_parsed = extract_shiva_info(data['obituary_text'])
+                if shiva_parsed:
+                    data['shiva_address'] = shiva_parsed['shiva_address']
+                    data['shiva_hours'] = shiva_parsed['shiva_hours']
+                    data['shiva_concludes'] = shiva_parsed['shiva_concludes']
+                    data['shiva_raw'] = shiva_parsed['shiva_raw']
+                    data['shiva_private'] = shiva_parsed['shiva_private']
 
             # Extract funeral information
             funeral_info = soup.find(text=re.compile(r'Funeral|Chapel Service', re.IGNORECASE))

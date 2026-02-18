@@ -1171,14 +1171,37 @@
                 cards += '</div></div></div>';
             }
 
-            if (obit.shiva_info) {
+            // Show structured shiva info if extracted, otherwise raw shiva_info
+            if (obit.shiva_raw || obit.shiva_address || obit.shiva_hours || obit.shiva_info) {
                 hasServices = true;
                 cards += '<div class="service-card">' +
                     '<div class="service-card-icon">&#x1F3E0;</div>' +
                     '<div class="service-card-content">' +
-                    '<div class="service-card-title">Shiva</div>' +
-                    '<div class="service-card-detail">' + escapeHtml(obit.shiva_info) + '</div>' +
-                    '</div></div>';
+                    '<div class="service-card-title">Shiva Information</div>' +
+                    '<div class="service-card-detail">';
+
+                if (obit.shiva_private) {
+                    cards += '<em>Private shiva</em>';
+                } else if (obit.shiva_address || obit.shiva_hours) {
+                    // Structured display
+                    if (obit.shiva_address) {
+                        cards += '<strong>Address:</strong> ' + escapeHtml(obit.shiva_address) + '<br>';
+                    }
+                    if (obit.shiva_hours) {
+                        cards += '<strong>Visiting hours:</strong> ' + escapeHtml(obit.shiva_hours) + '<br>';
+                    }
+                    if (obit.shiva_concludes) {
+                        cards += '<strong>Concludes:</strong> ' + escapeHtml(obit.shiva_concludes);
+                    }
+                } else if (obit.shiva_raw) {
+                    // Raw extracted text
+                    cards += escapeHtml(obit.shiva_raw);
+                } else if (obit.shiva_info) {
+                    // Fallback to original shiva_info field
+                    cards += escapeHtml(obit.shiva_info);
+                }
+
+                cards += '</div></div></div>';
             }
 
             if (obit.burial_info) {
@@ -1349,14 +1372,19 @@
                     } else {
                         // Hero CTA: organize meals for this family
                         var familyName = obituaryData ? obituaryData.deceased_name.split(' ').pop() : '';
+                        // Build organize URL with pre-filled shiva data
+                        var organizeUrl = '/shiva/organize?obit=' + encodeURIComponent(obitId);
+                        if (obituaryData && obituaryData.shiva_address) {
+                            organizeUrl += '&shiva_address=' + encodeURIComponent(obituaryData.shiva_address);
+                        }
                         heroCtaBtn.textContent = 'Organize Shiva Meals' + (familyName ? ' for the ' + familyName + ' Family' : '');
-                        heroCtaBtn.href = '/shiva/organize?obit=' + encodeURIComponent(obitId);
+                        heroCtaBtn.href = organizeUrl;
                         heroCta.style.display = '';
 
                         card.innerHTML = '<p style="text-align:center;color:var(--sage-dark);margin-bottom:1rem;">' +
                             'No meal coordination has been set up yet for this family.</p>' +
                             '<div style="text-align:center;">' +
-                            '<a class="support-cta-btn" href="/shiva/organize?obit=' + encodeURIComponent(obitId) +
+                            '<a class="support-cta-btn" href="' + escapeHtml(organizeUrl) +
                             '">Set up support for this family</a>' +
                             '<p style="margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">' +
                             'Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p></div>';

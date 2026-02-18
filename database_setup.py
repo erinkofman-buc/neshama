@@ -54,9 +54,27 @@ class NeshamaDatabase:
                 scraped_at TEXT NOT NULL,
                 first_seen TEXT NOT NULL,
                 last_updated TEXT NOT NULL,
-                content_hash TEXT NOT NULL
+                content_hash TEXT NOT NULL,
+                shiva_address TEXT,
+                shiva_hours TEXT,
+                shiva_concludes TEXT,
+                shiva_raw TEXT,
+                shiva_private INTEGER DEFAULT 0
             )
         ''')
+
+        # Add shiva columns to existing tables (safe to run multiple times)
+        for col, col_type in [
+            ('shiva_address', 'TEXT'),
+            ('shiva_hours', 'TEXT'),
+            ('shiva_concludes', 'TEXT'),
+            ('shiva_raw', 'TEXT'),
+            ('shiva_private', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                self.cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')
+            except sqlite3.OperationalError:
+                pass  # Column already exists
 
         # Comments table - linked to obituaries
         self.cursor.execute('''
@@ -181,7 +199,12 @@ class NeshamaDatabase:
                         livestream_available = ?,
                         photo_url = ?,
                         last_updated = ?,
-                        content_hash = ?
+                        content_hash = ?,
+                        shiva_address = ?,
+                        shiva_hours = ?,
+                        shiva_concludes = ?,
+                        shiva_raw = ?,
+                        shiva_private = ?
                     WHERE id = ?
                 ''', (
                     obituary_data.get('hebrew_name'),
@@ -197,6 +220,11 @@ class NeshamaDatabase:
                     obituary_data.get('photo_url'),
                     now,
                     content_hash,
+                    obituary_data.get('shiva_address'),
+                    obituary_data.get('shiva_hours'),
+                    obituary_data.get('shiva_concludes'),
+                    obituary_data.get('shiva_raw'),
+                    1 if obituary_data.get('shiva_private') else 0,
                     obit_id
                 ))
                 action = 'updated'
@@ -211,8 +239,10 @@ class NeshamaDatabase:
                     funeral_location, burial_location, shiva_info,
                     obituary_text, condolence_url, livestream_url,
                     livestream_available, photo_url, city, scraped_at,
-                    first_seen, last_updated, content_hash
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    first_seen, last_updated, content_hash,
+                    shiva_address, shiva_hours, shiva_concludes,
+                    shiva_raw, shiva_private
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 obit_id,
                 obituary_data['source'],
@@ -234,7 +264,12 @@ class NeshamaDatabase:
                 now,
                 now,
                 now,
-                content_hash
+                content_hash,
+                obituary_data.get('shiva_address'),
+                obituary_data.get('shiva_hours'),
+                obituary_data.get('shiva_concludes'),
+                obituary_data.get('shiva_raw'),
+                1 if obituary_data.get('shiva_private') else 0,
             ))
             action = 'inserted'
 

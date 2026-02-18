@@ -11,6 +11,7 @@ import re
 import json
 from datetime import datetime
 from database_setup import NeshamaDatabase
+from shiva_parser import extract_shiva_info
 
 
 class PapermanScraper:
@@ -215,6 +216,17 @@ class PapermanScraper:
             # Obituary text (cleaned from HTML)
             if obituary_text:
                 data['obituary_text'] = obituary_text
+
+            # Extract structured shiva info from obituary text
+            parse_text = obituary_text or shiva_info
+            if parse_text:
+                shiva_parsed = extract_shiva_info(parse_text)
+                if shiva_parsed:
+                    data['shiva_address'] = shiva_parsed['shiva_address']
+                    data['shiva_hours'] = shiva_parsed['shiva_hours']
+                    data['shiva_concludes'] = shiva_parsed['shiva_concludes']
+                    data['shiva_raw'] = shiva_parsed['shiva_raw']
+                    data['shiva_private'] = shiva_parsed['shiva_private']
 
             # Livestream
             if funeral_data.get('streaming'):

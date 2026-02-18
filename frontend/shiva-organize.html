@@ -866,9 +866,24 @@
                         if (obit.city) {
                             document.getElementById('shivaCity').value = obit.city;
                         }
+
+                        // Pre-fill shiva address from extracted data
+                        var addrField = document.getElementById('shivaAddress');
+                        if (!addrField.value && obit.shiva_address) {
+                            addrField.value = obit.shiva_address;
+                        }
                     }
                 })
                 .catch(function() {});
+
+            // Also check for shiva_address in URL query params
+            var urlAddr = params.get('shiva_address');
+            if (urlAddr) {
+                var addrField = document.getElementById('shivaAddress');
+                if (!addrField.value) {
+                    addrField.value = urlAddr;
+                }
+            }
         }
 
         // ── Set default dates ───────────────────────────

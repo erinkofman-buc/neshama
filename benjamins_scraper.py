@@ -10,6 +10,7 @@ import time
 import re
 from datetime import datetime
 from database_setup import NeshamaDatabase
+from shiva_parser import extract_shiva_info
 
 class BenjaminsScraper:
     def __init__(self):
@@ -148,6 +149,17 @@ class BenjaminsScraper:
                     data['livestream_url'] = video_link['href']
                 else:
                     data['livestream_url'] = url
+
+            # Extract structured shiva info from obituary text
+            obit_text = data.get('obituary_text') or data.get('shiva_info')
+            if obit_text:
+                shiva_parsed = extract_shiva_info(obit_text)
+                if shiva_parsed:
+                    data['shiva_address'] = shiva_parsed['shiva_address']
+                    data['shiva_hours'] = shiva_parsed['shiva_hours']
+                    data['shiva_concludes'] = shiva_parsed['shiva_concludes']
+                    data['shiva_raw'] = shiva_parsed['shiva_raw']
+                    data['shiva_private'] = shiva_parsed['shiva_private']
 
             # Photo
             photo_elem = soup.find('img', id=re.compile(r'ContentPlaceHolder1.*img', re.IGNORECASE))
