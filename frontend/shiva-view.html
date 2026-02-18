@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="Neshama">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
@@ -41,7 +41,7 @@
         }
 
         body {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
             color: var(--dark-brown);
             line-height: 1.7;
@@ -403,7 +403,7 @@
             border-radius: 1rem;
             padding: 0.2rem 0.6rem;
             cursor: pointer;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             transition: all 0.2s;
             margin-top: 0.35rem;
             display: inline-block;
@@ -489,7 +489,7 @@
         .form-group textarea {
             width: 100%;
             padding: 0.7rem 0.9rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1rem;
             border: 2px solid var(--light-taupe);
             border-radius: 0.5rem;
@@ -528,7 +528,7 @@
             padding: 0.5rem 0.9rem;
             border: 2px solid var(--light-taupe);
             border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 0.9rem;
             background: white;
             color: var(--dark-brown);
@@ -568,7 +568,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.15s;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             color: var(--dark-brown);
             -webkit-tap-highlight-color: transparent;
         }
@@ -633,7 +633,7 @@
             border: none;
             padding: 0.8rem 1.5rem;
             border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
@@ -659,7 +659,7 @@
             border: 2px solid var(--light-taupe);
             padding: 0.8rem 1.5rem;
             border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.05rem;
             cursor: pointer;
             transition: all 0.2s;
@@ -745,7 +745,7 @@
             border-radius: 2rem;
             color: var(--dark-brown);
             text-decoration: none;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 0.9rem;
             transition: all 0.2s;
             margin-top: 0.5rem;
@@ -904,6 +904,7 @@
             <a href="/shiva-essentials">Essentials</a>
             <a href="/gifts">Gifts</a>
             <a href="/about">About</a>
+            <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
         </div>
     </nav>
 
@@ -945,7 +946,7 @@
             <div style="background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin: 1.5rem 0; border: 1px solid var(--light-taupe);">
                 <p style="font-size: 1.1rem; line-height: 1.6; color: var(--dark-brown); margin-bottom: 1rem;">This shiva page is private. The family has chosen to coordinate meals through direct invitations.</p>
                 <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.5rem;">If you know the family, you can request access below.</p>
-                <button onclick="showAccessForm()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 1.05rem; cursor: pointer;">Request Access</button>
+                <button onclick="showAccessForm()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer;">Request Access</button>
             </div>
             <div id="accessForm" style="display: none; background: white; border-radius: 1rem; padding: 2rem; margin-top: 1rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
                 <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--dark-brown);">Request Access</h3>
@@ -962,7 +963,7 @@
                     <textarea id="accessMessage" placeholder="e.g., Neighbour, colleague, friend from shul..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
                 <div id="accessError" style="display: none; color: #c0392b; font-size: 0.9rem; margin-bottom: 1rem;"></div>
-                <button id="accessSubmitBtn" onclick="submitAccessRequest()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 1.05rem; cursor: pointer; width: 100%;">Send Request</button>
+                <button id="accessSubmitBtn" onclick="submitAccessRequest()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer; width: 100%;">Send Request</button>
             </div>
             <div id="accessSuccess" style="display: none; background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin-top: 1rem;">
                 <p style="font-size: 1.1rem; color: var(--dark-brown); line-height: 1.6;">Your request has been sent. You'll receive an email when the organizer responds.</p>

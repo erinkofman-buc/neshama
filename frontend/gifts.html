@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
@@ -23,7 +23,7 @@
             --light-taupe: #D4C5B9;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Crimson Pro', serif; background: var(--cream); color: var(--dark-brown); line-height: 1.6; }
+        body { font-family: 'Source Serif 4', serif; background: var(--cream); color: var(--dark-brown); line-height: 1.6; }
 
         /* Nav */
         .nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: white; border-bottom: 1px solid var(--light-taupe); position: sticky; top: 0; z-index: 100; }
@@ -38,29 +38,29 @@
         .page-hero p { font-size: 1.1rem; color: var(--sage-dark); max-width: 600px; margin: 0 auto; }
 
         /* Category Pills */
-        .category-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; padding: 0 1.5rem 1.5rem; max-width: 900px; margin: 0 auto; }
-        .pill { padding: 0.5rem 1.1rem; border-radius: 2rem; border: 1.5px solid var(--light-taupe); background: white; color: var(--sage-dark); font-family: 'Crimson Pro', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .category-pills { display: flex; gap: 0.5rem; justify-content: center; padding: 0 1.5rem 1.5rem; max-width: 900px; margin: 0 auto; flex-wrap: wrap; }
+        .pill { padding: 0.5rem 1.1rem; border-radius: 24px; border: 1.5px solid var(--light-taupe); background: white; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.25s ease; text-decoration: none; display: inline-block; white-space: nowrap; }
         .pill:hover, .pill.active { background: var(--terracotta); color: white; border-color: var(--terracotta); }
 
         /* Vendor Grid */
         .vendor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.2rem; padding: 0 1.5rem 2rem; max-width: 1100px; margin: 0 auto; }
-        .vendor-card { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--light-taupe); transition: transform 0.15s, box-shadow 0.15s; }
-        .vendor-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(62,39,35,0.08); }
+        .vendor-card { background: white; border-radius: 14px; padding: 1.5rem; border: 1px solid var(--light-taupe); transition: transform 0.25s ease, box-shadow 0.25s ease; display: flex; flex-direction: column; }
+        .vendor-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
         .vendor-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.3rem; }
         .vendor-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
         .badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 1rem; }
         .badge-kosher { background: #e8f5e9; color: #2e7d32; }
         .badge-category { background: #fff3e0; color: #e65100; }
         .badge-delivery { background: #e3f2fd; color: #1565c0; }
-        .vendor-desc { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5; }
-        .vendor-cta { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Crimson Pro', serif; font-size: 0.95rem; text-decoration: none; text-align: center; cursor: pointer; transition: background 0.2s; }
+        .vendor-desc { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5; flex-grow: 1; }
+        .vendor-cta { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; text-decoration: none; text-align: center; cursor: pointer; transition: background 0.2s; }
         .cta-local { background: var(--terracotta); color: white; border: none; }
         .cta-local:hover { background: #c45a1a; }
         .cta-affiliate { background: white; color: var(--terracotta); border: 2px solid var(--terracotta); }
         .cta-affiliate:hover { background: var(--terracotta); color: white; }
 
         /* Plant a Tree Banner */
-        .tree-banner { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 1rem; padding: 2rem; text-align: center; max-width: 1100px; margin: 0 auto 2rem; }
+        .tree-banner { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 14px; padding: 1.25rem 1.5rem; text-align: center; max-width: 1100px; margin: 0 auto 1.5rem; }
         .tree-banner h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #2e7d32; margin-bottom: 0.5rem; }
         .tree-banner p { color: #33691e; font-size: 1rem; margin-bottom: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; }
         .tree-banner a { display: inline-block; background: #2e7d32; color: white; padding: 0.7rem 2rem; border-radius: 2rem; text-decoration: none; font-size: 1rem; }
@@ -101,8 +101,13 @@
         @media (max-width: 600px) {
             .nav-links { gap: 0.8rem; font-size: 0.9rem; }
             .vendor-grid { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
-            .category-pills { padding: 0 1rem 1rem; }
-            .tree-banner { margin: 0 1rem 1.5rem; }
+            .category-pills { padding: 0 0 1rem; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-padding: 0 1rem; gap: 0.4rem; }
+            .category-pills::-webkit-scrollbar { display: none; }
+            .category-pills .pill:first-child { margin-left: 1rem; }
+            .category-pills .pill:last-child { margin-right: 1rem; }
+            .tree-banner { margin: 0 1rem 1rem; padding: 1rem; }
+            .tree-banner h3 { font-size: 1.2rem; }
+            .tree-banner p { font-size: 0.9rem; margin-bottom: 0.75rem; }
         }
     </style>
 </head>
@@ -116,6 +121,7 @@
         <a href="/shiva-essentials">Essentials</a>
         <a href="/gifts">Gifts</a>
         <a href="/about">About</a>
+        <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
     </div>
 </nav>
 
@@ -389,6 +395,8 @@
 
             if (v.type === 'affiliate') {
                 html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
+            } else if (v.website) {
+                html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
             } else {
                 html += '<button class="vendor-cta cta-local" onclick="openLeadModal(' + v.id + ', \'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')">Request a Quote</button>';
             }

@@ -216,26 +216,9 @@ class NeshamaApp {
         // Attach event listeners for card clicks
         document.querySelectorAll('.obituary-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.btn') && !e.target.closest('.share-menu') && !e.target.closest('.memorial-link')) {
+                if (!e.target.closest('.card-link')) {
                     this.handleCardClick(card.dataset.id);
                 }
-            });
-        });
-
-        // Share toggle listeners
-        document.querySelectorAll('.share-toggle').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleShareMenu(btn);
-            });
-        });
-
-        // Share option listeners
-        document.querySelectorAll('.share-option').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = btn.closest('.obituary-card').dataset.id;
-                this.handleShareAction(id, btn.dataset.action);
             });
         });
 
@@ -245,9 +228,6 @@ class NeshamaApp {
 
     renderCard(obit) {
         const timeAgo = this.getTimeAgo(obit.last_updated);
-        const preview = this.getPreview(obit.obituary_text);
-        const sourceInitial = obit.source ? obit.source.charAt(0).toUpperCase() : '?';
-        const initials = this.getInitials(obit.deceased_name);
         const tributeCount = this.tributeCounts[obit.id] || 0;
         const memorialUrl = this.getMemorialUrl(obit.id);
 
@@ -259,112 +239,39 @@ class NeshamaApp {
             ? this.highlightText(obit.hebrew_name, this.searchQuery)
             : obit.hebrew_name;
 
-        // Photo area: circular photo if available, otherwise initials circle
-        let photoArea = '';
+        // Image area: rectangular photo or warm candle placeholder
+        let imageArea = '';
         if (obit.photo_url) {
-            photoArea = '<div class="card-photo-circle"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" width="140" height="140" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML=\'<span class=card-initials>' + this.escapeHtml(initials) + '</span>\';this.parentElement.classList.add(\'no-photo\')"></div>';
+            imageArea = '<div class="card-image"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML=\'<div class=card-placeholder>\ud83d\udd6f\ufe0f</div>\'"></div>';
         } else {
-            photoArea = '<div class="card-photo-circle no-photo"><span class="card-initials">' + this.escapeHtml(initials) + '</span></div>';
+            imageArea = '<div class="card-image"><div class="card-placeholder">\ud83d\udd6f\ufe0f</div></div>';
         }
 
-        // Funeral detail row
-        let funeralRow = '';
+        // Funeral info line
+        let funeralLine = '';
         if (obit.funeral_datetime) {
-            funeralRow = '' +
-                '<div class="detail-row">' +
-                    '<span class="detail-icon">' + this.svgIconFuneral() + '</span>' +
-                    '<div class="detail-content">' +
-                        '<span class="detail-label">Funeral</span>' +
-                        this.escapeHtml(obit.funeral_datetime) +
-                        (obit.funeral_location ? '<br>' + this.escapeHtml(obit.funeral_location) : '') +
-                    '</div>' +
-                '</div>';
+            funeralLine = '<p class="card-funeral">\ud83d\udd4a\ufe0f ' + this.escapeHtml(obit.funeral_datetime) +
+                (obit.funeral_location ? ' \u00b7 ' + this.escapeHtml(obit.funeral_location) : '') + '</p>';
         }
 
-        // Shiva detail row
-        let shivaRow = '';
-        if (obit.shiva_info) {
-            shivaRow = '' +
-                '<div class="detail-row">' +
-                    '<span class="detail-icon">' + this.svgIconShiva() + '</span>' +
-                    '<div class="detail-content">' +
-                        '<span class="detail-label">Shiva</span>' +
-                        this.escapeHtml(obit.shiva_info) +
-                    '</div>' +
-                '</div>';
-        }
-
-        // Livestream detail row
-        let livestreamRow = '';
-        if (obit.livestream_url || obit.livestream_available) {
-            livestreamRow = '' +
-                '<div class="detail-row livestream-row">' +
-                    '<span class="detail-icon">' + this.svgIconLivestream() + '</span>' +
-                    '<div class="detail-content">' +
-                        '<span class="detail-label">Livestream</span>' +
-                        (obit.livestream_url
-                            ? '<a href="' + this.escapeAttr(obit.livestream_url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Watch livestream</a>'
-                            : 'Available') +
-                    '</div>' +
-                '</div>';
-        }
-
-        // Obituary preview
-        let previewSection = '';
-        if (preview) {
-            previewSection = '' +
-                '<div class="obituary-preview">' +
-                    this.escapeHtml(preview) +
-                    ' <span class="read-more">Read more \u2192</span>' +
-                '</div>';
-        }
-
-        // Tribute count badge
-        let tributeBadge = '' +
-            '<div class="tribute-count" data-id="' + obit.id + '">' +
-                this.svgIconHeart() +
-                ' <span>' + tributeCount + ' tribute' + (tributeCount !== 1 ? 's' : '') + '</span>' +
-            '</div>';
+        // Tribute count
+        let tributeText = tributeCount > 0
+            ? '<span class="card-tributes">' + this.svgIconHeart() + ' ' + tributeCount + '</span>'
+            : '<span class="card-tributes"></span>';
 
         return '' +
             '<div class="obituary-card" data-id="' + obit.id + '">' +
-
-                '<div class="card-header">' +
-                    '<div class="source-icon">' + this.escapeHtml(sourceInitial) + '</div>' +
-                    '<span class="source-name">' + this.escapeHtml(obit.source) + '</span>' +
-                    '<span class="timestamp">' + timeAgo + '</span>' +
-                '</div>' +
-
-                photoArea +
-
+                imageArea +
                 '<div class="card-body">' +
-                    '<p class="in-memory-label">In Loving Memory</p>' +
+                    '<div class="card-source">' + this.escapeHtml(obit.source) + ' \u00b7 ' + timeAgo + '</div>' +
                     '<h2 class="deceased-name">' + name + '</h2>' +
                     (hebrewName ? '<div class="hebrew-name">' + hebrewName + '</div>' : '') +
-
-                    funeralRow +
-                    shivaRow +
-                    livestreamRow +
-                    previewSection +
-                    tributeBadge +
-                '</div>' +
-
-                '<div class="card-footer">' +
-                    '<a href="' + memorialUrl + '" class="btn btn-primary memorial-link" onclick="event.stopPropagation()">' +
-                        'View Memorial' +
-                    '</a>' +
-                    '<div class="share-wrapper">' +
-                        '<button class="btn btn-secondary share-toggle" aria-label="Share">' +
-                            'Share \u2197' +
-                        '</button>' +
-                        '<div class="share-menu">' +
-                            '<button class="share-option" data-action="copy" title="Copy link">\ud83d\udd17 Copy Link</button>' +
-                            '<button class="share-option" data-action="whatsapp" title="Share via WhatsApp">\ud83d\udcac WhatsApp</button>' +
-                            '<button class="share-option" data-action="email" title="Share via email">\u2709\ufe0f Email</button>' +
-                        '</div>' +
+                    funeralLine +
+                    '<div class="card-meta">' +
+                        tributeText +
+                        '<a href="' + memorialUrl + '" class="card-link" onclick="event.stopPropagation()">View Memorial \u2192</a>' +
                     '</div>' +
                 '</div>' +
-
             '</div>';
     }
 

@@ -12,7 +12,7 @@ import os
 import re
 import subprocess
 import threading
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, unquote
 from datetime import datetime
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -162,6 +162,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_vendors()
         elif path == '/api/gift-vendors':
             self.get_gift_vendors()
+        elif path == '/api/track-click':
+            self.handle_track_click()
         elif path.startswith('/api/vendors/'):
             slug = path[len('/api/vendors/'):]
             self.get_vendor_by_slug(slug)
@@ -1163,6 +1165,52 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    # ── API: Click Tracking ─────────────────────────────────
+
+    def handle_track_click(self):
+        """Track vendor click and redirect to destination"""
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        vendor_slug = query_params.get('vendor', [''])[0]
+        dest_url = query_params.get('dest', [''])[0]
+
+        if not dest_url:
+            self.send_404()
+            return
+
+        # Decode the URL
+        dest_url = unquote(dest_url)
+
+        # Log click to database
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS vendor_clicks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    vendor_slug TEXT NOT NULL,
+                    destination_url TEXT,
+                    referrer_page TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            referrer = self.headers.get('Referer', '')
+            cursor.execute(
+                'INSERT INTO vendor_clicks (vendor_slug, destination_url, referrer_page) VALUES (?, ?, ?)',
+                (vendor_slug, dest_url, referrer)
+            )
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"[Click] Failed to log click: {e}")
+
+        # 302 redirect to destination
+        self.send_response(302)
+        self.send_header('Location', dest_url)
+        self.send_cors_headers()
+        self.end_headers()
 
     # ── API: Shiva Support ─────────────────────────────────
 

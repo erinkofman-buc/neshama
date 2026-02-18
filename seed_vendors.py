@@ -89,6 +89,20 @@ def create_tables(conn):
     except Exception:
         cursor.execute("ALTER TABLE vendors ADD COLUMN delivery_area TEXT")
 
+    # Create vendor_clicks table for click tracking
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS vendor_clicks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vendor_slug TEXT NOT NULL,
+            destination_url TEXT,
+            referrer_page TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_clicks_vendor ON vendor_clicks(vendor_slug)
+    ''')
+
     conn.commit()
 
 

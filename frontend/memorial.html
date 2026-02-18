@@ -19,7 +19,7 @@
     <meta property="og:site_name" content="Neshama">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
@@ -48,7 +48,7 @@
         }
 
         body {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
             color: var(--dark-brown);
             line-height: 1.7;
@@ -465,7 +465,7 @@
         .form-group textarea {
             width: 100%;
             padding: 0.75rem 1rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1rem;
             border: 2px solid var(--light-taupe);
             border-radius: 0.5rem;
@@ -497,7 +497,7 @@
             border: none;
             padding: 0.85rem 2rem;
             border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
@@ -577,7 +577,7 @@
             padding: 0.75rem 2rem;
             border-radius: 2rem;
             text-decoration: none;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.05rem;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -631,7 +631,7 @@
             gap: 0.5rem;
             padding: 0.75rem 1.25rem;
             border-radius: 2rem;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
@@ -668,7 +668,7 @@
             padding: 0.85rem 2.5rem;
             border-radius: 2rem;
             text-decoration: none;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -853,6 +853,7 @@
             <a href="/gifts">Gifts</a>
             <a href="/about">About</a>
             <a href="/premium" style="color:#D2691E; font-weight:600;">Premium</a>
+            <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
         </div>
     </nav>
 
@@ -886,6 +887,12 @@
             <div class="hero-dates" id="heroDates"></div>
             <div class="hero-divider"></div>
         </section>
+
+        <!-- Hero CTA — above the fold -->
+        <div id="heroCta" style="display:none; text-align:center; padding: 0 0 1rem;">
+            <a id="heroCtaBtn" href="#" class="support-cta-btn" style="font-size:1.1rem; padding:0.9rem 2.5rem;">Organize Shiva Meals</a>
+            <a href="/gifts" style="display:block; margin-top:0.75rem; color:var(--sage-dark); font-size:0.95rem; text-decoration:none; transition:color 0.2s;">Send Something Thoughtful &rarr;</a>
+        </div>
 
         <!-- Obituary Text -->
         <section class="memorial-section" id="obituarySection" style="display: none;">
@@ -1311,8 +1318,15 @@
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     var card = document.getElementById('supportCard');
+                    var heroCta = document.getElementById('heroCta');
+                    var heroCtaBtn = document.getElementById('heroCtaBtn');
                     if (data.status === 'success' && data.data) {
                         var s = data.data;
+                        // Hero CTA: link to existing support page
+                        heroCtaBtn.textContent = 'View Shiva Support Page \u2192';
+                        heroCtaBtn.href = '/shiva/' + encodeURIComponent(s.id);
+                        heroCta.style.display = '';
+
                         var html = '<h3>' + escapeHtml(s.family_name) + '</h3>';
                         html += '<div class="support-summary">';
                         if (s.shiva_start_date && s.shiva_end_date) {
@@ -1333,7 +1347,12 @@
                         card.innerHTML = html;
                         show('supportSection');
                     } else {
-                        // No support exists - show setup link
+                        // Hero CTA: organize meals for this family
+                        var familyName = obituaryData ? obituaryData.deceased_name.split(' ').pop() : '';
+                        heroCtaBtn.textContent = 'Organize Shiva Meals' + (familyName ? ' for the ' + familyName + ' Family' : '');
+                        heroCtaBtn.href = '/shiva/organize?obit=' + encodeURIComponent(obitId);
+                        heroCta.style.display = '';
+
                         card.innerHTML = '<p style="text-align:center;color:var(--sage-dark);margin-bottom:1rem;">' +
                             'No meal coordination has been set up yet for this family.</p>' +
                             '<div style="text-align:center;">' +
