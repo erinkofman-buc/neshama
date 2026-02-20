@@ -44,103 +44,94 @@ class DailyDigestSender:
         """Generate HTML email content"""
         if not obituaries:
             return None
-        
-        # Header
-        html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body { font-family: 'Georgia', serif; line-height: 1.6; color: #3E2723; max-width: 600px; margin: 0 auto; }
-                .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #D4C5B9; }
-                .title { font-size: 28px; color: #3E2723; margin: 0; }
-                .hebrew { font-size: 20px; color: #B2BEB5; }
-                .greeting { padding: 20px; font-size: 16px; }
-                .obituary-card { background: #FAF9F6; border-left: 4px solid #D2691E; padding: 20px; margin: 20px 0; border-radius: 8px; }
-                .name { font-size: 24px; font-weight: 600; color: #3E2723; margin-bottom: 5px; }
-                .hebrew-name { font-size: 18px; color: #B2BEB5; margin-bottom: 15px; direction: rtl; }
-                .source { font-size: 14px; color: #B2BEB5; margin-bottom: 10px; }
-                .detail { margin: 8px 0; font-size: 15px; }
-                .detail-label { font-weight: 600; color: #D2691E; }
-                .read-more { display: inline-block; background: #D2691E; color: white; padding: 10px 25px; text-decoration: none; border-radius: 20px; margin-top: 15px; font-size: 14px; }
-                .footer { text-align: center; padding: 20px; color: #B2BEB5; font-size: 13px; border-top: 1px solid #D4C5B9; margin-top: 30px; }
-                .footer a { color: #D2691E; text-decoration: none; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <div class="hebrew">נשמה</div>
-                <h1 class="title">Neshama</h1>
-            </div>
-            
-            <div class="greeting">
-                <p>Good morning,</p>
-        """
-        
-        # Count
+
         count = len(obituaries)
-        html += f"<p><strong>{count} new obituar{'y was' if count == 1 else 'ies were'} posted in the last 24 hours:</strong></p>"
-        html += "</div>"
-        
-        # Obituary cards
+
+        # Build obituary rows
+        obit_rows = ''
         for obit in obituaries:
-            html += '<div class="obituary-card">'
-            
-            # Name
-            html += f'<div class="name">{obit["deceased_name"]}'
+            # Name line
+            name = obit['deceased_name']
             if obit.get('hebrew_name'):
-                html += ' ז״ל'  # May their memory be a blessing
-            html += '</div>'
-            
-            # Hebrew name
+                name += ' \u05d6\u05f4\u05dc'
+
+            # Details
+            details = ''
             if obit.get('hebrew_name'):
-                html += f'<div class="hebrew-name">{obit["hebrew_name"]}</div>'
-            
-            # Source
-            html += f'<div class="source">{obit["source"]}</div>'
-            
-            # Funeral
+                details += f'<p style="margin: 0 0 6px 0; font-size: 15px; color: #9e9488; direction: rtl; text-align: left;">{obit["hebrew_name"]}</p>'
+
             if obit.get('funeral_datetime'):
-                html += f'<div class="detail"><span class="detail-label">🕯️ Funeral:</span> {obit["funeral_datetime"]}'
+                detail_text = f'Funeral: {obit["funeral_datetime"]}'
                 if obit.get('funeral_location'):
-                    html += f'<br>&nbsp;&nbsp;&nbsp;{obit["funeral_location"]}'
-                html += '</div>'
-            
-            # Shiva
+                    detail_text += f' &mdash; {obit["funeral_location"]}'
+                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">{detail_text}</p>'
+
             if obit.get('shiva_info'):
                 shiva_preview = obit['shiva_info'][:150]
                 if len(obit['shiva_info']) > 150:
                     shiva_preview += '...'
-                html += f'<div class="detail"><span class="detail-label">🏠 Shiva:</span> {shiva_preview}</div>'
-            
-            # Burial
+                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Shiva: {shiva_preview}</p>'
+
             if obit.get('burial_location'):
-                html += f'<div class="detail"><span class="detail-label">Burial:</span> {obit["burial_location"]}</div>'
-            
-            # Livestream badge
+                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Burial: {obit["burial_location"]}</p>'
+
             if obit.get('livestream_available'):
-                html += '<div class="detail"><span class="detail-label">📺 Livestream Available</span></div>'
-            
-            # Read more button
-            html += f'<a href="{obit["condolence_url"]}" class="read-more">Read Full Obituary →</a>'
-            
-            html += '</div>'
-        
-        # Footer with unsubscribe
-        html += """
-            <div class="footer">
-                <p><a href="https://neshama.ca">View all on Neshama.ca</a></p>
-                <p style="margin-bottom: 15px;"><a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color: #D2691E; text-decoration: none;">Visiting a shiva? See what to bring &rarr;</a></p>
-                <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="mailto:contact@neshama.ca">Contact Us</a></p>
-                <p style="margin-top: 15px;">
-                    Neshama - Every soul remembered<br>
-                    Toronto, ON, Canada
-                </p>
-            </div>
-        </body>
-        </html>
-        """
-        
+                details += '<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Livestream available</p>'
+
+            # Source line
+            source = obit.get('source', '')
+
+            obit_rows += f'''
+    <tr><td style="padding: 24px 0; border-bottom: 1px solid #e8e0d8;">
+        <p style="margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 19px; color: #3E2723;">{name}</p>
+        <p style="margin: 0 0 10px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488;">{source}</p>
+        {details}
+        <p style="margin: 10px 0 0 0;"><a href="{obit['condolence_url']}" style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #3E2723; text-decoration: underline;">Read full obituary</a></p>
+    </td></tr>'''
+
+        html = f'''<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+<tr><td align="center" style="padding: 40px 20px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%;">
+
+    <!-- Header -->
+    <tr><td style="padding-bottom: 24px; border-bottom: 1px solid #e8e0d8;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #3E2723; letter-spacing: 0.02em;">Neshama</span>
+    </td></tr>
+
+    <!-- Greeting -->
+    <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0 0 6px 0;">Good morning,</p>
+        <p style="margin: 0;">{count} new obituar{'y was' if count == 1 else 'ies were'} posted in the last 24 hours.</p>
+    </td></tr>
+
+    <!-- Obituaries -->
+    {obit_rows}
+
+    <!-- Footer links -->
+    <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #5c534a; line-height: 1.7;">
+        <p style="margin: 0 0 4px 0;"><a href="https://neshama.ca" style="color: #3E2723; text-decoration: underline;">View all on Neshama</a></p>
+        <p style="margin: 0;"><a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color: #3E2723; text-decoration: underline;">Visiting a shiva? See what to bring</a></p>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding-top: 28px; margin-top: 12px; border-top: 1px solid #e8e0d8;">
+        <p style="margin: 0 0 6px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;"><a href="{{{{unsubscribe_url}}}}" style="color: #9e9488;">Unsubscribe</a> &middot; <a href="mailto:contact@neshama.ca" style="color: #9e9488;">Contact us</a></p>
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">Neshama &middot; Toronto, ON</p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>'''
+
         return html
     
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content):
