@@ -12,6 +12,7 @@
 - Fonts: Cormorant Garamond (headings), Crimson Pro (body)
 - Colors: terracotta (#D2691E), cream (#FFF8F0), sage, dark brown (#3E2723)
 - Tone: warm, empathetic, community-focused. Never clinical or corporate.
+- All emails must feel warm, human, and dignified. White background, clean typography, no emoji bullets, no dark mode templates. This platform serves people who are grieving — every touchpoint should feel like it came from a caring person, not a bot.
 
 ## Current Features
 - Obituary feed (scraped from funeral homes daily)
