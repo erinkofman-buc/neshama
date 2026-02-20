@@ -269,73 +269,60 @@ class EmailSubscriptionManager:
         
         confirmation_url = f"https://neshama.ca/confirm/{token}"
         
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body {{ font-family: 'Georgia', serif; line-height: 1.6; color: #3E2723; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ text-align: center; padding: 20px 0; border-bottom: 2px solid #D4C5B9; }}
-                .title {{ font-size: 28px; color: #3E2723; margin: 0; }}
-                .hebrew {{ font-size: 20px; color: #B2BEB5; }}
-                .content {{ padding: 30px 20px; }}
-                .button {{ display: inline-block; background: #D2691E; color: white; padding: 15px 40px; 
-                           text-decoration: none; border-radius: 30px; font-size: 16px; font-weight: 600; }}
-                .footer {{ text-align: center; padding: 20px; color: #B2BEB5; font-size: 14px; 
-                          border-top: 1px solid #D4C5B9; margin-top: 30px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <div class="hebrew">נשמה</div>
-                    <h1 class="title">Neshama</h1>
-                </div>
-                
-                <div class="content">
-                    <p>Hi,</p>
-                    
-                    <p>You requested daily obituary updates from Neshama.</p>
-                    
-                    <p style="text-align: center; margin: 30px 0;">
-                        <a href="{confirmation_url}" class="button">Confirm My Subscription</a>
-                    </p>
-                    
-                    <p style="font-size: 14px; color: #B2BEB5;">
-                        Link expires in 7 days. If the button doesn't work, copy this link:<br>
-                        {confirmation_url}
-                    </p>
-                    
-                    <hr style="border: none; border-top: 1px solid #D4C5B9; margin: 30px 0;">
-                    
-                    <p><strong>What you'll get:</strong></p>
-                    <ul>
-                        <li>✉️ Daily email when new obituaries are posted</li>
-                        <li>📅 Funeral times and locations</li>
-                        <li>🏠 Shiva information</li>
-                        <li>🔗 Links to full obituaries</li>
-                    </ul>
-                    
-                    <p>You can unsubscribe anytime with one click.</p>
-                </div>
-                
-                <div class="footer">
-                    <p>Didn't request this? Ignore this email.</p>
-                    <p>Neshama - Every soul remembered<br>
-                    Toronto, ON, Canada<br>
-                    <a href="mailto:contact@neshama.ca">contact@neshama.ca</a></p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+<tr><td align="center" style="padding: 40px 20px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%;">
+
+    <!-- Header -->
+    <tr><td style="padding-bottom: 32px; border-bottom: 1px solid #e8e0d8;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #3E2723; letter-spacing: 0.02em;">Neshama</span>
+    </td></tr>
+
+    <!-- Body -->
+    <tr><td style="padding: 32px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0 0 20px 0;">Thank you for signing up.</p>
+
+        <p style="margin: 0 0 20px 0;">Neshama sends a quiet daily update when new obituaries are posted from Toronto-area funeral homes, including funeral times, shiva details, and links to full obituaries.</p>
+
+        <p style="margin: 0 0 28px 0;">To start receiving these updates, please confirm your email address.</p>
+
+        <!-- Button -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 28px 0;">
+        <tr><td style="background-color: #3E2723; border-radius: 4px;">
+            <a href="{confirmation_url}" style="display: inline-block; padding: 13px 32px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #ffffff; text-decoration: none; letter-spacing: 0.02em;">Confirm subscription</a>
+        </td></tr>
+        </table>
+
+        <p style="margin: 0 0 20px 0;">You can unsubscribe at any time with one click.</p>
+
+        <p style="margin: 0; font-size: 13px; color: #9e9488; line-height: 1.6;">If the button above doesn't work, copy and paste this link into your browser:<br>
+        <span style="color: #9e9488; word-break: break-all;">{confirmation_url}</span></p>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding-top: 28px; border-top: 1px solid #e8e0d8;">
+        <p style="margin: 0 0 6px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">If you didn't request this, you can safely ignore this email.</p>
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">Neshama &middot; Toronto, ON &middot; <a href="mailto:contact@neshama.ca" style="color: #9e9488;">contact@neshama.ca</a></p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
         
         try:
             message = Mail(
                 from_email=Email(self.from_email, self.from_name),
                 to_emails=To(email),
-                subject='Confirm your Neshama subscription',
+                subject='Confirm your subscription - Neshama',
                 html_content=Content("text/html", html_content)
             )
             
