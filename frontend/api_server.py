@@ -321,9 +321,24 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             cursor = conn.cursor()
 
             if city:
-                cursor.execute('SELECT * FROM obituaries WHERE city = ? ORDER BY last_updated DESC', (city,))
+                cursor.execute('''
+                    SELECT o.*,
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                    FROM obituaries o
+                    LEFT JOIN shiva_support s
+                      ON s.obituary_id = o.id AND s.status = 'active'
+                    WHERE o.city = ?
+                    ORDER BY o.last_updated DESC
+                ''', (city,))
             else:
-                cursor.execute('SELECT * FROM obituaries ORDER BY last_updated DESC')
+                cursor.execute('''
+                    SELECT o.*,
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                    FROM obituaries o
+                    LEFT JOIN shiva_support s
+                      ON s.obituary_id = o.id AND s.status = 'active'
+                    ORDER BY o.last_updated DESC
+                ''')
             obituaries = [dict(row) for row in cursor.fetchall()]
             conn.close()
 
@@ -344,9 +359,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT * FROM obituaries
-                WHERE deceased_name LIKE ? OR hebrew_name LIKE ?
-                ORDER BY last_updated DESC
+                SELECT o.*,
+                       CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                FROM obituaries o
+                LEFT JOIN shiva_support s
+                  ON s.obituary_id = o.id AND s.status = 'active'
+                WHERE o.deceased_name LIKE ? OR o.hebrew_name LIKE ?
+                ORDER BY o.last_updated DESC
             ''', (f'%{query}%', f'%{query}%'))
 
             obituaries = [dict(row) for row in cursor.fetchall()]
