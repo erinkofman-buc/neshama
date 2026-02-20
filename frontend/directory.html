@@ -404,6 +404,14 @@
                 <option value="Mississauga">Mississauga</option>
                 <option value="Multiple Locations">Multiple Locations</option>
             </select>
+            <select class="filter-select" id="deliveryZoneFilter" aria-label="Filter by delivery zone">
+                <option value="">Delivers to...</option>
+                <option value="Toronto">Toronto</option>
+                <option value="North York">North York</option>
+                <option value="Thornhill/Vaughan">Thornhill/Vaughan</option>
+                <option value="Mississauga">Mississauga</option>
+                <option value="GTA-wide">GTA-wide</option>
+            </select>
             <button class="filter-toggle" id="kosherToggle" aria-label="Show COR certified only" aria-pressed="false">COR Kosher</button>
             <button class="filter-toggle" id="deliveryToggle" aria-label="Show delivery available only" aria-pressed="false">Delivers</button>
         </div>
@@ -445,6 +453,7 @@
         var searchInput = document.getElementById('searchInput');
         var categoryFilter = document.getElementById('categoryFilter');
         var neighborhoodFilter = document.getElementById('neighborhoodFilter');
+        var deliveryZoneFilter = document.getElementById('deliveryZoneFilter');
         var kosherToggle = document.getElementById('kosherToggle');
         var deliveryToggle = document.getElementById('deliveryToggle');
         var vendorGrid = document.getElementById('vendorGrid');
@@ -508,8 +517,8 @@
         function filterVendors() {
             var query = searchInput.value.toLowerCase().trim();
             var category = categoryFilter.value;
-
             var neighborhood = neighborhoodFilter.value;
+            var zone = deliveryZoneFilter.value;
 
             var filtered = allVendors.filter(function(v) {
                 if (query && v.name.toLowerCase().indexOf(query) === -1 &&
@@ -519,6 +528,7 @@
                 }
                 if (category && v.category !== category) return false;
                 if (neighborhood && (v.neighborhood || '') !== neighborhood) return false;
+                if (zone && (!v.delivery_area || (v.delivery_area.indexOf(zone) === -1 && v.delivery_area.indexOf('GTA-wide') === -1))) return false;
                 if (kosherActive && v.kosher_status !== 'COR') return false;
                 if (deliveryActive && !v.delivery) return false;
                 return true;
@@ -536,6 +546,7 @@
         searchInput.addEventListener('input', filterVendors);
         categoryFilter.addEventListener('change', filterVendors);
         neighborhoodFilter.addEventListener('change', filterVendors);
+        deliveryZoneFilter.addEventListener('change', filterVendors);
 
         kosherToggle.addEventListener('click', function() {
             kosherActive = !kosherActive;

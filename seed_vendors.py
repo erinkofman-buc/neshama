@@ -119,6 +119,7 @@ VENDORS = [
         'website': 'https://www.whatabagel.com',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York',
     },
     {
         'name': 'Gryfe\'s Bagel Bakery',
@@ -130,6 +131,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 0,
+        'delivery_area': '',
     },
     {
         'name': 'Kiva\'s Bagels',
@@ -141,6 +143,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 0,
+        'delivery_area': '',
     },
     {
         'name': 'Bagel World',
@@ -152,6 +155,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Hermes Bakery',
@@ -163,6 +167,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'United Bakers Dairy Restaurant',
@@ -174,6 +179,7 @@ VENDORS = [
         'website': 'https://www.unitedbakers.ca',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     # Kosher Restaurants & Caterers
     {
@@ -186,6 +192,7 @@ VENDORS = [
         'website': 'https://www.jemsalads.com',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York,Toronto',
         'featured': 1,
     },
     {
@@ -198,6 +205,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York',
     },
     {
         'name': 'Miami Grill',
@@ -209,6 +217,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Tov-Li Pizza & Falafel',
@@ -220,6 +229,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Matti\'s Kitchen',
@@ -231,6 +241,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Yummy Market',
@@ -242,6 +253,7 @@ VENDORS = [
         'website': 'https://yummymarket.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Daiter\'s Meat & Deli',
@@ -253,6 +265,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 0,
+        'delivery_area': '',
     },
     {
         'name': 'Orly\'s Kitchen',
@@ -264,6 +277,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Cafe Sheli',
@@ -275,6 +289,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 0,
+        'delivery_area': '',
     },
     # Caterers (dedicated catering companies)
     {
@@ -287,6 +302,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'GTA-wide',
     },
     {
         'name': 'Main Event Catering',
@@ -298,6 +314,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'GTA-wide',
     },
     {
         'name': 'Taam Hayam Catering',
@@ -309,6 +326,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'GTA-wide',
     },
     {
         'name': 'Josh\'s Catering',
@@ -320,6 +338,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'GTA-wide',
     },
     # Italian
     {
@@ -332,6 +351,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Pizza Pita',
@@ -343,6 +363,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Il Paesano',
@@ -354,6 +375,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     {
         'name': 'Terroni',
@@ -365,6 +387,7 @@ VENDORS = [
         'website': 'https://www.terroni.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     # Middle Eastern / Israeli
     {
@@ -377,6 +400,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Aish Tanoor',
@@ -388,6 +412,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 0,
+        'delivery_area': '',
     },
     {
         'name': 'Parallel',
@@ -399,6 +424,7 @@ VENDORS = [
         'website': 'https://www.parallelrestaurant.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     {
         'name': 'Shwarma Express',
@@ -410,6 +436,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Me-Va-Me',
@@ -421,6 +448,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York',
     },
     {
         'name': 'Pita Box',
@@ -432,6 +460,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York',
     },
     # More diverse options
     {
@@ -444,6 +473,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Noah\'s Natural Foods',
@@ -455,6 +485,7 @@ VENDORS = [
         'website': 'https://www.noahsnaturalfoods.ca',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     {
         'name': 'Summerhill Market',
@@ -466,6 +497,7 @@ VENDORS = [
         'website': 'https://www.summerhillmarket.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
     {
         'name': 'Pickle Barrel',
@@ -477,6 +509,7 @@ VENDORS = [
         'website': 'https://www.picklebarrel.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
     },
     {
         'name': 'Harbord Bakery',
@@ -488,6 +521,7 @@ VENDORS = [
         'website': '',
         'kosher_status': 'not_certified',
         'delivery': 0,
+        'delivery_area': '',
     },
     {
         'name': 'Centre Street Deli',
@@ -499,6 +533,7 @@ VENDORS = [
         'website': 'https://www.centrestreetdeli.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Thornhill/Vaughan,North York,Toronto',
     },
     {
         'name': 'Nortown Foods',
@@ -510,6 +545,7 @@ VENDORS = [
         'website': 'https://www.nortownfoods.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto,North York',
         'featured': 1,
     },
     {
@@ -522,6 +558,7 @@ VENDORS = [
         'website': 'https://www.cheeseboutique.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
+        'delivery_area': 'Toronto',
     },
 ]
 
