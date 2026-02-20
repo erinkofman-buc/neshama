@@ -1577,7 +1577,7 @@
                 html += '<div class="caterer-grid">';
 
                 matched.forEach(function(v) {
-                    var dest = v.website || ('/vendors/' + encodeURIComponent(v.slug));
+                    var dest = v.website || ('/directory/' + encodeURIComponent(v.slug));
                     var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
                         '&dest=' + encodeURIComponent(dest);
 
