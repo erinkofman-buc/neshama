@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Neshama Vendor Directory - Seed Script
-Creates vendors and vendor_leads tables, populates with 39 Toronto-area food vendors.
+Creates vendors and vendor_leads tables, populates with 37 Toronto-area food vendors.
 Run: python seed_vendors.py
 """
 
@@ -106,7 +106,7 @@ def create_tables(conn):
     conn.commit()
 
 
-# 39 Toronto-area food vendors
+# 37 Toronto-area food vendors
 VENDORS = [
     # Bagel Shops / Bakeries
     {
@@ -235,12 +235,12 @@ VENDORS = [
     {
         'name': 'Yummy Market',
         'category': 'Kosher Restaurants & Caterers',
-        'description': 'Full-service kosher supermarket with an extensive prepared foods section. Hot meals, salad bar, deli counter, and catering platters for any size gathering.',
-        'address': '7600 Bathurst St, Thornhill, ON',
-        'neighborhood': 'Thornhill',
-        'phone': '(905) 731-8866',
-        'website': 'https://www.yummymarket.com',
-        'kosher_status': 'COR',
+        'description': 'European food grocer with an extensive prepared foods section, scratch-made kitchen, and patisserie. Hot meals, salad bar, deli counter, and catering platters for any size gathering.',
+        'address': '4400 Dufferin St, North York, ON',
+        'neighborhood': 'North York',
+        'phone': '(416) 665-0040',
+        'website': 'https://yummymarket.com',
+        'kosher_status': 'not_certified',
         'delivery': 1,
     },
     {
@@ -277,17 +277,6 @@ VENDORS = [
         'delivery': 0,
     },
     # Caterers (dedicated catering companies)
-    {
-        'name': 'Marky\'s Catering',
-        'category': 'Caterers',
-        'description': 'Full-service kosher caterer specializing in events of all sizes. Experienced with shiva catering — complete meal packages with setup and cleanup available.',
-        'address': 'Toronto, ON',
-        'neighborhood': 'GTA-wide',
-        'phone': '(416) entries',
-        'website': '',
-        'kosher_status': 'COR',
-        'delivery': 1,
-    },
     {
         'name': 'Creative Kosher Catering',
         'category': 'Caterers',
@@ -503,34 +492,23 @@ VENDORS = [
     {
         'name': 'Centre Street Deli',
         'category': 'Kosher Restaurants & Caterers',
-        'description': 'Classic Jewish deli in Thornhill. Smoked meat, corned beef, matzo ball soup, and all the deli favourites. Catering platters and party trays available.',
-        'address': '14 Centre St, Thornhill, ON',
+        'description': 'Classic Jewish deli in Thornhill since 1988. Montreal-style smoked meat, corned beef, matzo ball soup, and all the deli favourites. Catering platters and party trays available.',
+        'address': '1136 Centre St, Thornhill, ON',
         'neighborhood': 'Thornhill',
         'phone': '(905) 731-8037',
-        'website': '',
-        'kosher_status': 'not_certified',
-        'delivery': 1,
-    },
-    {
-        'name': 'Katz\'s Deli & Corned Beef Emporium',
-        'category': 'Kosher Restaurants & Caterers',
-        'description': 'Old-school Jewish deli serving generous sandwiches, smoked meat platters, and traditional comfort food. Deli trays perfect for shiva gatherings.',
-        'address': '3300 Dufferin St, Toronto, ON',
-        'neighborhood': 'Yorkdale',
-        'phone': '(416) 782-1111',
-        'website': '',
+        'website': 'https://www.centrestreetdeli.com',
         'kosher_status': 'not_certified',
         'delivery': 1,
     },
     {
         'name': 'Nortown Foods',
         'category': 'Caterers',
-        'description': 'Premium kosher supermarket with full catering services. Hot meals, salads, deli platters, and baked goods. One-stop shop for shiva meal preparation.',
-        'address': '4771 Bathurst St, Toronto, ON',
-        'neighborhood': 'North York',
-        'phone': '(416) 638-5040',
+        'description': 'Premium grocer with full catering services, butcher shop, and prepared foods counter. Hot meals, salads, deli platters, and baked goods. Over 50 years serving the Toronto Jewish community.',
+        'address': '892 Eglinton Ave W, Toronto, ON',
+        'neighborhood': 'Eglinton West',
+        'phone': '(416) 789-2921',
         'website': 'https://www.nortownfoods.com',
-        'kosher_status': 'COR',
+        'kosher_status': 'not_certified',
         'delivery': 1,
         'featured': 1,
     },
