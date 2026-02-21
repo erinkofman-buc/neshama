@@ -1,0 +1,8 @@
+# Un-ignore package.json for tests (root .gitignore blocks it)
+!package.json
+
+# Test artifacts (regenerated on each run)
+node_modules/
+test-results/
+screenshots/
+playwright-report.md

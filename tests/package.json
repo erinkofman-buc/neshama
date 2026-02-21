@@ -1,0 +1,12 @@
+{
+  "name": "neshama-e2e-tests",
+  "private": true,
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ci": "npx playwright test --reporter=list",
+    "report": "node -e \"const{generateMarkdownReport}=require('./helpers/report');generateMarkdownReport();\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}
