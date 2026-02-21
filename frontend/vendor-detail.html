@@ -610,6 +610,15 @@
 
         if (slug) {
             loadVendor();
+            // Track page view
+            fetch('/api/vendor-views', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    vendor_slug: slug,
+                    referrer_page: document.referrer || ''
+                })
+            }).catch(function() {});
         } else {
             showNotFound();
         }

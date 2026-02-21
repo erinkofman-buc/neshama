@@ -89,6 +89,12 @@ def create_tables(conn):
     except Exception:
         cursor.execute("ALTER TABLE vendors ADD COLUMN delivery_area TEXT")
 
+    # Migration: add email column if missing
+    try:
+        cursor.execute('SELECT email FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN email TEXT")
+
     # Create vendor_clicks table for click tracking
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS vendor_clicks (
@@ -101,6 +107,19 @@ def create_tables(conn):
     ''')
     cursor.execute('''
         CREATE INDEX IF NOT EXISTS idx_clicks_vendor ON vendor_clicks(vendor_slug)
+    ''')
+
+    # Create vendor_views table for page view tracking
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS vendor_views (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vendor_slug TEXT NOT NULL,
+            referrer_page TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_views_vendor ON vendor_views(vendor_slug)
     ''')
 
     conn.commit()
@@ -780,5 +799,60 @@ def seed_vendors(db_path=None):
     return inserted
 
 
+def backfill_vendor_emails(db_path=None):
+    """Backfill vendor emails from caterer_partners where names match"""
+    path = db_path or DB_PATH
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    # Ensure email column exists
+    try:
+        cursor.execute('SELECT email FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN email TEXT")
+        conn.commit()
+
+    # Check if caterer_partners table exists
+    try:
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='caterer_partners'")
+        if not cursor.fetchone():
+            print("No caterer_partners table found. Skipping email backfill.")
+            conn.close()
+            return 0
+    except Exception:
+        conn.close()
+        return 0
+
+    # Count before
+    cursor.execute("SELECT COUNT(*) FROM vendors WHERE email IS NOT NULL AND email != ''")
+    before = cursor.fetchone()[0]
+
+    # Match vendors to caterer_partners by business name
+    cursor.execute('''
+        UPDATE vendors SET email = (
+            SELECT cp.email FROM caterer_partners cp
+            WHERE LOWER(TRIM(cp.business_name)) = LOWER(TRIM(vendors.name))
+            AND cp.email IS NOT NULL AND cp.email != ''
+            LIMIT 1
+        )
+        WHERE (vendors.email IS NULL OR vendors.email = '')
+        AND EXISTS (
+            SELECT 1 FROM caterer_partners cp
+            WHERE LOWER(TRIM(cp.business_name)) = LOWER(TRIM(vendors.name))
+            AND cp.email IS NOT NULL AND cp.email != ''
+        )
+    ''')
+    conn.commit()
+
+    cursor.execute("SELECT COUNT(*) FROM vendors WHERE email IS NOT NULL AND email != ''")
+    after = cursor.fetchone()[0]
+    updated = after - before
+
+    conn.close()
+    print(f"Email backfill: {updated} vendor(s) updated from caterer_partners ({after} total with email)")
+    return updated
+
+
 if __name__ == '__main__':
     seed_vendors()
+    backfill_vendor_emails()

@@ -24,7 +24,7 @@ try:
     import sys as _sys
     if sys_path_parent not in _sys.path:
         _sys.path.insert(0, sys_path_parent)
-    from seed_vendors import seed_vendors, create_tables as create_vendor_tables
+    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails
     VENDORS_AVAILABLE = True
 except Exception as e:
     VENDORS_AVAILABLE = False
@@ -142,6 +142,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_subscriber_count()
         elif path == '/api/community-stats':
             self.get_community_stats()
+        elif path == '/api/directory-stats':
+            self.get_directory_stats()
         elif path == '/api/tributes/counts':
             self.get_tribute_counts()
         # Single obituary API
@@ -244,6 +246,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_caterer_reject(caterer_id)
         elif path == '/api/vendor-leads':
             self.handle_vendor_lead(body)
+        elif path == '/api/vendor-views':
+            self.handle_vendor_view(body)
         elif path == '/api/shiva-access/request':
             self.handle_access_request(body)
         elif path == '/api/shiva':
@@ -731,6 +735,54 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 'data': {'souls_remembered': 0, 'tributes_left': 0, 'community_members': 0}
             })
 
+    def get_directory_stats(self):
+        """Get platform activity stats for caterer directory social proof"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('SELECT COUNT(*) FROM obituaries')
+            obituary_count = cursor.fetchone()[0]
+
+            active_shiva_count = 0
+            try:
+                cursor.execute("SELECT COUNT(*) FROM shiva_support WHERE status = 'active'")
+                active_shiva_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            caterer_count = 0
+            try:
+                cursor.execute("SELECT COUNT(*) FROM caterer_partners WHERE status = 'approved'")
+                caterer_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            # Fall back to vendors table if no approved caterer_partners
+            if caterer_count == 0:
+                try:
+                    cursor.execute("SELECT COUNT(*) FROM vendors WHERE vendor_type = 'food'")
+                    caterer_count = cursor.fetchone()[0]
+                except Exception:
+                    pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'obituary_count': obituary_count,
+                    'active_shiva_count': active_shiva_count,
+                    'caterer_count': caterer_count
+                }
+            })
+        except Exception as e:
+            self.send_json_response({
+                'status': 'success',
+                'data': {'obituary_count': 0, 'active_shiva_count': 0, 'caterer_count': 0}
+            })
+
     # ── Admin: Scraper ─────────────────────────────────────────
 
     def handle_admin_scrape(self):
@@ -1136,7 +1188,7 @@ button:hover{background:#c45a1a}</style></head>
             self.send_404()
 
     def handle_vendor_lead(self, body):
-        """Handle vendor lead form submission"""
+        """Handle vendor lead form submission and send alert email to vendor"""
         try:
             data = json.loads(body)
             contact_name = data.get('contact_name', '').strip()
@@ -1169,10 +1221,34 @@ button:hover{background:#c45a1a}</style></head>
 
             conn.commit()
             lead_id = cursor.lastrowid
+
+            # Look up vendor email for alert
+            vendor_email = None
+            try:
+                cursor.execute('SELECT email FROM vendors WHERE id = ?', (vendor_id,))
+                row = cursor.fetchone()
+                if row and row[0]:
+                    vendor_email = row[0]
+            except Exception:
+                pass
+
             conn.close()
 
             # Log the lead
             print(f"[Vendor Lead] {contact_name} ({contact_email}) -> {vendor_name}")
+
+            # Send alert email to vendor
+            if vendor_email:
+                self._send_vendor_lead_alert(
+                    vendor_email=vendor_email,
+                    vendor_name=vendor_name,
+                    contact_name=contact_name,
+                    contact_email=contact_email,
+                    event_type=event_type,
+                    event_date=event_date,
+                    estimated_guests=estimated_guests,
+                    message=message
+                )
 
             self.send_json_response({
                 'status': 'success',
@@ -1184,6 +1260,106 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def _send_vendor_lead_alert(self, vendor_email, vendor_name, contact_name,
+                                 contact_email, event_type, event_date,
+                                 estimated_guests, message):
+        """Send lead alert email to vendor"""
+        event_label = {
+            'shiva': 'Shiva Meals',
+            'community_event': 'Community Event',
+            'private_event': 'Private Event',
+            'other': 'Other'
+        }.get(event_type, event_type or 'Not specified')
+
+        details_rows = f'''
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
+        <strong style="color: #3E2723;">Name:</strong> {contact_name}
+    </td></tr>
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
+        <strong style="color: #3E2723;">Email:</strong> <a href="mailto:{contact_email}" style="color: #D2691E;">{contact_email}</a>
+    </td></tr>
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
+        <strong style="color: #3E2723;">Event type:</strong> {event_label}
+    </td></tr>'''
+
+        if event_date:
+            details_rows += f'''
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
+        <strong style="color: #3E2723;">Date:</strong> {event_date}
+    </td></tr>'''
+
+        if estimated_guests:
+            details_rows += f'''
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
+        <strong style="color: #3E2723;">Guests:</strong> {estimated_guests}
+    </td></tr>'''
+
+        if message:
+            details_rows += f'''
+    <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a;">
+        <strong style="color: #3E2723;">Message:</strong><br>{message}
+    </td></tr>'''
+
+        html = f'''<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+<tr><td align="center" style="padding: 40px 20px;">
+<table role="presentation" width="500" cellpadding="0" cellspacing="0" style="max-width: 500px; width: 100%;">
+
+    <tr><td style="padding-bottom: 20px; border-bottom: 1px solid #e8e0d8;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #3E2723; letter-spacing: 0.02em;">Neshama</span>
+    </td></tr>
+
+    <tr><td style="padding: 24px 0 8px 0;">
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D2691E; font-weight: 600;">New inquiry for {vendor_name}</p>
+    </td></tr>
+
+    <tr><td style="padding: 8px 0 20px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0;">Someone is interested in your services through Neshama. Here are their details:</p>
+    </td></tr>
+
+    {details_rows}
+
+    <tr><td style="padding: 24px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0;">You can reply directly to this email to reach {contact_name}.</p>
+    </td></tr>
+
+    <tr><td style="padding-top: 28px; border-top: 1px solid #e8e0d8; margin-top: 20px;">
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">Neshama &middot; Toronto, ON</p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>'''
+
+        subject = f"New inquiry from {contact_name} \u2014 Neshama"
+
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        if sendgrid_key:
+            try:
+                from sendgrid import SendGridAPIClient
+                from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
+                msg = Mail(
+                    from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                    to_emails=To(vendor_email),
+                    subject=subject,
+                    html_content=Content("text/html", html)
+                )
+                msg.reply_to = ReplyTo(contact_email, contact_name)
+                sg = SendGridAPIClient(sendgrid_key)
+                response = sg.send(msg)
+                print(f"[Vendor Lead Email] Sent to {vendor_email} (status {response.status_code})")
+            except Exception as e:
+                print(f"[Vendor Lead Email] Failed to send to {vendor_email}: {e}")
+        else:
+            print(f"[Vendor Lead Email] TEST MODE — would send to {vendor_email}")
+            print(f"  Subject: {subject}")
+            print(f"  From: {contact_name} <{contact_email}> (reply-to)")
 
     # ── API: Click Tracking ─────────────────────────────────
 
@@ -1230,6 +1406,51 @@ button:hover{background:#c45a1a}</style></head>
         self.send_header('Location', dest_url)
         self.send_cors_headers()
         self.end_headers()
+
+    # ── API: Vendor View Tracking ─────────────────────────────
+
+    def handle_vendor_view(self, body):
+        """Track a vendor profile page view"""
+        try:
+            data = json.loads(body)
+            vendor_slug = data.get('vendor_slug', '').strip()
+
+            if not vendor_slug:
+                self.send_json_response({'status': 'error', 'message': 'vendor_slug required'}, 400)
+                return
+
+            referrer_page = data.get('referrer_page', '')
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS vendor_views (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    vendor_slug TEXT NOT NULL,
+                    referrer_page TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_views_vendor ON vendor_views(vendor_slug)
+            ''')
+
+            cursor.execute(
+                'INSERT INTO vendor_views (vendor_slug, referrer_page) VALUES (?, ?)',
+                (vendor_slug, referrer_page)
+            )
+            conn.commit()
+            conn.close()
+
+            self.send_json_response({'status': 'success'})
+
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            print(f"[View] Failed to log view: {e}")
+            self.send_json_response({'status': 'error', 'message': str(e)}, 500)
 
     # ── API: Shiva Support ─────────────────────────────────
 
@@ -2021,6 +2242,7 @@ def run_server(port=None):
     if VENDORS_AVAILABLE:
         try:
             seed_vendors(DB_PATH)
+            backfill_vendor_emails(DB_PATH)
             print(f"  Vendor directory: Seeded")
         except Exception as e:
             print(f"  Vendor seed: {e}")

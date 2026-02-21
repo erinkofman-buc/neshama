@@ -365,6 +365,36 @@
         .footer-links a:hover { color: var(--terracotta); text-decoration: none; }
         .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
 
+        /* ── Stats Banner ── */
+        .stats-banner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            text-align: center;
+            flex-wrap: wrap;
+        }
+
+        .stats-banner .stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .stats-banner .stat-num {
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+
+        .stats-banner .stat-divider {
+            color: var(--light-taupe);
+            font-size: 0.7rem;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 600px) {
             .nav { gap: 1rem; }
@@ -405,6 +435,14 @@
         <h1>Local Caterers for Shiva Meals</h1>
         <p class="subtitle">Community-trusted caterers experienced in preparing meals for families sitting shiva</p>
     </header>
+
+    <div class="stats-banner" id="statsBanner" style="display:none;">
+        <span class="stat"><span class="stat-num" id="statObits">0</span> obituaries tracked</span>
+        <span class="stat-divider">&middot;</span>
+        <span class="stat"><span class="stat-num" id="statShiva">0</span> active shiva pages</span>
+        <span class="stat-divider">&middot;</span>
+        <span class="stat"><span class="stat-num" id="statCaterers">0</span> caterers listed</span>
+    </div>
 
     <div class="container">
 
@@ -574,6 +612,22 @@
                 els.forEach(function(el) { el.classList.add('visible'); });
             }
         }
+
+        // Load stats banner
+        fetch('/api/directory-stats')
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success' && result.data) {
+                    var d = result.data;
+                    if (d.obituary_count > 0 || d.caterer_count > 0) {
+                        document.getElementById('statObits').textContent = d.obituary_count;
+                        document.getElementById('statShiva').textContent = d.active_shiva_count;
+                        document.getElementById('statCaterers').textContent = d.caterer_count;
+                        document.getElementById('statsBanner').style.display = 'flex';
+                    }
+                }
+            })
+            .catch(function() {});
 
         // Initial load
         loadCaterers();
