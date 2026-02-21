@@ -33,9 +33,21 @@ test.describe('Journey: Grieving Community Member', () => {
 
     // Step 3: Wait for obituary cards to load
     await logger.step('cards-loaded', async () => {
+      // "Today" filter may show no results — expand to "Month" if needed
+      let cards = page.locator('.obituary-card');
+      let count = await cards.count();
+
+      if (count === 0) {
+        const monthTab = page.locator('.tab[data-tab="month"], .tab:has-text("Month")').first();
+        if (await monthTab.isVisible()) {
+          await monthTab.click();
+          await page.waitForTimeout(1000);
+        }
+      }
+
       await page.waitForSelector('.obituary-card', { timeout: 15000 });
-      const cards = page.locator('.obituary-card');
-      const count = await cards.count();
+      cards = page.locator('.obituary-card');
+      count = await cards.count();
       expect(count).toBeGreaterThan(0);
 
       // Check if cards have visible class (animated in)
