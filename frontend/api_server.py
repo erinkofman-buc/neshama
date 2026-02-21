@@ -6,6 +6,7 @@ Auto-scrapes on startup to handle Render free tier ephemeral storage
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import html as html_mod
 import json
 import sqlite3
 import os
@@ -1272,33 +1273,42 @@ button:hover{background:#c45a1a}</style></head>
             'other': 'Other'
         }.get(event_type, event_type or 'Not specified')
 
+        # Escape all user input to prevent HTML injection
+        safe_name = html_mod.escape(contact_name or '')
+        safe_email = html_mod.escape(contact_email or '')
+        safe_event = html_mod.escape(event_label)
+        safe_vendor = html_mod.escape(vendor_name or '')
+        safe_date = html_mod.escape(str(event_date or ''))
+        safe_guests = html_mod.escape(str(estimated_guests or ''))
+        safe_message = html_mod.escape(message or '')
+
         details_rows = f'''
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
-        <strong style="color: #3E2723;">Name:</strong> {contact_name}
+        <strong style="color: #3E2723;">Name:</strong> {safe_name}
     </td></tr>
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
-        <strong style="color: #3E2723;">Email:</strong> <a href="mailto:{contact_email}" style="color: #D2691E;">{contact_email}</a>
+        <strong style="color: #3E2723;">Email:</strong> <a href="mailto:{safe_email}" style="color: #D2691E;">{safe_email}</a>
     </td></tr>
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
-        <strong style="color: #3E2723;">Event type:</strong> {event_label}
+        <strong style="color: #3E2723;">Event type:</strong> {safe_event}
     </td></tr>'''
 
         if event_date:
             details_rows += f'''
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
-        <strong style="color: #3E2723;">Date:</strong> {event_date}
+        <strong style="color: #3E2723;">Date:</strong> {safe_date}
     </td></tr>'''
 
         if estimated_guests:
             details_rows += f'''
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a; border-bottom: 1px solid #e8e0d8;">
-        <strong style="color: #3E2723;">Guests:</strong> {estimated_guests}
+        <strong style="color: #3E2723;">Guests:</strong> {safe_guests}
     </td></tr>'''
 
         if message:
             details_rows += f'''
     <tr><td style="padding: 8px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #5c534a;">
-        <strong style="color: #3E2723;">Message:</strong><br>{message}
+        <strong style="color: #3E2723;">Message:</strong><br>{safe_message}
     </td></tr>'''
 
         html = f'''<!DOCTYPE html>
@@ -1314,7 +1324,7 @@ button:hover{background:#c45a1a}</style></head>
     </td></tr>
 
     <tr><td style="padding: 24px 0 8px 0;">
-        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D2691E; font-weight: 600;">New inquiry for {vendor_name}</p>
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #D2691E; font-weight: 600;">New inquiry for {safe_vendor}</p>
     </td></tr>
 
     <tr><td style="padding: 8px 0 20px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #3E2723;">
@@ -1324,7 +1334,7 @@ button:hover{background:#c45a1a}</style></head>
     {details_rows}
 
     <tr><td style="padding: 24px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.7; color: #3E2723;">
-        <p style="margin: 0;">You can reply directly to this email to reach {contact_name}.</p>
+        <p style="margin: 0;">You can reply directly to this email to reach {safe_name}.</p>
     </td></tr>
 
     <tr><td style="padding-top: 28px; border-top: 1px solid #e8e0d8; margin-top: 20px;">

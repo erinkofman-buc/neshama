@@ -519,7 +519,8 @@
             }
             if (v.website) {
                 var displayUrl = v.website.replace(/^https?:\/\//, '').replace(/\/$/, '');
-                rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(v.website) + '" target="_blank" rel="noopener">' + escapeHtml(displayUrl) + '</a></span></div>';
+                var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(v.website);
+                rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener">' + escapeHtml(displayUrl) + '</a></span></div>';
             }
             rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">' + (v.kosher_status === 'COR' ? 'COR Certified' : 'Not certified kosher') + '</span></div>';
             rows += '<div class="info-row"><span class="info-label">Delivery</span><span class="info-value">' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span></div>';
