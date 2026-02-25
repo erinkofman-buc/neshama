@@ -185,7 +185,9 @@ class WeeklyDigestSender:
                 html_content=Content("text/html", html_with_unsubscribe)
             )
 
+            # RFC 8058 — required by Gmail/Yahoo for one-click unsubscribe
             message.add_header('List-Unsubscribe', f'<{unsubscribe_url}>')
+            message.add_header('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click')
 
             sg = SendGridAPIClient(self.sendgrid_api_key)
             response = sg.send(message)

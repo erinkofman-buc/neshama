@@ -481,7 +481,8 @@
                     body: JSON.stringify({
                         email: email,
                         frequency: frequency,
-                        locations: locations.join(',')
+                        locations: locations.join(','),
+                        consent: true
                     })
                 })
                 .then(function(r) { return r.json(); })

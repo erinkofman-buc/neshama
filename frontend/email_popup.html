@@ -417,6 +417,12 @@
             
             async subscribe(email) {
                 try {
+                    // Check consent
+                    var consentBox = document.getElementById('popupConsent');
+                    if (!consentBox || !consentBox.checked) {
+                        return { success: false, error: 'Please check the consent box to continue.' };
+                    }
+
                     // Gather frequency
                     var freqRadios = document.querySelectorAll('input[name="popupFreq"]');
                     var frequency = 'daily';
@@ -433,7 +439,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ email, frequency, locations: locations.join(',') })
+                        body: JSON.stringify({ email, frequency, locations: locations.join(','), consent: true })
                     });
                     
                     const data = await response.json();

@@ -431,6 +431,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             email = data.get('email', '').strip().lower()
             frequency = data.get('frequency', 'daily')
             locations = data.get('locations', 'toronto,montreal')
+            consent = data.get('consent', False)
 
             # Normalize locations: accept list or comma-string
             if isinstance(locations, list):
@@ -440,6 +441,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_json_response({'status': 'error', 'message': 'Invalid email'}, 400)
                 return
 
+            # CASL: require explicit consent
+            if not consent:
+                self.send_json_response({'status': 'error', 'message': 'Consent is required to subscribe'}, 400)
+                return
+
             if EMAIL_AVAILABLE:
                 result = subscription_mgr.subscribe(email, frequency, locations)
                 if result.get('status') == 'success' and SHIVA_AVAILABLE:
@@ -447,6 +453,19 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_json_response(result)
             else:
                 # Fallback: direct insert (no double opt-in)
+                # Apply same email regex validation as subscription_manager
+                if not re.match(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$', email):
+                    self.send_json_response({'status': 'error', 'message': 'Please enter a valid email address'}, 400)
+                    return
+                # Validate frequency/locations in fallback path
+                if frequency not in ('daily', 'weekly'):
+                    frequency = 'daily'
+                valid_locs = {'toronto', 'montreal'}
+                loc_list = [l.strip() for l in locations.split(',') if l.strip() in valid_locs]
+                if not loc_list:
+                    loc_list = ['toronto', 'montreal']
+                locations = ','.join(sorted(loc_list))
+
                 db_path = self.get_db_path()
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
@@ -500,7 +519,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     <div class="container">
         <div class="icon">{"✅" if status_class == "success" else "❌"}</div>
         <h1>{"Subscription Confirmed!" if status_class == "success" else "Confirmation Failed"}</h1>
-        <p>{result['message']}</p>
+        <p>{html_mod.escape(result['message'])}</p>
         <a href="/feed" class="btn">View Obituaries</a>
     </div>
 </body>
@@ -530,7 +549,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 with open(filepath, 'r', encoding='utf-8') as f:
                     html = f.read()
                 # Inject email into the page via script
-                inject_script = f'<script>document.getElementById("emailDisplay").textContent = "{email}";</script>'
+                safe_email = html_mod.escape(email).replace('"', '&quot;').replace("'", "&#39;")
+                inject_script = f'<script>document.getElementById("emailDisplay").textContent = "{safe_email}";</script>'
                 html = html.replace('</body>', f'{inject_script}</body>')
                 content = html.encode('utf-8')
                 self.send_response(200)

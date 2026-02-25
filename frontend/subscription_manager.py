@@ -206,7 +206,7 @@ class EmailSubscriptionManager:
 
         try:
             cursor.execute('''
-                SELECT email, confirmed, frequency, locations FROM subscribers
+                SELECT email, confirmed, frequency, locations, subscribed_at FROM subscribers
                 WHERE confirmation_token = ?
             ''', (token,))
 
@@ -218,9 +218,21 @@ class EmailSubscriptionManager:
                     'message': 'Invalid or expired confirmation link'
                 }
 
-            email, confirmed, frequency, locations = result
+            email, confirmed, frequency, locations, subscribed_at = result
             frequency = frequency or 'daily'
             locations = locations or 'toronto,montreal'
+
+            # Token expires after 72 hours
+            if subscribed_at:
+                try:
+                    subscribed_time = datetime.fromisoformat(subscribed_at)
+                    if (datetime.now() - subscribed_time) > timedelta(hours=72):
+                        return {
+                            'status': 'error',
+                            'message': 'This confirmation link has expired. Please subscribe again.'
+                        }
+                except (ValueError, TypeError):
+                    pass
 
             if confirmed:
                 return {

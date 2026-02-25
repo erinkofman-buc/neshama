@@ -1876,6 +1876,17 @@
                 var email = emailInput.value.trim();
                 if (!email) return;
 
+                // Check consent checkbox explicitly
+                var consentBox = document.getElementById('consentCheckbox');
+                if (!consentBox || !consentBox.checked) {
+                    var errEl = document.getElementById('errorMessage');
+                    if (errEl) {
+                        errEl.textContent = 'Please check the consent box to continue.';
+                        errEl.classList.add('active');
+                    }
+                    return;
+                }
+
                 subscribeBtn.disabled = true;
                 subscribeBtn.textContent = 'Subscribing...';
 
@@ -1897,7 +1908,7 @@
                 fetch('/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, frequency: frequency, locations: locations.join(',') })
+                    body: JSON.stringify({ email: email, frequency: frequency, locations: locations.join(','), consent: true })
                 })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
