@@ -102,6 +102,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/icon-192.png': ('icon-192.png', 'image/png'),
         '/icon-512.png': ('icon-512.png', 'image/png'),
         '/apple-touch-icon.png': ('apple-touch-icon.png', 'image/png'),
+        '/og-image.png': ('og-image.png', 'image/png'),
         '/shiva/organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
         '/shiva/guide': ('shiva-guide.html', 'text/html'),
