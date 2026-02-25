@@ -308,6 +308,64 @@
         </div>
     </section>
 
+    <!-- Email Subscribe Section -->
+    <section class="section" aria-labelledby="subscribe-heading" style="background: var(--dark); color: var(--cream);">
+        <div class="container" style="max-width: 560px; text-align: center;">
+            <h2 class="section-heading reveal" id="subscribe-heading" style="color: var(--cream);">Stay informed</h2>
+            <p class="reveal reveal-d1" style="font-size: 1.05rem; color: rgba(251,246,240,0.7); margin-bottom: 2rem; line-height: 1.7;">
+                Receive updates when new obituaries are posted from Toronto and Montreal funeral homes. Free — unsubscribe anytime.
+            </p>
+            <form id="subscribeForm" class="reveal reveal-d2" style="text-align: left;">
+                <div id="subscribeError" style="display:none; background:rgba(239,83,80,0.15); border:1px solid rgba(239,83,80,0.4); color:#ffcdd2; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:0.95rem;"></div>
+                <input type="email" id="subscribeEmail" placeholder="Your email address" required autocomplete="email"
+                    style="width:100%; font-family:var(--font-body); font-size:1.05rem; padding:0.9rem 1.25rem; border:1.5px solid rgba(251,246,240,0.2); border-radius:8px; background:rgba(251,246,240,0.08); color:var(--cream); outline:none; margin-bottom:1.25rem; box-sizing:border-box;">
+
+                <div style="margin-bottom:1.25rem;">
+                    <p style="font-family:var(--font-heading); font-size:0.95rem; color:rgba(251,246,240,0.55); margin-bottom:0.6rem; letter-spacing:0.05em; text-transform:uppercase;">Frequency</p>
+                    <label style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; cursor:pointer; font-size:1rem; color:var(--cream);">
+                        <input type="radio" name="frequency" value="daily" checked style="accent-color:var(--terracotta); width:18px; height:18px;">
+                        Daily — who passed today
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:1rem; color:var(--cream);">
+                        <input type="radio" name="frequency" value="weekly" style="accent-color:var(--terracotta); width:18px; height:18px;">
+                        Weekly — community roundup
+                    </label>
+                </div>
+
+                <div style="margin-bottom:1.25rem;">
+                    <p style="font-family:var(--font-heading); font-size:0.95rem; color:rgba(251,246,240,0.55); margin-bottom:0.6rem; letter-spacing:0.05em; text-transform:uppercase;">Location</p>
+                    <label style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; cursor:pointer; font-size:1rem; color:var(--cream);">
+                        <input type="checkbox" name="location" value="toronto" checked style="accent-color:var(--terracotta); width:18px; height:18px;">
+                        Toronto (Steeles, Benjamin's)
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:1rem; color:var(--cream);">
+                        <input type="checkbox" name="location" value="montreal" checked style="accent-color:var(--terracotta); width:18px; height:18px;">
+                        Montreal (Paperman's)
+                    </label>
+                </div>
+
+                <label style="display:flex; align-items:flex-start; gap:0.6rem; margin-bottom:1.25rem; cursor:pointer; font-size:0.9rem; color:rgba(251,246,240,0.55); line-height:1.5;">
+                    <input type="checkbox" id="subscribeConsent" required style="accent-color:var(--terracotta); width:18px; height:18px; margin-top:2px; flex-shrink:0;">
+                    I consent to receive email updates from Neshama (contact@neshama.ca). Unsubscribe anytime with one click.
+                </label>
+
+                <button type="submit" id="subscribeBtn"
+                    style="width:100%; font-family:var(--font-heading); font-size:1.1rem; font-weight:500; padding:0.9rem; background:var(--terracotta); color:var(--cream); border:none; border-radius:8px; cursor:pointer; letter-spacing:0.03em; transition: background 0.25s ease, transform 0.25s ease;">
+                    Get Free Updates
+                </button>
+            </form>
+
+            <div id="subscribeSuccess" class="reveal" style="display:none; text-align:center; padding:2rem 0;">
+                <div style="font-size:2.5rem; margin-bottom:1rem;">&#x2709;&#xFE0F;</div>
+                <h3 style="font-family:var(--font-heading); font-size:1.5rem; color:var(--cream); margin-bottom:0.75rem;">Check your email</h3>
+                <p style="color:rgba(251,246,240,0.7); font-size:1rem; line-height:1.6;">
+                    We sent a confirmation to <strong id="subscribedEmail" style="color:var(--cream);"></strong><br>
+                    Click the link to start receiving <span id="subscribedFreq" style="color:var(--cream);"></span> updates<span id="subscribedLoc"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div class="footer-inner">
@@ -375,6 +433,87 @@
             window.addEventListener('scroll', function() {
                 nav.classList.toggle('scrolled', window.scrollY > 60);
             }, { passive: true });
+        }
+
+        // Subscribe form handler
+        var subscribeForm = document.getElementById('subscribeForm');
+        if (subscribeForm) {
+            subscribeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var emailInput = document.getElementById('subscribeEmail');
+                var btn = document.getElementById('subscribeBtn');
+                var errEl = document.getElementById('subscribeError');
+                var email = emailInput.value.trim();
+
+                if (!email) return;
+
+                // Check consent
+                var consent = document.getElementById('subscribeConsent');
+                if (!consent.checked) {
+                    errEl.textContent = 'Please check the consent box to continue.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                // Gather frequency
+                var freqRadios = document.querySelectorAll('input[name="frequency"]');
+                var frequency = 'daily';
+                freqRadios.forEach(function(r) { if (r.checked) frequency = r.value; });
+
+                // Gather locations
+                var locCheckboxes = document.querySelectorAll('input[name="location"]');
+                var locations = [];
+                locCheckboxes.forEach(function(cb) { if (cb.checked) locations.push(cb.value); });
+                if (locations.length === 0) {
+                    errEl.textContent = 'Please select at least one location.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                // Disable and show loading
+                btn.disabled = true;
+                btn.textContent = 'Subscribing...';
+                errEl.style.display = 'none';
+
+                fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        frequency: frequency,
+                        locations: locations.join(',')
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        subscribeForm.style.display = 'none';
+                        var successEl = document.getElementById('subscribeSuccess');
+                        successEl.style.display = 'block';
+                        successEl.classList.add('visible');
+                        document.getElementById('subscribedEmail').textContent = email;
+                        document.getElementById('subscribedFreq').textContent = frequency;
+                        var locSpan = document.getElementById('subscribedLoc');
+                        if (locations.length === 1) {
+                            locSpan.textContent = ' for ' + locations[0].charAt(0).toUpperCase() + locations[0].slice(1);
+                        } else {
+                            locSpan.textContent = ' for Toronto and Montreal';
+                        }
+                        localStorage.setItem('neshama_subscribed', 'true');
+                    } else {
+                        errEl.textContent = data.message || 'Something went wrong. Please try again.';
+                        errEl.style.display = 'block';
+                        btn.disabled = false;
+                        btn.textContent = 'Get Free Updates';
+                    }
+                })
+                .catch(function() {
+                    errEl.textContent = 'Unable to connect. Please try again.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Get Free Updates';
+                });
+            });
         }
 
         // Load recent obituaries

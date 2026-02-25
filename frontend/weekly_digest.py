@@ -1,42 +1,44 @@
 #!/usr/bin/env python3
 """
-Neshama Daily Email Digest
-Sends daily obituary updates to confirmed subscribers
-Run via cron: 0 7 * * * /path/to/daily_digest.py
+Neshama Weekly Email Digest
+Sends weekly obituary roundup to subscribers who chose weekly frequency.
+Run via cron: 0 9 * * 0 /path/to/weekly_digest.py  (every Sunday 9 AM)
 """
 
 import sqlite3
 from datetime import datetime, timedelta
+from collections import defaultdict
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from subscription_manager import EmailSubscriptionManager
 
-class DailyDigestSender:
+# Map location values to funeral home source names
+LOCATION_SOURCES = {
+    'toronto': ["Steeles Memorial Chapel", "Benjamin's Park Memorial Chapel"],
+    'montreal': ["Paperman & Sons"],
+}
+
+
+class WeeklyDigestSender:
     def __init__(self, db_path='neshama.db', sendgrid_api_key=None):
-        """Initialize daily digest sender"""
+        """Initialize weekly digest sender"""
         self.db_path = db_path
         self.sendgrid_api_key = sendgrid_api_key or os.environ.get('SENDGRID_API_KEY')
         self.from_email = 'erinkofman@gmail.com'
         self.from_name = 'Neshama'
         self.subscription_manager = EmailSubscriptionManager(db_path, sendgrid_api_key)
-        
-    # Map location values to funeral home source names
-    LOCATION_SOURCES = {
-        'toronto': ["Steeles Memorial Chapel", "Benjamin's Park Memorial Chapel"],
-        'montreal': ["Paperman & Sons"],
-    }
 
-    def get_new_obituaries(self, hours=24, location=None):
-        """Get obituaries posted in the last N hours, optionally filtered by location"""
+    def get_weekly_obituaries(self, location=None):
+        """Get obituaries posted in the last 7 days, optionally filtered by location"""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        cutoff_time = (datetime.now() - timedelta(hours=hours)).isoformat()
+        cutoff_time = (datetime.now() - timedelta(days=7)).isoformat()
 
-        if location and location in self.LOCATION_SOURCES:
-            sources = self.LOCATION_SOURCES[location]
+        if location and location in LOCATION_SOURCES:
+            sources = LOCATION_SOURCES[location]
             placeholders = ','.join('?' for _ in sources)
             cursor.execute(f'''
                 SELECT * FROM obituaries
@@ -55,55 +57,66 @@ class DailyDigestSender:
         conn.close()
 
         return obituaries
-    
-    def generate_email_html(self, obituaries):
-        """Generate HTML email content"""
+
+    def generate_weekly_html(self, obituaries):
+        """Generate HTML email content for weekly digest, grouped by day"""
         if not obituaries:
             return None
 
         count = len(obituaries)
+        now = datetime.now()
+        week_start = (now - timedelta(days=7)).strftime('%B %d')
+        week_end = now.strftime('%B %d, %Y')
 
-        # Build obituary rows
-        obit_rows = ''
+        # Group obituaries by day
+        by_day = defaultdict(list)
         for obit in obituaries:
-            # Name line
-            name = obit['deceased_name']
-            if obit.get('hebrew_name'):
-                name += ' \u05d6\u05f4\u05dc'
+            try:
+                updated = obit.get('last_updated', '')
+                if updated:
+                    day_key = updated[:10]  # YYYY-MM-DD
+                    by_day[day_key].append(obit)
+            except Exception:
+                by_day['unknown'].append(obit)
 
-            # Details
-            details = ''
-            if obit.get('hebrew_name'):
-                details += f'<p style="margin: 0 0 6px 0; font-size: 15px; color: #9e9488; direction: rtl; text-align: left;">{obit["hebrew_name"]}</p>'
+        # Sort days descending
+        sorted_days = sorted(by_day.keys(), reverse=True)
 
-            if obit.get('funeral_datetime'):
-                detail_text = f'Funeral: {obit["funeral_datetime"]}'
-                if obit.get('funeral_location'):
-                    detail_text += f' &mdash; {obit["funeral_location"]}'
-                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">{detail_text}</p>'
+        # Build day sections
+        day_sections = ''
+        for day_key in sorted_days:
+            day_obits = by_day[day_key]
+            try:
+                day_label = datetime.strptime(day_key, '%Y-%m-%d').strftime('%A, %B %d')
+            except ValueError:
+                day_label = day_key
 
-            if obit.get('shiva_info'):
-                shiva_preview = obit['shiva_info'][:150]
-                if len(obit['shiva_info']) > 150:
-                    shiva_preview += '...'
-                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Shiva: {shiva_preview}</p>'
+            obit_rows = ''
+            for obit in day_obits:
+                name = obit['deceased_name']
+                if obit.get('hebrew_name'):
+                    name += ' \u05d6\u05f4\u05dc'
 
-            if obit.get('burial_location'):
-                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Burial: {obit["burial_location"]}</p>'
+                details = ''
+                if obit.get('hebrew_name'):
+                    details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #9e9488; direction: rtl; text-align: left;">{obit["hebrew_name"]}</p>'
 
-            if obit.get('livestream_available'):
-                details += '<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Livestream available</p>'
+                source = obit.get('source', '')
 
-            # Source line
-            source = obit.get('source', '')
+                obit_rows += f'''
+        <tr><td style="padding: 16px 0; border-bottom: 1px solid #f0ebe5;">
+            <p style="margin: 0 0 2px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 17px; color: #3E2723;">{name}</p>
+            <p style="margin: 0 0 6px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; color: #9e9488;">{source}</p>
+            {details}
+            <p style="margin: 6px 0 0 0;"><a href="{obit['condolence_url']}" style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #3E2723; text-decoration: underline;">Read obituary</a></p>
+        </td></tr>'''
 
-            obit_rows += f'''
-    <tr><td style="padding: 24px 0; border-bottom: 1px solid #e8e0d8;">
-        <p style="margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 19px; color: #3E2723;">{name}</p>
-        <p style="margin: 0 0 10px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488;">{source}</p>
-        {details}
-        <p style="margin: 10px 0 0 0;"><a href="{obit['condolence_url']}" style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #3E2723; text-decoration: underline;">Read full obituary</a></p>
-    </td></tr>'''
+            day_sections += f'''
+    <!-- Day: {day_label} -->
+    <tr><td style="padding: 24px 0 8px 0;">
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; font-weight: 600; color: #5c534a; text-transform: uppercase; letter-spacing: 0.05em;">{day_label}</p>
+    </td></tr>
+    {obit_rows}'''
 
         html = f'''<!DOCTYPE html>
 <html>
@@ -123,12 +136,13 @@ class DailyDigestSender:
 
     <!-- Greeting -->
     <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
-        <p style="margin: 0 0 6px 0;">Good morning, {datetime.now().strftime('%B %d')}.</p>
-        <p style="margin: 0;">{count} new obituar{'y was' if count == 1 else 'ies were'} posted in the last 24 hours.</p>
+        <p style="margin: 0 0 6px 0;">This week in our community</p>
+        <p style="margin: 0; font-size: 14px; color: #9e9488;">{week_start} &ndash; {week_end}</p>
+        <p style="margin: 16px 0 0 0;">{count} obituar{'y was' if count == 1 else 'ies were'} posted this week.</p>
     </td></tr>
 
-    <!-- Obituaries -->
-    {obit_rows}
+    <!-- Obituaries by day -->
+    {day_sections}
 
     <!-- Footer links -->
     <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #5c534a; line-height: 1.7;">
@@ -149,49 +163,51 @@ class DailyDigestSender:
 </html>'''
 
         return html
-    
+
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content):
-        """Send digest email to a single subscriber"""
+        """Send weekly digest email to a single subscriber"""
         if not self.sendgrid_api_key:
-            print(f"⚠️  Would send digest to {email}")
+            print(f"  \u26a0\ufe0f  Would send weekly digest to {email}")
             return {'success': True, 'test_mode': True}
-        
-        # Replace unsubscribe URL
+
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"
         html_with_unsubscribe = html_content.replace('{{unsubscribe_url}}', unsubscribe_url)
-        
+
+        now = datetime.now()
+        week_start = (now - timedelta(days=7)).strftime('%b %d')
+        week_end = now.strftime('%b %d, %Y')
+
         try:
             message = Mail(
                 from_email=Email(self.from_email, self.from_name),
                 to_emails=To(email),
-                subject=f'Today in our community — {datetime.now().strftime("%B %d, %Y")}',
+                subject=f'This week in our community \u2014 {week_start}\u2013{week_end}',
                 html_content=Content("text/html", html_with_unsubscribe)
             )
-            
-            # Add unsubscribe header for email clients
+
             message.add_header('List-Unsubscribe', f'<{unsubscribe_url}>')
-            
+
             sg = SendGridAPIClient(self.sendgrid_api_key)
             response = sg.send(message)
-            
+
             return {'success': True, 'status_code': response.status_code}
-            
+
         except Exception as e:
-            print(f"❌ Failed to send to {email}: {str(e)}")
+            print(f"\u274c Failed to send to {email}: {str(e)}")
             return {'success': False, 'error': str(e)}
-    
-    def send_daily_digest(self):
-        """Send daily digest to daily-frequency subscribers, filtered by location"""
+
+    def send_weekly_digest(self):
+        """Send weekly digest to weekly-frequency subscribers, filtered by location"""
         print(f"\n{'='*70}")
-        print(f" NESHAMA DAILY DIGEST")
+        print(f" NESHAMA WEEKLY DIGEST")
         print(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*70}\n")
 
-        # Get all new obituaries (unfiltered) to check if there's anything new
-        all_obituaries = self.get_new_obituaries(hours=24)
+        # Check if there are any obituaries this week
+        all_obituaries = self.get_weekly_obituaries()
 
         if not all_obituaries:
-            print("ℹ️  No new obituaries in the last 24 hours. Skipping email send.")
+            print("\u2139\ufe0f  No new obituaries in the last 7 days. Skipping email send.")
             print(f"\n{'='*70}\n")
             return {
                 'status': 'skipped',
@@ -199,15 +215,15 @@ class DailyDigestSender:
                 'subscribers_count': 0
             }
 
-        print(f"📰 Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
+        print(f"\ud83d\udcf0 Found {len(all_obituaries)} obituar{'y' if len(all_obituaries) == 1 else 'ies'} this week")
 
-        # Pre-fetch location-filtered obituary lists
-        toronto_obits = self.get_new_obituaries(hours=24, location='toronto')
-        montreal_obits = self.get_new_obituaries(hours=24, location='montreal')
+        # Pre-fetch location-filtered lists
+        toronto_obits = self.get_weekly_obituaries(location='toronto')
+        montreal_obits = self.get_weekly_obituaries(location='montreal')
 
-        # Get daily subscribers with preferences
-        daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
-        print(f"📧 Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
+        # Get weekly subscribers with preferences
+        weekly_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='weekly')
+        print(f"\ud83d\udce7 Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -216,7 +232,7 @@ class DailyDigestSender:
         failed_count = 0
         skipped_count = 0
 
-        for email, unsubscribe_token, frequency, locations in daily_subscribers:
+        for email, unsubscribe_token, frequency, locations in weekly_subscribers:
             locations = locations or 'toronto,montreal'
             loc_list = [l.strip() for l in locations.split(',')]
 
@@ -227,7 +243,7 @@ class DailyDigestSender:
             if 'montreal' in loc_list:
                 subscriber_obits.extend(montreal_obits)
 
-            # Deduplicate by id and sort by last_updated desc
+            # Deduplicate by id and sort
             seen = set()
             unique_obits = []
             for o in subscriber_obits:
@@ -238,16 +254,15 @@ class DailyDigestSender:
 
             if not unique_obits:
                 skipped_count += 1
-                print(f"  ⏭️  {email} — no obits for {locations}")
+                print(f"  \u23ed\ufe0f  {email} \u2014 no obits for {locations}")
                 continue
 
-            # Generate per-subscriber email HTML
-            html_content = self.generate_email_html(unique_obits)
+            html_content = self.generate_weekly_html(unique_obits)
             result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content)
 
             if result.get('success'):
                 sent_count += 1
-                print(f"  ✅ {email} ({len(unique_obits)} obits)")
+                print(f"  \u2705 {email} ({len(unique_obits)} obits)")
                 cursor.execute('''
                     UPDATE subscribers
                     SET last_email_sent = ?
@@ -255,7 +270,7 @@ class DailyDigestSender:
                 ''', (datetime.now().isoformat(), email))
             else:
                 failed_count += 1
-                print(f"  ❌ {email} — {result.get('error', 'Unknown error')}")
+                print(f"  \u274c {email} \u2014 {result.get('error', 'Unknown error')}")
 
         conn.commit()
         conn.close()
@@ -263,7 +278,7 @@ class DailyDigestSender:
         print(f"\n{'='*70}")
         print(f" SUMMARY")
         print(f"{'='*70}")
-        print(f" Obituaries: {len(all_obituaries)}")
+        print(f" Obituaries this week: {len(all_obituaries)}")
         print(f" Sent: {sent_count}")
         print(f" Skipped (no matching obits): {skipped_count}")
         print(f" Failed: {failed_count}")
@@ -278,6 +293,7 @@ class DailyDigestSender:
             'subscribers_failed': failed_count
         }
 
+
 if __name__ == '__main__':
-    sender = DailyDigestSender()
-    result = sender.send_daily_digest()
+    sender = WeeklyDigestSender()
+    result = sender.send_weekly_digest()

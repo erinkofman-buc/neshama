@@ -425,17 +425,23 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     # ── API: Email Subscriptions (Double Opt-In) ─────────────
 
     def handle_subscribe(self, body):
-        """Handle email subscription with double opt-in"""
+        """Handle email subscription with double opt-in and preferences"""
         try:
             data = json.loads(body)
             email = data.get('email', '').strip().lower()
+            frequency = data.get('frequency', 'daily')
+            locations = data.get('locations', 'toronto,montreal')
+
+            # Normalize locations: accept list or comma-string
+            if isinstance(locations, list):
+                locations = ','.join(locations)
 
             if not email or '@' not in email:
                 self.send_json_response({'status': 'error', 'message': 'Invalid email'}, 400)
                 return
 
             if EMAIL_AVAILABLE:
-                result = subscription_mgr.subscribe(email)
+                result = subscription_mgr.subscribe(email, frequency, locations)
                 if result.get('status') == 'success' and SHIVA_AVAILABLE:
                     shiva_mgr._trigger_backup()
                 self.send_json_response(result)
@@ -446,16 +452,16 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 cursor = conn.cursor()
                 now = datetime.now().isoformat()
                 cursor.execute('''
-                    INSERT OR IGNORE INTO subscribers (email, confirmed, subscribed_at, confirmed_at)
-                    VALUES (?, TRUE, ?, ?)
-                ''', (email, now, now))
+                    INSERT OR IGNORE INTO subscribers (email, confirmed, subscribed_at, confirmed_at, frequency, locations)
+                    VALUES (?, TRUE, ?, ?, ?, ?)
+                ''', (email, now, now, frequency, locations))
                 conn.commit()
                 conn.close()
                 if SHIVA_AVAILABLE:
                     shiva_mgr._trigger_backup()
                 self.send_json_response({
                     'status': 'success',
-                    'message': 'Successfully subscribed to daily updates!'
+                    'message': 'Successfully subscribed!'
                 })
 
         except json.JSONDecodeError:

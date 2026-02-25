@@ -7,7 +7,8 @@ Handles email subscriptions with double opt-in via SendGrid
 import sqlite3
 import hashlib
 import secrets
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 import os
 import json
 
@@ -16,6 +17,9 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 
 class EmailSubscriptionManager:
+    # Rate limiting: max 3 subscribe attempts per email per 10 minutes
+    _subscribe_attempts = {}
+
     def __init__(self, db_path='neshama.db', sendgrid_api_key=None):
         """Initialize subscription manager"""
         self.db_path = db_path
@@ -48,9 +52,19 @@ class EmailSubscriptionManager:
             )
         ''')
         
+        # Migration: add frequency and locations columns if missing
+        cursor.execute("PRAGMA table_info(subscribers)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'frequency' not in columns:
+            cursor.execute("ALTER TABLE subscribers ADD COLUMN frequency TEXT DEFAULT 'daily'")
+            print("  DB migration: added 'frequency' column to subscribers")
+        if 'locations' not in columns:
+            cursor.execute("ALTER TABLE subscribers ADD COLUMN locations TEXT DEFAULT 'toronto,montreal'")
+            print("  DB migration: added 'locations' column to subscribers")
+
         # Create index for faster lookups
         cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_subscriber_email 
+            CREATE INDEX IF NOT EXISTS idx_subscriber_email
             ON subscribers(email)
         ''')
         
@@ -66,41 +80,65 @@ class EmailSubscriptionManager:
         """Generate secure random token"""
         return secrets.token_urlsafe(32)
     
-    def subscribe(self, email):
+    def subscribe(self, email, frequency='daily', locations='toronto,montreal'):
         """
-        Subscribe a new email address
+        Subscribe a new email address with preferences
         Returns: {'status': 'success'/'error', 'message': '...'}
         """
         email = email.lower().strip()
-        
-        # Validate email format (basic)
-        if '@' not in email or '.' not in email:
+
+        # Rate limiting: max 3 attempts per email per 10 minutes
+        now = datetime.now()
+        attempts = self._subscribe_attempts.get(email, [])
+        # Purge old attempts
+        attempts = [t for t in attempts if (now - t).total_seconds() < 600]
+        if len(attempts) >= 3:
             return {
                 'status': 'error',
-                'message': 'Invalid email address'
+                'message': 'Too many attempts. Please try again in a few minutes.'
             }
-        
+        attempts.append(now)
+        self._subscribe_attempts[email] = attempts
+
+        # Validate email with proper regex
+        if not re.match(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$', email):
+            return {
+                'status': 'error',
+                'message': 'Please enter a valid email address'
+            }
+
+        # Validate frequency
+        if frequency not in ('daily', 'weekly'):
+            frequency = 'daily'
+
+        # Validate locations
+        valid_locs = {'toronto', 'montreal'}
+        loc_list = [l.strip() for l in locations.split(',') if l.strip() in valid_locs]
+        if not loc_list:
+            loc_list = ['toronto', 'montreal']
+        locations = ','.join(sorted(loc_list))
+
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         try:
             # Check if already exists
             cursor.execute('SELECT confirmed, unsubscribed_at FROM subscribers WHERE email = ?', (email,))
             existing = cursor.fetchone()
-            
+
             if existing:
                 confirmed, unsubscribed_at = existing
-                
+
                 if confirmed and not unsubscribed_at:
-                    # Already subscribed and confirmed - send reminder email
+                    # Already subscribed and confirmed — send reminder
                     self.send_already_subscribed_email(email)
-                    # Don't tell them they're already subscribed (privacy)
+                    # Don't reveal they're already subscribed (privacy)
                     return {
                         'status': 'success',
                         'message': 'Check your email to confirm'
                     }
                 elif unsubscribed_at:
-                    # Previously unsubscribed - allow resubscription
+                    # Previously unsubscribed — allow resubscription
                     confirmation_token = self.generate_token()
                     cursor.execute('''
                         UPDATE subscribers SET
@@ -108,40 +146,46 @@ class EmailSubscriptionManager:
                             confirmation_token = ?,
                             subscribed_at = ?,
                             unsubscribed_at = NULL,
-                            bounce_count = 0
+                            bounce_count = 0,
+                            frequency = ?,
+                            locations = ?
                         WHERE email = ?
-                    ''', (confirmation_token, datetime.now().isoformat(), email))
+                    ''', (confirmation_token, now.isoformat(), frequency, locations, email))
                 else:
-                    # Exists but not confirmed - resend confirmation
+                    # Exists but not confirmed — resend confirmation
                     confirmation_token = self.generate_token()
                     cursor.execute('''
                         UPDATE subscribers SET
                             confirmation_token = ?,
-                            subscribed_at = ?
+                            subscribed_at = ?,
+                            frequency = ?,
+                            locations = ?
                         WHERE email = ?
-                    ''', (confirmation_token, datetime.now().isoformat(), email))
+                    ''', (confirmation_token, now.isoformat(), frequency, locations, email))
             else:
                 # New subscriber
                 confirmation_token = self.generate_token()
                 unsubscribe_token = self.generate_token()
-                
+
                 cursor.execute('''
                     INSERT INTO subscribers (
                         email, confirmed, confirmation_token,
-                        subscribed_at, unsubscribe_token
-                    ) VALUES (?, FALSE, ?, ?, ?)
-                ''', (email, confirmation_token, datetime.now().isoformat(), unsubscribe_token))
-            
+                        subscribed_at, unsubscribe_token,
+                        frequency, locations
+                    ) VALUES (?, FALSE, ?, ?, ?, ?, ?)
+                ''', (email, confirmation_token, now.isoformat(),
+                      unsubscribe_token, frequency, locations))
+
             conn.commit()
-            
+
             # Send confirmation email
-            self.send_confirmation_email(email, confirmation_token)
-            
+            self.send_confirmation_email(email, confirmation_token, frequency, locations)
+
             return {
                 'status': 'success',
                 'message': 'Check your email to confirm your subscription'
             }
-            
+
         except Exception as e:
             conn.rollback()
             print(f"Subscription error: {str(e)}")
@@ -159,29 +203,31 @@ class EmailSubscriptionManager:
         """
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         try:
             cursor.execute('''
-                SELECT email, confirmed FROM subscribers 
+                SELECT email, confirmed, frequency, locations FROM subscribers
                 WHERE confirmation_token = ?
             ''', (token,))
-            
+
             result = cursor.fetchone()
-            
+
             if not result:
                 return {
                     'status': 'error',
                     'message': 'Invalid or expired confirmation link'
                 }
-            
-            email, confirmed = result
-            
+
+            email, confirmed, frequency, locations = result
+            frequency = frequency or 'daily'
+            locations = locations or 'toronto,montreal'
+
             if confirmed:
                 return {
                     'status': 'success',
                     'message': 'You are already subscribed!'
                 }
-            
+
             # Confirm subscription
             cursor.execute('''
                 UPDATE subscribers SET
@@ -189,17 +235,24 @@ class EmailSubscriptionManager:
                     confirmed_at = ?
                 WHERE confirmation_token = ?
             ''', (datetime.now().isoformat(), token))
-            
+
             conn.commit()
-            
+
             # Send welcome email
             self.send_welcome_email(email)
-            
+
+            # Build a human-readable preference summary
+            loc_parts = [l.strip().title() for l in locations.split(',')]
+            if len(loc_parts) == 2:
+                loc_str = f'{loc_parts[0]} and {loc_parts[1]}'
+            else:
+                loc_str = loc_parts[0] if loc_parts else 'Toronto and Montreal'
+
             return {
                 'status': 'success',
-                'message': f'Successfully subscribed! You will receive daily updates at {email}'
+                'message': f'Successfully subscribed! You will receive {frequency} updates for {loc_str} at {email}'
             }
-            
+
         except Exception as e:
             conn.rollback()
             print(f"Confirmation error: {str(e)}")
@@ -260,15 +313,27 @@ class EmailSubscriptionManager:
         finally:
             conn.close()
     
-    def send_confirmation_email(self, email, token):
+    def send_confirmation_email(self, email, token, frequency='daily', locations='toronto,montreal'):
         """Send double opt-in confirmation email"""
         if not self.sendgrid_api_key:
             print(f"⚠️  Would send confirmation email to {email} with token {token}")
             print(f"   Confirmation link: https://neshama.ca/confirm/{token}")
+            print(f"   Preferences: {frequency}, {locations}")
             return
-        
+
         confirmation_url = f"https://neshama.ca/confirm/{token}"
-        
+
+        # Build location description
+        loc_parts = [l.strip().title() for l in locations.split(',')]
+        if len(loc_parts) == 2:
+            loc_str = 'Toronto and Montreal'
+        elif 'toronto' in locations:
+            loc_str = 'Toronto'
+        else:
+            loc_str = 'Montreal'
+
+        freq_desc = 'a quiet daily update' if frequency == 'daily' else 'a weekly roundup'
+
         html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -289,7 +354,7 @@ class EmailSubscriptionManager:
     <tr><td style="padding: 32px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
         <p style="margin: 0 0 20px 0;">Thank you for signing up.</p>
 
-        <p style="margin: 0 0 20px 0;">Neshama sends a quiet daily update when new obituaries are posted from Toronto-area funeral homes, including funeral times, shiva details, and links to full obituaries.</p>
+        <p style="margin: 0 0 20px 0;">Neshama sends {freq_desc} when new obituaries are posted from {loc_str} funeral homes, including funeral times, shiva details, and links to full obituaries.</p>
 
         <p style="margin: 0 0 28px 0;">To start receiving these updates, please confirm your email address.</p>
 
@@ -348,18 +413,50 @@ class EmailSubscriptionManager:
         """Get list of all confirmed subscribers"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         cursor.execute('''
-            SELECT email, subscribed_at, last_email_sent 
-            FROM subscribers 
-            WHERE confirmed = TRUE 
+            SELECT email, subscribed_at, last_email_sent
+            FROM subscribers
+            WHERE confirmed = TRUE
             AND unsubscribed_at IS NULL
             ORDER BY subscribed_at DESC
         ''')
-        
+
         subscribers = cursor.fetchall()
         conn.close()
-        
+
+        return subscribers
+
+    def get_subscribers_by_preference(self, frequency=None, location=None):
+        """
+        Get confirmed subscribers filtered by frequency and/or location.
+        Returns: list of (email, unsubscribe_token, frequency, locations) tuples
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        query = '''
+            SELECT email, unsubscribe_token, frequency, locations
+            FROM subscribers
+            WHERE confirmed = TRUE
+            AND unsubscribed_at IS NULL
+        '''
+        params = []
+
+        if frequency:
+            query += " AND frequency = ?"
+            params.append(frequency)
+
+        if location:
+            query += " AND locations LIKE ?"
+            params.append(f'%{location}%')
+
+        query += " ORDER BY subscribed_at DESC"
+
+        cursor.execute(query, params)
+        subscribers = cursor.fetchall()
+        conn.close()
+
         return subscribers
     
     def get_stats(self):

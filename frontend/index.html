@@ -1702,9 +1702,33 @@
                 <form id="emailForm" class="email-form">
                     <input type="email" id="emailInput" class="email-input" placeholder="Enter your email address" required aria-required="true" autocomplete="email">
 
+                    <div style="margin: 0.75rem 0; font-size: 0.95rem;">
+                        <p style="font-weight: 600; color: #3E2723; margin-bottom: 0.4rem;">Frequency</p>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; cursor: pointer;">
+                            <input type="radio" name="popupFrequency" value="daily" checked style="accent-color: #D2691E;">
+                            Daily — who passed today
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="popupFrequency" value="weekly" style="accent-color: #D2691E;">
+                            Weekly — community roundup
+                        </label>
+                    </div>
+
+                    <div style="margin: 0.75rem 0; font-size: 0.95rem;">
+                        <p style="font-weight: 600; color: #3E2723; margin-bottom: 0.4rem;">Location</p>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; cursor: pointer;">
+                            <input type="checkbox" name="popupLocation" value="toronto" checked style="accent-color: #D2691E;">
+                            Toronto (Steeles, Benjamin's)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="popupLocation" value="montreal" checked style="accent-color: #D2691E;">
+                            Montreal (Paperman's)
+                        </label>
+                    </div>
+
                     <label class="consent-label">
                         <input type="checkbox" id="consentCheckbox" required aria-required="true">
-                        <span>I consent to receive daily email digests from Neshama (contact@neshama.ca). Unsubscribe anytime.</span>
+                        <span>I consent to receive email updates from Neshama (contact@neshama.ca). Unsubscribe anytime.</span>
                     </label>
 
                     <div class="popup-buttons">
@@ -1859,10 +1883,21 @@
                 var errEl = document.getElementById('errorMessage');
                 if (errEl) errEl.classList.remove('active');
 
+                // Gather frequency
+                var freqRadios = document.querySelectorAll('input[name="popupFrequency"]');
+                var frequency = 'daily';
+                freqRadios.forEach(function(r) { if (r.checked) frequency = r.value; });
+
+                // Gather locations
+                var locBoxes = document.querySelectorAll('input[name="popupLocation"]');
+                var locations = [];
+                locBoxes.forEach(function(cb) { if (cb.checked) locations.push(cb.value); });
+                if (locations.length === 0) locations = ['toronto', 'montreal'];
+
                 fetch('/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ email: email, frequency: frequency, locations: locations.join(',') })
                 })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
