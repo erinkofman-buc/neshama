@@ -215,7 +215,7 @@ class WeeklyDigestSender:
                 'subscribers_count': 0
             }
 
-        print(f"\ud83d\udcf0 Found {len(all_obituaries)} obituar{'y' if len(all_obituaries) == 1 else 'ies'} this week")
+        print(f"📰 Found {len(all_obituaries)} obituar{'y' if len(all_obituaries) == 1 else 'ies'} this week")
 
         # Pre-fetch location-filtered lists
         toronto_obits = self.get_weekly_obituaries(location='toronto')
@@ -223,7 +223,7 @@ class WeeklyDigestSender:
 
         # Get weekly subscribers with preferences
         weekly_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='weekly')
-        print(f"\ud83d\udce7 Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
+        print(f"📧 Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
