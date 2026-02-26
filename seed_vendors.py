@@ -209,9 +209,9 @@ VENDORS = [
         'neighborhood': 'Thornhill',
         'phone': '(416) 785-6161',
         'website': 'https://www.jemsalads.com',
-        'kosher_status': 'COR',
+        'kosher_status': 'not_certified',
         'delivery': 1,
-        'delivery_area': 'Thornhill/Vaughan,North York,Toronto',
+        'delivery_area': 'GTA',
         'featured': 1,
     },
     {
@@ -359,6 +359,18 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA-wide',
     },
+    {
+        'name': 'Sonny Langers Dairy & Vegetarian Caterers',
+        'category': 'Caterers',
+        'description': 'Full-service dairy and vegetarian catering since 1985. Dedicated shiva menu includes smoked salmon, egg salad, bagels, fruit display, coffee service, and baked goods. Minimum 10 people.',
+        'address': '180 Steeles Ave W Unit 12, Thornhill ON',
+        'neighborhood': 'Thornhill',
+        'phone': '(905) 881-4356',
+        'website': 'https://sonnylangers.com',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'Toronto,North York,Thornhill/Vaughan,Hamilton,GTA',
+    },
     # Italian
     {
         'name': 'Village Pizza Kosher',
@@ -407,6 +419,18 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+    },
+    {
+        'name': 'Tutto Pronto',
+        'category': 'Italian',
+        'description': 'Modern southern Italian catering in North York. Known for arancini, pasta, veal, eggplant parm, and fresh salads. Popular for shiva in the Avenue Rd corridor. All food prepared fresh day-of.',
+        'address': '1718 Avenue Rd, North York ON',
+        'neighborhood': 'North York',
+        'phone': '(416) 782-2227',
+        'website': 'https://tuttopronto.ca',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
     },
     # Middle Eastern / Israeli
     {
