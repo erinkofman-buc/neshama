@@ -24,7 +24,7 @@ class EmailSubscriptionManager:
         """Initialize subscription manager"""
         self.db_path = db_path
         self.sendgrid_api_key = sendgrid_api_key or os.environ.get('SENDGRID_API_KEY')
-        self.from_email = 'erinkofman@gmail.com'
+        self.from_email = 'updates@neshama.ca'
         self.from_name = 'Neshama'
         
         if not self.sendgrid_api_key:

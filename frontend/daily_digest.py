@@ -17,7 +17,7 @@ class DailyDigestSender:
         """Initialize daily digest sender"""
         self.db_path = db_path
         self.sendgrid_api_key = sendgrid_api_key or os.environ.get('SENDGRID_API_KEY')
-        self.from_email = 'erinkofman@gmail.com'
+        self.from_email = 'updates@neshama.ca'
         self.from_name = 'Neshama'
         self.subscription_manager = EmailSubscriptionManager(db_path, sendgrid_api_key)
         

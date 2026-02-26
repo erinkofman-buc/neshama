@@ -1419,7 +1419,7 @@ button:hover{background:#c45a1a}</style></head>
                 from sendgrid import SendGridAPIClient
                 from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
                 msg = Mail(
-                    from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                    from_email=Email('updates@neshama.ca', 'Neshama'),
                     to_emails=To(vendor_email),
                     subject=subject,
                     html_content=Content("text/html", html)
@@ -1836,7 +1836,7 @@ button:hover{background:#c45a1a}</style></head>
             </div>"""
 
             message = Mail(
-                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['organizer_email']),
                 subject=f"Shiva access request from {result['requester_name']}",
                 html_content=Content("text/html", html)
@@ -1872,7 +1872,7 @@ button:hover{background:#c45a1a}</style></head>
             </div>"""
 
             message = Mail(
-                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['requester_email']),
                 subject=f"You've been approved \u2014 {result['family_name']} shiva details",
                 html_content=Content("text/html", html)
@@ -1902,7 +1902,7 @@ button:hover{background:#c45a1a}</style></head>
             </div>"""
 
             message = Mail(
-                from_email=Email('erinkofman@gmail.com', 'Neshama'),
+                from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['requester_email']),
                 subject='Shiva access update',
                 html_content=Content("text/html", html)

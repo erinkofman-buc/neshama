@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timedelta
 
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'neshama.db'))
-FROM_EMAIL = 'erinkofman@gmail.com'
+FROM_EMAIL = 'updates@neshama.ca'
 FROM_NAME = 'Neshama'
 
 
