@@ -397,6 +397,8 @@
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
+            .nav-divider { display: none; }
+            .nav-links .nav-secondary { opacity: 1; font-size: 1rem; }
             .nav { gap: 1rem; }
             .nav-links { gap: 1rem; }
             .hero h1 { font-size: 2.2rem; }
@@ -423,9 +425,10 @@
         <a href="/" class="nav-brand">Neshama</a>
         <div class="nav-links">
             <a href="/feed">Listings</a>
-            <a href="/shiva-essentials">Essentials</a>
-            <a href="/gifts">Gifts</a>
-            <a href="/about">About</a>
+            <span class="nav-divider"></span>
+            <a href="/shiva-essentials" class="nav-secondary">Essentials</a>
+            <a href="/gifts" class="nav-secondary">Gifts</a>
+            <a href="/about" class="nav-secondary">About</a>
             <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
         </div>
     </nav>

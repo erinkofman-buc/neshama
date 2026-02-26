@@ -178,6 +178,11 @@
 
         .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
         .skip-link:focus { top: 16px; }
+    
+        @media (max-width: 600px) {
+            .nav-divider { display: none; }
+            .nav-links .nav-secondary { opacity: 1; font-size: 1rem; }
+        }
     </style>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Neshama — Every Soul Remembered">
@@ -192,9 +197,10 @@
         <a href="/" class="nav-brand">Neshama</a>
         <div class="nav-links">
             <a href="/feed">Listings</a>
-            <a href="/shiva-essentials">Essentials</a>
-            <a href="/gifts">Gifts</a>
-            <a href="/about">About</a>
+            <span class="nav-divider"></span>
+            <a href="/shiva-essentials" class="nav-secondary">Essentials</a>
+            <a href="/gifts" class="nav-secondary">Gifts</a>
+            <a href="/about" class="nav-secondary">About</a>
             <a href="/shiva/organize" class="nav-cta">Organize Shiva</a>
         </div>
     </nav>

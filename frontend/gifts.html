@@ -32,6 +32,24 @@
         .nav-links a { color: var(--sage-dark); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--terracotta); }
 
+        .nav-links .nav-secondary {
+            font-size: 0.92rem;
+            opacity: 0.7;
+        }
+
+        .nav-links .nav-secondary:hover {
+            opacity: 1;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 18px;
+            background: var(--light-taupe);
+            opacity: 0.5;
+            align-self: center;
+        }
+
+
         /* Hero */
         .page-hero { text-align: center; padding: 2.5rem 1.5rem 1.5rem; }
         .page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem; }
@@ -99,6 +117,8 @@
         .no-results h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--dark-brown); }
 
         @media (max-width: 600px) {
+            .nav-divider { display: none; }
+            .nav-links .nav-secondary { opacity: 1; font-size: 1rem; }
             .nav-links { gap: 0.8rem; font-size: 0.9rem; }
             .vendor-grid { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
             .category-pills { padding: 0 0 1rem; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-padding: 0 1rem; gap: 0.4rem; }
@@ -122,9 +142,10 @@
     <a href="/" class="nav-brand">Neshama</a>
     <div class="nav-links">
         <a href="/feed">Listings</a>
-        <a href="/shiva-essentials">Essentials</a>
-        <a href="/gifts">Gifts</a>
-        <a href="/about">About</a>
+        <span class="nav-divider"></span>
+        <a href="/shiva-essentials" class="nav-secondary">Essentials</a>
+        <a href="/gifts" class="nav-secondary">Gifts</a>
+        <a href="/about" class="nav-secondary">About</a>
         <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
     </div>
 </nav>
