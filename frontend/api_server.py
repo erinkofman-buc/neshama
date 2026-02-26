@@ -18,6 +18,7 @@ from datetime import datetime
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
+SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 
 # Import vendor seed script
 try:
@@ -140,6 +141,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.search_obituaries(search_query)
         elif path == '/api/status':
             self.get_status()
+        elif path == '/api/scraper-status':
+            self.get_scraper_status()
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
         elif path == '/api/community-stats':
@@ -417,6 +420,38 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     'by_source': by_source,
                     'total_comments': total_comments,
                     'total_subscribers': sub_count
+                }
+            })
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def get_scraper_status(self):
+        """Get last scraper run time for freshness indicator"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            last_run = None
+            try:
+                cursor.execute('''
+                    SELECT MAX(run_time) as last_run
+                    FROM scraper_log
+                    WHERE status = 'success'
+                ''')
+                row = cursor.fetchone()
+                if row and row[0]:
+                    last_run = row[0]
+            except Exception:
+                pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'last_run': last_run,
+                    'interval_minutes': SCRAPE_INTERVAL // 60
                 }
             })
         except Exception as e:
@@ -1961,6 +1996,32 @@ def auto_scrape_on_startup():
         print(f"[Startup] Auto-scrape error (non-fatal): {e}")
 
 
+def periodic_scraper():
+    """Run scrapers every SCRAPE_INTERVAL seconds in background thread.
+    Keeps obituary data fresh between server restarts."""
+    import time as _time
+    project_root = os.path.join(FRONTEND_DIR, '..')
+    while True:
+        _time.sleep(SCRAPE_INTERVAL)
+        try:
+            print(f"[Scraper] Periodic scrape starting at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            result = subprocess.run(
+                ['python', 'master_scraper.py'],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+                timeout=300
+            )
+            if result.returncode == 0:
+                print(f"[Scraper] Periodic scrape completed successfully")
+            else:
+                print(f"[Scraper] Scrape had issues: {result.stderr[:200]}")
+        except subprocess.TimeoutExpired:
+            print("[Scraper] Periodic scrape timed out after 300s (non-fatal)")
+        except Exception as e:
+            print(f"[Scraper] Periodic scrape error (non-fatal): {e}")
+
+
 def run_server(port=None):
     """Start the API server"""
     if port is None:
@@ -1971,6 +2032,11 @@ def run_server(port=None):
     # Launch auto-scrape in background thread (non-blocking)
     scrape_thread = threading.Thread(target=auto_scrape_on_startup, daemon=True)
     scrape_thread.start()
+
+    # Launch periodic scraper (every 20 min by default)
+    periodic_thread = threading.Thread(target=periodic_scraper, daemon=True)
+    periodic_thread.start()
+    print(f"[Scraper] Periodic scraper started (every {SCRAPE_INTERVAL // 60} minutes)")
 
     print(f"\n{'='*60}")
     print(f" NESHAMA API SERVER v2.0")
@@ -1995,6 +2061,7 @@ def run_server(port=None):
     print(f"   GET  /api/obituary/{{id}}    - Single obituary")
     print(f"   GET  /api/search?q=name    - Search")
     print(f"   GET  /api/status           - Database stats")
+    print(f"   GET  /api/scraper-status   - Scraper freshness info")
     print(f"   GET  /api/community-stats  - Community statistics")
     print(f"   GET  /api/tributes/{{id}}    - Tributes for obituary")
     print(f"   GET  /api/tributes/counts  - All tribute counts")

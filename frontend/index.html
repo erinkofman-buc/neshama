@@ -977,8 +977,27 @@
         .card-source {
             font-size: 0.85rem;
             color: var(--sage-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.15rem;
             letter-spacing: 0.01em;
+        }
+
+        .card-updated {
+            font-size: 0.78rem;
+            color: var(--sage-dark);
+            opacity: 0.65;
+            margin-bottom: 0.4rem;
+        }
+
+        .freshness-bar {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0.4rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--sage-dark);
+            opacity: 0.55;
         }
 
         .deceased-name {
@@ -1647,6 +1666,14 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         FRESHNESS INDICATOR
+         ════════════════════════════════════════════════════ -->
+    <div class="freshness-bar" id="freshnessBar" style="display:none;">
+        <span>Data refreshed every 20 minutes</span>
+        <span id="lastChecked"></span>
     </div>
 
     <!-- ════════════════════════════════════════════════════

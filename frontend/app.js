@@ -71,6 +71,9 @@ class NeshamaApp {
             if (data.status === 'success') {
                 this.allObituaries = data.data;
                 await this.loadTributeCounts();
+                this.loadScraperStatus();
+                // Refresh freshness indicator every 60 seconds
+                setInterval(() => this.loadScraperStatus(), 60000);
                 this.render();
             } else {
                 this.showError('Failed to load obituaries. Please try again.');
@@ -270,6 +273,7 @@ class NeshamaApp {
                 imageArea +
                 '<div class="card-body">' +
                     '<div class="card-source">' + this.escapeHtml(obit.source) + ' \u00b7 ' + timeAgo + '</div>' +
+                    '<div class="card-updated">Updated ' + this.formatTimestamp(obit.last_updated) + '</div>' +
                     '<h2 class="deceased-name">' + name + '</h2>' +
                     (hebrewName ? '<div class="hebrew-name">' + hebrewName + '</div>' : '') +
                     funeralLine +
@@ -345,6 +349,44 @@ class NeshamaApp {
         if (diffDays < 7) return diffDays + (diffDays === 1 ? ' day' : ' days') + ' ago';
 
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    formatTimestamp(dateString) {
+        var date = new Date(dateString);
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var yesterday = new Date(today.getTime() - 86400000);
+        var timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+        if (date >= today) return 'Today at ' + timeStr;
+        if (date >= yesterday) return 'Yesterday at ' + timeStr;
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + timeStr;
+    }
+
+    async loadScraperStatus() {
+        try {
+            var response = await fetch(this.apiBase + '/scraper-status');
+            var data = await response.json();
+            var bar = document.getElementById('freshnessBar');
+            if (!bar || data.status !== 'success') return;
+
+            var lastChecked = document.getElementById('lastChecked');
+            if (data.data.last_run && lastChecked) {
+                var lastRun = new Date(data.data.last_run);
+                var diffMin = Math.floor((new Date() - lastRun) / 60000);
+                if (diffMin < 1) {
+                    lastChecked.textContent = 'Last checked just now';
+                } else if (diffMin < 60) {
+                    lastChecked.textContent = 'Last checked ' + diffMin + ' min ago';
+                } else {
+                    var diffHrs = Math.floor(diffMin / 60);
+                    lastChecked.textContent = 'Last checked ' + diffHrs + (diffHrs === 1 ? ' hour' : ' hours') + ' ago';
+                }
+                bar.style.display = '';
+            }
+        } catch (e) {
+            // Non-critical — silently ignore
+        }
     }
 
     handleCardClick(id) {
