@@ -140,6 +140,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/gifts/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/sitemap.xml': ('sitemap.xml', 'application/xml'),
+        '/robots.txt': ('robots.txt', 'text/plain'),
     }
 
     def do_GET(self):
