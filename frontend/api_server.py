@@ -1641,12 +1641,109 @@ button:hover{background:#c45a1a}</style></head>
             if result['status'] == 'success':
                 shiva_mgr.track_event('meal_signup', support_id)
                 shiva_mgr._trigger_backup()
+                # Send confirmation email in background
+                threading.Thread(
+                    target=self._send_signup_confirmation,
+                    args=(data, result, support_id),
+                    daemon=True
+                ).start()
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def _send_signup_confirmation(self, signup_data, result, support_id):
+        """Send confirmation email to volunteer after meal signup (background)"""
+        try:
+            sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+            vol_email = signup_data.get('volunteer_email', '').strip()
+            vol_name = signup_data.get('volunteer_name', 'Friend')
+            meal_date = signup_data.get('meal_date', '')
+            meal_type = signup_data.get('meal_type', '')
+            meal_desc = signup_data.get('meal_description', '')
+            will_serve = signup_data.get('will_serve', False)
+            address = result.get('address', '')
+            instructions = result.get('special_instructions', '')
+            family_name = result.get('family_name', 'the family')
+
+            if not vol_email:
+                return
+
+            # Format date nicely
+            try:
+                from datetime import datetime as dt
+                d = dt.strptime(meal_date, '%Y-%m-%d')
+                formatted_date = d.strftime('%A, %B %d, %Y')
+            except Exception:
+                formatted_date = meal_date
+
+            will_serve_line = ''
+            if will_serve:
+                will_serve_line = '<p style="color:#558b2f;font-weight:600;margin-top:0.5rem;">You\'ve offered to help serve — the family will be so grateful.</p>'
+
+            instructions_block = ''
+            if instructions:
+                instructions_block = f'<p style="font-size:0.95rem;color:#8a9a8d;font-style:italic;margin-top:0.5rem;">{html_mod.escape(instructions)}</p>'
+
+            html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.8rem;font-weight:400;color:#3E2723;margin:0;">Thank You, {html_mod.escape(vol_name.split()[0])}</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">Your kindness means more than you know.</p>
+    </div>
+
+    <div style="background:#f1f8e9;border:2px solid #a5d6a7;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Your Meal Signup</p>
+        <p style="font-size:1.1rem;font-weight:600;margin:0;">{html_mod.escape(meal_type)} &middot; {html_mod.escape(formatted_date)}</p>
+        {('<p style="font-size:0.95rem;color:#3E2723;margin-top:0.3rem;">Bringing: ' + html_mod.escape(meal_desc) + '</p>') if meal_desc else ''}
+        {will_serve_line}
+    </div>
+
+    <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Shiva Location</p>
+        <p style="font-size:1.1rem;font-weight:600;margin:0;">{html_mod.escape(address)}</p>
+        {instructions_block}
+    </div>
+
+    <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">May their memory be a blessing</p>
+
+    <div style="text-align:center;margin-top:1rem;">
+        <a href="https://neshama.ca/shiva/{html_mod.escape(support_id)}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">View Meal Schedule</a>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+            plain_text = _html_to_plain(html_content)
+
+            if not sendgrid_key:
+                print(f"[Meal Signup Email] Would send confirmation to {vol_email}")
+                print(f"  {meal_type} on {formatted_date} for {family_name}")
+                return
+
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+            message = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(vol_email),
+                subject=f'Your meal signup for {family_name} - Neshama',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+
+            sg = SendGridAPIClient(sendgrid_key)
+            sg.send(message)
+            print(f"[Meal Signup] Confirmation email sent to {vol_email}")
+
+        except Exception as e:
+            print(f"[Meal Signup] Email error: {str(e)}")
 
     def handle_remove_signup(self, support_id, body):
         """Handle organizer removing a meal signup"""

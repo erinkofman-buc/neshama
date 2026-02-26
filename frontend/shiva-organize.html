@@ -712,12 +712,26 @@
         <p class="page-subtitle">Set up meal coordination for a family during their shiva</p>
         <p class="memorial-context" id="memorialContext" style="display: none;"></p>
 
+        <!-- Search Section (shown when no obituary context) -->
+        <div id="searchSection" style="display: none; margin-bottom: 2rem;">
+            <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
+                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Find the family</h2>
+                <p style="font-size: 0.92rem; color: var(--sage-dark); margin-bottom: 1rem;">Search for the family to link their shiva page to their memorial listing.</p>
+                <input type="text" id="obiSearchBox" placeholder="Search by family name..." style="width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); box-sizing: border-box; transition: border-color 0.2s;" autocomplete="off">
+                <div id="searchResults" style="margin-top: 0.75rem; max-height: 280px; overflow-y: auto;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <p style="font-size: 0.92rem; color: var(--sage-dark);">Don't see the family listed?</p>
+                <button type="button" onclick="skipSearch()" style="background: transparent; border: 2px solid var(--light-taupe); color: var(--dark-brown); padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;">Set up without a listing &rarr;</button>
+            </div>
+        </div>
+
         <div id="standaloneCallout" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center; display: none;">
             <strong>Don't see the family listed?</strong><br>
             You can still set up a meal coordination page. Just enter the family name and shiva details below.
         </div>
 
-        <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
+        <div id="foodDirectoryTip" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
             Looking for food options? <a href="/directory" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse our food vendor directory</a> for local caterers, bakeries, and restaurants.
         </div>
 
@@ -866,6 +880,12 @@
             </div>
 
             <div class="form-group">
+                <label for="familyNotes">Anything else visitors should know? <span class="optional">(optional)</span></label>
+                <textarea id="familyNotes" placeholder="e.g., The family prefers home-cooked meals over catering, children in the house ages 3 and 7, visits welcome after 2pm..." rows="3"></textarea>
+                <div class="form-hint">This will appear as a "From the Family" note on the shiva page</div>
+            </div>
+
+            <div class="form-group">
                 <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
                 <div class="form-hint">Help visitors find comforting meals to send your family</div>
                 <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
@@ -1004,11 +1024,116 @@
             return div.innerHTML;
         }
 
+        // ── Search functionality ─────────────────────────
+        var searchTimeout = null;
+
+        function initSearch() {
+            var input = document.getElementById('obiSearchBox');
+            if (!input) return;
+
+            input.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                var query = this.value.trim();
+                if (query.length < 2) {
+                    document.getElementById('searchResults').innerHTML = '';
+                    return;
+                }
+                searchTimeout = setTimeout(function() {
+                    fetch('/api/search?q=' + encodeURIComponent(query))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (!data || data.status !== 'success' || !data.data) return;
+                            var results = data.data.slice(0, 8);
+                            var html = '';
+                            if (results.length === 0) {
+                                html = '<p style="font-size:0.9rem;color:var(--sage-dark);text-align:center;padding:0.75rem;">No results found</p>';
+                            }
+                            results.forEach(function(obit) {
+                                html += '<div class="search-result-card" style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0.9rem;background:var(--cream);border:1.5px solid var(--light-taupe);border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.15s;" onclick="selectObituary(\'' + escapeHtml(obit.id) + '\')" onmouseover="this.style.borderColor=\'var(--terracotta)\'" onmouseout="this.style.borderColor=\'var(--light-taupe)\'">';
+                                html += '<div><div style="font-weight:600;font-size:0.95rem;">' + escapeHtml(obit.deceased_name) + '</div>';
+                                html += '<div style="font-size:0.82rem;color:var(--sage-dark);">' + escapeHtml(obit.city || 'Toronto') + '</div></div>';
+                                html += '<span style="color:var(--terracotta);font-size:0.85rem;font-weight:600;">Select &rarr;</span>';
+                                html += '</div>';
+                            });
+                            document.getElementById('searchResults').innerHTML = html;
+                        })
+                        .catch(function() {});
+                }, 300);
+            });
+        }
+
+        window.selectObituary = function(obitId) {
+            obituaryId = obitId;
+            document.getElementById('searchSection').style.display = 'none';
+            // Show form sections
+            document.getElementById('stepper').style.display = '';
+            document.getElementById('step1').style.display = '';
+            document.getElementById('foodDirectoryTip').style.display = '';
+            // Load obituary context to pre-fill
+            loadObituaryContextById(obitId);
+        };
+
+        window.skipSearch = function() {
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('standaloneCallout').style.display = '';
+            document.getElementById('stepper').style.display = '';
+            document.getElementById('step1').style.display = '';
+            document.getElementById('foodDirectoryTip').style.display = '';
+        };
+
+        function loadObituaryContextById(obitId) {
+            // Check for existing shiva page
+            fetch('/api/shiva/obituary/' + encodeURIComponent(obitId))
+                .then(function(r) { return r.json(); })
+                .then(function(dupData) {
+                    if (dupData.status === 'success' && dupData.data) {
+                        var warn = document.getElementById('duplicateWarning');
+                        var info = document.getElementById('duplicateInfo');
+                        var link = document.getElementById('duplicateLink');
+                        info.textContent = 'Organized by ' + escapeHtml(dupData.data.organizer_name.split(' ')[0]) + ' on ' + new Date(dupData.data.created_at).toLocaleDateString();
+                        link.href = '/shiva/' + dupData.data.id;
+                        warn.classList.add('active');
+                    }
+                })
+                .catch(function() {});
+
+            // Pre-fill from obituary
+            fetch('/api/obituary/' + encodeURIComponent(obitId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var obit = data.data || data;
+                    if (obit && obit.deceased_name) {
+                        var ctx = document.getElementById('memorialContext');
+                        ctx.textContent = 'In memory of ' + obit.deceased_name;
+                        ctx.style.display = '';
+                        var parts = obit.deceased_name.trim().split(/\s+/);
+                        if (parts.length > 0) {
+                            var lastName = parts[parts.length - 1];
+                            var familyField = document.getElementById('familyName');
+                            if (!familyField.value) {
+                                familyField.value = 'The ' + lastName + ' Family';
+                            }
+                        }
+                        if (obit.city) {
+                            var citySelect = document.getElementById('shivaCity');
+                            citySelect.value = obit.city;
+                            updateSubAreas();
+                        }
+                    }
+                })
+                .catch(function() {});
+        }
+
         // ── Load obituary context ───────────────────────
         function loadObituaryContext() {
             obituaryId = getObitIdFromUrl();
             if (!obituaryId) {
-                document.getElementById('standaloneCallout').style.display = '';
+                // Show search section, hide form initially
+                document.getElementById('searchSection').style.display = '';
+                document.getElementById('stepper').style.display = 'none';
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('foodDirectoryTip').style.display = 'none';
+                initSearch();
                 return;
             }
 
@@ -1196,6 +1321,8 @@
 
             var diet = document.getElementById('dietaryNotes').value.trim();
             if (diet) items.push(['Dietary', diet.substring(0, 80) + (diet.length > 80 ? '...' : '')]);
+            var famNotes = document.getElementById('familyNotes').value.trim();
+            if (famNotes) items.push(['Family note', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
             if (selectedVendors.length) items.push(['Recommended caterers', selectedVendors.length + ' selected']);
 
             var html = '';
@@ -1233,6 +1360,7 @@
                 guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
+                family_notes: document.getElementById('familyNotes').value.trim(),
                 donation_url: document.getElementById('donationUrl').value.trim(),
                 donation_label: document.getElementById('donationLabel').value.trim(),
                 privacy: document.getElementById('privacyToggle').checked ? 'private' : 'public',

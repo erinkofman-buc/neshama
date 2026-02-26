@@ -366,6 +366,20 @@
             border-radius: 1rem;
             overflow: hidden;
             box-shadow: 0 2px 12px var(--soft-shadow);
+            border-left: 4px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .meal-day-card.day-full {
+            border-left-color: var(--green-mid);
+        }
+
+        .meal-day-card.day-partial {
+            border-left-color: #ffcc80;
+        }
+
+        .meal-day-card.day-empty {
+            border-left-color: #ef9a9a;
         }
 
         .meal-day-card.shabbat {
@@ -1072,6 +1086,30 @@
             <p>Organizer view &mdash; you can manage signups below</p>
         </div>
 
+        <!-- From the Family (family_notes) -->
+        <div id="familyNotesBox" style="display: none; background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; box-shadow: 0 2px 12px rgba(62,39,35,0.06); border-left: 4px solid var(--gold);">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">From the Family</h3>
+            <p id="familyNotesText" style="font-size: 1rem; color: var(--dark-brown); line-height: 1.6;"></p>
+        </div>
+
+        <!-- Organizer Update (visible to all, editable by organizer) -->
+        <div id="organizerUpdateBox" style="display: none; background: #fff3e0; border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1rem 0; border-left: 4px solid #ffcc80;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: #e65100; margin-bottom: 0.4rem;">Update from the Organizer</h3>
+            <p id="organizerUpdateText" style="font-size: 0.95rem; color: var(--dark-brown); line-height: 1.5;"></p>
+        </div>
+
+        <!-- Organizer Edit Section (organizer only) -->
+        <div id="organizerEditSection" style="display: none; background: white; border: 2px solid #ffcc80; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Post an Update or Thank You</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share a note with visitors - a thank you, meal preference update, or any message.</p>
+            <textarea id="organizerUpdateInput" placeholder="e.g., Thank you so much for the outpouring of support. The family is truly grateful..." maxlength="280" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span id="updateCharCount" style="font-size: 0.8rem; color: var(--sage-dark);">0 / 280</span>
+                <button id="saveUpdateBtn" onclick="saveOrganizerUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Save Update</button>
+            </div>
+            <div id="updateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update saved!</div>
+        </div>
+
         <!-- Info Cards -->
         <div class="info-cards" id="infoCards"></div>
 
@@ -1560,9 +1598,31 @@
                 ml.style.display = '';
             }
 
+            // Family notes (visible to all)
+            if (supportData.family_notes) {
+                document.getElementById('familyNotesText').textContent = supportData.family_notes;
+                document.getElementById('familyNotesBox').style.display = '';
+            }
+
+            // Organizer update (visible to all)
+            if (supportData.organizer_update) {
+                document.getElementById('organizerUpdateText').textContent = supportData.organizer_update;
+                document.getElementById('organizerUpdateBox').style.display = '';
+            }
+
             // Organizer mode
             if (isOrganizerMode) {
                 show('organizerBanner');
+                // Show organizer edit section
+                document.getElementById('organizerEditSection').style.display = '';
+                var updateInput = document.getElementById('organizerUpdateInput');
+                updateInput.value = supportData.organizer_update || '';
+                document.getElementById('updateCharCount').textContent =
+                    (supportData.organizer_update || '').length + ' / 280';
+                updateInput.addEventListener('input', function() {
+                    document.getElementById('updateCharCount').textContent =
+                        this.value.length + ' / 280';
+                });
             }
 
             // Address for organizer
@@ -1583,6 +1643,47 @@
             hide('pageLoading');
             show('mainContent');
         }
+
+        // ── Save Organizer Update ─────────────────────
+
+        window.saveOrganizerUpdate = function() {
+            var updateText = document.getElementById('organizerUpdateInput').value.trim();
+            var btn = document.getElementById('saveUpdateBtn');
+            var successEl = document.getElementById('updateSuccess');
+
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            successEl.style.display = 'none';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: organizerToken,
+                    organizer_update: updateText
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Save Update';
+                if (result.status === 'success') {
+                    successEl.style.display = '';
+                    setTimeout(function() { successEl.style.display = 'none'; }, 3000);
+                    // Update the visible update box
+                    if (updateText) {
+                        document.getElementById('organizerUpdateText').textContent = updateText;
+                        document.getElementById('organizerUpdateBox').style.display = '';
+                    } else {
+                        document.getElementById('organizerUpdateBox').style.display = 'none';
+                    }
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Save Update';
+            });
+        };
 
         // ── Share Button ────────────────────────────────
 
@@ -1742,7 +1843,18 @@
                 var isShabbat = dayOfWeek === 5 || dayOfWeek === 6;
                 var isPaused = isShabbat && supportData.pause_shabbat;
 
-                html += '<div class="meal-day-card' + (isPaused ? ' shabbat' : '') + '">';
+                var dayClass = 'meal-day-card';
+                if (isPaused) {
+                    dayClass += ' shabbat';
+                } else {
+                    var hasLunch = !!signupMap[dateStr + '_Lunch'];
+                    var hasDinner = !!signupMap[dateStr + '_Dinner'];
+                    if (hasLunch && hasDinner) dayClass += ' day-full';
+                    else if (hasLunch || hasDinner) dayClass += ' day-partial';
+                    else dayClass += ' day-empty';
+                }
+
+                html += '<div class="' + dayClass + '">';
                 html += '<div class="meal-day-header"><span>' + formatDateShort(dateStr) + '</span>';
                 if (isPaused) html += '<span class="shabbat-badge">Shabbat</span>';
                 html += '</div>';

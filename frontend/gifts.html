@@ -235,6 +235,44 @@
     </div>
 </div>
 
+<!-- Wine & Spirits Section -->
+<div style="max-width: 1100px; margin: 2rem auto 1.5rem; padding: 0 1.5rem;">
+    <div style="text-align: center; margin-bottom: 1.25rem; padding-top: 1.5rem; border-top: 1px solid var(--light-taupe);">
+        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 4vw, 1.9rem); font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Wine &amp; Spirits</h2>
+        <p style="color: var(--sage-dark); font-size: 1rem; max-width: 540px; margin: 0 auto; line-height: 1.6;">A bottle of wine or whisky is a thoughtful gesture. Many families appreciate having something for the week ahead.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem;">
+        <div class="vendor-card">
+            <div class="vendor-name">LCBO</div>
+            <div class="vendor-badges">
+                <span class="badge badge-delivery">Delivery Available</span>
+                <span class="badge badge-category">Wine &amp; Spirits</span>
+            </div>
+            <p class="vendor-desc">Ontario's official retailer for wine, beer, and spirits. Order online for delivery or pickup. Wide selection of kosher wines available.</p>
+            <a href="https://www.lcbo.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+        </div>
+        <div class="vendor-card">
+            <div class="vendor-name">Wine.com</div>
+            <div class="vendor-badges">
+                <span class="badge badge-delivery">Ships to Canada</span>
+                <span class="badge badge-category">Wine</span>
+            </div>
+            <p class="vendor-desc">Huge selection of wines from around the world. Filter by kosher options. Gift sets and curated collections available for delivery.</p>
+            <a href="https://www.wine.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+        </div>
+        <div class="vendor-card">
+            <div class="vendor-name">Kensington Wine Market</div>
+            <div class="vendor-badges">
+                <span class="badge badge-category">Wine &amp; Spirits</span>
+                <span class="badge badge-kosher">Kosher Selection</span>
+            </div>
+            <p class="vendor-desc">Local Toronto wine shop in the heart of Kensington Market. Knowledgeable staff can help you choose the right bottle. Kosher wines in stock.</p>
+            <p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0.75rem;"><a href="tel:4165934411" style="color:var(--dark-brown);text-decoration:none;">&#128222; (416) 593-4411</a></p>
+            <a href="https://www.kensingtonwinemarket.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+        </div>
+    </div>
+</div>
+
 <p class="disclaimer">
     Some links on this page are affiliate links. When you make a purchase through these links, Neshama may earn a small commission at no extra cost to you. This helps us maintain the platform and serve the community.
     <br>Looking for food vendors for shiva meals? <a href="/directory">Browse our food vendor directory &rarr;</a>
@@ -471,13 +509,16 @@
             }
             html += '</div>';
             html += '<p class="vendor-desc">' + escapeHtml(v.description) + '</p>';
+            if (v.phone) {
+                html += '<p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0.75rem;"><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">&#128222; ' + escapeHtml(v.phone) + '</a></p>';
+            }
 
             if (v.type === 'affiliate') {
                 html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
             } else if (v.website) {
                 html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
             } else {
-                html += '<button class="vendor-cta cta-local" onclick="openLeadModal(' + v.id + ', \'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')">Request a Quote</button>';
+                html += '<button class="vendor-cta cta-local" onclick="openLeadModal(' + v.id + ', \'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')">Get In Touch</button>';
             }
             html += '</div>';
         });

@@ -4,7 +4,7 @@
 class NeshamaApp {
     constructor() {
         this.apiBase = '/api';
-        this.currentTab = 'today';
+        this.currentTab = 'week';
         this.currentCity = localStorage.getItem('neshama_city') || 'all';
         this.searchQuery = '';
         this.allObituaries = [];

@@ -179,6 +179,18 @@ class ShivaManager:
         except Exception:
             cursor.execute('ALTER TABLE meal_signups ADD COLUMN will_serve INTEGER DEFAULT 0')
 
+        # Migration: add organizer_update column if missing
+        try:
+            cursor.execute('SELECT organizer_update FROM shiva_support LIMIT 1')
+        except Exception:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN organizer_update TEXT')
+
+        # Migration: add family_notes column if missing
+        try:
+            cursor.execute('SELECT family_notes FROM shiva_support LIMIT 1')
+        except Exception:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN family_notes TEXT')
+
         # Migration: convert 'unknown' obituary_ids to NULL
         cursor.execute("UPDATE shiva_support SET obituary_id = NULL WHERE obituary_id IN ('unknown', '')")
 
@@ -333,8 +345,9 @@ class ShivaManager:
                     organizer_relationship, family_name, shiva_address, shiva_city, shiva_sub_area,
                     shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
-                    status, magic_token, privacy_consent, privacy, recommended_vendors, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+                    status, magic_token, privacy_consent, privacy, recommended_vendors,
+                    family_notes, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -358,6 +371,7 @@ class ShivaManager:
                 1,
                 privacy,
                 recommended_vendors,
+                self._sanitize_text(data.get('family_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 now
             ))
             conn.commit()
@@ -383,7 +397,8 @@ class ShivaManager:
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, privacy, recommended_vendors, created_at
+                   donation_url, donation_label, status, privacy, recommended_vendors,
+                   organizer_update, family_notes, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -405,7 +420,8 @@ class ShivaManager:
             SELECT id, obituary_id, organizer_name, organizer_relationship,
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, privacy, recommended_vendors, created_at
+                   donation_url, donation_label, status, privacy, recommended_vendors,
+                   organizer_update, family_notes, created_at
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -490,7 +506,7 @@ class ShivaManager:
             'family_name', 'shiva_address', 'shiva_city', 'shiva_sub_area', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
-            'recommended_vendors'
+            'recommended_vendors', 'organizer_update', 'family_notes'
         ]
 
         sets = []
@@ -513,8 +529,10 @@ class ShivaManager:
                         val = json.dumps(clean_slugs) if clean_slugs else None
                     else:
                         val = None
-                elif field in ('dietary_notes', 'special_instructions'):
+                elif field in ('dietary_notes', 'special_instructions', 'family_notes'):
                     val = self._sanitize_text(val, self.MAX_TEXT_LENGTH)
+                elif field == 'organizer_update':
+                    val = self._sanitize_text(val, 280)
                 else:
                     val = self._sanitize_text(val)
                 vals.append(val)
@@ -772,13 +790,18 @@ class ShivaManager:
             conn.commit()
 
             # Return address only to confirmed volunteer
+            addr = support['shiva_address']
+            if support.get('shiva_city'):
+                addr += ', ' + support['shiva_city']
             return {
                 'status': 'success',
                 'message': 'Thank you for signing up to help!',
                 'signup_id': cursor.lastrowid,
                 'shiva_address': support['shiva_address'],
                 'shiva_city': support.get('shiva_city', ''),
-                'special_instructions': support.get('special_instructions', '')
+                'special_instructions': support.get('special_instructions', ''),
+                'family_name': support.get('family_name', ''),
+                'address': addr
             }
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
