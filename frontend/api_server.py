@@ -16,6 +16,9 @@ import threading
 from urllib.parse import urlparse, parse_qs, unquote
 from datetime import datetime
 import pytz
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
@@ -1743,8 +1746,8 @@ button:hover{background:#c45a1a}</style></head>
             sg.send(message)
             print(f"[Meal Signup] Confirmation email sent to {vol_email}")
 
-        except Exception as e:
-            print(f"[Meal Signup] Email error: {str(e)}")
+        except Exception:
+            logging.exception("[Meal Signup] Email error")
 
     def handle_remove_signup(self, support_id, body):
         """Handle organizer removing a meal signup"""

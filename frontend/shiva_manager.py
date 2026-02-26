@@ -790,14 +790,14 @@ class ShivaManager:
             conn.commit()
 
             # Return address only to confirmed volunteer
-            addr = support['shiva_address']
+            addr = support.get('shiva_address', '')
             if support.get('shiva_city'):
                 addr += ', ' + support['shiva_city']
             return {
                 'status': 'success',
                 'message': 'Thank you for signing up to help!',
                 'signup_id': cursor.lastrowid,
-                'shiva_address': support['shiva_address'],
+                'shiva_address': support.get('shiva_address', ''),
                 'shiva_city': support.get('shiva_city', ''),
                 'special_instructions': support.get('special_instructions', ''),
                 'family_name': support.get('family_name', ''),

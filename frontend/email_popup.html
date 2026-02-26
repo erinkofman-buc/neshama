@@ -450,7 +450,6 @@
                         return { success: false, error: data.error?.message || 'Subscription failed' };
                     }
                 } catch (error) {
-                    console.error('Subscription error:', error);
                     return { success: false, error: 'Unable to connect. Please try again.' };
                 }
             }
