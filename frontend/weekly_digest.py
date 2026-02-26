@@ -164,7 +164,7 @@ class WeeklyDigestSender:
 
         return html
 
-    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content):
+    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send weekly digest email to a single subscriber"""
         if not self.sendgrid_api_key:
             print(f"  \u26a0\ufe0f  Would send weekly digest to {email}")
@@ -177,11 +177,21 @@ class WeeklyDigestSender:
         week_start = (now - timedelta(days=7)).strftime('%b %d')
         week_end = now.strftime('%b %d, %Y')
 
+        # Location-aware subject line
+        loc_list = [l.strip() for l in (locations or 'toronto,montreal').split(',')]
+        if loc_list == ['toronto']:
+            community = 'the Toronto Jewish community'
+        elif loc_list == ['montreal']:
+            community = 'the Montreal Jewish community'
+        else:
+            community = 'the Jewish community'
+        subject = f'This week in {community} \u2014 {week_start}\u2013{week_end}'
+
         try:
             message = Mail(
                 from_email=Email(self.from_email, self.from_name),
                 to_emails=To(email),
-                subject=f'This week in our community \u2014 {week_start}\u2013{week_end}',
+                subject=subject,
                 html_content=Content("text/html", html_with_unsubscribe)
             )
 
@@ -260,7 +270,7 @@ class WeeklyDigestSender:
                 continue
 
             html_content = self.generate_weekly_html(unique_obits)
-            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content)
+            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations)
 
             if result.get('success'):
                 sent_count += 1

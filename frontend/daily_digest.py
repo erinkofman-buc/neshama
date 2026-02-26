@@ -150,21 +150,31 @@ class DailyDigestSender:
 
         return html
     
-    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content):
+    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send digest email to a single subscriber"""
         if not self.sendgrid_api_key:
             print(f"⚠️  Would send digest to {email}")
             return {'success': True, 'test_mode': True}
-        
+
         # Replace unsubscribe URL
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"
         html_with_unsubscribe = html_content.replace('{{unsubscribe_url}}', unsubscribe_url)
-        
+
+        # Location-aware subject line
+        loc_list = [l.strip() for l in (locations or 'toronto,montreal').split(',')]
+        if loc_list == ['toronto']:
+            community = 'the Toronto Jewish community'
+        elif loc_list == ['montreal']:
+            community = 'the Montreal Jewish community'
+        else:
+            community = 'the Jewish community'
+        subject = f'Today in {community} — {datetime.now().strftime("%B %d, %Y")}'
+
         try:
             message = Mail(
                 from_email=Email(self.from_email, self.from_name),
                 to_emails=To(email),
-                subject=f'Today in our community — {datetime.now().strftime("%B %d, %Y")}',
+                subject=subject,
                 html_content=Content("text/html", html_with_unsubscribe)
             )
             
@@ -244,7 +254,7 @@ class DailyDigestSender:
 
             # Generate per-subscriber email HTML
             html_content = self.generate_email_html(unique_obits)
-            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content)
+            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations)
 
             if result.get('success'):
                 sent_count += 1
