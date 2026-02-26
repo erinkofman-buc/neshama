@@ -65,6 +65,7 @@ class ShivaManager:
                 meal_type TEXT NOT NULL,
                 meal_description TEXT,
                 num_servings INTEGER DEFAULT 4,
+                will_serve INTEGER DEFAULT 0,
                 privacy_consent INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 FOREIGN KEY (shiva_support_id) REFERENCES shiva_support(id)
@@ -171,6 +172,12 @@ class ShivaManager:
             cursor.execute('SELECT recommended_vendors FROM shiva_support LIMIT 1')
         except Exception:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN recommended_vendors TEXT')
+
+        # Migration: add will_serve column to meal_signups if missing
+        try:
+            cursor.execute('SELECT will_serve FROM meal_signups LIMIT 1')
+        except Exception:
+            cursor.execute('ALTER TABLE meal_signups ADD COLUMN will_serve INTEGER DEFAULT 0')
 
         # Migration: convert 'unknown' obituary_ids to NULL
         cursor.execute("UPDATE shiva_support SET obituary_id = NULL WHERE obituary_id IN ('unknown', '')")
@@ -741,12 +748,14 @@ class ShivaManager:
             except (ValueError, TypeError):
                 pass
 
+            will_serve = 1 if data.get('will_serve') else 0
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
-                    privacy_consent, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    will_serve, privacy_consent, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -756,6 +765,7 @@ class ShivaManager:
                 data['meal_type'].strip(),
                 self._sanitize_text(data.get('meal_description', ''), self.MAX_TEXT_LENGTH) or None,
                 num_servings,
+                will_serve,
                 1,
                 now
             ))
@@ -783,7 +793,7 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, meal_description,
-                   num_servings, created_at
+                   num_servings, will_serve, created_at
             FROM meal_signups
             WHERE shiva_support_id = ?
             ORDER BY meal_date, meal_type
@@ -974,7 +984,7 @@ class ShivaManager:
 
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, volunteer_email,
-                   volunteer_phone, meal_description, num_servings, created_at
+                   volunteer_phone, meal_description, num_servings, will_serve, created_at
             FROM meal_signups
             WHERE shiva_support_id = ?
             ORDER BY meal_date, meal_type

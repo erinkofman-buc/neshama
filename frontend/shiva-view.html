@@ -1202,6 +1202,13 @@
                     <input type="tel" id="volPhone" placeholder="(416) 555-0123" autocomplete="tel">
                 </div>
 
+                <div class="consent-row" style="margin-bottom: 0.75rem;">
+                    <input type="checkbox" id="volWillServe">
+                    <label for="volWillServe" style="color: var(--dark-brown);">
+                        I can also help serve this meal <span style="color: var(--sage-dark); font-size: 0.88rem;">(set up, serve guests, clean up)</span>
+                    </label>
+                </div>
+
                 <div class="consent-row">
                     <input type="checkbox" id="volConsent">
                     <label for="volConsent">
@@ -1764,6 +1771,9 @@
                 if (signup.meal_description) {
                     h += '<div class="vol-desc">' + escapeHtml(signup.meal_description) + '</div>';
                 }
+                if (signup.will_serve) {
+                    h += '<div class="vol-desc" style="color: var(--green-text); font-weight: 500;">will serve \u2713</div>';
+                }
                 if (isOrganizerMode && signup.id) {
                     h += '<button class="remove-btn" data-signup-id="' + signup.id + '">Remove</button>';
                 }
@@ -1820,6 +1830,7 @@
             document.getElementById('volPhone').value = '';
             document.getElementById('mealCustom').value = '';
             document.getElementById('servingsValue').textContent = '4 servings';
+            document.getElementById('volWillServe').checked = false;
             document.getElementById('volConsent').checked = false;
             document.getElementById('signupError').classList.remove('active');
             document.getElementById('signupSubmitBtn').disabled = false;
@@ -1925,6 +1936,7 @@
                 meal_type: selectedMealType,
                 meal_description: mealDescription,
                 num_servings: currentServings,
+                will_serve: document.getElementById('volWillServe').checked,
                 privacy_consent: true
             };
 
@@ -1962,9 +1974,12 @@
             document.getElementById('revealedInstructions').textContent = data.special_instructions || '';
 
             // Populate confirmation
-            document.getElementById('confirmSubtitle').textContent =
-                'You\u2019re bringing ' + (mealDescription || 'a meal') + ' for ' +
+            var confirmText = 'You\u2019re bringing ' + (mealDescription || 'a meal') + ' for ' +
                 selectedMealType.toLowerCase() + ' on ' + formatDate(selectedDate);
+            if (document.getElementById('volWillServe').checked) {
+                confirmText += '. You\u2019ve offered to help serve \u2014 the family will be so grateful.';
+            }
+            document.getElementById('confirmSubtitle').textContent = confirmText;
 
             document.getElementById('confirmAddrText').textContent = addrText;
             document.getElementById('confirmInstructions').textContent = data.special_instructions || '';
