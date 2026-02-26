@@ -351,7 +351,7 @@
 
                 <button type="submit" id="subscribeBtn"
                     style="width:100%; font-family:var(--font-heading); font-size:1.1rem; font-weight:500; padding:0.9rem; background:var(--terracotta); color:var(--cream); border:none; border-radius:8px; cursor:pointer; letter-spacing:0.03em; transition: background 0.25s ease, transform 0.25s ease;">
-                    Get Free Updates
+                    Get Updates
                 </button>
             </form>
 
@@ -505,14 +505,14 @@
                         errEl.textContent = data.message || 'Something went wrong. Please try again.';
                         errEl.style.display = 'block';
                         btn.disabled = false;
-                        btn.textContent = 'Get Free Updates';
+                        btn.textContent = 'Get Updates';
                     }
                 })
                 .catch(function() {
                     errEl.textContent = 'Unable to connect. Please try again.';
                     errEl.style.display = 'block';
                     btn.disabled = false;
-                    btn.textContent = 'Get Free Updates';
+                    btn.textContent = 'Get Updates';
                 });
             });
         }

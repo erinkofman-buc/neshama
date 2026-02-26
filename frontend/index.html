@@ -158,6 +158,22 @@
             font-weight: 600;
         }
 
+        .nav-link-secondary {
+            font-size: 0.92rem;
+            opacity: 0.7;
+        }
+
+        .nav-link-secondary:hover {
+            opacity: 1;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 18px;
+            background: var(--light-taupe);
+            opacity: 0.5;
+        }
+
         .nav-premium-btn {
             font-family: 'Source Serif 4', serif;
             font-size: 0.9rem;
@@ -1636,9 +1652,10 @@
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <a href="/feed" class="nav-link active">Listings</a>
-            <a href="/shiva-essentials" class="nav-link">Essentials</a>
-            <a href="/gifts" class="nav-link">Gifts</a>
-            <a href="/about" class="nav-link">About</a>
+            <span class="nav-divider"></span>
+            <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+            <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+            <a href="/about" class="nav-link nav-link-secondary">About</a>
             <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva</a>
         </div>
         <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
@@ -1769,7 +1786,7 @@
 
                     <div class="popup-buttons">
                         <button type="submit" id="subscribeBtn" class="btn-subscribe">
-                            Get Free Updates
+                            Get Updates
                         </button>
                         <button type="button" onclick="closeEmailPopup()" class="btn-later">
                             Not Now
@@ -1958,7 +1975,7 @@
                         errEl.textContent = data.message || 'Subscription failed';
                         errEl.classList.add('active');
                         subscribeBtn.disabled = false;
-                        subscribeBtn.textContent = 'Get Free Updates';
+                        subscribeBtn.textContent = 'Get Updates';
                     }
                 })
                 .catch(function() {
@@ -1966,7 +1983,7 @@
                     errEl.textContent = 'Unable to connect. Please try again.';
                     errEl.classList.add('active');
                     subscribeBtn.disabled = false;
-                    subscribeBtn.textContent = 'Get Free Updates';
+                    subscribeBtn.textContent = 'Get Updates';
                 });
             });
         }
