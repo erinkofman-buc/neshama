@@ -914,6 +914,14 @@
             <p class="hero-hebrew" id="heroHebrew" style="display: none;"></p>
             <div class="hero-dates" id="heroDates"></div>
             <div class="hero-divider"></div>
+
+            <!-- Prominent Share Button -->
+            <div id="heroShare" style="display: none; margin-top: 1.25rem;">
+                <button id="heroShareBtn" type="button" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--sage); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    Share
+                </button>
+            </div>
         </section>
 
         <!-- Hero CTA — above the fold -->
@@ -1464,6 +1472,27 @@
             document.getElementById('sharePrint').addEventListener('click', function() {
                 window.print();
             });
+
+            // Hero share button (prominent, near top)
+            var heroShareBtn = document.getElementById('heroShareBtn');
+            var heroShareDiv = document.getElementById('heroShare');
+            if (heroShareBtn && heroShareDiv) {
+                heroShareDiv.style.display = '';
+                var shareMessage = obit.deceased_name + ' \u2014 memorial and shiva details on Neshama: ' + pageUrl;
+
+                heroShareBtn.addEventListener('click', function() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: shareText,
+                            text: obit.deceased_name + ' \u2014 memorial and shiva details on Neshama',
+                            url: pageUrl
+                        }).catch(function() {});
+                    } else {
+                        // Fallback: open WhatsApp, or SMS on non-WhatsApp devices
+                        window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank');
+                    }
+                });
+            }
         }
 
         // ── Source Link ───────────────────────────────────

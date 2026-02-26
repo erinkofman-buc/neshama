@@ -1017,6 +1017,14 @@
             <p class="dates" id="shivaDates"></p>
             <a class="memorial-link" id="memorialLink" href="#" style="display: none;">View Memorial &#x2197;</a>
             <div class="hero-divider"></div>
+
+            <!-- Share Button -->
+            <div id="shivaShareBtn" style="display: none; margin-top: 1.25rem;">
+                <button type="button" id="shivaShareTrigger" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--sage); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    Share
+                </button>
+            </div>
         </section>
 
         <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin: 1rem 0; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
@@ -1555,9 +1563,37 @@
             renderInfoCards();
             renderMealCalendar();
             renderRecommendedCaterers();
+            setupShareButton();
 
             hide('pageLoading');
             show('mainContent');
+        }
+
+        // ── Share Button ────────────────────────────────
+
+        function setupShareButton() {
+            var shareDiv = document.getElementById('shivaShareBtn');
+            var shareBtn = document.getElementById('shivaShareTrigger');
+            if (!shareDiv || !shareBtn) return;
+
+            shareDiv.style.display = '';
+            var pageUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
+            var familyName = supportData.family_name || 'the family';
+            var shareMessage = isOrganizerMode
+                ? 'Help coordinate meals for ' + familyName + '\'s shiva: ' + pageUrl
+                : familyName + ' \u2014 shiva meal coordination on Neshama: ' + pageUrl;
+
+            shareBtn.addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: familyName + ' - Shiva Support',
+                        text: shareMessage.replace(pageUrl, '').trim(),
+                        url: pageUrl
+                    }).catch(function() {});
+                } else {
+                    window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank');
+                }
+            });
         }
 
         // ── Render Info Cards ───────────────────────────
