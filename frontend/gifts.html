@@ -547,8 +547,8 @@
                 html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
             } else if (v.website) {
                 html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
-            } else {
-                html += '<button class="vendor-cta cta-local" onclick="openLeadModal(' + v.id + ', \'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')">Get In Touch</button>';
+            } else if (v.phone) {
+                html += '<a href="tel:' + escapeHtml(v.phone) + '" class="vendor-cta cta-local">Call ' + escapeHtml(v.phone) + '</a>';
             }
             html += '</div>';
         });
