@@ -4,3 +4,4 @@ lxml>=4.9.0
 schedule>=1.2.0
 sendgrid>=6.10.0
 stripe>=8.0.0
+pytz>=2024.1

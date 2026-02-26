@@ -15,6 +15,7 @@ import subprocess
 import threading
 from urllib.parse import urlparse, parse_qs, unquote
 from datetime import datetime
+import pytz
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
@@ -451,7 +452,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 'status': 'success',
                 'data': {
                     'last_run': last_run,
-                    'interval_minutes': SCRAPE_INTERVAL // 60
+                    'interval_minutes': SCRAPE_INTERVAL // 60,
+                    'shabbat_mode': is_shabbat()
                 }
             })
         except Exception as e:
@@ -1996,13 +1998,30 @@ def auto_scrape_on_startup():
         print(f"[Startup] Auto-scrape error (non-fatal): {e}")
 
 
+def is_shabbat():
+    """Check if current time is during Shabbat (Friday 6 PM – Saturday 9 PM Toronto time).
+    Uses conservative window that covers candle lighting through havdalah year-round."""
+    tz = pytz.timezone('America/Toronto')
+    now = datetime.now(tz)
+    # Friday = 4 (weekday()), Saturday = 5
+    if now.weekday() == 4 and now.hour >= 18:
+        return True
+    if now.weekday() == 5 and now.hour < 21:
+        return True
+    return False
+
+
 def periodic_scraper():
     """Run scrapers every SCRAPE_INTERVAL seconds in background thread.
-    Keeps obituary data fresh between server restarts."""
+    Keeps obituary data fresh between server restarts.
+    Pauses during Shabbat (Friday evening – Saturday night)."""
     import time as _time
     project_root = os.path.join(FRONTEND_DIR, '..')
     while True:
         _time.sleep(SCRAPE_INTERVAL)
+        if is_shabbat():
+            print(f"[Scraper] Shabbat — scraping paused")
+            continue
         try:
             print(f"[Scraper] Periodic scrape starting at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             result = subprocess.run(

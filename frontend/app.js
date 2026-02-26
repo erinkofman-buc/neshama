@@ -370,7 +370,17 @@ class NeshamaApp {
             var bar = document.getElementById('freshnessBar');
             if (!bar || data.status !== 'success') return;
 
+            var freshnessLabel = bar.querySelector('span:first-child');
             var lastChecked = document.getElementById('lastChecked');
+
+            if (data.data.shabbat_mode) {
+                if (freshnessLabel) freshnessLabel.textContent = 'Shabbat Shalom \u2014 updates resume Saturday night';
+                if (lastChecked) lastChecked.textContent = '';
+                bar.style.display = '';
+                return;
+            }
+
+            if (freshnessLabel) freshnessLabel.textContent = 'Data refreshed every ' + data.data.interval_minutes + ' minutes';
             if (data.data.last_run && lastChecked) {
                 var lastRun = new Date(data.data.last_run);
                 var diffMin = Math.floor((new Date() - lastRun) / 60000);
@@ -382,8 +392,8 @@ class NeshamaApp {
                     var diffHrs = Math.floor(diffMin / 60);
                     lastChecked.textContent = 'Last checked ' + diffHrs + (diffHrs === 1 ? ' hour' : ' hours') + ' ago';
                 }
-                bar.style.display = '';
             }
+            bar.style.display = '';
         } catch (e) {
             // Non-critical — silently ignore
         }
