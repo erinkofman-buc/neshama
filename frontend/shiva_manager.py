@@ -37,6 +37,7 @@ class ShivaManager:
                 family_name TEXT NOT NULL,
                 shiva_address TEXT NOT NULL,
                 shiva_city TEXT,
+                shiva_sub_area TEXT,
                 shiva_start_date TEXT NOT NULL,
                 shiva_end_date TEXT NOT NULL,
                 pause_shabbat INTEGER DEFAULT 1,
@@ -322,11 +323,11 @@ class ShivaManager:
             cursor.execute('''
                 INSERT INTO shiva_support (
                     id, obituary_id, organizer_name, organizer_email, organizer_phone,
-                    organizer_relationship, family_name, shiva_address, shiva_city,
+                    organizer_relationship, family_name, shiva_address, shiva_city, shiva_sub_area,
                     shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
                     status, magic_token, privacy_consent, privacy, recommended_vendors, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -337,6 +338,7 @@ class ShivaManager:
                 self._sanitize_text(data['family_name'], 200),
                 self._sanitize_text(data['shiva_address']),
                 self._sanitize_text(data.get('shiva_city', ''), 100) or None,
+                self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
                 data['shiva_end_date'].strip()[:10],
                 1 if data.get('pause_shabbat', True) else 0,
@@ -372,7 +374,7 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
-                   family_name, shiva_city, shiva_start_date, shiva_end_date,
+                   family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors, created_at
             FROM shiva_support
@@ -394,7 +396,7 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
-                   family_name, shiva_city, shiva_start_date, shiva_end_date,
+                   family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors, created_at
             FROM shiva_support
@@ -430,6 +432,7 @@ class ShivaManager:
                         'organizer_relationship': data['organizer_relationship'],
                         'family_name': data['family_name'],
                         'shiva_city': data.get('shiva_city'),
+                        'shiva_sub_area': data.get('shiva_sub_area'),
                         'shiva_start_date': data['shiva_start_date'],
                         'shiva_end_date': data['shiva_end_date'],
                         'status': data['status'],
@@ -477,7 +480,7 @@ class ShivaManager:
             return {'status': 'error', 'message': 'Invalid support ID or token'}
 
         updatable = [
-            'family_name', 'shiva_address', 'shiva_city', 'shiva_start_date',
+            'family_name', 'shiva_address', 'shiva_city', 'shiva_sub_area', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
             'recommended_vendors'

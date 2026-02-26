@@ -806,7 +806,18 @@
 
             <div class="form-group">
                 <label for="shivaCity">City</label>
-                <input type="text" id="shivaCity" placeholder="Toronto">
+                <select id="shivaCity" onchange="updateSubAreas()">
+                    <option value="" disabled selected>Select city</option>
+                    <option value="Toronto">Toronto (GTA)</option>
+                    <option value="Montreal">Montreal</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="subAreaGroup" style="display: none;">
+                <label for="shivaSubArea">Neighbourhood <span class="optional">(optional — helps match local vendors)</span></label>
+                <select id="shivaSubArea">
+                    <option value="">All areas</option>
+                </select>
             </div>
 
             <div class="toggle-group" style="margin-top: 1rem;">
@@ -942,6 +953,43 @@
         var createdToken = null;
         var forceCreate = false;
 
+        // ── Location Hierarchy ────────────────────────────
+        var subAreas = {
+            'Toronto': [
+                'North York',
+                'Thornhill/Vaughan',
+                'Etobicoke',
+                'Scarborough',
+                'Midtown',
+                'Downtown'
+            ],
+            'Montreal': [
+                'C\u00f4te-Saint-Luc',
+                'NDG/Westmount',
+                'Hampstead',
+                'Dollard-des-Ormeaux',
+                'Laval'
+            ]
+        };
+
+        window.updateSubAreas = function() {
+            var city = document.getElementById('shivaCity').value;
+            var group = document.getElementById('subAreaGroup');
+            var select = document.getElementById('shivaSubArea');
+
+            if (city && subAreas[city]) {
+                var html = '<option value="">All areas</option>';
+                subAreas[city].forEach(function(area) {
+                    html += '<option value="' + area + '">' + area + '</option>';
+                });
+                select.innerHTML = html;
+                group.style.display = '';
+            } else {
+                group.style.display = 'none';
+                select.innerHTML = '<option value="">All areas</option>';
+            }
+        };
+
         // ── Get obit ID from URL params ─────────────────
         function getObitIdFromUrl() {
             var params = new URLSearchParams(window.location.search);
@@ -1000,7 +1048,14 @@
 
                         // Pre-fill city if available
                         if (obit.city) {
-                            document.getElementById('shivaCity').value = obit.city;
+                            var citySelect = document.getElementById('shivaCity');
+                            // Map obit city to our select options
+                            if (obit.city.toLowerCase().indexOf('toronto') !== -1 || obit.city.toLowerCase().indexOf('north york') !== -1 || obit.city.toLowerCase().indexOf('thornhill') !== -1 || obit.city.toLowerCase().indexOf('vaughan') !== -1) {
+                                citySelect.value = 'Toronto';
+                            } else if (obit.city.toLowerCase().indexOf('montreal') !== -1 || obit.city.toLowerCase().indexOf('montr') !== -1) {
+                                citySelect.value = 'Montreal';
+                            }
+                            updateSubAreas();
                         }
 
                         // Pre-fill shiva address from extracted data
@@ -1132,7 +1187,7 @@
                 ['Email', document.getElementById('organizerEmail').value],
                 ['Relationship', document.getElementById('organizerRelationship').value],
                 ['Family', document.getElementById('familyName').value],
-                ['City', document.getElementById('shivaCity').value || '(not specified)'],
+                ['Location', (document.getElementById('shivaCity').value || '(not specified)') + (document.getElementById('shivaSubArea').value ? ' \u2014 ' + document.getElementById('shivaSubArea').value : '')],
                 ['Start', document.getElementById('shivaStartDate').value],
                 ['End', document.getElementById('shivaEndDate').value],
                 ['Shabbat pause', document.getElementById('pauseShabbat').checked ? 'Yes' : 'No'],
@@ -1170,7 +1225,8 @@
                 organizer_relationship: document.getElementById('organizerRelationship').value,
                 family_name: document.getElementById('familyName').value.trim(),
                 shiva_address: document.getElementById('shivaAddress').value.trim(),
-                shiva_city: document.getElementById('shivaCity').value.trim(),
+                shiva_city: document.getElementById('shivaCity').value,
+                shiva_sub_area: document.getElementById('shivaSubArea').value || null,
                 shiva_start_date: document.getElementById('shivaStartDate').value,
                 shiva_end_date: document.getElementById('shivaEndDate').value,
                 pause_shabbat: document.getElementById('pauseShabbat').checked,

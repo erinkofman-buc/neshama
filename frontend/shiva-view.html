@@ -1094,7 +1094,7 @@
         <div id="cantCookSection" style="margin-top: 2rem; padding: 1.25rem 1.5rem; background: white; border-radius: 1rem; box-shadow: 0 2px 12px rgba(62,39,35,0.06);">
             <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--sage-dark); text-align: center; margin-bottom: 0.75rem;">Can't cook or too far away?</p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;">
-                <a href="/directory" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
+                <a id="cantCookDirectoryLink" href="/directory" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
                     <span style="font-size: 1.1rem;">&#127869;</span> Send a meal from a local vendor
                 </a>
                 <a href="/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
@@ -1571,6 +1571,7 @@
             renderMealCalendar();
             renderRecommendedCaterers();
             setupShareButton();
+            updateDirectoryLink();
 
             hide('pageLoading');
             show('mainContent');
@@ -1601,6 +1602,21 @@
                     window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank');
                 }
             });
+        }
+
+        // ── Update Directory Link with Location ─────────
+
+        function updateDirectoryLink() {
+            var link = document.getElementById('cantCookDirectoryLink');
+            if (!link || !supportData) return;
+            var city = supportData.shiva_city;
+            var subArea = supportData.shiva_sub_area;
+            if (city || subArea) {
+                var params = [];
+                if (city) params.push('city=' + encodeURIComponent(city));
+                if (subArea) params.push('area=' + encodeURIComponent(subArea));
+                link.href = '/directory?' + params.join('&');
+            }
         }
 
         // ── Render Info Cards ───────────────────────────
