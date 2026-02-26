@@ -1016,11 +1016,11 @@ MONTREAL_VENDORS = [
 ]
 
 
-# 11 Toronto-area gift vendors (local, lead capture)
+# 15 gift vendors (local, lead capture, affiliate)
 GIFT_VENDORS = [
     {
         'name': 'Baskets n\' Stuf',
-        'category': 'Gift Baskets, Shiva Platters',
+        'category': 'Gift Baskets',
         'description': 'Kosher gift baskets and shiva platters. Beautiful arrangements with fresh fruit, baked goods, and gourmet treats. Experienced in shiva deliveries.',
         'address': 'Bathurst & Steeles, North York, ON',
         'neighborhood': 'North York',
@@ -1032,7 +1032,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Dani Gifts',
-        'category': 'Gift Baskets, Chocolate',
+        'category': 'Gift Baskets',
         'description': 'Kosher gift baskets, chocolate boxes, and treats. Specializes in shiva gifts with tasteful packaging and prompt delivery.',
         'address': '401 Magnetic Dr, North York, ON',
         'neighborhood': 'North York',
@@ -1044,7 +1044,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Ely\'s Fine Foods',
-        'category': 'Shiva Platters, Gift Baskets',
+        'category': 'Gift Baskets',
         'description': 'Kosher shiva platters and fine food gift baskets. Prepared meals, deli trays, and curated gift packages for mourning families.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -1056,7 +1056,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Nutcracker Sweet / Baskits',
-        'category': 'Gift Baskets, Gourmet',
+        'category': 'Gift Baskets',
         'description': 'Premium gift baskets and gourmet packages. Known for stunning presentation and high-quality products. Ships Canada-wide. Kosher options available.',
         'address': '3717 Chesswood Dr, Toronto, ON',
         'neighborhood': 'North York',
@@ -1080,7 +1080,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Romi\'s Bakery',
-        'category': 'Baked Goods',
+        'category': 'Gift Baskets',
         'description': 'Artisanal baked goods and pastries. Beautiful cookie boxes, cakes, and pastry platters. A warm, personal touch for a shiva home.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -1116,7 +1116,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Epic Baskets',
-        'category': 'Fruit, Gift Baskets',
+        'category': 'Fruit',
         'description': 'Fresh fruit baskets and gourmet gift packages. Same-day delivery in GTA. Beautiful presentation for a meaningful gift.',
         'address': 'Toronto, ON',
         'neighborhood': 'GTA',
@@ -1128,7 +1128,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'My Baskets',
-        'category': 'Fruit, Gift Baskets',
+        'category': 'Fruit',
         'description': 'Fruit and gift baskets with free delivery over $100 in the GTA. Wide variety of sympathy and condolence baskets.',
         'address': 'Toronto, ON',
         'neighborhood': 'GTA',
@@ -1149,6 +1149,56 @@ GIFT_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA + same-day',
+    },
+    # Candles & Ritual Items (Amazon affiliate)
+    {
+        'name': 'Ner Mitzvah 7-Day Shiva Memorial Candle',
+        'category': 'Candles & Ritual Items',
+        'description': 'Traditional 7-day shiva memorial candle in glass jar. Lit at the start of shiva and burns for the full mourning period. A staple in every shiva home.',
+        'address': 'Online — Amazon.ca',
+        'neighborhood': 'Online',
+        'phone': '',
+        'website': 'https://www.amazon.ca/s?k=Ner+Mitzvah+7+Day+Memorial+Candle&tag=neshama07-20',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Canada-wide',
+    },
+    {
+        'name': '24-Hour Yahrzeit Memorial Candles (Multipack)',
+        'category': 'Candles & Ritual Items',
+        'description': '24-hour yahrzeit memorial candles for the anniversary of a loved one\'s passing. Burns for a full day. Stock up for yearly observance — multipack for convenience.',
+        'address': 'Online — Amazon.ca',
+        'neighborhood': 'Online',
+        'phone': '',
+        'website': 'https://www.amazon.ca/s?k=yahrzeit+candle+24+hour+multipack&tag=neshama07-20',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Canada-wide',
+    },
+    # Chocolate & Sweets
+    {
+        'name': 'Purdys Chocolatier',
+        'category': 'Chocolate & Sweets',
+        'description': 'Premium Canadian chocolatier since 1907. Beautiful gift boxes, truffles, and chocolate assortments. Ships Canada-wide. A thoughtful, universally appreciated condolence gift.',
+        'address': 'Multiple locations across Canada',
+        'neighborhood': 'GTA',
+        'phone': '1-888-478-7397',
+        'website': 'https://www.purdys.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Canada-wide',
+    },
+    {
+        'name': 'Laura Secord',
+        'category': 'Chocolate & Sweets',
+        'description': 'Iconic Canadian chocolate and candy company since 1913. Classic boxed chocolates, fudge, and sweet gift sets. Multiple GTA retail locations plus online ordering.',
+        'address': 'Multiple GTA locations',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': 'https://www.laurasecord.ca',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Canada-wide',
     },
 ]
 
