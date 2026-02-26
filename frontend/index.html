@@ -167,6 +167,17 @@
             opacity: 1;
         }
 
+        .nav-group-primary,
+        .nav-group-secondary {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-group-secondary {
+            gap: 1.25rem;
+        }
+
         .nav-divider {
             width: 1px;
             height: 18px;
@@ -175,6 +186,7 @@
         }
 
         .nav-premium-btn {
+            position: relative;
             font-family: 'Source Serif 4', serif;
             font-size: 0.9rem;
             font-weight: 600;
@@ -194,6 +206,33 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25);
             text-decoration: none;
+        }
+
+        .nav-btn-subtext {
+            display: none;
+            font-size: 0.72rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* Desktop: show subtext as tooltip on hover */
+        @media (min-width: 769px) {
+            .nav-premium-btn:hover .nav-btn-subtext {
+                display: block;
+                position: absolute;
+                top: calc(100% + 6px);
+                left: 50%;
+                transform: translateX(-50%);
+                white-space: nowrap;
+                background: var(--dark-brown);
+                color: white;
+                padding: 0.3rem 0.65rem;
+                border-radius: 0.35rem;
+                font-size: 0.75rem;
+                font-weight: 400;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 300;
+            }
         }
 
         .nav-hamburger {
@@ -1426,6 +1465,114 @@
         }
 
         /* ══════════════════════════════════════════════════════
+           FEED NOTICE (period fallback)
+           ══════════════════════════════════════════════════════ */
+
+        .feed-notice {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            background: rgba(201, 169, 110, 0.1);
+            border: 1px solid rgba(201, 169, 110, 0.25);
+            border-radius: 0.5rem;
+            font-size: 0.92rem;
+            color: var(--sage-dark);
+        }
+
+        /* ══════════════════════════════════════════════════════
+           INLINE EMAIL SIGNUP (in-feed)
+           ══════════════════════════════════════════════════════ */
+
+        .inline-signup {
+            background: linear-gradient(135deg, rgba(250, 249, 246, 0.95) 0%, rgba(245, 245, 220, 0.8) 100%);
+            border: 1px solid rgba(212, 197, 185, 0.5);
+            border-radius: 1rem;
+            padding: 1.5rem 1.75rem;
+            margin: 0.75rem 0;
+            text-align: center;
+        }
+
+        .inline-signup-text {
+            margin-bottom: 1rem;
+        }
+
+        .inline-signup-text strong {
+            display: block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.25rem;
+        }
+
+        .inline-signup-text span {
+            font-size: 0.92rem;
+            color: var(--sage-dark);
+        }
+
+        .inline-signup-form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .inline-signup-form input[type="email"] {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.95rem;
+            color: var(--dark-brown);
+            background: white;
+        }
+
+        .inline-signup-form input[type="email"]:focus {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 0;
+            border-color: transparent;
+        }
+
+        .inline-signup-form button {
+            padding: 0.6rem 1.25rem;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .inline-signup-form button:hover {
+            background: #c45a1a;
+        }
+
+        .inline-signup-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .inline-signup-success {
+            font-size: 0.95rem;
+            color: var(--green-text, #558b2f);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .inline-signup-form {
+                flex-direction: column;
+            }
+            .inline-signup-form button {
+                width: 100%;
+            }
+        }
+
+        /* ══════════════════════════════════════════════════════
            ANIMATIONS
            ══════════════════════════════════════════════════════ */
 
@@ -1471,7 +1618,7 @@
                 padding: 1rem 1.5rem;
                 border-bottom: 1px solid var(--light-taupe);
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-                gap: 0.75rem;
+                gap: 0;
                 z-index: 199;
             }
 
@@ -1479,19 +1626,45 @@
                 display: flex;
             }
 
+            .nav-group-primary,
+            .nav-group-secondary {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+            }
+
+            .nav-group-primary {
+                padding-bottom: 0.75rem;
+                margin-bottom: 0.5rem;
+                border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+            }
+
+            .nav-group-secondary {
+                padding-bottom: 0.5rem;
+            }
+
             .nav-divider {
                 display: none;
             }
 
             .nav-link-secondary {
-                opacity: 1;
-                font-size: 1rem;
+                opacity: 0.7;
+                font-size: 0.92rem;
             }
 
             .nav-premium-btn {
                 text-align: center;
                 width: 100%;
                 margin-top: 0.25rem;
+            }
+
+            /* Mobile: show subtext below button */
+            .nav-btn-subtext {
+                display: block;
+                margin-top: 0.2rem;
+                font-size: 0.75rem;
+                font-weight: 400;
+                opacity: 0.85;
             }
 
             .nav-hamburger {
@@ -1666,12 +1839,16 @@
     <nav class="top-nav">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
-            <a href="/feed" class="nav-link active">Listings</a>
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link active">Listings</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva<span class="nav-btn-subtext">For friends &amp; family coordinating meals</span></a>
+            </div>
             <span class="nav-divider"></span>
-            <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
-            <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
-            <a href="/about" class="nav-link nav-link-secondary">About</a>
-            <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva</a>
+            <div class="nav-group-secondary">
+                <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
         </div>
         <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
             <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>

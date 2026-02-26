@@ -11,6 +11,8 @@ class NeshamaApp {
         this.displayedCount = 5;
         this.tributeCounts = {};
         this.scrollObserver = null;
+        this.userClickedTab = false;
+        this.fallbackNotice = '';
         this.init();
     }
 
@@ -113,6 +115,8 @@ class NeshamaApp {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         this.currentTab = e.target.dataset.tab;
+        this.userClickedTab = true;
+        this.fallbackNotice = '';
         this.displayedCount = 5;
         this.render();
     }
@@ -125,12 +129,12 @@ class NeshamaApp {
 
     filterByPeriod(list, tab) {
         var now = new Date();
-        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        var weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        var monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        var dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        var weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        var monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
         if (tab === 'today') {
-            return list.filter(function(obit) { return new Date(obit.first_seen) >= today; });
+            return list.filter(function(obit) { return new Date(obit.first_seen) >= dayAgo; });
         } else if (tab === 'week') {
             return list.filter(function(obit) { return new Date(obit.first_seen) >= weekAgo; });
         } else if (tab === 'month') {
@@ -157,16 +161,20 @@ class NeshamaApp {
 
         // Apply period filter with auto-fallback
         var periodFiltered = this.filterByPeriod(filtered, this.currentTab);
+        this.fallbackNotice = '';
 
-        // Auto-fallback: if current period is empty but broader periods have data, escalate
-        if (periodFiltered.length === 0 && filtered.length > 0 && !this.searchQuery) {
+        // Auto-fallback only on initial load (not explicit user tab clicks)
+        if (periodFiltered.length === 0 && filtered.length > 0 && !this.searchQuery && !this.userClickedTab) {
             var periods = ['today', 'week', 'month'];
+            var periodLabels = { today: 'today', week: 'this week', month: 'this month' };
+            var originalTab = this.currentTab;
             var currentIdx = periods.indexOf(this.currentTab);
             if (currentIdx >= 0) {
                 for (var i = currentIdx + 1; i < periods.length; i++) {
                     periodFiltered = this.filterByPeriod(filtered, periods[i]);
                     if (periodFiltered.length > 0) {
                         this.currentTab = periods[i];
+                        this.fallbackNotice = 'No new listings ' + periodLabels[originalTab] + ' \u2014 showing ' + periodLabels[periods[i]];
                         document.querySelectorAll('.tab').forEach(function(t) {
                             t.classList.toggle('active', t.dataset.tab === periods[i]);
                         });
@@ -177,6 +185,7 @@ class NeshamaApp {
                 if (periodFiltered.length === 0) {
                     periodFiltered = filtered;
                     this.currentTab = 'month';
+                    this.fallbackNotice = 'No new listings ' + periodLabels[originalTab] + ' \u2014 showing all recent listings';
                     document.querySelectorAll('.tab').forEach(function(t) {
                         t.classList.toggle('active', t.dataset.tab === 'month');
                     });
@@ -239,7 +248,25 @@ class NeshamaApp {
         }
 
         const toDisplay = filtered.slice(0, this.displayedCount);
-        feed.innerHTML = toDisplay.map(obit => this.renderCard(obit)).join('');
+        var html = '';
+
+        // Show fallback notice if auto-escalation happened
+        if (this.fallbackNotice) {
+            html += '<div class="feed-notice">' + this.escapeHtml(this.fallbackNotice) + '</div>';
+        }
+
+        // Render cards with inline email signup after 6th card
+        for (var i = 0; i < toDisplay.length; i++) {
+            html += this.renderCard(toDisplay[i]);
+            if (i === 5 && !localStorage.getItem('neshama_subscribed')) {
+                html += this.renderInlineSignup();
+            }
+        }
+
+        feed.innerHTML = html;
+
+        // Bind inline signup form
+        this.bindInlineSignup();
 
         if (filtered.length > this.displayedCount) {
             loadMoreBtn.style.display = 'block';
@@ -317,6 +344,62 @@ class NeshamaApp {
                     '</div>' +
                 '</div>' +
             '</div>';
+    }
+
+    renderInlineSignup() {
+        return '<div class="inline-signup">' +
+            '<div class="inline-signup-text">' +
+                '<strong>Get notified when new listings are posted</strong>' +
+                '<span>Free updates for Toronto and Montreal</span>' +
+            '</div>' +
+            '<form class="inline-signup-form" id="inlineSignupForm">' +
+                '<input type="email" id="inlineSignupEmail" placeholder="Your email address" required autocomplete="email">' +
+                '<button type="submit" id="inlineSignupBtn">Get Updates</button>' +
+            '</form>' +
+            '<div class="inline-signup-success" id="inlineSignupSuccess" style="display:none;">' +
+                'Check your inbox for a confirmation email.' +
+            '</div>' +
+        '</div>';
+    }
+
+    bindInlineSignup() {
+        var form = document.getElementById('inlineSignupForm');
+        if (!form) return;
+        var self = this;
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var emailInput = document.getElementById('inlineSignupEmail');
+            var btn = document.getElementById('inlineSignupBtn');
+            var email = emailInput.value.trim();
+            if (!email) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Subscribing...';
+
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, frequency: 'daily', locations: 'toronto,montreal', consent: true })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    form.style.display = 'none';
+                    document.getElementById('inlineSignupSuccess').style.display = '';
+                    localStorage.setItem('neshama_subscribed', 'true');
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Get Updates';
+                    emailInput.setCustomValidity(data.message || 'Please try again');
+                    emailInput.reportValidity();
+                    setTimeout(function() { emailInput.setCustomValidity(''); }, 3000);
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Get Updates';
+            });
+        });
     }
 
     renderEmptyState() {
