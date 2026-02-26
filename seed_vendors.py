@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Neshama Vendor Directory - Seed Script
-Creates vendors and vendor_leads tables, populates with 37 Toronto-area food vendors.
+Creates vendors and vendor_leads tables, populates with Toronto and Montreal food vendors.
 Run: python seed_vendors.py
 """
 
@@ -643,6 +643,173 @@ VENDORS = [
 ]
 
 
+# 13 Montreal-area food vendors
+MONTREAL_VENDORS = [
+    # Kosher Caterers
+    {
+        'name': 'Blossom by La Plaza',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'One of Montreal\'s premier kosher caterers, specializing in elegant event planning and gourmet cuisine. Full-service catering for shiva meals, lifecycle events, and community gatherings.',
+        'address': '5458 Avenue Westminster, Côte-Saint-Luc, QC',
+        'neighborhood': 'Côte-Saint-Luc',
+        'phone': '(514) 489-7111',
+        'website': 'https://www.blossombylaplaza.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Côte-Saint-Luc,Westmount',
+    },
+    {
+        'name': 'Paradise Kosher Catering',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'Full-service kosher caterer offering prepared meals, bakery goods, and catering for shiva, Shabbat, and lifecycle events. Provides an à la carte order form for easy meal planning. MK certified.',
+        'address': '11608 Boulevard de Salaberry, Dollard-des-Ormeaux, QC',
+        'neighborhood': 'Dollard-des-Ormeaux',
+        'phone': '(514) 421-0421',
+        'website': 'https://www.paradisekosher.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Côte-Saint-Luc,Hampstead,Snowdon',
+    },
+    {
+        'name': 'Kosher Quality Bakery & Deli',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'Iconic Montreal kosher destination offering bakery, butcher, deli, and full catering. Known for challah, prepared Shabbat meals, smoked fish platters, and party sandwiches. MK certified.',
+        'address': '5855 Avenue Victoria, Montréal, QC',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 731-7883',
+        'website': '',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Snowdon,Côte-Saint-Luc',
+    },
+    # Jewish Delis
+    {
+        'name': 'Snowdon Deli',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'A Montreal institution since 1946, beloved for classic smoked meat, deli sandwiches, and homestyle Jewish comfort food. Catering platters ideal for shiva meals.',
+        'address': '5265 Boulevard Décarie, Montréal, QC',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 488-9129',
+        'website': 'https://www.snowdondeli.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Montreal',
+    },
+    {
+        'name': 'Deli 365',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'MK-certified kosher smoked meat deli on Bernard Street. Take-out sandwiches, burgers, and prepared platters. Reliable for kosher deli trays and comfort food for shiva meals.',
+        'address': '365 Rue Bernard Ouest, Montréal, QC',
+        'neighborhood': 'Outremont',
+        'phone': '(514) 544-3354',
+        'website': 'https://deli365.ca',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Outremont,Mile End',
+    },
+    {
+        'name': 'Schwartz\'s Deli',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'World-famous Montreal smoked meat restaurant since 1928. An iconic Jewish culinary landmark on Boulevard Saint-Laurent. Not kosher certified but deeply rooted in Montreal Jewish food tradition.',
+        'address': '3895 Boulevard Saint-Laurent, Montréal, QC',
+        'neighborhood': 'Plateau Mont-Royal',
+        'phone': '(514) 842-4813',
+        'website': 'https://schwartzsdeli.com',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'Lester\'s Deli',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'Established in 1951, a beloved Outremont smoked meat institution known for hand-cut fries and community spirit. Catering, take-out, and delivery available.',
+        'address': '1057 Avenue Bernard, Outremont, QC',
+        'neighborhood': 'Outremont',
+        'phone': '(514) 213-1313',
+        'website': 'https://lestersdeli.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Outremont',
+    },
+    # Bagel Shops & Bakeries
+    {
+        'name': 'Boulangerie Cheskie',
+        'category': 'Bagel Shops & Bakeries',
+        'description': 'MK-certified kosher bakery and Montreal institution. Famous for babka, challah, rugelach, and cheese crowns. Perfect for shiva dessert platters and Shabbat bread.',
+        'address': '359 Rue Bernard Ouest, Montréal, QC',
+        'neighborhood': 'Outremont',
+        'phone': '(514) 271-2253',
+        'website': '',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Outremont,Mile End',
+    },
+    {
+        'name': 'St-Viateur Bagel',
+        'category': 'Bagel Shops & Bakeries',
+        'description': 'Legendary wood-fired bagel bakery operating 24/7 since 1957. Hand-rolled Montreal-style bagels baked in a wood-burning oven. A cornerstone of Montreal Jewish food culture.',
+        'address': '263 Rue Saint-Viateur Ouest, Montréal, QC',
+        'neighborhood': 'Mile End',
+        'phone': '(514) 276-8044',
+        'website': 'https://stviateurbagel.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Canada-wide',
+    },
+    {
+        'name': 'Fairmount Bagel',
+        'category': 'Bagel Shops & Bakeries',
+        'description': 'Montreal\'s original bagel bakery, open 24 hours since 1919. Hand-made, wood-fired bagels. A quintessential Montreal Jewish food experience for bagel platters.',
+        'address': '74 Avenue Fairmount Ouest, Montréal, QC',
+        'neighborhood': 'Mile End',
+        'phone': '(514) 272-0667',
+        'website': 'https://fairmountbagel.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Montreal',
+    },
+    {
+        'name': 'Montreal Kosher Bakery',
+        'category': 'Bagel Shops & Bakeries',
+        'description': 'The largest kosher bakery in Montreal and all of Canada, operating since 1976. Freshly baked muffins, danishes, breads, bagels, and dinner rolls daily. MK certified.',
+        'address': '7005 Avenue Victoria, Montréal, QC',
+        'neighborhood': 'Côte-des-Neiges',
+        'phone': '(514) 739-3651',
+        'website': 'https://montrealkosher.ca',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Côte-des-Neiges,Snowdon',
+    },
+    # Comfort Food & Prepared Meals
+    {
+        'name': 'Nosherz',
+        'category': 'Caterers',
+        'description': 'A Côte-Saint-Luc institution for over 50 years. Homemade baked goods, gourmet prepared meals, comfort food, soups, sandwiches, salads, and fresh deli. Perfect for shiva meal platters.',
+        'address': '5800 Avenue Westminster, Côte-Saint-Luc, QC',
+        'neighborhood': 'Côte-Saint-Luc',
+        'phone': '(514) 484-0445',
+        'website': 'https://nosherz.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Côte-Saint-Luc,Hampstead',
+    },
+    # Gift Baskets
+    {
+        'name': 'Gifting Kosher Canada',
+        'category': 'Caterers',
+        'vendor_type': 'gift',
+        'description': 'Canada\'s leading online retailer of kosher shiva gift baskets. Gourmet food, wine, cakes, chocolates, and customizable baskets. Same-day and next-day delivery to Montreal.',
+        'address': 'Online — ships Canada-wide',
+        'neighborhood': 'Montreal',
+        'phone': '1-(800) 548-9624',
+        'website': 'https://giftingkosher.ca',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Montreal,Canada-wide',
+    },
+]
+
+
 # 11 Toronto-area gift vendors (local, lead capture)
 GIFT_VENDORS = [
     {
@@ -791,8 +958,9 @@ def seed_vendors(db_path=None):
     inserted = 0
     skipped = 0
 
-    # Seed food vendors
-    for v in VENDORS:
+    # Seed food vendors (Toronto + Montreal)
+    all_food_vendors = VENDORS + MONTREAL_VENDORS
+    for v in all_food_vendors:
         slug = slugify(v['name'])
         # Check if already exists
         cursor.execute('SELECT id FROM vendors WHERE slug = ?', (slug,))
@@ -800,14 +968,16 @@ def seed_vendors(db_path=None):
             skipped += 1
             continue
 
+        vendor_type = v.get('vendor_type', 'food')
         cursor.execute('''
             INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
                                  phone, website, kosher_status, delivery, delivery_area, image_url, featured, created_at)
-            VALUES (?, ?, ?, 'food', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             v['name'],
             slug,
             v['category'],
+            vendor_type,
             v.get('description', ''),
             v.get('address', ''),
             v.get('neighborhood', ''),

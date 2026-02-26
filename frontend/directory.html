@@ -404,31 +404,49 @@
             </select>
             <select class="filter-select" id="neighborhoodFilter" aria-label="Filter by area">
                 <option value="">All Areas</option>
-                <option value="Annex">Annex</option>
-                <option value="Bathurst Manor">Bathurst Manor</option>
-                <option value="Bayview Village">Bayview Village</option>
-                <option value="Eglinton West">Eglinton West</option>
-                <option value="GTA-wide">GTA-wide</option>
-                <option value="Harbord Village">Harbord Village</option>
-                <option value="Kensington">Kensington</option>
-                <option value="Lawrence Heights">Lawrence Heights</option>
-                <option value="Lawrence Park">Lawrence Park</option>
-                <option value="Liberty Village">Liberty Village</option>
-                <option value="Little Italy">Little Italy</option>
-                <option value="North York">North York</option>
-                <option value="Queen West">Queen West</option>
-                <option value="Summerhill">Summerhill</option>
-                <option value="Thornhill">Thornhill</option>
+                <optgroup label="Toronto">
+                    <option value="Annex">Annex</option>
+                    <option value="Bathurst Manor">Bathurst Manor</option>
+                    <option value="Bayview Village">Bayview Village</option>
+                    <option value="Eglinton West">Eglinton West</option>
+                    <option value="GTA-wide">GTA-wide</option>
+                    <option value="Harbord Village">Harbord Village</option>
+                    <option value="Kensington">Kensington</option>
+                    <option value="Lawrence Heights">Lawrence Heights</option>
+                    <option value="Lawrence Park">Lawrence Park</option>
+                    <option value="Leslieville">Leslieville</option>
+                    <option value="Liberty Village">Liberty Village</option>
+                    <option value="Little Italy">Little Italy</option>
+                    <option value="North York">North York</option>
+                    <option value="Queen West">Queen West</option>
+                    <option value="Summerhill">Summerhill</option>
+                    <option value="Thornhill">Thornhill</option>
+                </optgroup>
+                <optgroup label="Montreal">
+                    <option value="Côte-des-Neiges">Côte-des-Neiges</option>
+                    <option value="Côte-Saint-Luc">Côte-Saint-Luc</option>
+                    <option value="Dollard-des-Ormeaux">Dollard-des-Ormeaux</option>
+                    <option value="Mile End">Mile End</option>
+                    <option value="Outremont">Outremont</option>
+                    <option value="Plateau Mont-Royal">Plateau Mont-Royal</option>
+                    <option value="Snowdon">Snowdon</option>
+                </optgroup>
             </select>
             <select class="filter-select" id="deliveryZoneFilter" aria-label="Filter by delivery zone">
                 <option value="">Delivers to...</option>
-                <option value="Toronto">Toronto</option>
-                <option value="North York">North York</option>
-                <option value="Thornhill/Vaughan">Thornhill/Vaughan</option>
-                <option value="Mississauga">Mississauga</option>
-                <option value="GTA-wide">GTA-wide</option>
+                <optgroup label="Toronto">
+                    <option value="Toronto">Toronto</option>
+                    <option value="North York">North York</option>
+                    <option value="Thornhill/Vaughan">Thornhill/Vaughan</option>
+                    <option value="GTA-wide">GTA-wide</option>
+                </optgroup>
+                <optgroup label="Montreal">
+                    <option value="Montreal">Montreal</option>
+                    <option value="Côte-Saint-Luc">Côte-Saint-Luc</option>
+                    <option value="Outremont">Outremont</option>
+                </optgroup>
             </select>
-            <button class="filter-toggle" id="kosherToggle" aria-label="Show COR certified only" aria-pressed="false">COR Kosher</button>
+            <button class="filter-toggle" id="kosherToggle" aria-label="Show kosher certified only" aria-pressed="false">Kosher Certified</button>
             <button class="filter-toggle" id="deliveryToggle" aria-label="Show delivery available only" aria-pressed="false">Delivers</button>
         </div>
     </div>
@@ -511,6 +529,8 @@
                 html += '<h3>' + escapeHtml(v.name) + '</h3>';
                 if (v.kosher_status === 'COR') {
                     html += '<span class="kosher-badge">COR Certified</span>';
+                } else if (v.kosher_status === 'MK') {
+                    html += '<span class="kosher-badge">MK Certified</span>';
                 }
                 html += '</div>';
                 html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
@@ -544,8 +564,8 @@
                 }
                 if (category && v.category !== category) return false;
                 if (neighborhood && (v.neighborhood || '') !== neighborhood) return false;
-                if (zone && (!v.delivery_area || (v.delivery_area.indexOf(zone) === -1 && v.delivery_area.indexOf('GTA-wide') === -1))) return false;
-                if (kosherActive && v.kosher_status !== 'COR') return false;
+                if (zone && (!v.delivery_area || (v.delivery_area.indexOf(zone) === -1 && v.delivery_area.indexOf('GTA-wide') === -1 && v.delivery_area.indexOf('Canada-wide') === -1))) return false;
+                if (kosherActive && v.kosher_status !== 'COR' && v.kosher_status !== 'MK') return false;
                 if (deliveryActive && !v.delivery) return false;
                 return true;
             });
