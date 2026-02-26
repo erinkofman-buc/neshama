@@ -995,6 +995,18 @@
                 group.style.display = 'none';
                 select.innerHTML = '<option value="">All areas</option>';
             }
+
+            // Re-filter caterer list when city changes
+            if (vendorData.length) {
+                // Remove selections no longer in filtered set
+                var filtered = getFilteredVendors().vendors;
+                var filteredSlugs = filtered.map(function(v) { return v.slug; });
+                selectedVendors = selectedVendors.filter(function(s) {
+                    return filteredSlugs.indexOf(s) !== -1;
+                });
+                document.getElementById('catererCount').textContent = selectedVendors.length;
+                renderVendorCards();
+            }
         };
 
         // ── Get obit ID from URL params ─────────────────
@@ -1473,6 +1485,32 @@
         var selectedVendors = [];
         var vendorData = [];
 
+        var cityKeywords = {
+            'Toronto': ['toronto', 'north york', 'thornhill', 'vaughan', 'markham',
+                         'mississauga', 'etobicoke', 'scarborough', 'richmond hill', 'gta'],
+            'Montreal': ['montreal', 'montréal', 'plateau', 'mont-royal', 'côte-saint-luc',
+                         'cote-saint-luc', 'ndg', 'westmount', 'hampstead', 'dollard', 'laval']
+        };
+
+        function getFilteredVendors() {
+            var city = document.getElementById('shivaCity').value;
+            if (!city || !cityKeywords[city] || !vendorData.length) {
+                return { vendors: vendorData, isFiltered: false };
+            }
+            var keywords = cityKeywords[city];
+            var filtered = vendorData.filter(function(v) {
+                var haystack = ((v.neighborhood || '') + ' ' + (v.delivery_area || '')).toLowerCase();
+                for (var i = 0; i < keywords.length; i++) {
+                    if (haystack.indexOf(keywords[i]) !== -1) return true;
+                }
+                return false;
+            });
+            if (filtered.length === 0) {
+                return { vendors: vendorData, isFiltered: false };
+            }
+            return { vendors: filtered, isFiltered: true };
+        }
+
         window.toggleCatererBrowser = function() {
             var browser = document.getElementById('catererBrowser');
             var btn = document.getElementById('catererToggle');
@@ -1507,8 +1545,13 @@
                 grid.innerHTML = '<p style="color:var(--sage-dark);text-align:center;padding:1rem;">No caterers found.</p>';
                 return;
             }
+            var result = getFilteredVendors();
+            var vendors = result.vendors;
             var html = '';
-            vendorData.forEach(function(v) {
+            if (!result.isFiltered) {
+                html += '<p style="color:var(--sage-dark);text-align:center;padding:0.5rem 1rem 0;font-size:0.88rem;margin:0;">Showing all available caterers</p>';
+            }
+            vendors.forEach(function(v) {
                 var isSelected = selectedVendors.indexOf(v.slug) !== -1;
                 html += '<div class="caterer-card' + (isSelected ? ' selected' : '') + '" data-slug="' + escapeHtml(v.slug) + '">';
                 html += '<div class="caterer-card-check">' + (isSelected ? '&#x2611;' : '&#x2610;') + '</div>';
