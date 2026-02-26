@@ -123,35 +123,68 @@ class NeshamaApp {
         this.render();
     }
 
+    filterByPeriod(list, tab) {
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        var monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+        if (tab === 'today') {
+            return list.filter(function(obit) { return new Date(obit.first_seen) >= today; });
+        } else if (tab === 'week') {
+            return list.filter(function(obit) { return new Date(obit.first_seen) >= weekAgo; });
+        } else if (tab === 'month') {
+            return list.filter(function(obit) { return new Date(obit.first_seen) >= monthAgo; });
+        }
+        return list;
+    }
+
     filterObituaries() {
-        let filtered = [...this.allObituaries];
+        var filtered = this.allObituaries.slice();
 
         // City filter
         if (this.currentCity && this.currentCity !== 'all') {
-            filtered = filtered.filter(obit => (obit.city || 'Toronto') === this.currentCity);
+            filtered = filtered.filter(function(obit) { return (obit.city || 'Toronto') === this.currentCity; }.bind(this));
         }
 
         if (this.searchQuery) {
-            filtered = filtered.filter(obit => {
-                const searchableText = (obit.deceased_name + ' ' + (obit.hebrew_name || '')).toLowerCase();
-                return searchableText.includes(this.searchQuery);
+            var query = this.searchQuery;
+            filtered = filtered.filter(function(obit) {
+                var searchableText = (obit.deceased_name + ' ' + (obit.hebrew_name || '')).toLowerCase();
+                return searchableText.includes(query);
             });
         }
 
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        // Apply period filter with auto-fallback
+        var periodFiltered = this.filterByPeriod(filtered, this.currentTab);
 
-        if (this.currentTab === 'today') {
-            filtered = filtered.filter(obit => new Date(obit.last_updated) >= today);
-        } else if (this.currentTab === 'week') {
-            filtered = filtered.filter(obit => new Date(obit.last_updated) >= weekAgo);
-        } else if (this.currentTab === 'month') {
-            filtered = filtered.filter(obit => new Date(obit.last_updated) >= monthAgo);
+        // Auto-fallback: if current period is empty but broader periods have data, escalate
+        if (periodFiltered.length === 0 && filtered.length > 0 && !this.searchQuery) {
+            var periods = ['today', 'week', 'month'];
+            var currentIdx = periods.indexOf(this.currentTab);
+            if (currentIdx >= 0) {
+                for (var i = currentIdx + 1; i < periods.length; i++) {
+                    periodFiltered = this.filterByPeriod(filtered, periods[i]);
+                    if (periodFiltered.length > 0) {
+                        this.currentTab = periods[i];
+                        document.querySelectorAll('.tab').forEach(function(t) {
+                            t.classList.toggle('active', t.dataset.tab === periods[i]);
+                        });
+                        break;
+                    }
+                }
+                // If all periods empty, show everything
+                if (periodFiltered.length === 0) {
+                    periodFiltered = filtered;
+                    this.currentTab = 'month';
+                    document.querySelectorAll('.tab').forEach(function(t) {
+                        t.classList.toggle('active', t.dataset.tab === 'month');
+                    });
+                }
+            }
         }
 
-        return filtered;
+        return periodFiltered;
     }
 
     highlightText(text, query) {
