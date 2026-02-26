@@ -7,11 +7,28 @@ Run via cron: 0 9 1 * * python3 /path/to/vendor_report.py
 
 import sqlite3
 import os
+import re as _re
 from datetime import datetime, timedelta
 
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'neshama.db'))
 FROM_EMAIL = 'updates@neshama.ca'
 FROM_NAME = 'Neshama'
+
+
+def _html_to_plain(html):
+    """Convert HTML email to readable plain text"""
+    text = html
+    text = _re.sub(r'<br\s*/?>','\n', text)
+    text = _re.sub(r'</p>', '\n\n', text)
+    text = _re.sub(r'</tr>', '\n', text)
+    text = _re.sub(r'</td>', ' ', text)
+    text = _re.sub(r'<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>', r'\2 (\1)', text)
+    text = _re.sub(r'<[^>]+>', '', text)
+    text = _re.sub(r'&middot;', '-', text)
+    text = _re.sub(r'&mdash;|&ndash;', '-', text)
+    text = _re.sub(r'&[a-z]+;', '', text)
+    text = _re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 
 def get_vendor_stats(db_path=None):
@@ -146,12 +163,14 @@ def send_report(email, vendor_name, html):
     if sendgrid_key:
         try:
             from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
+            from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo, MimeType
+            plain_text = _html_to_plain(html)
             msg = Mail(
                 from_email=Email(FROM_EMAIL, FROM_NAME),
                 to_emails=To(email),
                 subject=subject,
-                html_content=Content("text/html", html)
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html)
             )
             msg.reply_to = ReplyTo('contact@neshama.ca', 'Neshama')
             sg = SendGridAPIClient(sendgrid_key)

@@ -13,8 +13,25 @@ import os
 import json
 
 # SendGrid imports (install with: pip3 install sendgrid)
+import re as _re
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content
+from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+
+def _html_to_plain(html):
+    """Convert HTML email to readable plain text"""
+    text = html
+    text = _re.sub(r'<br\s*/?>','\n', text)
+    text = _re.sub(r'</p>', '\n\n', text)
+    text = _re.sub(r'</tr>', '\n', text)
+    text = _re.sub(r'</td>', ' ', text)
+    text = _re.sub(r'<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>', r'\2 (\1)', text)
+    text = _re.sub(r'<[^>]+>', '', text)
+    text = _re.sub(r'&middot;', '-', text)
+    text = _re.sub(r'&mdash;|&ndash;', '-', text)
+    text = _re.sub(r'&[a-z]+;', '', text)
+    text = _re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 class EmailSubscriptionManager:
     # Rate limiting: max 3 subscribe attempts per email per 10 minutes
@@ -396,13 +413,15 @@ class EmailSubscriptionManager:
 </html>"""
         
         try:
+            plain_text = _html_to_plain(html_content)
             message = Mail(
                 from_email=Email(self.from_email, self.from_name),
                 to_emails=To(email),
                 subject='Confirm your subscription - Neshama',
-                html_content=Content("text/html", html_content)
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
             )
-            
+
             sg = SendGridAPIClient(self.sendgrid_api_key)
             response = sg.send(message)
             

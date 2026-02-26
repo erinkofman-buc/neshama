@@ -21,6 +21,22 @@ FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 
+
+def _html_to_plain(html_str):
+    """Convert HTML email to readable plain text"""
+    text = html_str
+    text = re.sub(r'<br\s*/?>', '\n', text)
+    text = re.sub(r'</p>', '\n\n', text)
+    text = re.sub(r'</tr>', '\n', text)
+    text = re.sub(r'</td>', ' ', text)
+    text = re.sub(r'<a[^>]+href="([^"]+)"[^>]*>([^<]+)</a>', r'\2 (\1)', text)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'&middot;', '-', text)
+    text = re.sub(r'&mdash;|&ndash;', '-', text)
+    text = re.sub(r'&[a-z]+;', '', text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
 # Import vendor seed script
 try:
     sys_path_parent = os.path.join(FRONTEND_DIR, '..')
@@ -1417,12 +1433,14 @@ button:hover{background:#c45a1a}</style></head>
         if sendgrid_key:
             try:
                 from sendgrid import SendGridAPIClient
-                from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo
+                from sendgrid.helpers.mail import Mail, Email, To, Content, ReplyTo, MimeType
+                plain_text = _html_to_plain(html)
                 msg = Mail(
                     from_email=Email('updates@neshama.ca', 'Neshama'),
                     to_emails=To(vendor_email),
                     subject=subject,
-                    html_content=Content("text/html", html)
+                    plain_text_content=Content(MimeType.text, plain_text),
+                    html_content=Content(MimeType.html, html)
                 )
                 msg.reply_to = ReplyTo(contact_email, contact_name)
                 sg = SendGridAPIClient(sendgrid_key)
@@ -1835,10 +1853,12 @@ button:hover{background:#c45a1a}</style></head>
                 <p style="font-size:0.85rem;color:#B2BEB5;">You are receiving this because you organized the {result['family_name']} shiva page on Neshama.</p>
             </div>"""
 
+            plain_text = _html_to_plain(html)
             message = Mail(
                 from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['organizer_email']),
                 subject=f"Shiva access request from {result['requester_name']}",
+                plain_text_content=Content("text/plain", plain_text),
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
@@ -1871,10 +1891,12 @@ button:hover{background:#c45a1a}</style></head>
                 <p style="font-size:0.9rem;color:#B2BEB5;">Bookmark this link to access the page again later.</p>
             </div>"""
 
+            plain_text = _html_to_plain(html)
             message = Mail(
                 from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['requester_email']),
                 subject=f"You've been approved \u2014 {result['family_name']} shiva details",
+                plain_text_content=Content("text/plain", plain_text),
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
@@ -1901,10 +1923,12 @@ button:hover{background:#c45a1a}</style></head>
                 <p style="font-size:0.9rem;color:#B2BEB5;margin-top:2rem;">Neshama \u2014 Every soul remembered</p>
             </div>"""
 
+            plain_text = _html_to_plain(html)
             message = Mail(
                 from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['requester_email']),
                 subject='Shiva access update',
+                plain_text_content=Content("text/plain", plain_text),
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
