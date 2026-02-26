@@ -34,28 +34,24 @@
         body { font-family: 'Source Serif 4', serif; background: var(--cream); color: var(--dark-brown); line-height: 1.6; }
 
         /* Nav */
-        .nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: white; border-bottom: 1px solid var(--light-taupe); position: sticky; top: 0; z-index: 100; }
-        .nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--dark-brown); text-decoration: none; }
-        .nav-links { display: flex; gap: 1.2rem; align-items: center; }
-        .nav-links a { color: var(--sage-dark); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--terracotta); }
-
-        .nav-links .nav-secondary {
-            font-size: 0.92rem;
-            opacity: 0.7;
-        }
-
-        .nav-links .nav-secondary:hover {
-            opacity: 1;
-        }
-
-        .nav-divider {
-            width: 1px;
-            height: 18px;
-            background: var(--light-taupe);
-            opacity: 0.5;
-            align-self: center;
-        }
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; font-size: 0.72rem; font-weight: 400; opacity: 0.9; }
+        @media (min-width: 769px) { .nav-premium-btn:hover .nav-btn-subtext { display: block; position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; background: var(--dark-brown); color: white; padding: 0.3rem 0.65rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: 400; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 300; } }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
 
 
         /* Hero */
@@ -124,10 +120,20 @@
         .no-results { text-align: center; padding: 3rem 1.5rem; color: var(--sage-dark); }
         .no-results h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--dark-brown); }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-group-secondary { padding-bottom: 0.5rem; }
             .nav-divider { display: none; }
-            .nav-links .nav-secondary { opacity: 1; font-size: 1rem; }
-            .nav-links { gap: 0.8rem; font-size: 0.9rem; }
+            .nav-link-secondary { opacity: 0.7; font-size: 0.92rem; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
+            .nav-hamburger { display: block; }
+        }
+
+        @media (max-width: 600px) {
             .vendor-grid { grid-template-columns: 1fr; padding: 0 1rem 2rem; }
             .category-pills { padding: 0 0 1rem; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-padding: 0 1rem; gap: 0.4rem; }
             .category-pills::-webkit-scrollbar { display: none; }
@@ -146,16 +152,23 @@
 </head>
 <body>
 
-<nav class="nav">
-    <a href="/" class="nav-brand">Neshama</a>
-    <div class="nav-links">
-        <a href="/feed">Listings</a>
+<nav class="top-nav">
+    <a href="/" class="nav-logo">Neshama</a>
+    <div class="nav-center" id="navLinks">
+        <div class="nav-group-primary">
+            <a href="/feed" class="nav-link">Listings</a>
+            <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva<span class="nav-btn-subtext">For friends &amp; family coordinating meals</span></a>
+        </div>
         <span class="nav-divider"></span>
-        <a href="/shiva-essentials" class="nav-secondary">Essentials</a>
-        <a href="/gifts" class="nav-secondary">Gifts</a>
-        <a href="/about" class="nav-secondary">About</a>
-        <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600;font-size:0.88rem;">Organize Shiva</a>
+        <div class="nav-group-secondary">
+            <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+            <a href="/gifts" class="nav-link nav-link-secondary active">Gifts</a>
+            <a href="/about" class="nav-link nav-link-secondary">About</a>
+        </div>
     </div>
+    <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
 </nav>
 
 <div class="page-hero">
@@ -243,13 +256,40 @@
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem;">
         <div class="vendor-card">
-            <div class="vendor-name">LCBO</div>
+            <div class="vendor-name">LCBO Gift Cards</div>
             <div class="vendor-badges">
                 <span class="badge badge-delivery">Delivery Available</span>
                 <span class="badge badge-category">Wine &amp; Spirits</span>
             </div>
             <p class="vendor-desc">Ontario's official retailer for wine, beer, and spirits. Order online for delivery or pickup. Wide selection of kosher wines available.</p>
-            <a href="https://www.lcbo.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+            <a href="https://www.lcbo.com?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+        </div>
+        <div class="vendor-card">
+            <div class="vendor-name">Grape Witches</div>
+            <div class="vendor-badges">
+                <span class="badge badge-delivery">Local Toronto</span>
+                <span class="badge badge-category">Wine &amp; Spirits</span>
+            </div>
+            <p class="vendor-desc">Independent Toronto wine shop offering natural, organic, and thoughtfully curated wines. A great local option for a meaningful bottle.</p>
+            <a href="https://www.grapewitches.com?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+        </div>
+        <div class="vendor-card">
+            <div class="vendor-name">Barkan Wine</div>
+            <div class="vendor-badges">
+                <span class="badge badge-kosher">Kosher</span>
+                <span class="badge badge-category">Wine</span>
+            </div>
+            <p class="vendor-desc">One of Israel's most well-known wineries. Barkan produces a wide range of quality kosher wines, from everyday bottles to premium reserves.</p>
+            <a href="https://www.amazon.ca/s?k=barkan+wine&tag=neshama07-20" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Shop on Amazon &rarr;</a>
+        </div>
+        <div class="vendor-card">
+            <div class="vendor-name">Yarden Wine</div>
+            <div class="vendor-badges">
+                <span class="badge badge-kosher">Kosher</span>
+                <span class="badge badge-category">Premium Wine</span>
+            </div>
+            <p class="vendor-desc">Premium kosher wines from the Golan Heights Winery. Yarden is widely regarded as one of the finest kosher wine labels in the world.</p>
+            <a href="https://www.amazon.ca/s?k=yarden+wine&tag=neshama07-20" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Shop on Amazon &rarr;</a>
         </div>
         <div class="vendor-card">
             <div class="vendor-name">Wine.com</div>
@@ -258,17 +298,7 @@
                 <span class="badge badge-category">Wine</span>
             </div>
             <p class="vendor-desc">Huge selection of wines from around the world. Filter by kosher options. Gift sets and curated collections available for delivery.</p>
-            <a href="https://www.wine.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
-        </div>
-        <div class="vendor-card">
-            <div class="vendor-name">Kensington Wine Market</div>
-            <div class="vendor-badges">
-                <span class="badge badge-category">Wine &amp; Spirits</span>
-                <span class="badge badge-kosher">Kosher Selection</span>
-            </div>
-            <p class="vendor-desc">Local Toronto wine shop in the heart of Kensington Market. Knowledgeable staff can help you choose the right bottle. Kosher wines in stock.</p>
-            <p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0.75rem;"><a href="tel:4165934411" style="color:var(--dark-brown);text-decoration:none;">&#128222; (416) 593-4411</a></p>
-            <a href="https://www.kensingtonwinemarket.com" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
+            <a href="https://www.wine.com?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>
         </div>
     </div>
 </div>
@@ -641,6 +671,17 @@
             renderVendors();
         });
 })();
+</script>
+
+<script>
+var hamburgerBtn = document.getElementById('hamburgerBtn');
+var navLinks = document.getElementById('navLinks');
+if (hamburgerBtn && navLinks) {
+    hamburgerBtn.addEventListener('click', function() {
+        var isOpen = navLinks.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+}
 </script>
 
 </body>

@@ -328,6 +328,12 @@ class NeshamaApp {
             shivaBadge = '<a href="/shiva/' + obit.id + '" class="card-shiva-badge" onclick="event.stopPropagation()" title="Active shiva support page">' + this.svgIconShiva() + ' Shiva</a>';
         }
 
+        // Organize Shiva link (only when no active shiva page)
+        let organizeLink = '';
+        if (!obit.has_shiva) {
+            organizeLink = '<a href="/shiva/organize?obit=' + obit.id + '" class="card-organize-link" onclick="event.stopPropagation()" title="Set up meal coordination for this family">' + this.svgIconShiva() + ' Organize Shiva \u2192</a>';
+        }
+
         return '' +
             '<div class="obituary-card" data-id="' + obit.id + '">' +
                 imageArea +
@@ -340,6 +346,7 @@ class NeshamaApp {
                     '<div class="card-meta">' +
                         tributeText +
                         shivaBadge +
+                        organizeLink +
                         '<a href="' + memorialUrl + '" class="card-link" onclick="event.stopPropagation()">View Memorial \u2192</a>' +
                     '</div>' +
                 '</div>' +
