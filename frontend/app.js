@@ -299,14 +299,15 @@ class NeshamaApp {
             return '\
                 <div class="empty-state">\
                     <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
-                    <p class="empty-state-title">No services scheduled for today</p>\
-                    <p class="empty-state-hint">Check <strong>"This Week"</strong> or <strong>"This Month"</strong> for recent obituaries.</p>\
+                    <p class="empty-state-title">The community is at rest.</p>\
+                    <p class="empty-state-hint">Check back soon, or browse <strong>"This Week"</strong> or <strong>"This Month"</strong> above.</p>\
                 </div>';
         }
         return '\
             <div class="empty-state">\
                 <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
-                <p>No obituaries found for this period.</p>\
+                <p class="empty-state-title">The community is at rest.</p>\
+                <p class="empty-state-hint">Check back soon.</p>\
             </div>';
     }
 
