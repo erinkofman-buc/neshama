@@ -455,5 +455,103 @@ class TestGuestbookCommunityStats(_GuestbookTestBase):
         self.assertIsInstance(stats['community_members'], int)
 
 
+# ======================================================================
+# 15-22: PDF Keepsake Tests
+# ======================================================================
+
+class TestKeepsakePDF(_GuestbookTestBase):
+    """Tests for the PDF keepsake export feature."""
+
+    def _get_pdf(self, path):
+        """GET request expecting PDF bytes, returns (status_code, bytes)."""
+        try:
+            req = Request(f'{_BASE_URL}{path}')
+            resp = urlopen(req, timeout=10)
+            return resp.status, resp.read()
+        except HTTPError as e:
+            return e.code, e.read()
+
+    def test_15_keepsake_returns_pdf(self):
+        """GET /api/tributes/{id}/keepsake.pdf returns valid PDF."""
+        # Ensure at least one entry exists
+        self._submit_tribute(
+            obituary_id='obit-gb-1',
+            message='Keepsake test entry',
+            entry_type='memory',
+        )
+        status, body = self._get_pdf('/api/tributes/obit-gb-1/keepsake.pdf')
+        self.assertEqual(status, 200)
+        self.assertTrue(body[:5] == b'%PDF-', 'Response should be a valid PDF')
+        self.assertGreater(len(body), 1000, 'PDF should have substantial content')
+
+    def test_16_keepsake_empty_guestbook(self):
+        """Keepsake PDF works with zero guestbook entries."""
+        status, body = self._get_pdf('/api/tributes/obit-gb-2/keepsake.pdf')
+        self.assertEqual(status, 200)
+        self.assertTrue(body[:5] == b'%PDF-', 'Should return a valid PDF even with no entries')
+
+    def test_17_keepsake_nonexistent_obituary(self):
+        """Keepsake for non-existent obituary returns 404."""
+        status, body = self._get_pdf('/api/tributes/nonexistent-obit/keepsake.pdf')
+        self.assertEqual(status, 404)
+
+    def test_18_keepsake_all_entry_types(self):
+        """PDF generates correctly with all 4 entry types present."""
+        obit = 'obit-gb-1'
+        self._submit_tribute(obituary_id=obit, message='A fond memory', entry_type='memory')
+        self._submit_tribute(obituary_id=obit, message='Deepest condolences', entry_type='condolence')
+        self._submit_tribute(obituary_id=obit, entry_type='prayer', prayer_text='May their memory be a blessing')
+        self._submit_tribute(obituary_id=obit, entry_type='candle')
+
+        status, body = self._get_pdf(f'/api/tributes/{obit}/keepsake.pdf')
+        self.assertEqual(status, 200)
+        self.assertTrue(body[:5] == b'%PDF-')
+        # PDF with 4+ entries should be larger
+        self.assertGreater(len(body), 2000)
+
+    def test_19_keepsake_content_disposition(self):
+        """Response includes Content-Disposition header for download."""
+        req = Request(f'{_BASE_URL}/api/tributes/obit-gb-1/keepsake.pdf')
+        resp = urlopen(req, timeout=10)
+        cd = resp.headers.get('Content-Disposition', '')
+        self.assertIn('attachment', cd)
+        self.assertIn('.pdf', cd)
+        resp.read()  # consume body
+
+    def test_20_keepsake_content_type(self):
+        """Response has correct Content-Type header."""
+        req = Request(f'{_BASE_URL}/api/tributes/obit-gb-1/keepsake.pdf')
+        resp = urlopen(req, timeout=10)
+        ct = resp.headers.get('Content-Type', '')
+        self.assertIn('application/pdf', ct)
+        resp.read()
+
+
+class TestKeepsakePDFUnit(unittest.TestCase):
+    """Unit tests for the PDF generator module directly (no server needed)."""
+
+    def test_21_generate_empty_entries(self):
+        """generate_keepsake_pdf works with empty entries list."""
+        from pdf_keepsake import generate_keepsake_pdf
+        obit = {'deceased_name': 'Test Person', 'date_of_death': '2026-01-15'}
+        pdf = generate_keepsake_pdf(obit, [])
+        self.assertTrue(pdf[:5] == b'%PDF-')
+        self.assertGreater(len(pdf), 500)
+
+    def test_22_generate_special_characters(self):
+        """PDF handles special characters in names and messages."""
+        from pdf_keepsake import generate_keepsake_pdf
+        obit = {'deceased_name': 'Sarah O\'Brien-Levy', 'hebrew_name': 'Test'}
+        entries = [{
+            'author_name': 'Jean-Pierre & Marie',
+            'message': 'Fond memories <3 of "the best" neighbor & friend.',
+            'entry_type': 'memory',
+            'created_at': '2026-02-20T10:00:00',
+            'relationship': 'Neighbor',
+        }]
+        pdf = generate_keepsake_pdf(obit, entries)
+        self.assertTrue(pdf[:5] == b'%PDF-')
+
+
 if __name__ == '__main__':
     unittest.main()

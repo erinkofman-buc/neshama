@@ -11,6 +11,7 @@ import json
 import sqlite3
 import os
 import re
+import sys
 import subprocess
 import threading
 from urllib.parse import urlparse, parse_qs, unquote
@@ -23,6 +24,8 @@ import time as _time_module
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
+if FRONTEND_DIR not in sys.path:
+    sys.path.insert(0, FRONTEND_DIR)
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 
@@ -217,6 +220,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             obit_id = path[len('/api/obituary/'):]
             self.get_single_obituary(obit_id)
         # Tributes API
+        elif path.startswith('/api/tributes/') and path.endswith('/keepsake.pdf'):
+            obit_id = path[len('/api/tributes/'):-len('/keepsake.pdf')]
+            self.handle_keepsake_pdf(obit_id)
         elif path.startswith('/api/tributes/'):
             obit_id = path[len('/api/tributes/'):]
             self.get_tributes(obit_id)
@@ -942,6 +948,70 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_json_response({'status': 'error', 'message': 'Entry not found'}, 404)
         except Exception as e:
             self.send_error_response(str(e))
+
+    # ── API: PDF Keepsake ──────────────────────────────────────
+
+    def handle_keepsake_pdf(self, obit_id):
+        """Generate and serve a PDF keepsake of all guestbook entries for an obituary."""
+        try:
+            # Rate limit: 10 PDFs per 5 minutes per IP
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'keepsake_pdf', max_calls=10, window=300):
+                self.send_json_response({'status': 'error', 'message': 'Please wait before generating another PDF.'}, 429)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            try:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+
+                # Get obituary data
+                cursor.execute('SELECT * FROM obituaries WHERE id = ?', (obit_id,))
+                obit_row = cursor.fetchone()
+                if not obit_row:
+                    self.send_json_response({'status': 'error', 'message': 'Obituary not found'}, 404)
+                    return
+
+                obituary_data = dict(obit_row)
+
+                # Get all guestbook entries
+                cursor.execute(
+                    'SELECT * FROM tributes WHERE obituary_id = ? ORDER BY created_at DESC',
+                    (obit_id,)
+                )
+                tributes_data = [dict(row) for row in cursor.fetchall()]
+            finally:
+                conn.close()
+
+            # Generate PDF
+            from pdf_keepsake import generate_keepsake_pdf
+            pdf_bytes = generate_keepsake_pdf(obituary_data, tributes_data)
+
+            # Serve as download
+            safe_name = re.sub(r'[^\w\s-]', '', obituary_data.get('deceased_name', 'memorial')).strip()
+            safe_name = re.sub(r'\s+', '-', safe_name)
+            if not safe_name:
+                safe_name = 'memorial'
+            filename = f'Guestbook-Keepsake-{safe_name}.pdf'
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/pdf')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
+            self.send_header('Content-Length', str(len(pdf_bytes)))
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(pdf_bytes)
+
+        except ImportError as e:
+            logging.error(f'[PDF] reportlab not installed: {e}')
+            self.send_json_response({
+                'status': 'error',
+                'message': 'PDF generation not available (reportlab missing)'
+            }, 503)
+        except Exception as e:
+            logging.error(f'[PDF] Keepsake generation error: {e}')
+            self.send_error_response('Failed to generate keepsake PDF')
 
     # ── API: Community Stats ──────────────────────────────────
 
