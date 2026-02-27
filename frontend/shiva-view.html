@@ -343,14 +343,61 @@
 
         .meal-day-card.day-full {
             border-left-color: var(--green-mid);
+            background: linear-gradient(135deg, #f1f8e9 0%, white 40%);
         }
 
         .meal-day-card.day-partial {
             border-left-color: #ffcc80;
+            background: linear-gradient(135deg, #fff8e1 0%, white 40%);
         }
 
         .meal-day-card.day-empty {
             border-left-color: #ef9a9a;
+            background: linear-gradient(135deg, #fce4ec 0%, white 40%);
+        }
+
+        /* ── Coverage Summary ──────────────────────────── */
+
+        .coverage-summary {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .coverage-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+        }
+
+        .coverage-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .coverage-dot.green { background: var(--green-mid); }
+        .coverage-dot.yellow { background: #ffcc80; }
+        .coverage-dot.red { background: #ef9a9a; }
+
+        .coverage-bar {
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .coverage-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
         }
 
         .meal-day-card.shabbat {
@@ -366,6 +413,18 @@
             align-items: center;
             background: var(--cream);
             border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .meal-day-card.day-full .meal-day-header {
+            background: #e8f5e9;
+        }
+
+        .meal-day-card.day-partial .meal-day-header {
+            background: #fff8e1;
+        }
+
+        .meal-day-card.day-empty .meal-day-header {
+            background: #fce4ec;
         }
 
         .meal-day-card.shabbat .meal-day-header {
@@ -1146,6 +1205,36 @@
             <div id="coOrgError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
         </div>
 
+        <!-- V3: Updates Feed (visible to all visitors) -->
+        <div id="updatesFeed" style="display: none; margin: 1.5rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem; text-align: center;">Updates</h3>
+            <div id="updatesList"></div>
+        </div>
+
+        <!-- V3: Post Update (organizer only) -->
+        <div id="postUpdateSection" style="display: none; background: white; border: 2px solid #ffcc80; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Post an Update</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share an update with all visitors. You can also email it to signed-up volunteers.</p>
+            <textarea id="newUpdateInput" placeholder="e.g., The family prefers dairy-free meals. Thank you for the outpouring of support..." maxlength="500" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--sage-dark); cursor: pointer;">
+                    <input type="checkbox" id="emailUpdateCheckbox" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
+                    Also email to volunteers
+                </label>
+                <button id="postUpdateBtn" onclick="postUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Post Update</button>
+            </div>
+            <div id="postUpdateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update posted!</div>
+        </div>
+
+        <!-- V3: Thank-You Notes Button (organizer only) -->
+        <div id="thankYouSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Thank-You Notes</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">Send a personalized thank-you email to every volunteer who signed up.</p>
+            <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.75rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Send Thank-You Notes</button>
+            <div id="thankYouSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.95rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="thankYouAlready" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--sage-dark); font-style: italic;">Thank-you notes have already been sent.</div>
+        </div>
+
         <!-- Info Cards -->
         <div class="info-cards" id="infoCards"></div>
 
@@ -1161,6 +1250,7 @@
         <!-- Meal Calendar -->
         <section class="calendar-section" id="calendarSection">
             <h2 class="section-heading">Meal Schedule</h2>
+            <div id="coverageSummary"></div>
             <div class="meal-calendar" id="mealCalendar"></div>
         </section>
 
@@ -1274,6 +1364,33 @@
                 <div class="form-group">
                     <label for="volPhone">Phone <span class="optional">(optional)</span></label>
                     <input type="tel" id="volPhone" placeholder="(416) 555-0123" autocomplete="tel">
+                </div>
+
+                <!-- Alternative Contribution Toggle -->
+                <div id="altContribSection" style="background: var(--cream); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--light-taupe);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="checkbox" id="volAlternative" style="width: 1.1rem; height: 1.1rem; accent-color: var(--terracotta);">
+                        <label for="volAlternative" style="font-size: 0.95rem; font-weight: 600; color: var(--dark-brown); cursor: pointer;">
+                            I'd rather send a gift or gift card instead of cooking
+                        </label>
+                    </div>
+                    <div id="altOptions" style="display: none; margin-top: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.85rem;">What would you like to send?</label>
+                            <select id="altType" style="width: 100%; padding: 0.6rem 0.75rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; background: white; color: var(--dark-brown);">
+                                <option value="vendor_meal">Vendor meal delivery</option>
+                                <option value="gift_card">Gift card</option>
+                                <option value="gift_basket">Gift basket</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.5rem;">
+                            <label style="font-size: 0.85rem;">Note <span class="optional">(optional)</span></label>
+                            <input type="text" id="altNote" placeholder="e.g., Uber Eats gift card, $50">
+                        </div>
+                        <a href="/gifts" target="_blank" style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">
+                            Browse gift options &#8594;
+                        </a>
+                    </div>
                 </div>
 
                 <div class="consent-row" style="margin-bottom: 0.75rem;">
@@ -1692,6 +1809,18 @@
             renderRecommendedCaterers();
             setupShareButton();
             updateDirectoryLink();
+            loadUpdatesFeed();
+
+            // V3: Show organizer-only sections
+            if (isOrganizerMode) {
+                document.getElementById('postUpdateSection').style.display = '';
+                document.getElementById('thankYouSection').style.display = '';
+                // Check if thank-you already sent
+                if (supportData.thank_you_sent) {
+                    document.getElementById('sendThankYouBtn').style.display = 'none';
+                    document.getElementById('thankYouAlready').style.display = '';
+                }
+            }
 
             hide('pageLoading');
             show('mainContent');
@@ -1979,14 +2108,21 @@
             var start = new Date(supportData.shiva_start_date + 'T12:00:00');
             var end = new Date(supportData.shiva_end_date + 'T12:00:00');
 
-            // Build signup lookup
+            // Build signup lookup (support multiple signups per slot)
             var signupMap = {};
             mealsData.forEach(function(m) {
-                signupMap[m.meal_date + '_' + m.meal_type] = m;
+                var key = m.meal_date + '_' + m.meal_type;
+                if (!signupMap[key]) signupMap[key] = [];
+                signupMap[key].push(m);
             });
 
             var html = '';
             var current = new Date(start);
+            var totalSlots = 0;
+            var filledSlots = 0;
+            var fullDays = 0;
+            var partialDays = 0;
+            var emptyDays = 0;
 
             while (current <= end) {
                 var dateStr = current.toISOString().split('T')[0];
@@ -1998,22 +2134,44 @@
                 if (isPaused) {
                     dayClass += ' shabbat';
                 } else {
-                    var hasLunch = !!signupMap[dateStr + '_Lunch'];
-                    var hasDinner = !!signupMap[dateStr + '_Dinner'];
-                    if (hasLunch && hasDinner) dayClass += ' day-full';
-                    else if (hasLunch || hasDinner) dayClass += ' day-partial';
-                    else dayClass += ' day-empty';
+                    var lunchSignups = signupMap[dateStr + '_Lunch'] || [];
+                    var dinnerSignups = signupMap[dateStr + '_Dinner'] || [];
+                    var hasLunch = lunchSignups.length > 0;
+                    var hasDinner = dinnerSignups.length > 0;
+                    totalSlots += 2;
+                    if (hasLunch) filledSlots++;
+                    if (hasDinner) filledSlots++;
+                    if (hasLunch && hasDinner) { dayClass += ' day-full'; fullDays++; }
+                    else if (hasLunch || hasDinner) { dayClass += ' day-partial'; partialDays++; }
+                    else { dayClass += ' day-empty'; emptyDays++; }
+                }
+
+                // Status badge for header
+                var statusBadge = '';
+                if (!isPaused) {
+                    var lunchS = signupMap[dateStr + '_Lunch'] || [];
+                    var dinnerS = signupMap[dateStr + '_Dinner'] || [];
+                    if (lunchS.length > 0 && dinnerS.length > 0) {
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
+                    } else if (lunchS.length > 0 || dinnerS.length > 0) {
+                        statusBadge = '<span style="font-size:0.7rem;color:#F57F17;font-weight:600;">Needs help</span>';
+                    } else {
+                        statusBadge = '<span style="font-size:0.7rem;color:#c62828;font-weight:600;">Open</span>';
+                    }
                 }
 
                 html += '<div class="' + dayClass + '">';
                 html += '<div class="meal-day-header"><span>' + formatDateShort(dateStr) + '</span>';
                 if (isPaused) html += '<span class="shabbat-badge">Shabbat</span>';
+                else html += statusBadge;
                 html += '</div>';
 
                 if (!isPaused) {
                     html += '<div class="meal-slots-grid">';
-                    html += renderSlot(dateStr, 'Lunch', signupMap[dateStr + '_Lunch']);
-                    html += renderSlot(dateStr, 'Dinner', signupMap[dateStr + '_Dinner']);
+                    var lunchFirst = (signupMap[dateStr + '_Lunch'] || [])[0] || null;
+                    var dinnerFirst = (signupMap[dateStr + '_Dinner'] || [])[0] || null;
+                    html += renderSlot(dateStr, 'Lunch', lunchFirst);
+                    html += renderSlot(dateStr, 'Dinner', dinnerFirst);
                     html += '</div>';
                 } else {
                     html += '<div class="shabbat-message">Paused for Shabbat</div>';
@@ -2024,6 +2182,21 @@
             }
 
             document.getElementById('mealCalendar').innerHTML = html;
+
+            // Render coverage summary
+            var summaryEl = document.getElementById('coverageSummary');
+            if (summaryEl && totalSlots > 0) {
+                var pct = Math.round((filledSlots / totalSlots) * 100);
+                var barColor = pct >= 80 ? 'var(--green-mid)' : (pct >= 40 ? '#ffcc80' : '#ef9a9a');
+                summaryEl.innerHTML =
+                    '<div class="coverage-bar"><div class="coverage-bar-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
+                    '<div class="coverage-summary">' +
+                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + fullDays + ' covered</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot yellow"></span>' + partialDays + ' partial</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot red"></span>' + emptyDays + ' open</div>' +
+                    '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
+                    '</div>';
+            }
         }
 
         function renderSlot(dateStr, mealType, signup) {
@@ -2095,6 +2268,20 @@
             document.getElementById('servingsValue').textContent = '4 servings';
             document.getElementById('volWillServe').checked = false;
             document.getElementById('volConsent').checked = false;
+            // Reset alternative contribution
+            document.getElementById('volAlternative').checked = false;
+            document.getElementById('altOptions').style.display = 'none';
+            document.getElementById('altNote').value = '';
+            // Re-show food/servings sections
+            var foodSection = document.getElementById('foodChips').parentElement;
+            var servingsSection = document.getElementById('servMinus').parentElement.parentElement;
+            var willServeRow = document.getElementById('volWillServe').parentElement;
+            foodSection.style.display = '';
+            servingsSection.style.display = '';
+            willServeRow.style.display = '';
+            if (document.getElementById('mealCustom').parentElement) {
+                document.getElementById('mealCustom').parentElement.style.display = '';
+            }
             document.getElementById('signupError').classList.remove('active');
             document.getElementById('signupSubmitBtn').disabled = false;
             document.getElementById('signupSubmitBtn').textContent = 'Sign Up';
@@ -2191,17 +2378,24 @@
 
             var mealDescription = getSelectedFoods();
 
+            var isAlt = document.getElementById('volAlternative').checked;
             var payload = {
                 volunteer_name: name,
                 volunteer_email: email,
                 volunteer_phone: document.getElementById('volPhone').value.trim(),
                 meal_date: selectedDate,
                 meal_type: selectedMealType,
-                meal_description: mealDescription,
-                num_servings: currentServings,
-                will_serve: document.getElementById('volWillServe').checked,
+                meal_description: isAlt ? '' : mealDescription,
+                num_servings: isAlt ? 0 : currentServings,
+                will_serve: isAlt ? false : document.getElementById('volWillServe').checked,
                 privacy_consent: true
             };
+            if (isAlt) {
+                payload.alternative_type = document.getElementById('altType').value;
+                payload.alternative_note = document.getElementById('altNote').value.trim();
+                payload.meal_description = document.getElementById('altType').selectedOptions[0].text +
+                    (payload.alternative_note ? ' - ' + payload.alternative_note : '');
+            }
 
             fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup', {
                 method: 'POST',
@@ -2391,6 +2585,147 @@
                 errEl.classList.add('active');
             });
         });
+
+        // ── Alternative Contribution Toggle ──────────────
+
+        (function() {
+            var altCheckbox = document.getElementById('volAlternative');
+            var altOptions = document.getElementById('altOptions');
+            if (altCheckbox && altOptions) {
+                altCheckbox.addEventListener('change', function() {
+                    altOptions.style.display = this.checked ? '' : 'none';
+                    // When alternative is toggled, hide/show food chips + servings
+                    var foodSection = document.getElementById('foodChips').parentElement;
+                    var servingsSection = document.getElementById('servMinus').parentElement.parentElement;
+                    var willServeRow = document.getElementById('volWillServe').parentElement;
+                    if (this.checked) {
+                        foodSection.style.display = 'none';
+                        servingsSection.style.display = 'none';
+                        willServeRow.style.display = 'none';
+                        document.getElementById('mealCustom').parentElement.style.display = 'none';
+                    } else {
+                        foodSection.style.display = '';
+                        servingsSection.style.display = '';
+                        willServeRow.style.display = '';
+                        document.getElementById('mealCustom').parentElement.style.display = '';
+                    }
+                });
+            }
+        })();
+
+        // ── V3: Updates Feed ──────────────────────────────
+
+        function loadUpdatesFeed() {
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/updates')
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status !== 'success' || !result.data || result.data.length === 0) return;
+                var container = document.getElementById('updatesList');
+                var html = '';
+                result.data.forEach(function(update) {
+                    var date = new Date(update.created_at);
+                    var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    var timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    html += '<div style="background: white; border-radius: 0.75rem; padding: 1rem 1.25rem; margin-bottom: 0.5rem; box-shadow: 0 1px 6px rgba(62,39,35,0.06); border-left: 3px solid var(--gold);">';
+                    html += '<p style="font-size: 1rem; color: var(--dark-brown); line-height: 1.5; margin-bottom: 0.4rem;">' + escapeHtml(update.message) + '</p>';
+                    html += '<p style="font-size: 0.78rem; color: var(--sage-dark);">' + escapeHtml(update.created_by) + ' &middot; ' + dateStr + ' at ' + timeStr + '</p>';
+                    if (isOrganizerMode) {
+                        html += '<button onclick="deleteUpdate(' + update.id + ')" style="font-size: 0.75rem; color: #c62828; background: none; border: 1px solid #ef9a9a; border-radius: 1rem; padding: 0.15rem 0.5rem; cursor: pointer; margin-top: 0.3rem; font-family: inherit;">Delete</button>';
+                    }
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+                document.getElementById('updatesFeed').style.display = '';
+            })
+            .catch(function() {});
+        }
+
+        window.postUpdate = function() {
+            var input = document.getElementById('newUpdateInput');
+            var message = input.value.trim();
+            if (!message) return;
+
+            var emailVols = document.getElementById('emailUpdateCheckbox').checked;
+            var btn = document.getElementById('postUpdateBtn');
+            var successEl = document.getElementById('postUpdateSuccess');
+            btn.disabled = true;
+            btn.textContent = 'Posting...';
+            successEl.style.display = 'none';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/updates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: organizerToken,
+                    message: message,
+                    email_volunteers: emailVols
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Post Update';
+                if (result.status === 'success') {
+                    input.value = '';
+                    document.getElementById('emailUpdateCheckbox').checked = false;
+                    successEl.textContent = emailVols ? 'Update posted and emailed to volunteers!' : 'Update posted!';
+                    successEl.style.display = '';
+                    setTimeout(function() { successEl.style.display = 'none'; }, 4000);
+                    loadUpdatesFeed();
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Post Update';
+            });
+        };
+
+        window.deleteUpdate = function(updateId) {
+            if (!confirm('Delete this update?')) return;
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/updates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: organizerToken,
+                    _action: 'delete',
+                    update_id: updateId
+                })
+            })
+            .then(function() { loadUpdatesFeed(); });
+        };
+
+        // ── V3: Thank-You Notes ────────────────────────────
+
+        window.sendThankYouNotes = function() {
+            if (!confirm('Send thank-you emails to all volunteers? This can only be done once.')) return;
+
+            var btn = document.getElementById('sendThankYouBtn');
+            var successEl = document.getElementById('thankYouSuccess');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/send-thank-you', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: organizerToken })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    btn.style.display = 'none';
+                    successEl.textContent = result.message;
+                    successEl.style.display = '';
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Send Thank-You Notes';
+                    alert(result.message || 'Something went wrong');
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Send Thank-You Notes';
+            });
+        };
 
         // ── Keyboard: Escape closes modals ──────────────
 

@@ -50,7 +50,7 @@ try:
     VENDORS_AVAILABLE = True
 except Exception as e:
     VENDORS_AVAILABLE = False
-    print(f"  Vendor directory: Not available ({e})")
+    logging.info(f" Vendor directory: Not available ({e})")
 
 # Import EmailSubscriptionManager
 try:
@@ -59,11 +59,11 @@ try:
     from subscription_manager import EmailSubscriptionManager
     subscription_mgr = EmailSubscriptionManager(db_path=DB_PATH)
     EMAIL_AVAILABLE = True
-    print(f"  Email subscription: {'SendGrid connected' if subscription_mgr.sendgrid_api_key else 'TEST MODE (console logging)'}")
+    logging.info(f" Email subscription: {'SendGrid connected' if subscription_mgr.sendgrid_api_key else 'TEST MODE (console logging)'}")
 except Exception as e:
     EMAIL_AVAILABLE = False
     subscription_mgr = None
-    print(f"  Email subscription: Not available ({e})")
+    logging.info(f" Email subscription: Not available ({e})")
 
 # Optional Stripe import
 try:
@@ -88,20 +88,20 @@ try:
     from shiva_manager import ShivaManager
     shiva_mgr = ShivaManager(db_path=DB_PATH)
     SHIVA_AVAILABLE = True
-    print(f"  Shiva support: Available")
+    logging.info(f" Shiva support: Available")
 except Exception as e:
     SHIVA_AVAILABLE = False
     shiva_mgr = None
-    print(f"  Shiva support: Not available ({e})")
+    logging.info(f" Shiva support: Not available ({e})")
 
 # Email queue processor (v2)
 try:
     from email_queue import process_email_queue, log_immediate_email
     EMAIL_QUEUE_AVAILABLE = True
-    print(f"  Email queue: Available")
+    logging.info(f" Email queue: Available")
 except Exception as e:
     EMAIL_QUEUE_AVAILABLE = False
-    print(f"  Email queue: Not available ({e})")
+    logging.info(f" Email queue: Not available ({e})")
 
 class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
@@ -229,7 +229,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/meals'):
             support_id = path[len('/api/shiva/'):-len('/meals')]
             self.get_shiva_meals(support_id)
-        elif path.startswith('/api/shiva/') and not path.endswith('/meals'):
+        # V3: Get updates
+        elif path.startswith('/api/shiva/') and path.endswith('/updates'):
+            support_id = path[len('/api/shiva/'):-len('/updates')]
+            self.handle_get_updates(support_id)
+        elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
         # Shiva pages
@@ -317,6 +321,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             support_id = parts[0]
             co_id = parts[1].replace('/revoke', '')
             self.handle_revoke_co_organizer(support_id, co_id, body)
+        # V3: Post update / delete update
+        elif path.startswith('/api/shiva/') and path.endswith('/updates'):
+            support_id = path[len('/api/shiva/'):-len('/updates')]
+            self.handle_post_update(support_id, body)
+        # V3: Send thank-you notes
+        elif path.startswith('/api/shiva/') and path.endswith('/send-thank-you'):
+            support_id = path[len('/api/shiva/'):-len('/send-thank-you')]
+            self.handle_send_thank_you(support_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/report'):
             support_id = path[len('/api/shiva/'):-len('/report')]
             self.handle_shiva_report(support_id, body)
@@ -661,7 +673,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             reasons = data.get('reasons', [])
 
             # Log the feedback
-            print(f"[Unsubscribe Feedback] {email}: {', '.join(reasons)}")
+            logging.info(f"[Unsubscribe Feedback] {email}: {', '.join(reasons)}")
 
             # Store in database
             db_path = self.get_db_path()
@@ -946,15 +958,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     'stderr': result.stderr[-500:] if result.stderr else '',
                 }
                 _scrape_status['last_completed'] = datetime.now().isoformat()
-                print(f"[Scraper] Background scrape completed (exit code {result.returncode})")
+                logging.info(f"[Scraper] Background scrape completed (exit code {result.returncode})")
             except subprocess.TimeoutExpired:
                 _scrape_status['last_error'] = 'Scraper timed out after 5 minutes'
                 _scrape_status['last_completed'] = datetime.now().isoformat()
-                print("[Scraper] Background scrape timed out")
+                logging.info("[Scraper] Background scrape timed out")
             except Exception as e:
                 _scrape_status['last_error'] = str(e)
                 _scrape_status['last_completed'] = datetime.now().isoformat()
-                print(f"[Scraper] Background scrape error: {e}")
+                logging.error(f"[Scraper] Background scrape error: {e}")
             finally:
                 _scrape_status['running'] = False
 
@@ -1353,7 +1365,7 @@ button:hover{background:#c45a1a}</style></head>
             conn.close()
 
             # Log the lead
-            print(f"[Vendor Lead] {contact_name} ({contact_email}) -> {vendor_name}")
+            logging.info(f"[Vendor Lead] {contact_name} ({contact_email}) -> {vendor_name}")
 
             # Send alert email to vendor
             if vendor_email:
@@ -1482,13 +1494,13 @@ button:hover{background:#c45a1a}</style></head>
                 msg.reply_to = ReplyTo(contact_email, contact_name)
                 sg = SendGridAPIClient(sendgrid_key)
                 response = sg.send(msg)
-                print(f"[Vendor Lead Email] Sent to {vendor_email} (status {response.status_code})")
+                logging.info(f"[Vendor Lead Email] Sent to {vendor_email} (status {response.status_code})")
             except Exception as e:
-                print(f"[Vendor Lead Email] Failed to send to {vendor_email}: {e}")
+                logging.error(f"[Vendor Lead Email] Failed to send to {vendor_email}: {e}")
         else:
-            print(f"[Vendor Lead Email] TEST MODE — would send to {vendor_email}")
-            print(f"  Subject: {subject}")
-            print(f"  From: {contact_name} <{contact_email}> (reply-to)")
+            logging.info(f"[Vendor Lead Email] TEST MODE — would send to {vendor_email}")
+            logging.info(f" Subject: {subject}")
+            logging.info(f" From: {contact_name} <{contact_email}> (reply-to)")
 
     # ── API: Click Tracking ─────────────────────────────────
 
@@ -1528,7 +1540,7 @@ button:hover{background:#c45a1a}</style></head>
             conn.commit()
             conn.close()
         except Exception as e:
-            print(f"[Click] Failed to log click: {e}")
+            logging.error(f"[Click] Failed to log click: {e}")
 
         # 302 redirect to destination
         self.send_response(302)
@@ -1578,7 +1590,7 @@ button:hover{background:#c45a1a}</style></head>
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
-            print(f"[View] Failed to log view: {e}")
+            logging.error(f"[View] Failed to log view: {e}")
             self.send_json_response({'status': 'error', 'message': str(e)}, 500)
 
     # ── API: Shiva Support ─────────────────────────────────
@@ -1731,7 +1743,7 @@ button:hover{background:#c45a1a}</style></head>
         plain_text = _html_to_plain(html_content)
 
         if not sendgrid_key:
-            print(f"[Verification] Would send verification to {email}")
+            logging.info(f"[Verification] Would send verification to {email}")
             return
 
         try:
@@ -1748,7 +1760,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Verification] Sent to {email}")
+            logging.info(f"[Verification] Sent to {email}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -1828,8 +1840,8 @@ button:hover{background:#c45a1a}</style></head>
             plain_text = _html_to_plain(html_content)
 
             if not sendgrid_key:
-                print(f"[Meal Signup Email] Would send confirmation to {vol_email}")
-                print(f"  {meal_type} on {formatted_date} for {family_name}")
+                logging.info(f"[Meal Signup Email] Would send confirmation to {vol_email}")
+                logging.info(f" {meal_type} on {formatted_date} for {family_name}")
                 return
 
             from sendgrid import SendGridAPIClient
@@ -1846,7 +1858,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Meal Signup] Confirmation email sent to {vol_email}")
+            logging.info(f"[Meal Signup] Confirmation email sent to {vol_email}")
 
             # Log to email_log for audit trail
             if EMAIL_QUEUE_AVAILABLE:
@@ -1885,6 +1897,145 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.remove_signup(support_id, signup_id, token)
             if result['status'] == 'success':
                 shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    # ── API: V3 — Updates Feed + Thank-You Notes ──────────────
+
+    def handle_get_updates(self, support_id):
+        """Get updates for a shiva page (public)."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            result = shiva_mgr.get_updates(support_id)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_post_update(self, support_id, body):
+        """Post an update or delete an update."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+
+            # Handle delete action
+            if data.get('_action') == 'delete':
+                update_id = data.get('update_id')
+                if not update_id:
+                    self.send_json_response({'status': 'error', 'message': 'update_id required'}, 400)
+                    return
+                result = shiva_mgr.delete_update(support_id, token, update_id)
+                self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+                return
+
+            # Post new update
+            message = data.get('message', '').strip()
+            if not message:
+                self.send_json_response({'status': 'error', 'message': 'Message is required'}, 400)
+                return
+
+            result = shiva_mgr.post_update(support_id, token, message)
+            if result['status'] == 'success' and data.get('email_volunteers'):
+                self._email_update_to_volunteers(support_id, message)
+
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _email_update_to_volunteers(self, support_id, message):
+        """Send organizer update via email to all volunteers."""
+        try:
+            if not EMAIL_AVAILABLE or not subscription_mgr or not subscription_mgr.sendgrid_api_key:
+                return
+
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Get shiva info
+            cursor.execute('SELECT family_name, organizer_name FROM shiva_support WHERE id = ?', (support_id,))
+            shiva = cursor.fetchone()
+            if not shiva:
+                conn.close()
+                return
+            shiva = dict(shiva)
+
+            # Get unique volunteer emails
+            cursor.execute('''
+                SELECT DISTINCT volunteer_name, volunteer_email
+                FROM meal_signups
+                WHERE shiva_support_id = ? AND volunteer_email IS NOT NULL
+            ''', (support_id,))
+            volunteers = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+
+            if not volunteers:
+                return
+
+            family_name = shiva.get('family_name', 'the family')
+            escaped_message = html_mod.escape(message)
+
+            for vol in volunteers:
+                subject = f"Update from the {family_name} shiva"
+                html_body = f"""
+                <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 2rem; background: #fffaf5; border-radius: 12px;">
+                    <h2 style="color: #3e2723; font-size: 1.2rem; margin-bottom: 1rem;">Update from the {html_mod.escape(family_name)} shiva</h2>
+                    <div style="background: white; border-radius: 8px; padding: 1.25rem; border-left: 3px solid #d4a574; margin-bottom: 1.5rem;">
+                        <p style="color: #3e2723; font-size: 1rem; line-height: 1.6; margin: 0;">{escaped_message}</p>
+                    </div>
+                    <p style="color: #6d4c41; font-size: 0.85rem;">
+                        -- {html_mod.escape(shiva.get('organizer_name', 'The organizer'))}
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #e8d5c4; margin: 1.5rem 0;">
+                    <p style="color: #9e9e9e; font-size: 0.75rem; text-align: center;">
+                        Sent via <a href="https://neshama.ca" style="color: #d4a574;">Neshama</a>
+                    </p>
+                </div>
+                """
+                plain_text = _html_to_plain(html_body)
+                try:
+                    from sendgrid import SendGridAPIClient
+                    from sendgrid.helpers.mail import Mail, From
+                    sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
+                    mail = Mail(
+                        from_email=From('updates@neshama.ca', 'Neshama'),
+                        to_emails=vol['volunteer_email'],
+                        subject=subject,
+                        html_content=html_body,
+                        plain_text_content=plain_text
+                    )
+                    sg.send(mail)
+                except Exception as email_err:
+                    logging.error(f"Failed to email update to {vol['volunteer_email']}: {email_err}")
+        except Exception as e:
+            logging.error(f"Error emailing updates: {e}")
+
+    def handle_send_thank_you(self, support_id, body):
+        """Queue thank-you notes to all volunteers."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+            result = shiva_mgr.send_thank_you_notes(support_id, token)
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -2030,7 +2181,7 @@ button:hover{background:#c45a1a}</style></head>
         """Send invitation email to a co-organizer."""
         sendgrid_key = os.environ.get('SENDGRID_API_KEY')
         if not sendgrid_key:
-            print(f"[Co-organizer] Would send invite to {result['invitee_email']}")
+            logging.info(f"[Co-organizer] Would send invite to {result['invitee_email']}")
             return
 
         try:
@@ -2075,7 +2226,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Co-organizer] Invite sent to {result['invitee_email']}")
+            logging.info(f"[Co-organizer] Invite sent to {result['invitee_email']}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -2162,7 +2313,7 @@ button:hover{background:#c45a1a}</style></head>
             plain_text = _html_to_plain(html_content)
 
             if not sendgrid_key:
-                print(f"[Multi Signup] Would send confirmation to {vol_email} for {len(signups)} meals")
+                logging.info(f"[Multi Signup] Would send confirmation to {vol_email} for {len(signups)} meals")
                 return
 
             from sendgrid import SendGridAPIClient
@@ -2178,7 +2329,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Multi Signup] Confirmation sent to {vol_email}")
+            logging.info(f"[Multi Signup] Confirmation sent to {vol_email}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -2342,7 +2493,7 @@ button:hover{background:#c45a1a}</style></head>
     def _send_access_request_email(self, result):
         """Send email to organizer about new access request"""
         if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            print(f"[Access] Would email {result['organizer_email']}: access request from {result['requester_name']}")
+            logging.info(f"[Access] Would email {result['organizer_email']}: access request from {result['requester_name']}")
             return
 
         try:
@@ -2380,7 +2531,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Access] Sent request email to organizer: {result['organizer_email']}")
+            logging.info(f"[Access] Sent request email to organizer: {result['organizer_email']}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -2391,12 +2542,12 @@ button:hover{background:#c45a1a}</style></head>
                 except Exception:
                     logging.exception("[Access] Failed to log email")
         except Exception as e:
-            print(f"[Access] Failed to send request email: {e}")
+            logging.error(f"[Access] Failed to send request email: {e}")
 
     def _send_access_approved_email(self, result):
         """Send approval email to requester with access link"""
         if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            print(f"[Access] Would email {result['requester_email']}: approved for {result['family_name']}")
+            logging.info(f"[Access] Would email {result['requester_email']}: approved for {result['family_name']}")
             return
 
         try:
@@ -2428,7 +2579,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Access] Sent approval email to: {result['requester_email']}")
+            logging.info(f"[Access] Sent approval email to: {result['requester_email']}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -2438,12 +2589,12 @@ button:hover{background:#c45a1a}</style></head>
                 except Exception:
                     logging.exception("[Access] Failed to log email")
         except Exception as e:
-            print(f"[Access] Failed to send approval email: {e}")
+            logging.error(f"[Access] Failed to send approval email: {e}")
 
     def _send_access_denied_email(self, result):
         """Send denial email to requester"""
         if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            print(f"[Access] Would email {result['requester_email']}: denied for {result['family_name']}")
+            logging.info(f"[Access] Would email {result['requester_email']}: denied for {result['family_name']}")
             return
 
         try:
@@ -2469,7 +2620,7 @@ button:hover{background:#c45a1a}</style></head>
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            print(f"[Access] Sent denial email to: {result['requester_email']}")
+            logging.info(f"[Access] Sent denial email to: {result['requester_email']}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
@@ -2479,7 +2630,7 @@ button:hover{background:#c45a1a}</style></head>
                 except Exception:
                     logging.exception("[Access] Failed to log email")
         except Exception as e:
-            print(f"[Access] Failed to send denial email: {e}")
+            logging.error(f"[Access] Failed to send denial email: {e}")
 
     # ── Helpers ──────────────────────────────────────────────
 
@@ -2518,7 +2669,7 @@ button:hover{background:#c45a1a}</style></head>
 
     def log_message(self, format, *args):
         """Custom logging"""
-        print(f"[API] {format % args}")
+        logging.info(f"[API] {format % args}")
 
 def auto_scrape_on_startup():
     """Run scrapers in background thread on startup to populate database.
@@ -2545,12 +2696,12 @@ def auto_scrape_on_startup():
                 conn.close()
                 if count > 0:
                     needs_scrape = False
-                    print(f"[Startup] Database has {count} obituaries, skipping auto-scrape")
+                    logging.info(f"[Startup] Database has {count} obituaries, skipping auto-scrape")
             except Exception:
                 pass
 
         if needs_scrape:
-            print("[Startup] Database empty - running auto-scrape in background...")
+            logging.info("[Startup] Database empty - running auto-scrape in background...")
             result = subprocess.run(
                 ['python', 'master_scraper.py'],
                 capture_output=True,
@@ -2559,11 +2710,11 @@ def auto_scrape_on_startup():
                 timeout=300
             )
             if result.returncode == 0:
-                print("[Startup] Auto-scrape completed successfully")
+                logging.info("[Startup] Auto-scrape completed successfully")
             else:
-                print(f"[Startup] Auto-scrape had issues: {result.stderr[:200]}")
+                logging.info(f"[Startup] Auto-scrape had issues: {result.stderr[:200]}")
     except Exception as e:
-        print(f"[Startup] Auto-scrape error (non-fatal): {e}")
+        logging.error(f"[Startup] Auto-scrape error (non-fatal): {e}")
 
 
 def is_shabbat():
@@ -2588,10 +2739,10 @@ def periodic_scraper():
     while True:
         _time.sleep(SCRAPE_INTERVAL)
         if is_shabbat():
-            print(f"[Scraper] Shabbat — scraping paused")
+            logging.info(f"[Scraper] Shabbat — scraping paused")
             continue
         try:
-            print(f"[Scraper] Periodic scrape starting at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"[Scraper] Periodic scrape starting at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             result = subprocess.run(
                 ['python', 'master_scraper.py'],
                 capture_output=True,
@@ -2600,13 +2751,13 @@ def periodic_scraper():
                 timeout=300
             )
             if result.returncode == 0:
-                print(f"[Scraper] Periodic scrape completed successfully")
+                logging.info(f"[Scraper] Periodic scrape completed successfully")
             else:
-                print(f"[Scraper] Scrape had issues: {result.stderr[:200]}")
+                logging.info(f"[Scraper] Scrape had issues: {result.stderr[:200]}")
         except subprocess.TimeoutExpired:
-            print("[Scraper] Periodic scrape timed out after 300s (non-fatal)")
+            logging.info("[Scraper] Periodic scrape timed out after 300s (non-fatal)")
         except Exception as e:
-            print(f"[Scraper] Periodic scrape error (non-fatal): {e}")
+            logging.error(f"[Scraper] Periodic scrape error (non-fatal): {e}")
 
 
 def run_server(port=None):
@@ -2623,7 +2774,7 @@ def run_server(port=None):
     # Launch periodic scraper (every 20 min by default)
     periodic_thread = threading.Thread(target=periodic_scraper, daemon=True)
     periodic_thread.start()
-    print(f"[Scraper] Periodic scraper started (every {SCRAPE_INTERVAL // 60} minutes)")
+    logging.info(f"[Scraper] Periodic scraper started (every {SCRAPE_INTERVAL // 60} minutes)")
 
     # Launch email queue processor via APScheduler (every 15 min)
     if EMAIL_QUEUE_AVAILABLE:
@@ -2640,73 +2791,73 @@ def run_server(port=None):
                 max_instances=1,
             )
             scheduler.start()
-            print(f"[EmailQueue] Scheduler started (every 15 minutes)")
+            logging.info(f"[EmailQueue] Scheduler started (every 15 minutes)")
         except Exception as e:
-            print(f"[EmailQueue] Scheduler failed to start: {e}")
-            print(f"  Install with: pip install apscheduler")
+            logging.error(f"[EmailQueue] Scheduler failed to start: {e}")
+            logging.info(f" Install with: pip install apscheduler")
 
-    print(f"\n{'='*60}")
-    print(f" NESHAMA API SERVER v2.0")
-    print(f"{'='*60}")
-    print(f"\n Running on: http://0.0.0.0:{port}")
-    print(f"\n Pages:")
-    print(f"   /                          - Landing page")
-    print(f"   /feed                      - Obituary feed")
-    print(f"   /memorial/{{id}}             - Memorial page")
-    print(f"   /about                     - About")
-    print(f"   /faq                       - FAQ")
-    print(f"   /privacy                   - Privacy Policy")
-    print(f"   /confirm/{{token}}           - Email confirmation")
-    print(f"   /unsubscribe/{{token}}       - Unsubscribe")
-    print(f"   /manage-subscription       - Stripe customer portal")
-    print(f"   /premium-success           - Payment success")
-    print(f"   /premium-cancelled         - Payment cancelled")
-    print(f"   /shiva/organize            - Set up shiva support")
-    print(f"   /shiva/{{id}}               - Community support page")
-    print(f"\n API Endpoints:")
-    print(f"   GET  /api/obituaries       - All obituaries")
-    print(f"   GET  /api/obituary/{{id}}    - Single obituary")
-    print(f"   GET  /api/search?q=name    - Search")
-    print(f"   GET  /api/status           - Database stats")
-    print(f"   GET  /api/scraper-status   - Scraper freshness info")
-    print(f"   GET  /api/community-stats  - Community statistics")
-    print(f"   GET  /api/tributes/{{id}}    - Tributes for obituary")
-    print(f"   GET  /api/tributes/counts  - All tribute counts")
-    print(f"   GET  /api/subscribers/count - Subscriber count")
-    print(f"   POST /api/subscribe        - Email subscription")
-    print(f"   POST /api/tributes         - Submit tribute")
-    print(f"   POST /api/unsubscribe-feedback - Unsubscribe feedback")
-    print(f"   POST /api/create-checkout  - Stripe checkout")
-    print(f"   POST /webhook              - Stripe webhook")
-    print(f"   GET  /api/shiva/obituary/{{id}} - Check shiva support")
-    print(f"   GET  /api/shiva/{{id}}      - Shiva support details")
-    print(f"   GET  /api/shiva/{{id}}/meals - Meal signups")
-    print(f"   POST /api/shiva            - Create shiva support")
-    print(f"   POST /api/shiva/{{id}}/signup - Volunteer meal signup")
-    print(f"   POST /api/shiva/{{id}}/report - Report shiva page")
-    print(f"   POST /api/shiva/{{id}}/remove-signup - Remove signup (organizer)")
-    print(f"   PUT  /api/shiva/{{id}}      - Update shiva support")
-    print(f"   GET  /api/caterers         - Approved caterers")
-    print(f"   POST /api/caterers/apply   - Caterer application")
-    print(f"   GET  /api/caterers/pending - Pending applications (admin)")
-    print(f"   POST /api/caterers/{{id}}/approve - Approve caterer (admin)")
-    print(f"   POST /api/caterers/{{id}}/reject  - Reject caterer (admin)")
-    print(f"   GET  /api/vendors          - All vendors")
-    print(f"   GET  /api/vendors/{{slug}}   - Vendor by slug")
-    print(f"   POST /api/vendor-leads     - Vendor inquiry")
-    print(f"   GET  /directory/{{slug}}     - Vendor detail page")
-    print(f"   GET  /admin/backup             - Download backup JSON (admin)")
-    print(f"   POST /admin/restore            - Upload backup JSON (admin)")
-    print(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
-    print(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
-    print(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
+    logging.info(f"\n{'='*60}")
+    logging.info(f" NESHAMA API SERVER v2.0")
+    logging.info(f"{'='*60}")
+    logging.info(f"\n Running on: http://0.0.0.0:{port}")
+    logging.info(f"\n Pages:")
+    logging.info(f" / - Landing page")
+    logging.info(f" /feed - Obituary feed")
+    logging.info(f" /memorial/{{id}} - Memorial page")
+    logging.info(f" /about - About")
+    logging.info(f" /faq - FAQ")
+    logging.info(f" /privacy - Privacy Policy")
+    logging.info(f" /confirm/{{token}} - Email confirmation")
+    logging.info(f" /unsubscribe/{{token}} - Unsubscribe")
+    logging.info(f" /manage-subscription - Stripe customer portal")
+    logging.info(f" /premium-success - Payment success")
+    logging.info(f" /premium-cancelled - Payment cancelled")
+    logging.info(f" /shiva/organize - Set up shiva support")
+    logging.info(f" /shiva/{{id}} - Community support page")
+    logging.info(f"\n API Endpoints:")
+    logging.info(f" GET /api/obituaries - All obituaries")
+    logging.info(f" GET /api/obituary/{{id}} - Single obituary")
+    logging.info(f" GET /api/search?q=name - Search")
+    logging.info(f" GET /api/status - Database stats")
+    logging.info(f" GET /api/scraper-status - Scraper freshness info")
+    logging.info(f" GET /api/community-stats - Community statistics")
+    logging.info(f" GET /api/tributes/{{id}} - Tributes for obituary")
+    logging.info(f" GET /api/tributes/counts - All tribute counts")
+    logging.info(f" GET /api/subscribers/count - Subscriber count")
+    logging.info(f" POST /api/subscribe - Email subscription")
+    logging.info(f" POST /api/tributes - Submit tribute")
+    logging.info(f" POST /api/unsubscribe-feedback - Unsubscribe feedback")
+    logging.info(f" POST /api/create-checkout - Stripe checkout")
+    logging.info(f" POST /webhook - Stripe webhook")
+    logging.info(f" GET /api/shiva/obituary/{{id}} - Check shiva support")
+    logging.info(f" GET /api/shiva/{{id}} - Shiva support details")
+    logging.info(f" GET /api/shiva/{{id}}/meals - Meal signups")
+    logging.info(f" POST /api/shiva - Create shiva support")
+    logging.info(f" POST /api/shiva/{{id}}/signup - Volunteer meal signup")
+    logging.info(f" POST /api/shiva/{{id}}/report - Report shiva page")
+    logging.info(f" POST /api/shiva/{{id}}/remove-signup - Remove signup (organizer)")
+    logging.info(f" PUT /api/shiva/{{id}} - Update shiva support")
+    logging.info(f" GET /api/caterers - Approved caterers")
+    logging.info(f" POST /api/caterers/apply - Caterer application")
+    logging.info(f" GET /api/caterers/pending - Pending applications (admin)")
+    logging.info(f" POST /api/caterers/{{id}}/approve - Approve caterer (admin)")
+    logging.info(f" POST /api/caterers/{{id}}/reject - Reject caterer (admin)")
+    logging.info(f" GET /api/vendors - All vendors")
+    logging.info(f" GET /api/vendors/{{slug}} - Vendor by slug")
+    logging.info(f" POST /api/vendor-leads - Vendor inquiry")
+    logging.info(f" GET /directory/{{slug}} - Vendor detail page")
+    logging.info(f" GET /admin/backup - Download backup JSON (admin)")
+    logging.info(f" POST /admin/restore - Upload backup JSON (admin)")
+    logging.info(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
+    logging.info(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
+    logging.info(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
 
     # Archive expired shiva support pages + seed caterer data
     if SHIVA_AVAILABLE:
         try:
             shiva_mgr.archive_expired()
         except Exception as e:
-            print(f"  Shiva archive check: {e}")
+            logging.info(f" Shiva archive check: {e}")
         # Seed pre-approved caterers for shiva directory
         seed_caterers = [
             {
@@ -2948,33 +3099,33 @@ def run_server(port=None):
             try:
                 shiva_mgr.seed_caterer(caterer)
             except Exception as e:
-                print(f"  Caterer seed ({caterer['business_name']}): {e}")
+                logging.info(f" Caterer seed ({caterer['business_name']}): {e}")
     # Seed vendor directory
     if VENDORS_AVAILABLE:
         try:
             seed_vendors(DB_PATH)
             backfill_vendor_emails(DB_PATH)
-            print(f"  Vendor directory: Seeded")
+            logging.info(f" Vendor directory: Seeded")
         except Exception as e:
-            print(f"  Vendor seed: {e}")
+            logging.info(f" Vendor seed: {e}")
 
     if SHIVA_AVAILABLE:
         # Auto-restore from backup if critical tables are empty
         try:
             if shiva_mgr.needs_restore():
-                print("[Startup] Critical tables empty — restoring from backup.json...")
+                logging.info("[Startup] Critical tables empty — restoring from backup.json...")
                 shiva_mgr.restore_from_file()
             else:
-                print("  Backup restore: not needed")
+                logging.info(" Backup restore: not needed")
         except Exception as e:
-            print(f"  Backup restore: {e}")
-    print(f"\n Press Ctrl+C to stop")
-    print(f"{'='*60}\n")
+            logging.info(f" Backup restore: {e}")
+    logging.info(f"\n Press Ctrl+C to stop")
+    logging.info(f"{'='*60}\n")
 
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\n\n Server stopped")
+        logging.info("\n\n Server stopped")
         httpd.shutdown()
 
 if __name__ == '__main__':

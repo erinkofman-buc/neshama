@@ -6,3 +6,4 @@ APScheduler>=3.10.0
 sendgrid>=6.10.0
 stripe>=8.0.0
 pytz>=2024.1
+cloudscraper>=1.2.71

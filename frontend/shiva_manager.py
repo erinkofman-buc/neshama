@@ -12,6 +12,8 @@ import os
 import json
 import threading
 from datetime import datetime, timedelta
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
 class ShivaManager:
@@ -158,37 +160,37 @@ class ShivaManager:
         # Migration: add guests_per_meal column if missing (for existing databases)
         try:
             cursor.execute('SELECT guests_per_meal FROM shiva_support LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN guests_per_meal INTEGER DEFAULT 20')
 
         # Migration: add privacy column if missing
         try:
             cursor.execute('SELECT privacy FROM shiva_support LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute("ALTER TABLE shiva_support ADD COLUMN privacy TEXT DEFAULT 'public'")
 
         # Migration: add recommended_vendors column if missing
         try:
             cursor.execute('SELECT recommended_vendors FROM shiva_support LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN recommended_vendors TEXT')
 
         # Migration: add will_serve column to meal_signups if missing
         try:
             cursor.execute('SELECT will_serve FROM meal_signups LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE meal_signups ADD COLUMN will_serve INTEGER DEFAULT 0')
 
         # Migration: add organizer_update column if missing
         try:
             cursor.execute('SELECT organizer_update FROM shiva_support LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN organizer_update TEXT')
 
         # Migration: add family_notes column if missing
         try:
             cursor.execute('SELECT family_notes FROM shiva_support LIMIT 1')
-        except Exception:
+        except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN family_notes TEXT')
 
         # Migration: convert 'unknown' obituary_ids to NULL
@@ -215,7 +217,7 @@ class ShivaManager:
         ]:
             try:
                 cursor.execute(f'SELECT {col} FROM shiva_support LIMIT 1')
-            except Exception:
+            except sqlite3.OperationalError:
                 cursor.execute(f'ALTER TABLE shiva_support ADD COLUMN {col} {defn}')
 
         # V2: meal_signups — 5 new columns
@@ -228,7 +230,7 @@ class ShivaManager:
         ]:
             try:
                 cursor.execute(f'SELECT {col} FROM meal_signups LIMIT 1')
-            except Exception:
+            except sqlite3.OperationalError:
                 cursor.execute(f'ALTER TABLE meal_signups ADD COLUMN {col} {defn}')
 
         # V2: shiva_co_organizers table
@@ -273,6 +275,37 @@ class ShivaManager:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_status ON email_log(status)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_scheduled ON email_log(scheduled_for)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_type ON email_log(email_type)')
+
+        # ── V3 Migrations ────────────────────────────────────────
+
+        # V3: meal_signups — alternative contribution columns
+        for col, defn in [
+            ('alternative_type', 'TEXT'),
+            ('alternative_note', 'TEXT'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM meal_signups LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE meal_signups ADD COLUMN {col} {defn}')
+
+        # V3: shiva_updates table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_updates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_support_id TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_by TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (shiva_support_id) REFERENCES shiva_support(id)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_updates_shiva ON shiva_updates(shiva_support_id)')
+
+        # V3: thank_you_sent column on shiva_support
+        try:
+            cursor.execute('SELECT thank_you_sent FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN thank_you_sent INTEGER DEFAULT 0')
 
         conn.commit()
         conn.close()
@@ -1021,14 +1054,19 @@ class ShivaManager:
             conn.close()
             return {'status': 'error', 'message': 'This date falls on Shabbat and is not available for meal coordination'}
 
-        # Check for duplicate signup (same date + meal type)
-        cursor.execute('''
-            SELECT id FROM meal_signups
-            WHERE shiva_support_id = ? AND meal_date = ? AND meal_type = ?
-        ''', (support_id, meal_date, data['meal_type']))
-        if cursor.fetchone():
-            conn.close()
-            return {'status': 'error', 'message': 'Someone has already signed up for this meal slot'}
+        # Alternative contributions skip the duplicate check
+        is_alternative = bool(data.get('alternative_type'))
+
+        if not is_alternative:
+            # Check for duplicate signup (same date + meal type)
+            cursor.execute('''
+                SELECT id FROM meal_signups
+                WHERE shiva_support_id = ? AND meal_date = ? AND meal_type = ?
+                  AND (status IS NULL OR status != 'alternative')
+            ''', (support_id, meal_date, data['meal_type']))
+            if cursor.fetchone():
+                conn.close()
+                return {'status': 'error', 'message': 'Someone has already signed up for this meal slot'}
 
         now = datetime.now().isoformat()
         try:
@@ -1041,13 +1079,17 @@ class ShivaManager:
             will_serve = 1 if data.get('will_serve') else 0
 
             signup_group_id = data.get('signup_group_id')
+            alt_type = self._sanitize_text(data.get('alternative_type', ''), 50) or None
+            alt_note = self._sanitize_text(data.get('alternative_note', ''), self.MAX_TEXT_LENGTH) or None
+            signup_status = 'alternative' if is_alternative else 'confirmed'
 
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
-                    will_serve, privacy_consent, created_at, signup_group_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    will_serve, privacy_consent, created_at, signup_group_id,
+                    status, alternative_type, alternative_note
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -1061,6 +1103,9 @@ class ShivaManager:
                 1,
                 now,
                 signup_group_id,
+                signup_status,
+                alt_type,
+                alt_note,
             ))
             conn.commit()
 
@@ -1153,7 +1198,8 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, meal_description,
-                   num_servings, will_serve, created_at
+                   num_servings, will_serve, created_at,
+                   status, alternative_type, alternative_note
             FROM meal_signups
             WHERE shiva_support_id = ?
             ORDER BY meal_date, meal_type
@@ -1312,7 +1358,7 @@ class ShivaManager:
         conn.close()
 
         if count > 0:
-            print(f"[Shiva] Archived {count} expired support page(s)")
+            logging.info(f"[Shiva] Archived {count} expired support page(s)")
         return count
 
     # ── Analytics ─────────────────────────────────────────────
@@ -1686,9 +1732,9 @@ class ShivaManager:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             os.replace(tmp_path, backup_path)
             row_count = sum(len(rows) for rows in data['tables'].values())
-            print(f"[Backup] Saved {row_count} rows to {backup_path}")
+            logging.info(f"[Backup] Saved {row_count} rows to {backup_path}")
         except Exception as e:
-            print(f"[Backup] Error: {e}")
+            logging.error(f"[Backup] Error: {e}")
 
     def restore_from_data(self, data):
         """Restore tables from a backup data dict. Uses INSERT OR IGNORE to avoid duplicates."""
@@ -1714,26 +1760,26 @@ class ShivaManager:
                     )
                     restored += cursor.rowcount
                 except Exception as e:
-                    print(f"[Restore] Skipping row in {table}: {e}")
+                    logging.info(f"[Restore] Skipping row in {table}: {e}")
 
         conn.commit()
         conn.close()
-        print(f"[Restore] Restored {restored} rows across {len(all_tables)} tables")
+        logging.info(f"[Restore] Restored {restored} rows across {len(all_tables)} tables")
         return restored
 
     def restore_from_file(self):
         """Restore from backup.json if it exists."""
         backup_path = self._get_backup_path()
         if not os.path.exists(backup_path):
-            print("[Restore] No backup file found")
+            logging.info("[Restore] No backup file found")
             return 0
         try:
             with open(backup_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            print(f"[Restore] Loading backup from {data.get('exported_at', 'unknown')}")
+            logging.info(f"[Restore] Loading backup from {data.get('exported_at', 'unknown')}")
             return self.restore_from_data(data)
         except Exception as e:
-            print(f"[Restore] Error reading backup: {e}")
+            logging.error(f"[Restore] Error reading backup: {e}")
             return 0
 
     def needs_restore(self):
@@ -1821,3 +1867,132 @@ class ShivaManager:
         conn.commit()
         conn.close()
         return {'status': 'success', 'message': 'Email manually verified'}
+
+    # ── V3: Organizer Updates ─────────────────────────────────
+
+    def post_update(self, support_id, magic_token, message):
+        """Post an organizer update to the shiva page."""
+        if not message or not message.strip():
+            return {'status': 'error', 'message': 'Update message is required'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        support = self._verify_organizer(cursor, support_id, magic_token)
+        if not support:
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        now = datetime.now().isoformat()
+        organizer_name = support.get('organizer_name', 'Organizer')
+
+        cursor.execute('''
+            INSERT INTO shiva_updates (shiva_support_id, message, created_by, created_at)
+            VALUES (?, ?, ?, ?)
+        ''', (support_id, self._sanitize_text(message, self.MAX_TEXT_LENGTH), organizer_name, now))
+
+        update_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+
+        return {'status': 'success', 'update_id': update_id}
+
+    def get_updates(self, support_id):
+        """Get all updates for a shiva page (public)."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, message, created_by, created_at
+            FROM shiva_updates
+            WHERE shiva_support_id = ?
+            ORDER BY created_at DESC
+        ''', (support_id,))
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return {'status': 'success', 'data': rows}
+
+    def delete_update(self, support_id, magic_token, update_id):
+        """Delete an organizer update."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        support = self._verify_organizer(cursor, support_id, magic_token)
+        if not support:
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        cursor.execute('''
+            DELETE FROM shiva_updates
+            WHERE id = ? AND shiva_support_id = ?
+        ''', (update_id, support_id))
+
+        if cursor.rowcount == 0:
+            conn.close()
+            return {'status': 'error', 'message': 'Update not found'}
+
+        conn.commit()
+        conn.close()
+        return {'status': 'success'}
+
+    # ── V3: Thank-You Notes ───────────────────────────────────
+
+    def send_thank_you_notes(self, support_id, magic_token):
+        """Queue thank-you emails to all volunteers who signed up.
+        Can only be sent once per shiva page."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        support = self._verify_organizer(cursor, support_id, magic_token)
+        if not support:
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        if support.get('thank_you_sent'):
+            conn.close()
+            return {'status': 'error', 'message': 'Thank-you notes have already been sent'}
+
+        # Get all unique volunteer emails
+        cursor.execute('''
+            SELECT DISTINCT volunteer_name, volunteer_email
+            FROM meal_signups
+            WHERE shiva_support_id = ? AND volunteer_email IS NOT NULL
+        ''', (support_id,))
+        volunteers = [dict(row) for row in cursor.fetchall()]
+
+        if not volunteers:
+            conn.close()
+            return {'status': 'error', 'message': 'No volunteers to thank'}
+
+        now = datetime.now().isoformat()
+        queued = 0
+        family_name = support.get('family_name', 'the family')
+
+        for vol in volunteers:
+            # Check email_log for dedup
+            cursor.execute('''
+                SELECT id FROM email_log
+                WHERE shiva_support_id = ? AND email_type = 'thank_you'
+                  AND recipient_email = ?
+            ''', (support_id, vol['volunteer_email']))
+            if cursor.fetchone():
+                continue  # Already queued/sent
+
+            cursor.execute('''
+                INSERT INTO email_log (
+                    shiva_support_id, email_type, recipient_email, recipient_name,
+                    status, created_at
+                ) VALUES (?, 'thank_you', ?, ?, 'pending', ?)
+            ''', (support_id, vol['volunteer_email'], vol['volunteer_name'], now))
+            queued += 1
+
+        # Mark as sent
+        cursor.execute('UPDATE shiva_support SET thank_you_sent = 1 WHERE id = ?', (support_id,))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'Thank-you notes queued for {queued} volunteer{"s" if queued != 1 else ""}',
+            'count': queued
+        }
