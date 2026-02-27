@@ -94,6 +94,15 @@ except Exception as e:
     shiva_mgr = None
     print(f"  Shiva support: Not available ({e})")
 
+# Email queue processor (v2)
+try:
+    from email_queue import process_email_queue, log_immediate_email
+    EMAIL_QUEUE_AVAILABLE = True
+    print(f"  Email queue: Available")
+except Exception as e:
+    EMAIL_QUEUE_AVAILABLE = False
+    print(f"  Email queue: Not available ({e})")
+
 class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     STATIC_FILES = {
@@ -1645,12 +1654,8 @@ button:hover{background:#c45a1a}</style></head>
             if result['status'] == 'success':
                 shiva_mgr.track_event('meal_signup', support_id)
                 shiva_mgr._trigger_backup()
-                # Send confirmation email in background
-                threading.Thread(
-                    target=self._send_signup_confirmation,
-                    args=(data, result, support_id),
-                    daemon=True
-                ).start()
+                # Send confirmation email (logged to email_log)
+                self._send_signup_confirmation(data, result, support_id)
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
@@ -1743,11 +1748,31 @@ button:hover{background:#c45a1a}</style></head>
             )
 
             sg = SendGridAPIClient(sendgrid_key)
-            sg.send(message)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
             print(f"[Meal Signup] Confirmation email sent to {vol_email}")
+
+            # Log to email_log for audit trail
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, support_id, 'signup_confirmation',
+                                        vol_email, vol_name,
+                                        related_signup_id=result.get('signup_id'),
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Meal Signup] Failed to log email")
 
         except Exception:
             logging.exception("[Meal Signup] Email error")
+            # Log the failure
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, support_id, 'signup_confirmation',
+                                        vol_email, vol_name,
+                                        related_signup_id=result.get('signup_id'),
+                                        status='failed')
+                except Exception:
+                    pass
 
     def handle_remove_signup(self, support_id, body):
         """Handle organizer removing a meal signup"""
@@ -1963,8 +1988,18 @@ button:hover{background:#c45a1a}</style></head>
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            sg.send(message)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
             print(f"[Access] Sent request email to organizer: {result['organizer_email']}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    shiva_id = result.get('shiva_id') or result.get('request_id', '')
+                    log_immediate_email(DB_PATH, shiva_id, 'access_request',
+                                        result['organizer_email'], None,
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Access] Failed to log email")
         except Exception as e:
             print(f"[Access] Failed to send request email: {e}")
 
@@ -2001,8 +2036,17 @@ button:hover{background:#c45a1a}</style></head>
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            sg.send(message)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
             print(f"[Access] Sent approval email to: {result['requester_email']}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, result.get('shiva_id', ''), 'access_approved',
+                                        result['requester_email'], result.get('requester_name'),
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Access] Failed to log email")
         except Exception as e:
             print(f"[Access] Failed to send approval email: {e}")
 
@@ -2033,8 +2077,17 @@ button:hover{background:#c45a1a}</style></head>
                 html_content=Content("text/html", html)
             )
             sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            sg.send(message)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
             print(f"[Access] Sent denial email to: {result['requester_email']}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, result.get('shiva_id', ''), 'access_denied',
+                                        result['requester_email'], result.get('requester_name'),
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Access] Failed to log email")
         except Exception as e:
             print(f"[Access] Failed to send denial email: {e}")
 
@@ -2181,6 +2234,26 @@ def run_server(port=None):
     periodic_thread = threading.Thread(target=periodic_scraper, daemon=True)
     periodic_thread.start()
     print(f"[Scraper] Periodic scraper started (every {SCRAPE_INTERVAL // 60} minutes)")
+
+    # Launch email queue processor via APScheduler (every 15 min)
+    if EMAIL_QUEUE_AVAILABLE:
+        try:
+            from apscheduler.schedulers.background import BackgroundScheduler
+            scheduler = BackgroundScheduler(daemon=True)
+            scheduler.add_job(
+                process_email_queue,
+                'interval',
+                minutes=15,
+                args=[DB_PATH],
+                id='email_queue',
+                name='Process shiva email queue',
+                max_instances=1,
+            )
+            scheduler.start()
+            print(f"[EmailQueue] Scheduler started (every 15 minutes)")
+        except Exception as e:
+            print(f"[EmailQueue] Scheduler failed to start: {e}")
+            print(f"  Install with: pip install apscheduler")
 
     print(f"\n{'='*60}")
     print(f" NESHAMA API SERVER v2.0")
