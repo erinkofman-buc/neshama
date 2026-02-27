@@ -1097,6 +1097,55 @@
             <div id="updateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update saved!</div>
         </div>
 
+        <!-- V2: Drop-off Instructions (organizer only) -->
+        <div id="dropOffSection" style="display: none; background: white; border: 2px solid #a5d6a7; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Drop-off Instructions</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Shared with confirmed meal volunteers in their reminder emails.</p>
+            <textarea id="dropOffInput" placeholder="e.g., Leave food on the porch, buzzer #204..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="text-align: right; margin-top: 0.5rem;">
+                <button onclick="saveDropOff()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save</button>
+            </div>
+            <div id="dropOffSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Drop-off instructions saved!</div>
+        </div>
+
+        <!-- V2: Notification Preferences (organizer only) -->
+        <div id="notifSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Email Notifications</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Choose which email updates you'd like to receive.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifInstant" checked style="width: 1.1rem; height: 1.1rem;">
+                    Instant notification when someone signs up
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifDailySummary" checked style="width: 1.1rem; height: 1.1rem;">
+                    Daily summary (8 PM)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifUncovered" checked style="width: 1.1rem; height: 1.1rem;">
+                    Alert for uncovered meal dates
+                </label>
+            </div>
+            <div style="text-align: right; margin-top: 0.75rem;">
+                <button onclick="saveNotifPrefs()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save Preferences</button>
+            </div>
+            <div id="notifSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Notification preferences saved!</div>
+        </div>
+
+        <!-- V2: Co-Organizer Management (organizer only) -->
+        <div id="coOrgSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Co-Organizers</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Invite someone to help manage this shiva page.</p>
+            <div id="coOrgList" style="margin-bottom: 0.75rem;"></div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <input type="text" id="coOrgName" placeholder="Name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                <input type="email" id="coOrgEmail" placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                <button onclick="inviteCoOrganizer()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Invite</button>
+            </div>
+            <div id="coOrgSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="coOrgError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
         <!-- Info Cards -->
         <div class="info-cards" id="infoCards"></div>
 
@@ -1610,6 +1659,23 @@
                     document.getElementById('updateCharCount').textContent =
                         this.value.length + ' / 280';
                 });
+
+                // V2: Drop-off instructions
+                document.getElementById('dropOffSection').style.display = '';
+                document.getElementById('dropOffInput').value = supportData.drop_off_instructions || '';
+
+                // V2: Notification preferences
+                document.getElementById('notifSection').style.display = '';
+                try {
+                    var prefs = JSON.parse(supportData.notification_prefs || '{}');
+                    document.getElementById('notifInstant').checked = prefs.instant !== false;
+                    document.getElementById('notifDailySummary').checked = prefs.daily_summary !== false;
+                    document.getElementById('notifUncovered').checked = prefs.uncovered_alert !== false;
+                } catch(e) {}
+
+                // V2: Co-organizer management
+                document.getElementById('coOrgSection').style.display = '';
+                loadCoOrganizers();
             }
 
             // Address for organizer
@@ -1671,6 +1737,104 @@
                 btn.textContent = 'Save Update';
             });
         };
+
+        // ── V2: Drop-off Instructions ────────────────────
+        window.saveDropOff = function() {
+            var text = document.getElementById('dropOffInput').value.trim();
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: organizerToken, drop_off_instructions: text })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    var el = document.getElementById('dropOffSuccess');
+                    el.style.display = '';
+                    setTimeout(function() { el.style.display = 'none'; }, 3000);
+                }
+            });
+        };
+
+        // ── V2: Notification Preferences ────────────────
+        window.saveNotifPrefs = function() {
+            var prefs = {
+                instant: document.getElementById('notifInstant').checked,
+                daily_summary: document.getElementById('notifDailySummary').checked,
+                uncovered_alert: document.getElementById('notifUncovered').checked
+            };
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: organizerToken, notification_prefs: JSON.stringify(prefs) })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    var el = document.getElementById('notifSuccess');
+                    el.style.display = '';
+                    setTimeout(function() { el.style.display = 'none'; }, 3000);
+                }
+            });
+        };
+
+        // ── V2: Co-Organizer Management ─────────────────
+        window.inviteCoOrganizer = function() {
+            var name = document.getElementById('coOrgName').value.trim();
+            var email = document.getElementById('coOrgEmail').value.trim();
+            var successEl = document.getElementById('coOrgSuccess');
+            var errorEl = document.getElementById('coOrgError');
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            if (!name || !email) {
+                errorEl.textContent = 'Name and email are required';
+                errorEl.style.display = '';
+                return;
+            }
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/co-organizers/invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: organizerToken, name: name, email: email })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    successEl.textContent = result.message;
+                    successEl.style.display = '';
+                    document.getElementById('coOrgName').value = '';
+                    document.getElementById('coOrgEmail').value = '';
+                    loadCoOrganizers();
+                    setTimeout(function() { successEl.style.display = 'none'; }, 4000);
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.style.display = '';
+                }
+            });
+        };
+
+        function loadCoOrganizers() {
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/co-organizers?token=' + encodeURIComponent(organizerToken))
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                var container = document.getElementById('coOrgList');
+                if (result.status !== 'success' || !result.data || result.data.length === 0) {
+                    container.innerHTML = '<p style="font-size: 0.85rem; color: var(--sage-dark); font-style: italic;">No co-organizers yet.</p>';
+                    return;
+                }
+                var html = '';
+                result.data.forEach(function(co) {
+                    var badge = co.status === 'accepted'
+                        ? '<span style="color: var(--green-text); font-size: 0.8rem;">Active</span>'
+                        : '<span style="color: #F57F17; font-size: 0.8rem;">Pending</span>';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--light-taupe);">'
+                         + '<span style="font-size: 0.9rem;">' + co.name + ' (' + co.email + ') ' + badge + '</span>'
+                         + '</div>';
+                });
+                container.innerHTML = html;
+            });
+        }
 
         // ── Share Button ────────────────────────────────
 

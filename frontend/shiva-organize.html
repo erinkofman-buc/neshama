@@ -867,6 +867,12 @@
             </div>
 
             <div class="form-group">
+                <label for="dropOffInstructions">Drop-off Instructions for Meals <span class="optional">(optional)</span></label>
+                <textarea id="dropOffInstructions" placeholder="e.g., Leave food on the porch, buzzer #204, call when arriving..." rows="2"></textarea>
+                <div class="form-hint">Shown to confirmed meal volunteers only — not visible publicly</div>
+            </div>
+
+            <div class="form-group">
                 <label for="familyNotes">Anything else visitors should know? <span class="optional">(optional)</span></label>
                 <textarea id="familyNotes" placeholder="e.g., The family prefers home-cooked meals over catering, children in the house ages 3 and 7, visits welcome after 2pm..." rows="3"></textarea>
                 <div class="form-hint">This will appear as a "From the Family" note on the shiva page</div>
@@ -1359,6 +1365,7 @@
                 guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
+                drop_off_instructions: document.getElementById('dropOffInstructions').value.trim(),
                 family_notes: document.getElementById('familyNotes').value.trim(),
                 donation_url: document.getElementById('donationUrl').value.trim(),
                 donation_label: document.getElementById('donationLabel').value.trim(),

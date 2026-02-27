@@ -1915,7 +1915,7 @@ button:hover{background:#c45a1a}</style></head>
             return
         try:
             data = json.loads(body)
-            token = data.pop('magic_token', '')
+            token = data.pop('magic_token', '') or data.pop('token', '')
             if not token:
                 self.send_json_response({'status': 'error', 'message': 'Authorization token required'}, 401)
                 return
