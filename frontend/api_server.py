@@ -3160,8 +3160,8 @@ def run_server(port=None):
             {
                 'business_name': 'Jem Salads',
                 'contact_name': 'Jem Salads Team',
-                'email': 'info@jemsalads.com',
-                'phone': '(416) 785-6161',
+                'email': 'jem.salads@gmail.com',
+                'phone': '(416) 886-1804',
                 'website': 'https://www.jemsalads.com',
                 'delivery_area': 'Toronto & GTA',
                 'kosher_level': 'certified_kosher',
