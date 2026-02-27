@@ -1199,7 +1199,8 @@
                 .catch(function() {});
 
             // Also check for shiva_address in URL query params
-            var urlAddr = params.get('shiva_address');
+            var urlParams = new URLSearchParams(window.location.search);
+            var urlAddr = urlParams.get('shiva_address');
             if (urlAddr) {
                 var addrField = document.getElementById('shivaAddress');
                 if (!addrField.value) {
