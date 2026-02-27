@@ -355,24 +355,91 @@
 
         .livestream-link:hover { opacity: 0.7; }
 
-        /* ── Tributes Section ────────────────────────────── */
+        /* ── Condolence Guestbook ───────────────────────── */
 
-        .tributes-list {
+        .guestbook-section {
+            background: #FFF8F0;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow:
+                inset 0 0 30px rgba(62, 39, 35, 0.04),
+                0 4px 20px var(--soft-shadow);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            position: relative;
+        }
+        .guestbook-section::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 1rem; bottom: 1rem;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--gold), #B8956A, var(--gold));
+            border-radius: 2px;
+        }
+
+        .guestbook-count {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.25rem;
+            font-style: italic;
+        }
+
+        /* Tabs */
+        .guestbook-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .guestbook-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid var(--light-taupe);
+            background: white;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--dark-brown);
+        }
+        .guestbook-tab:hover { border-color: var(--terracotta); }
+        .guestbook-tab.active {
+            background: var(--terracotta);
+            color: white;
+            border-color: var(--terracotta);
+        }
+
+        /* Entries list */
+        .guestbook-entries {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             margin-bottom: 2.5rem;
         }
 
-        .tribute-card {
+        .guestbook-entry {
             background: white;
             border-radius: 1rem;
             padding: 1.5rem 2rem;
             box-shadow: 0 2px 12px var(--soft-shadow);
-            border-left: 3px solid var(--gold);
+            border-left: 3px solid var(--sage);
+        }
+        .guestbook-entry[data-type="memory"]     { border-left-color: var(--gold); }
+        .guestbook-entry[data-type="condolence"] { border-left-color: var(--sage); }
+        .guestbook-entry[data-type="prayer"]     { border-left-color: var(--terracotta); }
+        .guestbook-entry[data-type="candle"]     { border-left-color: #E8A040; }
+
+        .entry-type-icon {
+            font-size: 1.1rem;
+            margin-right: 0.3rem;
         }
 
-        .tribute-header {
+        .entry-header {
             display: flex;
             align-items: baseline;
             gap: 0.75rem;
@@ -380,31 +447,39 @@
             flex-wrap: wrap;
         }
 
-        .tribute-author {
+        .entry-author {
             font-weight: 600;
             font-size: 1.05rem;
             color: var(--dark-brown);
         }
 
-        .tribute-relationship {
+        .entry-relationship {
             font-size: 0.9rem;
             color: var(--sage-dark);
             font-style: italic;
         }
 
-        .tribute-message {
+        .entry-message {
             font-size: 1.05rem;
             line-height: 1.7;
             color: var(--dark-brown);
             margin-bottom: 0.5rem;
         }
 
-        .tribute-timestamp {
+        .entry-prayer {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--dark-brown);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .entry-timestamp {
             font-size: 0.85rem;
             color: var(--sage);
         }
 
-        .no-tributes {
+        .no-entries {
             text-align: center;
             padding: 2rem;
             color: var(--sage-dark);
@@ -412,21 +487,100 @@
             font-size: 1.05rem;
         }
 
-        /* ── Tribute Form ────────────────────────────────── */
+        /* Candle flame animation */
+        .candle-flame {
+            display: inline-block;
+            width: 10px;
+            height: 16px;
+            background: radial-gradient(ellipse at bottom, #FFD54F 0%, #FF9800 50%, transparent 70%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: flicker 2s ease-in-out infinite alternate;
+            vertical-align: middle;
+        }
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(-1deg); opacity: 0.9; }
+            25% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+            50% { transform: scale(0.97) rotate(-0.5deg); opacity: 0.85; }
+            75% { transform: scale(1.02) rotate(0.5deg); opacity: 0.95; }
+        }
 
-        .tribute-form-wrapper {
+        /* ── Guestbook Form ──────────────────────────────── */
+
+        .guestbook-form-wrapper {
             background: white;
             border-radius: 1rem;
             padding: 2rem;
             box-shadow: 0 4px 20px var(--soft-shadow);
         }
 
-        .tribute-form-title {
+        .guestbook-form-title {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.4rem;
             font-weight: 500;
             color: var(--dark-brown);
             margin-bottom: 1.25rem;
+        }
+
+        /* Entry type selector */
+        .entry-type-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .type-btn {
+            flex: 1;
+            min-width: 130px;
+            padding: 0.65rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 2px solid var(--light-taupe);
+            background: white;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            color: var(--dark-brown);
+        }
+        .type-btn:hover { border-color: var(--terracotta); }
+        .type-btn.active {
+            border-color: var(--terracotta);
+            background: #FFF0E6;
+            font-weight: 600;
+        }
+
+        /* Prayer presets */
+        .prayer-presets {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .prayer-preset {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: white;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.95rem;
+            color: var(--dark-brown);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            min-height: 44px;
+        }
+        .prayer-preset:hover {
+            border-color: var(--terracotta);
+            background: #FFF8F0;
+        }
+        .prayer-preset.selected {
+            border-color: var(--terracotta);
+            background: #FFF0E6;
+            font-weight: 600;
         }
 
         .form-group {
@@ -472,7 +626,7 @@
             color: var(--sage);
         }
 
-        .tribute-submit-btn {
+        .guestbook-submit-btn {
             background: var(--terracotta);
             color: white;
             border: none;
@@ -486,13 +640,13 @@
             width: 100%;
         }
 
-        .tribute-submit-btn:hover {
+        .guestbook-submit-btn:hover {
             background: #c45a1a;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px var(--warm-glow);
         }
 
-        .tribute-submit-btn:disabled {
+        .guestbook-submit-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
@@ -753,12 +907,36 @@
                 padding: 1.25rem 1.5rem;
             }
 
-            .tribute-card {
+            .guestbook-entry {
                 padding: 1.25rem 1.5rem;
             }
 
-            .tribute-form-wrapper {
+            .guestbook-form-wrapper {
                 padding: 1.5rem;
+            }
+
+            .guestbook-section {
+                padding: 1.5rem;
+            }
+
+            .entry-type-selector {
+                gap: 0.4rem;
+            }
+
+            .type-btn {
+                min-width: unset;
+                flex: 1 1 calc(50% - 0.4rem);
+                font-size: 0.85rem;
+                padding: 0.5rem;
+            }
+
+            .guestbook-tabs {
+                gap: 0.35rem;
+            }
+
+            .guestbook-tab {
+                font-size: 0.82rem;
+                padding: 0.4rem 0.75rem;
             }
 
             .share-buttons {
@@ -928,20 +1106,45 @@
             </div>
         </section>
 
-        <!-- Tributes Section -->
-        <section class="memorial-section" id="tributesSection">
-            <h2 class="section-heading">Tributes &amp; Condolences</h2>
-            <div class="tributes-list" id="tributesList"></div>
-            <div class="tribute-form-wrapper">
-                <h3 class="tribute-form-title">Leave a Tribute</h3>
-                <form id="tributeForm">
+        <!-- Condolence Guestbook -->
+        <section class="memorial-section guestbook-section" id="guestbookSection">
+            <h2 class="section-heading">Condolence Guestbook</h2>
+            <p class="guestbook-count" id="guestbookCount" style="display:none;"></p>
+
+            <!-- Filter tabs -->
+            <div class="guestbook-tabs" id="guestbookTabs">
+                <button class="guestbook-tab active" data-filter="all" type="button">All</button>
+                <button class="guestbook-tab" data-filter="memory" type="button">&#x1F4DC; Memories</button>
+                <button class="guestbook-tab" data-filter="condolence" type="button">&#x1F54A;&#xFE0F; Condolences</button>
+                <button class="guestbook-tab" data-filter="prayer" type="button">&#x1F54E; Prayers</button>
+                <button class="guestbook-tab" data-filter="candle" type="button"><span class="candle-flame"></span> Candles</button>
+            </div>
+
+            <!-- Entries list -->
+            <div class="guestbook-entries" id="guestbookEntries"></div>
+
+            <!-- Submission form -->
+            <div class="guestbook-form-wrapper">
+                <h3 class="guestbook-form-title">Add to the Guestbook</h3>
+
+                <!-- Entry type selector -->
+                <div class="entry-type-selector" id="entryTypeSelector">
+                    <button type="button" class="type-btn active" data-type="condolence">&#x1F54A;&#xFE0F; Send Condolences</button>
+                    <button type="button" class="type-btn" data-type="memory">&#x1F4DC; Share a Memory</button>
+                    <button type="button" class="type-btn" data-type="prayer">&#x1F54E; Offer a Prayer</button>
+                    <button type="button" class="type-btn" data-type="candle"><span class="candle-flame"></span> Light a Candle</button>
+                </div>
+
+                <form id="guestbookForm">
+                    <input type="hidden" id="guestbookEntryType" value="condolence">
+
                     <div class="form-group">
-                        <label for="tributeName">Your Name</label>
-                        <input type="text" id="tributeName" name="author_name" placeholder="Your full name" required>
+                        <label for="guestbookName">Your Name</label>
+                        <input type="text" id="guestbookName" placeholder="Your full name" required>
                     </div>
                     <div class="form-group">
-                        <label for="tributeRelationship">Relationship</label>
-                        <select id="tributeRelationship" name="relationship" required>
+                        <label for="guestbookRelationship">Relationship</label>
+                        <select id="guestbookRelationship" required>
                             <option value="" disabled selected>Select your relationship</option>
                             <option value="Family">Family</option>
                             <option value="Friend">Friend</option>
@@ -950,12 +1153,27 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="tributeMessage">Your Message</label>
-                        <textarea id="tributeMessage" name="message" placeholder="Share a memory or message of comfort..." required></textarea>
+
+                    <!-- Dynamic message area -->
+                    <div class="form-group" id="messageGroup">
+                        <label for="guestbookMessage" id="messageLabel">Your Message</label>
+                        <textarea id="guestbookMessage" placeholder="Share a message of comfort..." required></textarea>
                     </div>
-                    <button type="submit" class="tribute-submit-btn" id="tributeSubmitBtn">Submit Tribute</button>
-                    <div class="form-message" id="tributeFormMessage"></div>
+
+                    <!-- Prayer presets (shown only for prayer type) -->
+                    <div class="form-group" id="prayerGroup" style="display:none;">
+                        <label>Choose a Prayer</label>
+                        <div class="prayer-presets" id="prayerPresets">
+                            <button type="button" class="prayer-preset" data-text="May their memory be a blessing.">May their memory be a blessing</button>
+                            <button type="button" class="prayer-preset" data-text="May the Almighty comfort you among the mourners of Zion and Jerusalem.">HaMakom Yenachem</button>
+                            <button type="button" class="prayer-preset" data-text="May their soul be bound up in the bond of life.">Tzror HaChaim</button>
+                        </div>
+                        <label for="guestbookPrayer" style="margin-top:0.75rem;">Or write your own</label>
+                        <textarea id="guestbookPrayer" placeholder="Write a personal prayer..."></textarea>
+                    </div>
+
+                    <button type="submit" class="guestbook-submit-btn" id="guestbookSubmitBtn">Send Condolences</button>
+                    <div class="form-message" id="guestbookFormMessage"></div>
                 </form>
             </div>
         </section>
@@ -1247,104 +1465,254 @@
             }
         }
 
-        // ── Tributes Functions ────────────────────────────
-        function renderTributes(tributes) {
-            var list = document.getElementById('tributesList');
+        // ── Guestbook Functions ──────────────────────────
 
-            if (!tributes || tributes.length === 0) {
-                list.innerHTML = '<div class="no-tributes">No tributes yet. Be the first to share a memory.</div>';
+        var TYPE_ICONS = {
+            memory: '&#x1F4DC;',
+            condolence: '&#x1F54A;&#xFE0F;',
+            prayer: '&#x1F54E;',
+            candle: '<span class="candle-flame"></span>'
+        };
+
+        var TYPE_LABELS = {
+            memory: { label: 'Your Memory', placeholder: 'Tell us about a time you shared...', button: 'Share Memory', required: true },
+            condolence: { label: 'Your Message', placeholder: 'Share a message of comfort...', button: 'Send Condolences', required: true },
+            prayer: { label: 'Your Prayer', placeholder: 'Write a personal prayer...', button: 'Offer Prayer', required: false },
+            candle: { label: 'A Few Words', placeholder: 'A few words as you light this candle...', button: 'Light a Candle', required: false }
+        };
+
+        function renderGuestbookEntries(entries) {
+            var list = document.getElementById('guestbookEntries');
+            var countEl = document.getElementById('guestbookCount');
+
+            if (!entries || entries.length === 0) {
+                list.innerHTML = '<div class="no-entries">No entries yet. Be the first to sign the guestbook.</div>';
+                countEl.style.display = 'none';
                 return;
             }
 
+            countEl.textContent = entries.length + (entries.length === 1 ? ' entry' : ' entries') + ' in this guestbook';
+            countEl.style.display = '';
+
             var html = '';
-            tributes.forEach(function(t) {
-                html += '<div class="tribute-card">' +
-                    '<div class="tribute-header">' +
-                    '<span class="tribute-author">' + escapeHtml(t.author_name || t.author || 'Anonymous') + '</span>' +
-                    (t.relationship ? '<span class="tribute-relationship">' + escapeHtml(t.relationship) + '</span>' : '') +
-                    '</div>' +
-                    '<p class="tribute-message">' + escapeHtml(t.message || t.text || '') + '</p>' +
-                    '<span class="tribute-timestamp">' + timeAgo(t.created_at || t.timestamp || '') + '</span>' +
-                    '</div>';
+            entries.forEach(function(t) {
+                var type = t.entry_type || 'condolence';
+                var icon = TYPE_ICONS[type] || TYPE_ICONS.condolence;
+
+                html += '<div class="guestbook-entry" data-type="' + escapeHtml(type) + '">';
+                html += '<div class="entry-header">';
+                html += '<span class="entry-type-icon">' + icon + '</span>';
+                html += '<span class="entry-author">' + escapeHtml(t.author_name || 'Anonymous') + '</span>';
+                if (t.relationship) {
+                    html += '<span class="entry-relationship">' + escapeHtml(t.relationship) + '</span>';
+                }
+                html += '</div>';
+
+                // Show prayer text if present
+                if (type === 'prayer' && t.prayer_text) {
+                    html += '<p class="entry-prayer">' + escapeHtml(t.prayer_text) + '</p>';
+                }
+                // Show message if present
+                if (t.message) {
+                    html += '<p class="entry-message">' + escapeHtml(t.message) + '</p>';
+                }
+
+                html += '<span class="entry-timestamp">' + timeAgo(t.created_at || '') + '</span>';
+                html += '</div>';
             });
 
             list.innerHTML = html;
         }
 
-        function loadTributes() {
+        function loadGuestbook() {
             fetch('/api/tributes/' + encodeURIComponent(obituaryId))
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    var tributes = [];
+                    var entries = [];
                     if (Array.isArray(data)) {
-                        tributes = data;
+                        entries = data;
                     } else if (data && Array.isArray(data.data)) {
-                        tributes = data.data;
-                    } else if (data && Array.isArray(data.tributes)) {
-                        tributes = data.tributes;
+                        entries = data.data;
                     }
-                    renderTributes(tributes);
+                    renderGuestbookEntries(entries);
                 })
                 .catch(function() {
-                    renderTributes([]);
+                    renderGuestbookEntries([]);
                 });
         }
 
-        function submitTribute(e) {
+        function filterEntries(type) {
+            var entries = document.querySelectorAll('.guestbook-entry');
+            entries.forEach(function(el) {
+                el.style.display = (type === 'all' || el.getAttribute('data-type') === type) ? '' : 'none';
+            });
+        }
+
+        function switchEntryType(type) {
+            var config = TYPE_LABELS[type] || TYPE_LABELS.condolence;
+            document.getElementById('guestbookEntryType').value = type;
+
+            // Update message field
+            var msgLabel = document.getElementById('messageLabel');
+            var msgInput = document.getElementById('guestbookMessage');
+            msgLabel.textContent = config.label;
+            msgInput.placeholder = config.placeholder;
+            msgInput.required = config.required;
+
+            // Show/hide prayer group
+            var prayerGroup = document.getElementById('prayerGroup');
+            var messageGroup = document.getElementById('messageGroup');
+            if (type === 'prayer') {
+                prayerGroup.style.display = '';
+                messageGroup.style.display = 'none';
+            } else {
+                prayerGroup.style.display = 'none';
+                messageGroup.style.display = '';
+            }
+
+            // Update submit button
+            document.getElementById('guestbookSubmitBtn').textContent = config.button;
+
+            // Update active state on type buttons
+            document.querySelectorAll('.type-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-type') === type);
+            });
+        }
+
+        function submitGuestbookEntry(e) {
             e.preventDefault();
 
-            var btn = document.getElementById('tributeSubmitBtn');
-            var msgEl = document.getElementById('tributeFormMessage');
-            var nameInput = document.getElementById('tributeName');
-            var relSelect = document.getElementById('tributeRelationship');
-            var messageInput = document.getElementById('tributeMessage');
+            var btn = document.getElementById('guestbookSubmitBtn');
+            var msgEl = document.getElementById('guestbookFormMessage');
+            var nameInput = document.getElementById('guestbookName');
+            var relSelect = document.getElementById('guestbookRelationship');
+            var messageInput = document.getElementById('guestbookMessage');
+            var prayerInput = document.getElementById('guestbookPrayer');
+            var entryType = document.getElementById('guestbookEntryType').value;
 
             var authorName = nameInput.value.trim();
             var relationship = relSelect.value;
             var message = messageInput.value.trim();
+            var prayerText = prayerInput ? prayerInput.value.trim() : '';
 
-            if (!authorName || !relationship || !message) {
+            // Validation
+            if (!authorName || !relationship) {
                 msgEl.className = 'form-message error';
-                msgEl.textContent = 'Please fill in all fields.';
+                msgEl.textContent = 'Please fill in your name and relationship.';
                 return;
             }
 
+            if (entryType === 'prayer') {
+                // Check selected preset
+                var selectedPreset = document.querySelector('.prayer-preset.selected');
+                if (selectedPreset) {
+                    prayerText = selectedPreset.getAttribute('data-text');
+                }
+                if (!prayerText && !message) {
+                    msgEl.className = 'form-message error';
+                    msgEl.textContent = 'Please select or write a prayer.';
+                    return;
+                }
+            } else if ((entryType === 'memory' || entryType === 'condolence') && !message) {
+                msgEl.className = 'form-message error';
+                msgEl.textContent = 'Please write a message.';
+                return;
+            }
+            // Candle: message is optional
+
             btn.disabled = true;
+            var originalText = btn.textContent;
             btn.textContent = 'Submitting...';
             msgEl.className = 'form-message';
             msgEl.style.display = 'none';
 
+            var payload = {
+                obituary_id: obituaryId,
+                author_name: authorName,
+                message: message,
+                relationship: relationship,
+                entry_type: entryType
+            };
+            if (entryType === 'prayer' && prayerText) {
+                payload.prayer_text = prayerText;
+            }
+
             fetch('/api/tributes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    obituary_id: obituaryId,
-                    author_name: authorName,
-                    message: message,
-                    relationship: relationship
-                })
+                body: JSON.stringify(payload)
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.status === 'error') {
-                    throw new Error(data.message || 'Failed to submit tribute.');
+                    throw new Error(data.message || 'Something went wrong.');
                 }
+                var successMsgs = {
+                    memory: 'Your memory has been shared. Thank you.',
+                    condolence: 'Your condolences have been sent. Thank you.',
+                    prayer: 'Your prayer has been offered. Thank you.',
+                    candle: 'A candle has been lit. Thank you.'
+                };
                 msgEl.className = 'form-message success';
-                msgEl.textContent = 'Your tribute has been submitted. Thank you.';
+                msgEl.textContent = successMsgs[entryType] || 'Thank you for your entry.';
                 nameInput.value = '';
                 relSelect.selectedIndex = 0;
                 messageInput.value = '';
+                if (prayerInput) prayerInput.value = '';
+                // Reset prayer presets
+                document.querySelectorAll('.prayer-preset').forEach(function(p) { p.classList.remove('selected'); });
                 btn.disabled = false;
-                btn.textContent = 'Submit Tribute';
-                // Reload tributes to show the new one
-                setTimeout(loadTributes, 500);
+                btn.textContent = originalText;
+                setTimeout(loadGuestbook, 500);
             })
             .catch(function(err) {
                 msgEl.className = 'form-message error';
-                msgEl.textContent = err.message || 'Unable to submit tribute. Please try again.';
+                msgEl.textContent = err.message || 'Unable to submit. Please try again.';
                 btn.disabled = false;
-                btn.textContent = 'Submit Tribute';
+                btn.textContent = originalText;
             });
+        }
+
+        function initGuestbook() {
+            // Type selector buttons
+            document.querySelectorAll('.type-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    switchEntryType(this.getAttribute('data-type'));
+                });
+            });
+
+            // Tab filter buttons
+            document.querySelectorAll('.guestbook-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.guestbook-tab').forEach(function(t) { t.classList.remove('active'); });
+                    this.classList.add('active');
+                    filterEntries(this.getAttribute('data-filter'));
+                });
+            });
+
+            // Prayer preset buttons
+            document.querySelectorAll('.prayer-preset').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.prayer-preset').forEach(function(p) { p.classList.remove('selected'); });
+                    this.classList.add('selected');
+                    // Clear custom prayer when preset selected
+                    var prayerInput = document.getElementById('guestbookPrayer');
+                    if (prayerInput) prayerInput.value = '';
+                });
+            });
+
+            // Clear preset selection when custom prayer typed
+            var prayerInput = document.getElementById('guestbookPrayer');
+            if (prayerInput) {
+                prayerInput.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        document.querySelectorAll('.prayer-preset').forEach(function(p) { p.classList.remove('selected'); });
+                    }
+                });
+            }
+
+            // Form submission
+            document.getElementById('guestbookForm').addEventListener('submit', submitGuestbookEntry);
         }
 
         // ── Shiva Support ───────────────────────────────
@@ -1551,7 +1919,7 @@
                     setupShareButtons(obit);
 
                     // Load tributes
-                    loadTributes();
+                    loadGuestbook();
 
                     // Check for shiva support
                     checkShivaSupport(obit.id || obituaryId);
@@ -1573,8 +1941,8 @@
 
         // ── Event Listeners ───────────────────────────────
 
-        // Tribute form
-        document.getElementById('tributeForm').addEventListener('submit', submitTribute);
+        // Guestbook form + tabs
+        initGuestbook();
 
         // ── Initialize ────────────────────────────────────
         if (document.readyState === 'loading') {

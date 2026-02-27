@@ -149,6 +149,22 @@ class NeshamaDatabase:
             ON tributes(obituary_id)
         ''')
 
+        # Guestbook migration: add entry_type, prayer_text, is_candle to tributes
+        for col, defn in [
+            ('entry_type', "TEXT DEFAULT 'condolence'"),
+            ('prayer_text', 'TEXT'),
+            ('is_candle', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                self.cursor.execute(f'SELECT {col} FROM tributes LIMIT 1')
+            except sqlite3.OperationalError:
+                self.cursor.execute(f'ALTER TABLE tributes ADD COLUMN {col} {defn}')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tributes_type
+            ON tributes(obituary_id, entry_type)
+        ''')
+
         self.conn.commit()
         self.close()
 

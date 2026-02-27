@@ -3,13 +3,14 @@
 Neshama Email Queue Processor — V2
 
 Processes the email_log table every 15 minutes via APScheduler.
-Handles 6 scheduled email types + retry logic for failed sends.
+Handles 7 scheduled email types + retry logic for failed sends.
 
 Email types:
   - day_before_reminder:  7 PM night before meal date
   - morning_of_reminder:  8 AM morning of meal date
   - uncovered_alert:      7 PM for tomorrow's uncovered slots
   - daily_summary:        8 PM daily during active shiva
+  - guestbook_digest:     8 PM daily — new tribute summary for organizer
   - thank_you:            Day after shiva_end_date
   - (retry failed):       Any email_log row with status='failed' < 24h old
 
@@ -224,6 +225,52 @@ def _daily_summary_html(family_name, today_str, summary_data, shiva_url):
     </div>""")
 
 
+def _guestbook_digest_html(organizer_name, family_name, new_count, breakdown, memorial_url):
+    """Guestbook digest email — warm summary of new tributes for the organizer."""
+    first = html_mod.escape(organizer_name.split()[0]) if organizer_name else 'Friend'
+    # Build breakdown line: e.g. "3 condolences, 1 memory, 1 candle lit"
+    parts = []
+    for entry_type, count in breakdown.items():
+        if count <= 0:
+            continue
+        if entry_type == 'condolence':
+            parts.append(f'{count} condolence{"s" if count != 1 else ""}')
+        elif entry_type == 'memory':
+            parts.append(f'{count} {"memories" if count != 1 else "memory"}')
+        elif entry_type == 'candle':
+            parts.append(f'{count} candle{"s" if count != 1 else ""} lit')
+        else:
+            parts.append(f'{count} {html_mod.escape(entry_type)}{"s" if count != 1 else ""}')
+    breakdown_text = ', '.join(parts) if parts else f'{new_count} new entries'
+
+    plural = 'entries' if new_count != 1 else 'entry'
+
+    return _email_wrapper(f"""
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">New Guestbook Entries</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">For the {html_mod.escape(family_name)} family memorial</p>
+    </div>
+    <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1rem 0;text-align:center;">
+        <p style="font-size:1.2rem;font-weight:600;color:#3E2723;margin:0 0 0.5rem;">
+            {new_count} new {plural} since yesterday
+        </p>
+        <p style="font-size:1rem;color:#5c534a;margin:0;">
+            {html_mod.escape(breakdown_text)}
+        </p>
+    </div>
+    <p style="text-align:center;font-size:0.95rem;color:#5c534a;margin:1rem 0;">
+        {html_mod.escape(first)}, people are thinking of your family and
+        taking the time to share their thoughts. Each entry is a small
+        act of love.
+    </p>
+    <div style="text-align:center;margin-top:1rem;">
+        <a href="{html_mod.escape(memorial_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">View the Guestbook</a>
+    </div>
+    <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">
+        May their memory be a blessing.
+    </p>""")
+
+
 def _thank_you_html(vol_name, family_name, shiva_url):
     first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
     return _email_wrapper(f"""
@@ -288,7 +335,7 @@ def _already_sent(cursor, shiva_support_id, email_type, extra_where='', extra_pa
     return cursor.fetchone() is not None
 
 
-# ── The 6 email type processors ──────────────────────────────
+# ── The 7 email type processors ──────────────────────────────
 
 def _process_day_before_reminders(cursor, sendgrid_key, now_toronto):
     """Day-before reminders: send at 7 PM for tomorrow's confirmed meals."""
@@ -525,6 +572,88 @@ def _process_daily_summaries(cursor, sendgrid_key, now_toronto):
     return sent
 
 
+def _process_guestbook_digests(cursor, sendgrid_key, now_toronto):
+    """Guestbook digest: 8 PM, notify organizer of new tributes since last digest."""
+    if now_toronto.hour < 20:
+        return 0
+    today = now_toronto.strftime('%Y-%m-%d')
+    # Active shiva_support entries that have a linked obituary (guestbook)
+    cursor.execute('''
+        SELECT id, obituary_id, family_name, organizer_email, organizer_name,
+               notification_prefs, magic_token
+        FROM shiva_support
+        WHERE status = 'active'
+          AND obituary_id IS NOT NULL
+    ''')
+    shivas = cursor.fetchall()
+    sent = 0
+    for shiva in shivas:
+        shiva_id, obituary_id, family_name, org_email, org_name, \
+            notif_prefs, magic_token = shiva
+
+        # Check notification preference
+        try:
+            import json as _json
+            prefs = _json.loads(notif_prefs) if notif_prefs else {}
+        except Exception:
+            prefs = {}
+        if not prefs.get('guestbook_digest', True):
+            continue
+
+        # Dedup: skip if already sent today
+        if _already_sent(cursor, shiva_id, 'guestbook_digest',
+                         "AND DATE(created_at)=?", (today,)):
+            continue
+
+        # Determine cutoff: last digest sent_at, or 24h ago
+        cursor.execute('''
+            SELECT sent_at FROM email_log
+            WHERE shiva_support_id=? AND email_type='guestbook_digest'
+              AND status='sent'
+            ORDER BY sent_at DESC LIMIT 1
+        ''', (shiva_id,))
+        last_row = cursor.fetchone()
+        if last_row and last_row[0]:
+            cutoff = last_row[0]
+        else:
+            cutoff = (now_toronto - timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%S')
+
+        # Count new tributes since cutoff, grouped by entry_type
+        cursor.execute('''
+            SELECT entry_type, COUNT(*) FROM tributes
+            WHERE obituary_id = ? AND created_at > ?
+            GROUP BY entry_type
+        ''', (obituary_id, cutoff))
+        type_rows = cursor.fetchall()
+        if not type_rows:
+            continue
+
+        breakdown = {}
+        new_count = 0
+        for entry_type, count in type_rows:
+            breakdown[entry_type or 'tribute'] = count
+            new_count += count
+
+        if new_count == 0:
+            continue
+
+        base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+        memorial_url = f'{base_url}/memorial/{obituary_id}'
+        html = _guestbook_digest_html(org_name, family_name, new_count,
+                                       breakdown, memorial_url)
+        subject = f'{new_count} new guestbook {"entries" if new_count != 1 else "entry"} for {family_name}'
+        email_id = _log_email(cursor, shiva_id, 'guestbook_digest',
+                              org_email, org_name)
+        ok, msg_id, err = _send_via_sendgrid(sendgrid_key, org_email,
+                                              org_name, subject, html)
+        if ok:
+            _mark_sent(cursor, email_id, msg_id)
+            sent += 1
+        else:
+            _mark_failed(cursor, email_id, err)
+    return sent
+
+
 def _process_thank_yous(cursor, sendgrid_key, now_toronto):
     """Thank-you emails: sent day after shiva_end_date to all volunteers."""
     yesterday = (now_toronto - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -665,6 +794,34 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
                                     shiva_url)
         return html, f'Daily summary — {family_name} shiva'
 
+    elif email_type == 'guestbook_digest':
+        # For retry, fetch obituary_id and rebuild with current new-tribute counts
+        cursor.execute('SELECT obituary_id FROM shiva_support WHERE id=?', (shiva_id,))
+        obit_row = cursor.fetchone()
+        if not obit_row or not obit_row[0]:
+            return None, None
+        obituary_id = obit_row[0]
+        # Use 24h window for retry rebuild
+        cutoff = (datetime.now() - timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%S')
+        cursor.execute('''
+            SELECT entry_type, COUNT(*) FROM tributes
+            WHERE obituary_id = ? AND created_at > ?
+            GROUP BY entry_type
+        ''', (obituary_id, cutoff))
+        type_rows = cursor.fetchall()
+        breakdown = {}
+        new_count = 0
+        for entry_type, count in type_rows:
+            breakdown[entry_type or 'tribute'] = count
+            new_count += count
+        if new_count == 0:
+            return None, None
+        memorial_url = f'{base_url}/memorial/{obituary_id}'
+        html = _guestbook_digest_html(recipient_name, family_name, new_count,
+                                       breakdown, memorial_url)
+        plural = 'entries' if new_count != 1 else 'entry'
+        return html, f'{new_count} new guestbook {plural} for {family_name}'
+
     return None, None
 
 
@@ -673,13 +830,14 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
 def process_email_queue(db_path):
     """Process all pending scheduled emails. Called by APScheduler every 15 minutes.
 
-    Processes 6 email types in order:
+    Processes 7 email types in order:
       1. Day-before reminders (7 PM)
       2. Morning-of reminders (8 AM)
       3. Uncovered-slot alerts (7 PM)
       4. Daily organizer summaries (8 PM)
-      5. Thank-you emails (day after shiva ends)
-      6. Retry failed sends (<24h old, max 3 attempts)
+      5. Guestbook digest (8 PM)
+      6. Thank-you emails (day after shiva ends)
+      7. Retry failed sends (<24h old, max 3 attempts)
     """
     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
     now_toronto = datetime.now(TORONTO_TZ)
@@ -706,6 +864,9 @@ def process_email_queue(db_path):
         conn.commit()
 
         results['daily_summaries'] = _process_daily_summaries(cursor, sendgrid_key, now_toronto)
+        conn.commit()
+
+        results['guestbook_digests'] = _process_guestbook_digests(cursor, sendgrid_key, now_toronto)
         conn.commit()
 
         results['thank_yous'] = _process_thank_yous(cursor, sendgrid_key, now_toronto)

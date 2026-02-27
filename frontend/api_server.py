@@ -785,16 +785,25 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     # ── API: Tributes ─────────────────────────────────────────
 
     def get_tributes(self, obit_id):
-        """Get tributes for an obituary"""
+        """Get guestbook entries for an obituary, with optional type filter"""
         try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            entry_type = params.get('type', [None])[0]
+
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute(
-                'SELECT * FROM tributes WHERE obituary_id = ? ORDER BY created_at DESC',
-                (obit_id,)
-            )
+
+            query = 'SELECT id, obituary_id, author_name, message, relationship, created_at, entry_type, prayer_text, is_candle FROM tributes WHERE obituary_id = ?'
+            args = [obit_id]
+            if entry_type and entry_type in ('memory', 'condolence', 'prayer', 'candle'):
+                query += ' AND entry_type = ?'
+                args.append(entry_type)
+            query += ' ORDER BY created_at DESC'
+
+            cursor.execute(query, args)
             tributes = [dict(row) for row in cursor.fetchall()]
             conn.close()
             self.send_json_response({'status': 'success', 'data': tributes, 'count': len(tributes)})
@@ -816,26 +825,55 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_json_response({'status': 'success', 'data': {}})
 
+    VALID_ENTRY_TYPES = ('memory', 'condolence', 'prayer', 'candle')
+
     def handle_submit_tribute(self, body):
-        """Handle tribute submission"""
+        """Handle guestbook entry submission (memory, condolence, prayer, or candle)"""
         try:
+            # Rate limit: 5 entries per 5 minutes per IP
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'tribute', max_calls=5, window=300):
+                self.send_json_response({'status': 'error', 'message': 'Please wait before submitting another entry.'}, 429)
+                return
+
             data = json.loads(body)
             obit_id = data.get('obituary_id', '').strip()
             author = data.get('author_name', '').strip()
             message = data.get('message', '').strip()
             relationship = data.get('relationship', '').strip()
+            entry_type = data.get('entry_type', 'condolence').strip()
+            prayer_text = data.get('prayer_text', '').strip()
 
-            if not obit_id or not author or not message:
-                self.send_json_response({'status': 'error', 'message': 'Name and message are required'}, 400)
+            # Validate entry type
+            if entry_type not in self.VALID_ENTRY_TYPES:
+                self.send_json_response({'status': 'error', 'message': 'Invalid entry type'}, 400)
                 return
+
+            # All types require name and obituary
+            if not obit_id or not author:
+                self.send_json_response({'status': 'error', 'message': 'Name is required'}, 400)
+                return
+
+            # Type-specific validation
+            if entry_type in ('memory', 'condolence') and not message:
+                self.send_json_response({'status': 'error', 'message': 'Message is required'}, 400)
+                return
+            if entry_type == 'prayer' and not prayer_text and not message:
+                self.send_json_response({'status': 'error', 'message': 'Please select or write a prayer'}, 400)
+                return
+            # Candle: message is optional
+
+            is_candle = 1 if entry_type == 'candle' else 0
 
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             now = datetime.now().isoformat()
             cursor.execute(
-                'INSERT INTO tributes (obituary_id, author_name, message, relationship, created_at) VALUES (?, ?, ?, ?, ?)',
-                (obit_id, author, message, relationship, now)
+                '''INSERT INTO tributes
+                   (obituary_id, author_name, message, relationship, created_at, entry_type, prayer_text, is_candle)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (obit_id, author, message, relationship, now, entry_type, prayer_text or None, is_candle)
             )
             conn.commit()
             tribute_id = cursor.lastrowid
@@ -846,7 +884,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             self.send_json_response({
                 'status': 'success',
-                'message': 'Tribute submitted',
+                'message': 'Entry added to guestbook',
                 'id': tribute_id
             })
         except json.JSONDecodeError:
