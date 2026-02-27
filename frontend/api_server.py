@@ -386,18 +386,33 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         else:
             self.send_404()
 
+    def do_DELETE(self):
+        """Handle DELETE requests"""
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        # Admin: delete a tribute entry by ID
+        # DELETE /api/tributes/{obituary_id}/{entry_id}?key=ADMIN_KEY
+        if path.startswith('/api/tributes/'):
+            parts = path[len('/api/tributes/'):].split('/')
+            if len(parts) == 2:
+                obit_id, entry_id = parts
+                self.handle_delete_tribute(obit_id, entry_id)
+                return
+        self.send_404()
+
     def do_OPTIONS(self):
         """Handle CORS preflight requests"""
         self.send_response(200)
         self.send_cors_headers()
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         self.end_headers()
 
     def send_cors_headers(self):
         """Send CORS headers"""
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature, X-Admin-Key')
 
     def serve_static(self, path):
         """Serve static files from the frontend directory"""
@@ -896,6 +911,35 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             })
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_delete_tribute(self, obit_id, entry_id):
+        """Delete a guestbook entry by ID (admin only via X-Admin-Key header)"""
+        try:
+            admin_key = os.environ.get('ADMIN_KEY', 'neshama-admin-2026')
+            req_key = self.headers.get('X-Admin-Key', '')
+            if req_key != admin_key:
+                self.send_json_response({'status': 'error', 'message': 'Unauthorized'}, 403)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute(
+                'DELETE FROM tributes WHERE obituary_id = ? AND id = ?',
+                (obit_id, int(entry_id))
+            )
+            deleted = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            if deleted:
+                if SHIVA_AVAILABLE:
+                    shiva_mgr._trigger_backup()
+                self.send_json_response({'status': 'success', 'message': f'Tribute {entry_id} deleted'})
+            else:
+                self.send_json_response({'status': 'error', 'message': 'Entry not found'}, 404)
         except Exception as e:
             self.send_error_response(str(e))
 
@@ -1732,7 +1776,10 @@ button:hover{background:#c45a1a}</style></head>
                 result = shiva_mgr.get_support_by_id(support_id, access_token=access_token)
             self.send_json_response(result)
         except Exception as e:
-            self.send_error_response(str(e))
+            if 'no such table' in str(e):
+                self.send_json_response({'status': 'not_found'}, 404)
+            else:
+                self.send_error_response(str(e))
 
     def get_shiva_meals(self, support_id):
         """Get meal signups for a shiva support page"""
