@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Shiva Info Parser
@@ -269,14 +270,14 @@ if __name__ == '__main__':
     ]
 
     for i, text in enumerate(test_texts, 1):
-        print(f"\n--- Test {i} ---")
-        print(f"Input: {text[:80]}...")
+        logging.info(f"\n--- Test {i} ---")
+        logging.info(f"Input: {text[:80]}...")
         result = extract_shiva_info(text)
         if result:
-            print(f"  Address:   {result['shiva_address']}")
-            print(f"  Hours:     {result['shiva_hours']}")
-            print(f"  Concludes: {result['shiva_concludes']}")
-            print(f"  Private:   {result['shiva_private']}")
-            print(f"  Raw:       {result['shiva_raw'][:100]}")
+            logging.info(f"  Address:   {result['shiva_address']}")
+            logging.info(f"  Hours:     {result['shiva_hours']}")
+            logging.info(f"  Concludes: {result['shiva_concludes']}")
+            logging.info(f"  Private:   {result['shiva_private']}")
+            logging.info(f"  Raw:       {result['shiva_raw'][:100]}")
         else:
-            print("  No shiva info found")
+            logging.info("  No shiva info found")

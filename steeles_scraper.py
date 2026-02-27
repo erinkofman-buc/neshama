@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Steeles Memorial Chapel Scraper
@@ -174,7 +175,7 @@ class SteelesScraper:
             return data
 
         except Exception as e:
-            print(f"Error parsing {url}: {str(e)}")
+            logging.info(f"Error parsing {url}: {str(e)}")
             return None
 
     def extract_comments(self, url):
@@ -217,7 +218,7 @@ class SteelesScraper:
             return comments
 
         except Exception as e:
-            print(f"Error extracting comments from {url}: {str(e)}")
+            logging.info(f"Error extracting comments from {url}: {str(e)}")
             return []
 
     def run(self):
@@ -226,13 +227,13 @@ class SteelesScraper:
         stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
 
         try:
-            print(f"\n{'='*60}")
-            print(f"Starting Steeles Memorial Chapel scraper")
-            print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Starting Steeles Memorial Chapel scraper")
+            logging.info(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"{'='*60}\n")
 
             # Fetch homepage
-            print("Fetching homepage...")
+            logging.info("Fetching homepage...")
             homepage_html = self.fetch_page(self.base_url)
             if not homepage_html:
                 raise Exception("Failed to fetch homepage")
@@ -240,17 +241,17 @@ class SteelesScraper:
             # Extract obituary links
             obituary_links = self.extract_obituary_links(homepage_html)
             stats['found'] = len(obituary_links)
-            print(f"Found {stats['found']} obituary links\n")
+            logging.info(f"Found {stats['found']} obituary links\n")
 
             # Process each obituary
             for i, link in enumerate(obituary_links, 1):
                 try:
-                    print(f"[{i}/{stats['found']}] Processing: {link.split('/')[-2]}...")
+                    logging.info(f"[{i}/{stats['found']}] Processing: {link.split('/')[-2]}...")
 
                     # Parse obituary data
                     obit_data = self.parse_obituary_page(link)
                     if not obit_data:
-                        print("  ⚠️  Skipped (no data)")
+                        logging.info("  ⚠️  Skipped (no data)")
                         stats['errors'] += 1
                         continue
 
@@ -259,12 +260,12 @@ class SteelesScraper:
 
                     if action == 'inserted':
                         stats['new'] += 1
-                        print(f"  ✅ New: {obit_data['deceased_name']}")
+                        logging.info(f"  ✅ New: {obit_data['deceased_name']}")
                     elif action == 'updated':
                         stats['updated'] += 1
-                        print(f"  🔄 Updated: {obit_data['deceased_name']}")
+                        logging.info(f"  🔄 Updated: {obit_data['deceased_name']}")
                     else:
-                        print(f"  ⏭️  Unchanged: {obit_data['deceased_name']}")
+                        logging.info(f"  ⏭️  Unchanged: {obit_data['deceased_name']}")
 
                     # Extract and save comments
                     comments = self.extract_comments(link)
@@ -275,13 +276,13 @@ class SteelesScraper:
                             new_comments += 1
 
                     if new_comments > 0:
-                        print(f"  💬 Added {new_comments} new comments")
+                        logging.info(f"  💬 Added {new_comments} new comments")
 
                     # Be polite - small delay between requests
                     time.sleep(1)
 
                 except Exception as e:
-                    print(f"  ❌ Error: {str(e)}")
+                    logging.info(f"  ❌ Error: {str(e)}")
                     stats['errors'] += 1
 
             # Log completion
@@ -293,11 +294,11 @@ class SteelesScraper:
                 duration=duration
             )
 
-            print(f"\n{'='*60}")
-            print(f"Scraping completed successfully")
-            print(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
-            print(f"Duration: {duration:.1f} seconds")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Scraping completed successfully")
+            logging.info(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
+            logging.info(f"Duration: {duration:.1f} seconds")
+            logging.info(f"{'='*60}\n")
 
             return stats
 
@@ -313,7 +314,7 @@ class SteelesScraper:
                 duration=duration
             )
 
-            print(f"\n❌ Scraping failed: {error_msg}\n")
+            logging.info(f"\n❌ Scraping failed: {error_msg}\n")
             raise
 
 if __name__ == '__main__':

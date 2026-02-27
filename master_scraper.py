@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Neshama Master Scraper
@@ -26,10 +27,10 @@ class MasterScraper:
 
     def run_all_scrapers(self):
         """Run all scrapers sequentially"""
-        print(f"\n{'='*70}")
-        print(f" NESHAMA MASTER SCRAPER")
-        print(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" NESHAMA MASTER SCRAPER")
+        logging.info(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"{'='*70}\n")
 
         total_stats = {
             'scrapers_run': 0,
@@ -42,7 +43,7 @@ class MasterScraper:
 
         for name, scraper in self.scrapers:
             try:
-                print(f"\n▶ Starting {name} scraper...")
+                logging.info(f"\n▶ Starting {name} scraper...")
                 stats = scraper.run()
 
                 total_stats['scrapers_run'] += 1
@@ -54,22 +55,22 @@ class MasterScraper:
             except Exception as e:
                 total_stats['scrapers_run'] += 1
                 total_stats['scrapers_failed'] += 1
-                print(f"\n❌ {name} scraper failed: {str(e)}\n")
+                logging.info(f"\n❌ {name} scraper failed: {str(e)}\n")
 
                 # Continue with next scraper even if one fails
                 continue
 
         # Print summary
-        print(f"\n{'='*70}")
-        print(f" SUMMARY")
-        print(f"{'='*70}")
-        print(f" Scrapers run:      {total_stats['scrapers_run']}")
-        print(f" Succeeded:         {total_stats['scrapers_succeeded']}")
-        print(f" Failed:            {total_stats['scrapers_failed']}")
-        print(f" Total found:       {total_stats['total_found']}")
-        print(f" New obituaries:    {total_stats['total_new']}")
-        print(f" Updated:           {total_stats['total_updated']}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" SUMMARY")
+        logging.info(f"{'='*70}")
+        logging.info(f" Scrapers run:      {total_stats['scrapers_run']}")
+        logging.info(f" Succeeded:         {total_stats['scrapers_succeeded']}")
+        logging.info(f" Failed:            {total_stats['scrapers_failed']}")
+        logging.info(f" Total found:       {total_stats['total_found']}")
+        logging.info(f" New obituaries:    {total_stats['total_new']}")
+        logging.info(f" Updated:           {total_stats['total_updated']}")
+        logging.info(f"{'='*70}\n")
 
         return total_stats
 
@@ -79,12 +80,12 @@ class MasterScraper:
 
         for name, scraper in self.scrapers:
             if name.lower().startswith(scraper_name_lower):
-                print(f"\nRunning {name} scraper...\n")
+                logging.info(f"\nRunning {name} scraper...\n")
                 stats = scraper.run()
                 return stats
 
-        print(f"❌ Scraper '{scraper_name}' not found")
-        print("Available scrapers: steeles, benjamins, paperman")
+        logging.info(f"❌ Scraper '{scraper_name}' not found")
+        logging.info("Available scrapers: steeles, benjamins, paperman")
         return None
 
     def check_database_status(self):
@@ -129,32 +130,32 @@ class MasterScraper:
             self.db.close()
 
             # Display stats
-            print(f"\n{'='*70}")
-            print(f" DATABASE STATUS")
-            print(f"{'='*70}")
-            print(f"\n Total obituaries:  {total_obits}")
-            print(f" Total comments:    {total_comments}\n")
+            logging.info(f"\n{'='*70}")
+            logging.info(f" DATABASE STATUS")
+            logging.info(f"{'='*70}")
+            logging.info(f"\n Total obituaries:  {total_obits}")
+            logging.info(f" Total comments:    {total_comments}\n")
 
-            print(f" By source:")
+            logging.info(f" By source:")
             for source, count in by_source:
-                print(f"   • {source}: {count}")
+                logging.info(f"   • {source}: {count}")
 
             if recent:
-                print(f"\n Most recent obituaries:")
+                logging.info(f"\n Most recent obituaries:")
                 for name, source, updated in recent:
-                    print(f"   • {name} ({source})")
-                    print(f"     Updated: {updated}")
+                    logging.info(f"   • {name} ({source})")
+                    logging.info(f"     Updated: {updated}")
 
             if last_runs:
-                print(f"\n Last scraper runs:")
+                logging.info(f"\n Last scraper runs:")
                 for source, run_time, status in last_runs:
                     status_icon = "✅" if status == "success" else "❌"
-                    print(f"   {status_icon} {source}: {run_time}")
+                    logging.info(f"   {status_icon} {source}: {run_time}")
 
-            print(f"{'='*70}\n")
+            logging.info(f"{'='*70}\n")
 
         except Exception as e:
-            print(f"❌ Error checking database: {str(e)}")
+            logging.info(f"❌ Error checking database: {str(e)}")
 
 def main():
     """Main entry point"""
@@ -171,13 +172,13 @@ def main():
         elif command == 'all':
             master.run_all_scrapers()
         else:
-            print("Usage: python master_scraper.py [command]")
-            print("\nCommands:")
-            print("  all         - Run all scrapers (default)")
-            print("  steeles     - Run Steeles scraper only")
-            print("  benjamins   - Run Benjamin's scraper only")
-            print("  paperman    - Run Paperman scraper only")
-            print("  status      - Show database statistics")
+            logging.info("Usage: python master_scraper.py [command]")
+            logging.info("\nCommands:")
+            logging.info("  all         - Run all scrapers (default)")
+            logging.info("  steeles     - Run Steeles scraper only")
+            logging.info("  benjamins   - Run Benjamin's scraper only")
+            logging.info("  paperman    - Run Paperman scraper only")
+            logging.info("  status      - Show database statistics")
     else:
         # Default: run all scrapers
         master.run_all_scrapers()

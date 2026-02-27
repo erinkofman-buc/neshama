@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Neshama Database Setup
@@ -385,8 +386,8 @@ def initialize_database():
     db_path = os.environ.get('DATABASE_PATH', 'neshama.db')
     db = NeshamaDatabase(db_path)
     db.create_tables()
-    print("✅ Database initialized successfully")
-    print(f"   Location: {os.path.abspath(db.db_path)}")
+    logging.info("✅ Database initialized successfully")
+    logging.info(f"   Location: {os.path.abspath(db.db_path)}")
 
 if __name__ == '__main__':
     initialize_database()

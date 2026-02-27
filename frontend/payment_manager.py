@@ -11,6 +11,8 @@ import json
 
 # Stripe imports (install with: pip3 install stripe)
 import stripe
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 class PaymentManager:
     def __init__(self, db_path='neshama.db', stripe_api_key=None):
@@ -19,7 +21,7 @@ class PaymentManager:
         self.stripe_api_key = stripe_api_key or os.environ.get('STRIPE_SECRET_KEY')
         
         if not self.stripe_api_key:
-            print("⚠️  Warning: STRIPE_SECRET_KEY not set")
+            logging.warning(" Warning: STRIPE_SECRET_KEY not set")
         else:
             stripe.api_key = self.stripe_api_key
         
@@ -129,7 +131,7 @@ class PaymentManager:
             }
             
         except stripe.error.StripeError as e:
-            print(f"Stripe error: {str(e)}")
+            logging.error(f"Stripe error: {str(e)}")
             return {
                 'error': str(e)
             }
@@ -189,7 +191,7 @@ class PaymentManager:
         conn.commit()
         conn.close()
         
-        print(f"✅ Premium activated for {email}")
+        logging.info(f" Premium activated for {email}")
     
     def deactivate_premium(self, email):
         """Deactivate premium for email address"""
@@ -206,7 +208,7 @@ class PaymentManager:
         conn.commit()
         conn.close()
         
-        print(f"❌ Premium deactivated for {email}")
+        logging.info(f" Premium deactivated for {email}")
     
     def is_premium(self, email):
         """Check if email has active premium subscription"""
@@ -265,7 +267,7 @@ class PaymentManager:
             return {'url': session.url}
             
         except stripe.error.StripeError as e:
-            print(f"Portal error: {str(e)}")
+            logging.error(f"Portal error: {str(e)}")
             return {'error': str(e)}
     
     def handle_webhook(self, payload, signature, webhook_secret):
@@ -318,7 +320,7 @@ class PaymentManager:
             email = self.get_email_by_customer_id(customer_id)
             
             # TODO: Send email notification about failed payment
-            print(f"⚠️  Payment failed for {email}")
+            logging.error(f" Payment failed for {email}")
             
             return {
                 'status': 'success',
@@ -331,7 +333,7 @@ class PaymentManager:
             email = self.get_email_by_customer_id(customer_id)
             
             # Renewal successful
-            print(f"✅ Renewal successful for {email}")
+            logging.info(f" Renewal successful for {email}")
             
             return {
                 'status': 'success',
@@ -384,15 +386,15 @@ if __name__ == '__main__':
     # Test the payment system
     manager = PaymentManager()
     
-    print("\n" + "="*60)
-    print(" NESHAMA PAYMENT SYSTEM")
-    print("="*60 + "\n")
+    logging.info("\n" + "="*60)
+    logging.info(" NESHAMA PAYMENT SYSTEM")
+    logging.info("="*60 + "\n")
     
     stats = manager.get_stats()
-    print(f"Premium subscribers: {stats['premium_subscribers']}")
-    print(f"Free subscribers: {stats['free_subscribers']}")
-    print(f"Total subscribers: {stats['total_subscribers']}")
-    print(f"Conversion rate: {stats['conversion_rate']}%")
-    print(f"Annual recurring revenue: ${stats['annual_recurring_revenue']} CAD")
+    logging.info(f"Premium subscribers: {stats['premium_subscribers']}")
+    logging.info(f"Free subscribers: {stats['free_subscribers']}")
+    logging.info(f"Total subscribers: {stats['total_subscribers']}")
+    logging.info(f"Conversion rate: {stats['conversion_rate']}%")
+    logging.info(f"Annual recurring revenue: ${stats['annual_recurring_revenue']} CAD")
     
-    print("\n" + "="*60 + "\n")
+    logging.info("\n" + "="*60 + "\n")

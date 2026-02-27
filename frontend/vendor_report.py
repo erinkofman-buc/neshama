@@ -9,6 +9,8 @@ import sqlite3
 import os
 import re as _re
 from datetime import datetime, timedelta
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'neshama.db'))
 FROM_EMAIL = 'updates@neshama.ca'
@@ -175,46 +177,46 @@ def send_report(email, vendor_name, html):
             msg.reply_to = ReplyTo('contact@neshama.ca', 'Neshama')
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(msg)
-            print(f"  Sent to {email} (status {response.status_code})")
+            logging.info(f" Sent to {email} (status {response.status_code})")
             return True
         except Exception as e:
-            print(f"  Failed to send to {email}: {e}")
+            logging.error(f" Failed to send to {email}: {e}")
             return False
     else:
-        print(f"  TEST MODE — would send to {email}")
-        print(f"    Subject: {subject}")
+        logging.info(f" TEST MODE — would send to {email}")
+        logging.info(f" Subject: {subject}")
         return True
 
 
 def run_monthly_reports(db_path=None):
     """Send monthly performance reports to all eligible vendors"""
-    print(f"\n{'='*60}")
-    print(f" NESHAMA VENDOR MONTHLY REPORT")
-    print(f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"{'='*60}\n")
+    logging.info(f"\n{'='*60}")
+    logging.info(f" NESHAMA VENDOR MONTHLY REPORT")
+    logging.info(f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(f"{'='*60}\n")
 
     stats = get_vendor_stats(db_path)
 
     if not stats:
-        print("No vendors with activity to report.")
-        print(f"\n{'='*60}\n")
+        logging.info("No vendors with activity to report.")
+        logging.info(f"\n{'='*60}\n")
         return
 
-    print(f"Sending reports to {len(stats)} vendor(s):\n")
+    logging.info(f"Sending reports to {len(stats)} vendor(s):\n")
 
     sent = 0
     failed = 0
     for v in stats:
-        print(f"  {v['name']} — {v['views']} views, {v['clicks']} clicks, {v['leads']} inquiries")
+        logging.info(f" {v['name']} — {v['views']} views, {v['clicks']} clicks, {v['leads']} inquiries")
         html = generate_report_html(v['name'], v['views'], v['clicks'], v['leads'])
         if send_report(v['email'], v['name'], html):
             sent += 1
         else:
             failed += 1
 
-    print(f"\n{'='*60}")
-    print(f" SUMMARY: {sent} sent, {failed} failed")
-    print(f"{'='*60}\n")
+    logging.info(f"\n{'='*60}")
+    logging.error(f" SUMMARY: {sent} sent, {failed} failed")
+    logging.info(f"{'='*60}\n")
 
 
 if __name__ == '__main__':

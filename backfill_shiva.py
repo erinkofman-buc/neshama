@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Backfill shiva info for existing obituaries.
@@ -12,7 +13,7 @@ from shiva_parser import extract_shiva_info
 def backfill():
     db_path = os.environ.get('DATABASE_PATH', 'neshama.db')
     if not os.path.exists(db_path):
-        print(f"Database not found at {db_path}")
+        logging.info(f"Database not found at {db_path}")
         return
 
     conn = sqlite3.connect(db_path)
@@ -29,14 +30,14 @@ def backfill():
     ]:
         try:
             cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')
-            print(f"  Added column: {col}")
+            logging.info(f"  Added column: {col}")
         except sqlite3.OperationalError:
             pass
 
     # Get all obituaries with text
     cursor.execute('SELECT id, deceased_name, obituary_text, shiva_info FROM obituaries')
     rows = cursor.fetchall()
-    print(f"\nProcessing {len(rows)} obituaries...\n")
+    logging.info(f"\nProcessing {len(rows)} obituaries...\n")
 
     stats = {'parsed': 0, 'with_address': 0, 'with_hours': 0, 'private': 0, 'no_match': 0}
 
@@ -76,22 +77,22 @@ def backfill():
                 1 if result['shiva_private'] else 0,
                 obit_id
             ))
-            print(f"  {name}: {'PRIVATE' if result['shiva_private'] else result['shiva_address'] or result['shiva_raw'][:60]}")
+            logging.info(f"  {name}: {'PRIVATE' if result['shiva_private'] else result['shiva_address'] or result['shiva_raw'][:60]}")
         else:
             stats['no_match'] += 1
 
     conn.commit()
     conn.close()
 
-    print(f"\n{'='*50}")
-    print(f"  Backfill complete!")
-    print(f"  Total obituaries: {len(rows)}")
-    print(f"  Shiva info found: {stats['parsed']}")
-    print(f"    With address:   {stats['with_address']}")
-    print(f"    With hours:     {stats['with_hours']}")
-    print(f"    Private:        {stats['private']}")
-    print(f"  No shiva match:   {stats['no_match']}")
-    print(f"{'='*50}\n")
+    logging.info(f"\n{'='*50}")
+    logging.info(f"  Backfill complete!")
+    logging.info(f"  Total obituaries: {len(rows)}")
+    logging.info(f"  Shiva info found: {stats['parsed']}")
+    logging.info(f"    With address:   {stats['with_address']}")
+    logging.info(f"    With hours:     {stats['with_hours']}")
+    logging.info(f"    Private:        {stats['private']}")
+    logging.info(f"  No shiva match:   {stats['no_match']}")
+    logging.info(f"{'='*50}\n")
 
 
 if __name__ == '__main__':

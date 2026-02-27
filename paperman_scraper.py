@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Paperman & Sons Funeral Home Scraper
@@ -79,7 +80,7 @@ class PapermanScraper:
             funerals = data.get('props', {}).get('pageProps', {}).get('activeFunerals', [])
             return funerals
         except (json.JSONDecodeError, KeyError) as e:
-            print(f"Error parsing __NEXT_DATA__: {e}")
+            logging.info(f"Error parsing __NEXT_DATA__: {e}")
             return []
 
     def build_photo_url(self, image_path):
@@ -240,7 +241,7 @@ class PapermanScraper:
             return data
 
         except Exception as e:
-            print(f"Error parsing funeral data for {funeral_data.get('name', 'unknown')}: {str(e)}")
+            logging.info(f"Error parsing funeral data for {funeral_data.get('name', 'unknown')}: {str(e)}")
             return None
 
     def extract_comments(self, funeral_id):
@@ -279,7 +280,7 @@ class PapermanScraper:
             return comments
 
         except Exception as e:
-            print(f"Error extracting comments for funeral {funeral_id}: {str(e)}")
+            logging.info(f"Error extracting comments for funeral {funeral_id}: {str(e)}")
             return []
 
     def run(self):
@@ -288,15 +289,15 @@ class PapermanScraper:
         stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
 
         try:
-            print(f"\n{'='*60}")
-            print(f"Starting Paperman & Sons scraper")
-            print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Starting Paperman & Sons scraper")
+            logging.info(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"{'='*60}\n")
 
             # Fetch the funerals listing page which contains all active funerals
             # as embedded JSON via Next.js __NEXT_DATA__
             funerals_url = f"{self.base_url}/funerals"
-            print(f"Fetching listings page: {funerals_url}")
+            logging.info(f"Fetching listings page: {funerals_url}")
             html = self.fetch_page(funerals_url)
 
             if not html:
@@ -305,19 +306,19 @@ class PapermanScraper:
             # Extract funeral listings from the embedded JSON
             funeral_listings = self.extract_obituary_listings(html)
             stats['found'] = len(funeral_listings)
-            print(f"Found {stats['found']} obituary listings\n")
+            logging.info(f"Found {stats['found']} obituary listings\n")
 
             # Process each funeral listing
             for i, funeral_data in enumerate(funeral_listings, 1):
                 try:
                     display_name = funeral_data.get('name', 'Unknown')
                     funeral_id = funeral_data.get('id')
-                    print(f"[{i}/{stats['found']}] Processing: {display_name}...")
+                    logging.info(f"[{i}/{stats['found']}] Processing: {display_name}...")
 
                     # Parse obituary data from the listing JSON
                     obit_data = self.parse_obituary_data(funeral_data)
                     if not obit_data:
-                        print("  -- Skipped (no data)")
+                        logging.info("  -- Skipped (no data)")
                         stats['errors'] += 1
                         continue
 
@@ -326,12 +327,12 @@ class PapermanScraper:
 
                     if action == 'inserted':
                         stats['new'] += 1
-                        print(f"  + New: {obit_data['deceased_name']}")
+                        logging.info(f"  + New: {obit_data['deceased_name']}")
                     elif action == 'updated':
                         stats['updated'] += 1
-                        print(f"  ~ Updated: {obit_data['deceased_name']}")
+                        logging.info(f"  ~ Updated: {obit_data['deceased_name']}")
                     else:
-                        print(f"  = Unchanged: {obit_data['deceased_name']}")
+                        logging.info(f"  = Unchanged: {obit_data['deceased_name']}")
 
                     # Extract and save comments via the API
                     if funeral_id and funeral_data.get('enable_web_comments', False):
@@ -343,13 +344,13 @@ class PapermanScraper:
                                 new_comments += 1
 
                         if new_comments > 0:
-                            print(f"  >> Added {new_comments} new comments")
+                            logging.info(f"  >> Added {new_comments} new comments")
 
                     # Be polite - delay between requests
                     time.sleep(1.5)
 
                 except Exception as e:
-                    print(f"  !! Error: {str(e)}")
+                    logging.info(f"  !! Error: {str(e)}")
                     stats['errors'] += 1
 
             # Log completion
@@ -361,11 +362,11 @@ class PapermanScraper:
                 duration=duration
             )
 
-            print(f"\n{'='*60}")
-            print(f"Scraping completed successfully")
-            print(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
-            print(f"Duration: {duration:.1f} seconds")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Scraping completed successfully")
+            logging.info(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
+            logging.info(f"Duration: {duration:.1f} seconds")
+            logging.info(f"{'='*60}\n")
 
             return stats
 
@@ -381,7 +382,7 @@ class PapermanScraper:
                 duration=duration
             )
 
-            print(f"\n!! Scraping failed: {error_msg}\n")
+            logging.info(f"\n!! Scraping failed: {error_msg}\n")
             raise
 
 

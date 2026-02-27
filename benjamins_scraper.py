@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Benjamin's Park Memorial Chapel Scraper
@@ -172,7 +173,7 @@ class BenjaminsScraper:
             return data
 
         except Exception as e:
-            print(f"Error parsing {url}: {str(e)}")
+            logging.info(f"Error parsing {url}: {str(e)}")
             return None
 
     def extract_comments(self, url):
@@ -214,7 +215,7 @@ class BenjaminsScraper:
             return comments
 
         except Exception as e:
-            print(f"Error extracting comments from {url}: {str(e)}")
+            logging.info(f"Error extracting comments from {url}: {str(e)}")
             return []
 
     def run(self):
@@ -223,14 +224,14 @@ class BenjaminsScraper:
         stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
 
         try:
-            print(f"\n{'='*60}")
-            print(f"Starting Benjamin's Park Memorial Chapel scraper")
-            print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Starting Benjamin's Park Memorial Chapel scraper")
+            logging.info(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"{'='*60}\n")
 
             # Fetch homepage (which contains current service listings)
             homepage_url = f"{self.base_url}/Home.aspx"
-            print(f"Fetching listings page: {homepage_url}")
+            logging.info(f"Fetching listings page: {homepage_url}")
             html = self.fetch_page(homepage_url)
 
             if not html:
@@ -239,7 +240,7 @@ class BenjaminsScraper:
             # Extract service detail links
             obituary_links = self.extract_obituary_links(html)
             stats['found'] = len(obituary_links)
-            print(f"Found {stats['found']} obituary links\n")
+            logging.info(f"Found {stats['found']} obituary links\n")
 
             # Process each obituary
             for i, link in enumerate(obituary_links, 1):
@@ -247,12 +248,12 @@ class BenjaminsScraper:
                     # Extract snum from URL for display
                     snum_match = re.search(r'snum=(\d+)', link)
                     display_id = snum_match.group(1) if snum_match else link.split('/')[-1]
-                    print(f"[{i}/{stats['found']}] Processing: service #{display_id}...")
+                    logging.info(f"[{i}/{stats['found']}] Processing: service #{display_id}...")
 
                     # Parse obituary data
                     obit_data = self.parse_obituary_page(link)
                     if not obit_data:
-                        print("  ⚠️  Skipped (no data)")
+                        logging.info("  ⚠️  Skipped (no data)")
                         stats['errors'] += 1
                         continue
 
@@ -261,12 +262,12 @@ class BenjaminsScraper:
 
                     if action == 'inserted':
                         stats['new'] += 1
-                        print(f"  ✅ New: {obit_data['deceased_name']}")
+                        logging.info(f"  ✅ New: {obit_data['deceased_name']}")
                     elif action == 'updated':
                         stats['updated'] += 1
-                        print(f"  🔄 Updated: {obit_data['deceased_name']}")
+                        logging.info(f"  🔄 Updated: {obit_data['deceased_name']}")
                     else:
-                        print(f"  ⏭️  Unchanged: {obit_data['deceased_name']}")
+                        logging.info(f"  ⏭️  Unchanged: {obit_data['deceased_name']}")
 
                     # Extract and save comments
                     comments = self.extract_comments(link)
@@ -277,13 +278,13 @@ class BenjaminsScraper:
                             new_comments += 1
 
                     if new_comments > 0:
-                        print(f"  💬 Added {new_comments} new comments")
+                        logging.info(f"  💬 Added {new_comments} new comments")
 
                     # Be polite - delay between requests
                     time.sleep(1.5)
 
                 except Exception as e:
-                    print(f"  ❌ Error: {str(e)}")
+                    logging.info(f"  ❌ Error: {str(e)}")
                     stats['errors'] += 1
 
             # Log completion
@@ -295,11 +296,11 @@ class BenjaminsScraper:
                 duration=duration
             )
 
-            print(f"\n{'='*60}")
-            print(f"Scraping completed successfully")
-            print(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
-            print(f"Duration: {duration:.1f} seconds")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Scraping completed successfully")
+            logging.info(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
+            logging.info(f"Duration: {duration:.1f} seconds")
+            logging.info(f"{'='*60}\n")
 
             return stats
 
@@ -315,7 +316,7 @@ class BenjaminsScraper:
                 duration=duration
             )
 
-            print(f"\n❌ Scraping failed: {error_msg}\n")
+            logging.info(f"\n❌ Scraping failed: {error_msg}\n")
             raise
 
 if __name__ == '__main__':

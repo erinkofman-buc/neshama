@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Neshama Vendor Directory - Seed Script
@@ -1487,7 +1488,7 @@ def seed_vendors(db_path=None):
 
     conn.commit()
     conn.close()
-    print(f"Vendor seed complete: {inserted} inserted ({gift_inserted} gift), {skipped} skipped (already exist)")
+    logging.info(f"Vendor seed complete: {inserted} inserted ({gift_inserted} gift), {skipped} skipped (already exist)")
     return inserted
 
 
@@ -1508,7 +1509,7 @@ def backfill_vendor_emails(db_path=None):
     try:
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='caterer_partners'")
         if not cursor.fetchone():
-            print("No caterer_partners table found. Skipping email backfill.")
+            logging.info("No caterer_partners table found. Skipping email backfill.")
             conn.close()
             return 0
     except Exception:
@@ -1541,7 +1542,7 @@ def backfill_vendor_emails(db_path=None):
     updated = after - before
 
     conn.close()
-    print(f"Email backfill: {updated} vendor(s) updated from caterer_partners ({after} total with email)")
+    logging.info(f"Email backfill: {updated} vendor(s) updated from caterer_partners ({after} total with email)")
     return updated
 
 

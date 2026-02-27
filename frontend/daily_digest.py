@@ -12,6 +12,8 @@ import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 from subscription_manager import EmailSubscriptionManager
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
 def _html_to_plain(html):
@@ -170,7 +172,7 @@ class DailyDigestSender:
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send digest email to a single subscriber"""
         if not self.sendgrid_api_key:
-            print(f"⚠️  Would send digest to {email}")
+            logging.info(f" Would send digest to {email}")
             return {'success': True, 'test_mode': True}
 
         # Replace unsubscribe URL
@@ -207,29 +209,29 @@ class DailyDigestSender:
             return {'success': True, 'status_code': response.status_code}
             
         except Exception as e:
-            print(f"❌ Failed to send to {email}: {str(e)}")
+            logging.error(f" Failed to send to {email}: {str(e)}")
             return {'success': False, 'error': str(e)}
     
     def send_daily_digest(self):
         """Send daily digest to daily-frequency subscribers, filtered by location"""
-        print(f"\n{'='*70}")
-        print(f" NESHAMA DAILY DIGEST")
-        print(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" NESHAMA DAILY DIGEST")
+        logging.info(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"{'='*70}\n")
 
         # Get all new obituaries (unfiltered) to check if there's anything new
         all_obituaries = self.get_new_obituaries(hours=24)
 
         if not all_obituaries:
-            print("ℹ️  No new obituaries in the last 24 hours. Skipping email send.")
-            print(f"\n{'='*70}\n")
+            logging.info(" No new obituaries in the last 24 hours. Skipping email send.")
+            logging.info(f"\n{'='*70}\n")
             return {
                 'status': 'skipped',
                 'reason': 'no_new_content',
                 'subscribers_count': 0
             }
 
-        print(f"📰 Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
+        logging.info(f" Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
 
         # Pre-fetch location-filtered obituary lists
         toronto_obits = self.get_new_obituaries(hours=24, location='toronto')
@@ -237,7 +239,7 @@ class DailyDigestSender:
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
-        print(f"📧 Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
+        logging.info(f" Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -268,7 +270,7 @@ class DailyDigestSender:
 
             if not unique_obits:
                 skipped_count += 1
-                print(f"  ⏭️  {email} — no obits for {locations}")
+                logging.info(f" {email} — no obits for {locations}")
                 continue
 
             # Generate per-subscriber email HTML
@@ -277,7 +279,7 @@ class DailyDigestSender:
 
             if result.get('success'):
                 sent_count += 1
-                print(f"  ✅ {email} ({len(unique_obits)} obits)")
+                logging.info(f" {email} ({len(unique_obits)} obits)")
                 cursor.execute('''
                     UPDATE subscribers
                     SET last_email_sent = ?
@@ -285,20 +287,20 @@ class DailyDigestSender:
                 ''', (datetime.now().isoformat(), email))
             else:
                 failed_count += 1
-                print(f"  ❌ {email} — {result.get('error', 'Unknown error')}")
+                logging.error(f" {email} — {result.get('error', 'Unknown error')}")
 
         conn.commit()
         conn.close()
 
-        print(f"\n{'='*70}")
-        print(f" SUMMARY")
-        print(f"{'='*70}")
-        print(f" Obituaries: {len(all_obituaries)}")
-        print(f" Sent: {sent_count}")
-        print(f" Skipped (no matching obits): {skipped_count}")
-        print(f" Failed: {failed_count}")
-        print(f" Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" SUMMARY")
+        logging.info(f"{'='*70}")
+        logging.info(f" Obituaries: {len(all_obituaries)}")
+        logging.info(f" Sent: {sent_count}")
+        logging.info(f" Skipped (no matching obits): {skipped_count}")
+        logging.error(f" Failed: {failed_count}")
+        logging.info(f" Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"{'='*70}\n")
 
         return {
             'status': 'success',

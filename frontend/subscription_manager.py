@@ -16,6 +16,8 @@ import json
 import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
 def _html_to_plain(html):
@@ -45,7 +47,7 @@ class EmailSubscriptionManager:
         self.from_name = 'Neshama'
         
         if not self.sendgrid_api_key:
-            print("⚠️  Warning: SENDGRID_API_KEY not set")
+            logging.warning(" Warning: SENDGRID_API_KEY not set")
         
         self.create_subscribers_table()
     
@@ -74,10 +76,10 @@ class EmailSubscriptionManager:
         columns = [row[1] for row in cursor.fetchall()]
         if 'frequency' not in columns:
             cursor.execute("ALTER TABLE subscribers ADD COLUMN frequency TEXT DEFAULT 'daily'")
-            print("  DB migration: added 'frequency' column to subscribers")
+            logging.info(" DB migration: added 'frequency' column to subscribers")
         if 'locations' not in columns:
             cursor.execute("ALTER TABLE subscribers ADD COLUMN locations TEXT DEFAULT 'toronto,montreal'")
-            print("  DB migration: added 'locations' column to subscribers")
+            logging.info(" DB migration: added 'locations' column to subscribers")
 
         # Create index for faster lookups
         cursor.execute('''
@@ -205,7 +207,7 @@ class EmailSubscriptionManager:
 
         except Exception as e:
             conn.rollback()
-            print(f"Subscription error: {str(e)}")
+            logging.error(f"Subscription error: {str(e)}")
             return {
                 'status': 'error',
                 'message': 'Subscription failed. Please try again.'
@@ -284,7 +286,7 @@ class EmailSubscriptionManager:
 
         except Exception as e:
             conn.rollback()
-            print(f"Confirmation error: {str(e)}")
+            logging.error(f"Confirmation error: {str(e)}")
             return {
                 'status': 'error',
                 'message': 'Confirmation failed. Please try again.'
@@ -334,7 +336,7 @@ class EmailSubscriptionManager:
             
         except Exception as e:
             conn.rollback()
-            print(f"Unsubscribe error: {str(e)}")
+            logging.error(f"Unsubscribe error: {str(e)}")
             return {
                 'status': 'error',
                 'message': 'Unsubscribe failed. Please try again.'
@@ -345,9 +347,9 @@ class EmailSubscriptionManager:
     def send_confirmation_email(self, email, token, frequency='daily', locations='toronto,montreal'):
         """Send double opt-in confirmation email"""
         if not self.sendgrid_api_key:
-            print(f"⚠️  Would send confirmation email to {email} with token {token}")
-            print(f"   Confirmation link: https://neshama.ca/confirm/{token}")
-            print(f"   Preferences: {frequency}, {locations}")
+            logging.info(f" Would send confirmation email to {email} with token {token}")
+            logging.info(f" Confirmation link: https://neshama.ca/confirm/{token}")
+            logging.info(f" Preferences: {frequency}, {locations}")
             return
 
         confirmation_url = f"https://neshama.ca/confirm/{token}"
@@ -425,20 +427,20 @@ class EmailSubscriptionManager:
             sg = SendGridAPIClient(self.sendgrid_api_key)
             response = sg.send(message)
             
-            print(f"✅ Confirmation email sent to {email}")
+            logging.info(f" Confirmation email sent to {email}")
             
         except Exception as e:
-            print(f"❌ Failed to send confirmation email: {str(e)}")
+            logging.error(f" Failed to send confirmation email: {str(e)}")
     
     def send_welcome_email(self, email):
         """Send welcome email after confirmation"""
         # Implementation similar to confirmation email
-        print(f"✅ Welcome email would be sent to {email}")
+        logging.info(f" Welcome email would be sent to {email}")
     
     def send_already_subscribed_email(self, email):
         """Send reminder email if already subscribed"""
         # Implementation for reminder email
-        print(f"✅ Already-subscribed email would be sent to {email}")
+        logging.info(f" Already-subscribed email would be sent to {email}")
     
     def get_confirmed_subscribers(self):
         """Get list of all confirmed subscribers"""
@@ -517,14 +519,14 @@ if __name__ == '__main__':
     # Test the subscription system
     manager = EmailSubscriptionManager()
     
-    print("\n" + "="*60)
-    print(" NESHAMA EMAIL SUBSCRIPTION SYSTEM")
-    print("="*60 + "\n")
+    logging.info("\n" + "="*60)
+    logging.info(" NESHAMA EMAIL SUBSCRIPTION SYSTEM")
+    logging.info("="*60 + "\n")
     
     stats = manager.get_stats()
-    print(f"Active subscribers: {stats['active']}")
-    print(f"Pending confirmation: {stats['pending']}")
-    print(f"Unsubscribed: {stats['unsubscribed']}")
-    print(f"\nTotal: {stats['total']}")
+    logging.info(f"Active subscribers: {stats['active']}")
+    logging.info(f"Pending confirmation: {stats['pending']}")
+    logging.info(f"Unsubscribed: {stats['unsubscribed']}")
+    logging.info(f"\nTotal: {stats['total']}")
     
-    print("\n" + "="*60 + "\n")
+    logging.info("\n" + "="*60 + "\n")

@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 United Hebrew Memorial Chapel (UHMC) Scraper - Hamilton, ON
@@ -47,13 +48,13 @@ class UHMCScraper:
                     'mobile': False
                 }
             )
-            print("  Using cloudscraper (Incapsula bypass)")
+            logging.info("  Using cloudscraper (Incapsula bypass)")
         else:
             self.session = requests.Session()
             self.session.headers.update({
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
             })
-            print("  WARNING: cloudscraper not installed, using plain requests (may be blocked)")
+            logging.info("  WARNING: cloudscraper not installed, using plain requests (may be blocked)")
 
     def fetch_page(self, url, retries=3):
         """Fetch page with retry logic and exponential backoff"""
@@ -66,11 +67,11 @@ class UHMCScraper:
                 if 'Incapsula' in response.text or '_Incapsula_Resource' in response.text:
                     if attempt < retries - 1:
                         wait_time = 2 ** (attempt + 1)
-                        print(f"  Incapsula challenge detected, retrying in {wait_time}s...")
+                        logging.info(f"  Incapsula challenge detected, retrying in {wait_time}s...")
                         time.sleep(wait_time)
                         continue
                     else:
-                        print("  ERROR: Could not bypass Incapsula after retries")
+                        logging.info("  ERROR: Could not bypass Incapsula after retries")
                         return None
 
                 return response.text
@@ -78,7 +79,7 @@ class UHMCScraper:
                 if attempt == retries - 1:
                     raise
                 wait_time = 2 ** (attempt + 1)
-                print(f"  Request failed ({e}), retrying in {wait_time}s...")
+                logging.info(f"  Request failed ({e}), retrying in {wait_time}s...")
                 time.sleep(wait_time)
         return None
 
@@ -321,16 +322,16 @@ class UHMCScraper:
         stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
 
         try:
-            print(f"\n{'='*60}")
-            print(f"Starting UHMC Hamilton scraper")
-            print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Starting UHMC Hamilton scraper")
+            logging.info(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             if not HAS_CLOUDSCRAPER:
-                print("WARNING: cloudscraper not installed - may be blocked by Incapsula")
-                print("Install with: pip install cloudscraper")
-            print(f"{'='*60}\n")
+                logging.info("WARNING: cloudscraper not installed - may be blocked by Incapsula")
+                logging.info("Install with: pip install cloudscraper")
+            logging.info(f"{'='*60}\n")
 
             # Fetch archives page
-            print(f"Fetching archives: {self.archives_url}")
+            logging.info(f"Fetching archives: {self.archives_url}")
             html = self.fetch_page(self.archives_url)
             if not html:
                 raise Exception("Failed to fetch archives page (possibly blocked by Incapsula)")
@@ -341,7 +342,7 @@ class UHMCScraper:
             # Check for additional pages
             pagination_urls = self.get_pagination_urls(html)
             for page_url in pagination_urls[:5]:  # Limit to 5 pages
-                print(f"Fetching page: {page_url}")
+                logging.info(f"Fetching page: {page_url}")
                 page_html = self.fetch_page(page_url)
                 if page_html:
                     page_links = self.extract_obituary_links(page_html)
@@ -349,16 +350,16 @@ class UHMCScraper:
                 time.sleep(2)
 
             stats['found'] = len(all_links)
-            print(f"Found {stats['found']} obituary listings\n")
+            logging.info(f"Found {stats['found']} obituary listings\n")
 
             # Process each obituary
             for i, item in enumerate(all_links, 1):
                 try:
-                    print(f"[{i}/{stats['found']}] Processing: {item['name']}...")
+                    logging.info(f"[{i}/{stats['found']}] Processing: {item['name']}...")
 
                     obit_data = self.parse_obituary_page(item['url'])
                     if not obit_data:
-                        print("  -- Skipped (no data)")
+                        logging.info("  -- Skipped (no data)")
                         stats['errors'] += 1
                         continue
 
@@ -367,12 +368,12 @@ class UHMCScraper:
 
                     if action == 'inserted':
                         stats['new'] += 1
-                        print(f"  + New: {obit_data['deceased_name']}")
+                        logging.info(f"  + New: {obit_data['deceased_name']}")
                     elif action == 'updated':
                         stats['updated'] += 1
-                        print(f"  ~ Updated: {obit_data['deceased_name']}")
+                        logging.info(f"  ~ Updated: {obit_data['deceased_name']}")
                     else:
-                        print(f"  = Unchanged: {obit_data['deceased_name']}")
+                        logging.info(f"  = Unchanged: {obit_data['deceased_name']}")
 
                     # Extract comments
                     comments = self.extract_comments(item['url'])
@@ -383,13 +384,13 @@ class UHMCScraper:
                             if cid:
                                 new_comments += 1
                         if new_comments > 0:
-                            print(f"  Added {new_comments} comments")
+                            logging.info(f"  Added {new_comments} comments")
 
                     # Be polite - delay between requests
                     time.sleep(1.5)
 
                 except Exception as e:
-                    print(f"  !! Error: {str(e)}")
+                    logging.info(f"  !! Error: {str(e)}")
                     stats['errors'] += 1
 
             # Log completion
@@ -401,11 +402,11 @@ class UHMCScraper:
                 duration=duration
             )
 
-            print(f"\n{'='*60}")
-            print(f"UHMC scraping completed")
-            print(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
-            print(f"Duration: {duration:.1f} seconds")
-            print(f"{'='*60}\n")
+            logging.info(f"\n{'='*60}")
+            logging.info(f"UHMC scraping completed")
+            logging.info(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
+            logging.info(f"Duration: {duration:.1f} seconds")
+            logging.info(f"{'='*60}\n")
 
             return stats
 
@@ -421,7 +422,7 @@ class UHMCScraper:
                 duration=duration
             )
 
-            print(f"\n!! UHMC scraping failed: {error_msg}\n")
+            logging.info(f"\n!! UHMC scraping failed: {error_msg}\n")
             raise
 
 

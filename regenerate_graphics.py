@@ -1,3 +1,4 @@
+import logging
 #!/usr/bin/env python3
 """
 Regenerate Neshama marketing graphics with "local food vendors" (no number).
@@ -143,7 +144,7 @@ def generate_post2_three_features():
 
     path = os.path.join(os.path.dirname(__file__), 'instagram-posts', 'post-2-three-features.png')
     img.save(path, 'PNG')
-    print(f'  ✅ Saved {path}')
+    logging.info(f\'  ✅ Saved {path}')
     return path
 
 
@@ -251,7 +252,7 @@ def generate_story_features():
 
     path = os.path.join(os.path.dirname(__file__), 'marketing-kit', 'instagram-stories', 'story-features.png')
     img.save(path, 'PNG')
-    print(f'  ✅ Saved {path}')
+    logging.info(f\'  ✅ Saved {path}')
     return path
 
 
@@ -352,16 +353,16 @@ def generate_whatsapp_vertical():
 
     path = os.path.join(os.path.dirname(__file__), 'marketing-kit', 'whatsapp', 'whatsapp-vertical-card.png')
     img.save(path, 'PNG')
-    print(f'  ✅ Saved {path}')
+    logging.info(f\'  ✅ Saved {path}')
     return path
 
 
 if __name__ == '__main__':
-    print('\n🎨 Regenerating Neshama marketing graphics...\n')
-    print('Removing "18" vendor count from all assets:\n')
+    logging.info(\'\n🎨 Regenerating Neshama marketing graphics...\n')
+    logging.info(\'Removing "18" vendor count from all assets:\n')
 
     generate_post2_three_features()
     generate_story_features()
     generate_whatsapp_vertical()
 
-    print('\n✅ All 3 graphics regenerated!\n')
+    logging.info(\'\n✅ All 3 graphics regenerated!\n')

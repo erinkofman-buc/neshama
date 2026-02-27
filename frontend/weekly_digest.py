@@ -13,6 +13,8 @@ import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 from subscription_manager import EmailSubscriptionManager
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
 def _html_to_plain(html):
@@ -184,7 +186,7 @@ class WeeklyDigestSender:
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send weekly digest email to a single subscriber"""
         if not self.sendgrid_api_key:
-            print(f"  \u26a0\ufe0f  Would send weekly digest to {email}")
+            logging.info(f" \u26a0\ufe0f Would send weekly digest to {email}")
             return {'success': True, 'test_mode': True}
 
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"
@@ -224,29 +226,29 @@ class WeeklyDigestSender:
             return {'success': True, 'status_code': response.status_code}
 
         except Exception as e:
-            print(f"\u274c Failed to send to {email}: {str(e)}")
+            logging.error(f"\u274c Failed to send to {email}: {str(e)}")
             return {'success': False, 'error': str(e)}
 
     def send_weekly_digest(self):
         """Send weekly digest to weekly-frequency subscribers, filtered by location"""
-        print(f"\n{'='*70}")
-        print(f" NESHAMA WEEKLY DIGEST")
-        print(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" NESHAMA WEEKLY DIGEST")
+        logging.info(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"{'='*70}\n")
 
         # Check if there are any obituaries this week
         all_obituaries = self.get_weekly_obituaries()
 
         if not all_obituaries:
-            print("\u2139\ufe0f  No new obituaries in the last 7 days. Skipping email send.")
-            print(f"\n{'='*70}\n")
+            logging.info("\u2139\ufe0f No new obituaries in the last 7 days. Skipping email send.")
+            logging.info(f"\n{'='*70}\n")
             return {
                 'status': 'skipped',
                 'reason': 'no_new_content',
                 'subscribers_count': 0
             }
 
-        print(f"📰 Found {len(all_obituaries)} obituar{'y' if len(all_obituaries) == 1 else 'ies'} this week")
+        logging.info(f" Found {len(all_obituaries)} obituar{'y' if len(all_obituaries) == 1 else 'ies'} this week")
 
         # Pre-fetch location-filtered lists
         toronto_obits = self.get_weekly_obituaries(location='toronto')
@@ -254,7 +256,7 @@ class WeeklyDigestSender:
 
         # Get weekly subscribers with preferences
         weekly_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='weekly')
-        print(f"📧 Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
+        logging.info(f" Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -285,7 +287,7 @@ class WeeklyDigestSender:
 
             if not unique_obits:
                 skipped_count += 1
-                print(f"  \u23ed\ufe0f  {email} \u2014 no obits for {locations}")
+                logging.info(f" \u23ed\ufe0f {email} \u2014 no obits for {locations}")
                 continue
 
             html_content = self.generate_weekly_html(unique_obits)
@@ -293,7 +295,7 @@ class WeeklyDigestSender:
 
             if result.get('success'):
                 sent_count += 1
-                print(f"  \u2705 {email} ({len(unique_obits)} obits)")
+                logging.info(f" \u2705 {email} ({len(unique_obits)} obits)")
                 cursor.execute('''
                     UPDATE subscribers
                     SET last_email_sent = ?
@@ -301,20 +303,20 @@ class WeeklyDigestSender:
                 ''', (datetime.now().isoformat(), email))
             else:
                 failed_count += 1
-                print(f"  \u274c {email} \u2014 {result.get('error', 'Unknown error')}")
+                logging.error(f" \u274c {email} \u2014 {result.get('error', 'Unknown error')}")
 
         conn.commit()
         conn.close()
 
-        print(f"\n{'='*70}")
-        print(f" SUMMARY")
-        print(f"{'='*70}")
-        print(f" Obituaries this week: {len(all_obituaries)}")
-        print(f" Sent: {sent_count}")
-        print(f" Skipped (no matching obits): {skipped_count}")
-        print(f" Failed: {failed_count}")
-        print(f" Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"{'='*70}\n")
+        logging.info(f"\n{'='*70}")
+        logging.info(f" SUMMARY")
+        logging.info(f"{'='*70}")
+        logging.info(f" Obituaries this week: {len(all_obituaries)}")
+        logging.info(f" Sent: {sent_count}")
+        logging.info(f" Skipped (no matching obits): {skipped_count}")
+        logging.error(f" Failed: {failed_count}")
+        logging.info(f" Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"{'='*70}\n")
 
         return {
             'status': 'success',
