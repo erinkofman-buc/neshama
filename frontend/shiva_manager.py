@@ -411,6 +411,16 @@ class ShivaManager:
             if clean_slugs:
                 recommended_vendors = json.dumps(clean_slugs)
 
+        # V2 fields
+        drop_off = self._sanitize_text(data.get('drop_off_instructions', ''), self.MAX_TEXT_LENGTH) or None
+        source = data.get('source', 'web_standalone')
+        if source not in ('web_claim', 'web_standalone', 'funeral_home', 'auto_created'):
+            source = 'web_standalone'
+
+        # V2: Email verification — generate token, set status to 'pending'
+        verification_token = secrets.token_urlsafe(32)
+        verification_status = 'pending'
+
         try:
             cursor.execute('''
                 INSERT INTO shiva_support (
@@ -419,8 +429,9 @@ class ShivaManager:
                     shiva_start_date, shiva_end_date, pause_shabbat, guests_per_meal,
                     dietary_notes, special_instructions, donation_url, donation_label,
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
-                    family_notes, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?)
+                    family_notes, created_at,
+                    drop_off_instructions, source, verification_status, verification_token
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -445,13 +456,20 @@ class ShivaManager:
                 privacy,
                 recommended_vendors,
                 self._sanitize_text(data.get('family_notes', ''), self.MAX_TEXT_LENGTH) or None,
-                now
+                now,
+                drop_off,
+                source,
+                verification_status,
+                verification_token,
             ))
             conn.commit()
             return {
                 'status': 'success',
                 'id': support_id,
-                'magic_token': magic_token
+                'magic_token': magic_token,
+                'verification_token': verification_token,
+                'organizer_email': clean_email,
+                'family_name': self._sanitize_text(data['family_name'], 200),
             }
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
@@ -546,32 +564,29 @@ class ShivaManager:
     # ── Get Support (Organizer - includes address) ────────────
 
     def get_support_for_organizer(self, support_id, magic_token):
-        """Get full support data including address. Requires magic_token."""
+        """Get full support data including address. Requires magic_token.
+        V2: Also accepts co-organizer tokens."""
         conn = self._get_conn()
         cursor = conn.cursor()
-        cursor.execute('''
-            SELECT * FROM shiva_support WHERE id = ? AND magic_token = ?
-        ''', (support_id, magic_token))
-        row = cursor.fetchone()
+        row = self._verify_organizer(cursor, support_id, magic_token)
         conn.close()
 
         if row:
             data = dict(row)
-            del data['magic_token']  # Never expose the token in responses
+            data.pop('magic_token', None)  # Never expose the token in responses
             return {'status': 'success', 'data': data}
         return {'status': 'error', 'message': 'Invalid support ID or token'}
 
     # ── Update Support (Organizer) ────────────────────────────
 
     def update_support(self, support_id, magic_token, data):
-        """Update support page. Requires magic_token for authorization."""
+        """Update support page. Requires magic_token for authorization.
+        V2: Also accepts co-organizer tokens."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
-        # Verify ownership
-        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
-                        (support_id, magic_token))
-        if not cursor.fetchone():
+        # Verify ownership (primary or co-organizer)
+        if not self._verify_organizer(cursor, support_id, magic_token):
             conn.close()
             return {'status': 'error', 'message': 'Invalid support ID or token'}
 
@@ -579,7 +594,8 @@ class ShivaManager:
             'family_name', 'shiva_address', 'shiva_city', 'shiva_sub_area', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
-            'recommended_vendors', 'organizer_update', 'family_notes'
+            'recommended_vendors', 'organizer_update', 'family_notes',
+            'drop_off_instructions', 'notification_prefs',
         ]
 
         sets = []
@@ -602,10 +618,22 @@ class ShivaManager:
                         val = json.dumps(clean_slugs) if clean_slugs else None
                     else:
                         val = None
-                elif field in ('dietary_notes', 'special_instructions', 'family_notes'):
+                elif field in ('dietary_notes', 'special_instructions', 'family_notes',
+                              'drop_off_instructions'):
                     val = self._sanitize_text(val, self.MAX_TEXT_LENGTH)
                 elif field == 'organizer_update':
                     val = self._sanitize_text(val, 280)
+                elif field == 'notification_prefs':
+                    # Validate JSON structure
+                    try:
+                        prefs = json.loads(val) if isinstance(val, str) else val
+                        val = json.dumps({
+                            'instant': bool(prefs.get('instant', True)),
+                            'daily_summary': bool(prefs.get('daily_summary', True)),
+                            'uncovered_alert': bool(prefs.get('uncovered_alert', True)),
+                        })
+                    except Exception:
+                        val = '{"instant":true,"daily_summary":true,"uncovered_alert":true}'
                 else:
                     val = self._sanitize_text(val)
                 vals.append(val)
@@ -620,6 +648,177 @@ class ShivaManager:
         conn.close()
 
         return {'status': 'success', 'message': 'Support page updated'}
+
+    # ── Co-Organizers ─────────────────────────────────────────
+
+    def _verify_organizer(self, cursor, support_id, magic_token):
+        """Check if token belongs to primary organizer or accepted co-organizer.
+        Returns the shiva_support row (as dict) if authorized, else None."""
+        # Check primary organizer
+        cursor.execute('SELECT * FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        row = cursor.fetchone()
+        if row:
+            return dict(row)
+
+        # Check co-organizer
+        cursor.execute('''
+            SELECT ss.* FROM shiva_support ss
+            JOIN shiva_co_organizers co ON co.shiva_support_id = ss.id
+            WHERE ss.id = ? AND co.magic_token = ? AND co.status = 'accepted'
+        ''', (support_id, magic_token))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+    def invite_co_organizer(self, support_id, magic_token, data):
+        """Invite a co-organizer. Only primary organizer can invite."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Only primary organizer can invite
+        cursor.execute('SELECT * FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        shiva = cursor.fetchone()
+        if not shiva:
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized — only the primary organizer can invite co-organizers'}
+
+        shiva = dict(shiva)
+        name = self._sanitize_text(data.get('name', ''), 200)
+        email = self._validate_email(data.get('email', ''))
+
+        if not name or not email:
+            conn.close()
+            return {'status': 'error', 'message': 'Name and email are required'}
+
+        # Don't invite self
+        if email.lower() == shiva['organizer_email'].lower():
+            conn.close()
+            return {'status': 'error', 'message': 'You cannot invite yourself'}
+
+        # Check for existing invite
+        cursor.execute('''
+            SELECT id, status FROM shiva_co_organizers
+            WHERE shiva_support_id = ? AND email = ?
+        ''', (support_id, email.lower()))
+        existing = cursor.fetchone()
+        if existing:
+            st = existing['status']
+            if st == 'accepted':
+                conn.close()
+                return {'status': 'error', 'message': f'{name} is already a co-organizer'}
+            elif st == 'pending':
+                conn.close()
+                return {'status': 'error', 'message': f'An invitation is already pending for {email}'}
+            # If revoked, allow re-invite (fall through — delete old row)
+            cursor.execute('DELETE FROM shiva_co_organizers WHERE id = ?', (existing['id'],))
+
+        co_token = secrets.token_urlsafe(32)
+        now = datetime.now().isoformat()
+
+        cursor.execute('''
+            INSERT INTO shiva_co_organizers
+                (shiva_support_id, name, email, magic_token, invited_by_email, status, created_at)
+            VALUES (?, ?, ?, ?, ?, 'pending', ?)
+        ''', (support_id, name, email.lower(), co_token, shiva['organizer_email'], now))
+        conn.commit()
+        invite_id = cursor.lastrowid
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'Invitation sent to {name}',
+            'invite_id': invite_id,
+            'co_token': co_token,
+            'invitee_name': name,
+            'invitee_email': email.lower(),
+            'family_name': shiva['family_name'],
+            'organizer_name': shiva['organizer_name'],
+            'shiva_id': support_id,
+        }
+
+    def accept_co_organizer_invite(self, token):
+        """Accept a co-organizer invitation via magic token link."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT co.*, ss.family_name, ss.id as shiva_id
+            FROM shiva_co_organizers co
+            JOIN shiva_support ss ON co.shiva_support_id = ss.id
+            WHERE co.magic_token = ?
+        ''', (token,))
+        invite = cursor.fetchone()
+
+        if not invite:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid invitation link'}
+        if invite['status'] == 'accepted':
+            conn.close()
+            return {'status': 'already_accepted', 'message': 'You are already a co-organizer',
+                    'shiva_id': invite['shiva_id'], 'token': token}
+        if invite['status'] == 'revoked':
+            conn.close()
+            return {'status': 'error', 'message': 'This invitation has been revoked'}
+
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            UPDATE shiva_co_organizers SET status = 'accepted', accepted_at = ?
+            WHERE magic_token = ?
+        ''', (now, token))
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'You are now a co-organizer for the {invite["family_name"]} shiva',
+            'shiva_id': invite['shiva_id'],
+            'family_name': invite['family_name'],
+            'token': token,
+        }
+
+    def revoke_co_organizer(self, support_id, magic_token, co_organizer_id):
+        """Revoke a co-organizer. Only primary organizer can revoke."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        cursor.execute('''
+            UPDATE shiva_co_organizers SET status = 'revoked'
+            WHERE id = ? AND shiva_support_id = ?
+        ''', (co_organizer_id, support_id))
+        if cursor.rowcount == 0:
+            conn.close()
+            return {'status': 'error', 'message': 'Co-organizer not found'}
+
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Co-organizer access revoked'}
+
+    def list_co_organizers(self, support_id, magic_token):
+        """List all co-organizers for a shiva page. Requires organizer auth."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        if not self._verify_organizer(cursor, support_id, magic_token):
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        cursor.execute('''
+            SELECT id, name, email, status, created_at, accepted_at
+            FROM shiva_co_organizers
+            WHERE shiva_support_id = ? AND status != 'revoked'
+            ORDER BY created_at
+        ''', (support_id,))
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+
+        return {'status': 'success', 'data': rows}
 
     # ── Privacy / Access Requests ─────────────────────────────
 
@@ -841,12 +1040,14 @@ class ShivaManager:
 
             will_serve = 1 if data.get('will_serve') else 0
 
+            signup_group_id = data.get('signup_group_id')
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
-                    will_serve, privacy_consent, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    will_serve, privacy_consent, created_at, signup_group_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -858,7 +1059,8 @@ class ShivaManager:
                 num_servings,
                 will_serve,
                 1,
-                now
+                now,
+                signup_group_id,
             ))
             conn.commit()
 
@@ -880,6 +1082,68 @@ class ShivaManager:
             return {'status': 'error', 'message': str(e)}
         finally:
             conn.close()
+
+    def signup_meals_multi(self, data):
+        """Sign up for multiple dates at once. V2 multi-date signup.
+        data['meal_dates'] = ['2026-03-01', '2026-03-02', ...]
+        Returns grouped results with a single signup_group_id."""
+        import uuid
+        meal_dates = data.get('meal_dates', [])
+        if not meal_dates or not isinstance(meal_dates, list):
+            return {'status': 'error', 'message': 'meal_dates must be a non-empty list'}
+        if len(meal_dates) > 14:
+            return {'status': 'error', 'message': 'Maximum 14 dates per signup'}
+
+        group_id = str(uuid.uuid4())
+        results = []
+        errors = []
+
+        for date in meal_dates:
+            single_data = dict(data)
+            single_data['meal_date'] = date
+            single_data['signup_group_id'] = group_id
+            single_data.pop('meal_dates', None)
+            result = self.signup_meal(single_data)
+            if result['status'] == 'success':
+                results.append({'date': date, 'signup_id': result['signup_id']})
+            else:
+                errors.append({'date': date, 'error': result['message']})
+
+        if not results:
+            return {'status': 'error', 'message': 'No dates could be signed up',
+                    'errors': errors}
+
+        # Use first successful result for address data
+        first = self.signup_meal.__wrapped__(self, {**data, 'meal_date': results[0]['date']}) if False else None
+        # Re-fetch address from DB
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('SELECT shiva_address, shiva_city, special_instructions, family_name FROM shiva_support WHERE id=?',
+                       (data.get('shiva_support_id', ''),))
+        support = cursor.fetchone()
+        conn.close()
+
+        addr = ''
+        family_name = ''
+        if support:
+            support = dict(support)
+            addr = support.get('shiva_address', '')
+            if support.get('shiva_city'):
+                addr += ', ' + support['shiva_city']
+            family_name = support.get('family_name', '')
+
+        return {
+            'status': 'success',
+            'message': f'Signed up for {len(results)} meal{"s" if len(results) > 1 else ""}!',
+            'signup_group_id': group_id,
+            'signups': results,
+            'errors': errors,
+            'address': addr,
+            'family_name': family_name,
+            'shiva_address': support.get('shiva_address', '') if support else '',
+            'shiva_city': support.get('shiva_city', '') if support else '',
+            'special_instructions': support.get('special_instructions', '') if support else '',
+        }
 
     # ── Get Signups ───────────────────────────────────────────
 
@@ -1068,13 +1332,12 @@ class ShivaManager:
             pass
 
     def get_signups_for_organizer(self, support_id, magic_token):
-        """Get full meal signup details for organizer. Includes email/phone."""
+        """Get full meal signup details for organizer. Includes email/phone.
+        V2: Also accepts co-organizer tokens."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
-        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
-                        (support_id, magic_token))
-        if not cursor.fetchone():
+        if not self._verify_organizer(cursor, support_id, magic_token):
             conn.close()
             return {'status': 'error', 'message': 'Unauthorized'}
 
@@ -1091,13 +1354,12 @@ class ShivaManager:
         return {'status': 'success', 'data': rows}
 
     def remove_signup(self, support_id, signup_id, magic_token):
-        """Remove a meal signup. Requires organizer magic_token."""
+        """Remove a meal signup. Requires organizer magic_token.
+        V2: Also accepts co-organizer tokens."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
-        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
-                        (support_id, magic_token))
-        if not cursor.fetchone():
+        if not self._verify_organizer(cursor, support_id, magic_token):
             conn.close()
             return {'status': 'error', 'message': 'Unauthorized'}
 
@@ -1493,3 +1755,69 @@ class ShivaManager:
         """Run backup_to_file in a background thread to avoid slowing responses."""
         thread = threading.Thread(target=self.backup_to_file, daemon=True)
         thread.start()
+
+    # ── Email Verification ────────────────────────────────────
+
+    def verify_email(self, token):
+        """Verify organizer email via token link. Returns shiva page info."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT id, family_name, organizer_email, verification_status, magic_token
+            FROM shiva_support
+            WHERE verification_token = ?
+        ''', (token,))
+        row = cursor.fetchone()
+
+        if not row:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid verification link'}
+
+        row = dict(row)
+        if row['verification_status'] == 'verified':
+            conn.close()
+            return {
+                'status': 'already_verified',
+                'message': 'Email already verified',
+                'shiva_id': row['id'],
+                'magic_token': row['magic_token'],
+            }
+
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            UPDATE shiva_support
+            SET verification_status = 'verified',
+                verified_at = ?,
+                verification_token = NULL
+            WHERE verification_token = ?
+        ''', (now, token))
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': 'Email verified successfully',
+            'shiva_id': row['id'],
+            'family_name': row['family_name'],
+            'magic_token': row['magic_token'],
+        }
+
+    def admin_verify_email(self, support_id):
+        """Admin-approve email verification (manual override)."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            UPDATE shiva_support
+            SET verification_status = 'admin_approved',
+                verified_at = ?,
+                verification_token = NULL
+            WHERE id = ?
+        ''', (now, support_id))
+        if cursor.rowcount == 0:
+            conn.close()
+            return {'status': 'error', 'message': 'Shiva page not found'}
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Email manually verified'}

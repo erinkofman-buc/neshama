@@ -212,6 +212,16 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_access_approve()
         elif path == '/api/shiva-access/deny':
             self.handle_access_deny()
+        # V2: Email verification
+        elif path == '/api/shiva/verify-email':
+            self.handle_verify_email()
+        # V2: Accept co-organizer invite
+        elif path == '/api/shiva/accept-invite':
+            self.handle_accept_co_organizer()
+        # V2: List co-organizers (must be before /api/shiva/{id} catch-all)
+        elif path.startswith('/api/shiva/') and path.endswith('/co-organizers'):
+            support_id = path[len('/api/shiva/'):-len('/co-organizers')]
+            self.handle_list_co_organizers(support_id)
         # Shiva API endpoints
         elif path.startswith('/api/shiva/obituary/'):
             obit_id = path[len('/api/shiva/obituary/'):]
@@ -290,9 +300,23 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
             support_id = path[len('/api/shiva/'):-len('/remove-signup')]
             self.handle_remove_signup(support_id, body)
+        # V2: Multi-date signup
+        elif path.startswith('/api/shiva/') and path.endswith('/signup-multi'):
+            support_id = path[len('/api/shiva/'):-len('/signup-multi')]
+            self.handle_meal_signup_multi(support_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/signup'):
             support_id = path[len('/api/shiva/'):-len('/signup')]
             self.handle_meal_signup(support_id, body)
+        # V2: Co-organizer invite
+        elif path.startswith('/api/shiva/') and '/co-organizers/invite' in path:
+            support_id = path[len('/api/shiva/'):path.index('/co-organizers/invite')]
+            self.handle_invite_co_organizer(support_id, body)
+        # V2: Co-organizer revoke
+        elif path.startswith('/api/shiva/') and '/co-organizers/' in path and path.endswith('/revoke'):
+            parts = path[len('/api/shiva/'):].split('/co-organizers/')
+            support_id = parts[0]
+            co_id = parts[1].replace('/revoke', '')
+            self.handle_revoke_co_organizer(support_id, co_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/report'):
             support_id = path[len('/api/shiva/'):-len('/report')]
             self.handle_shiva_report(support_id, body)
@@ -1635,8 +1659,14 @@ button:hover{background:#c45a1a}</style></head>
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
                 shiva_mgr._trigger_backup()
+                # V2: Send email verification
+                self._send_verification_email(result)
             status_code = 200 if result['status'] in ('success', 'duplicate', 'similar_found') else 400
-            self.send_json_response(result, status_code)
+            # Don't expose verification_token to client
+            safe_result = dict(result)
+            safe_result.pop('verification_token', None)
+            safe_result.pop('organizer_email', None)
+            self.send_json_response(safe_result, status_code)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
@@ -1662,6 +1692,72 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def _send_verification_email(self, result):
+        """Send email verification link to organizer after page creation."""
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        email = result.get('organizer_email', '')
+        token = result.get('verification_token', '')
+        family_name = result.get('family_name', '')
+        shiva_id = result.get('id', '')
+
+        if not email or not token:
+            return
+
+        base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+        verify_url = f"{base_url}/api/shiva/verify-email?token={token}"
+
+        html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Verify Your Email</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">{html_mod.escape(family_name)} shiva support page</p>
+    </div>
+    <p style="font-size:1rem;line-height:1.6;">
+        Thank you for setting up a shiva support page. Please verify your email
+        to enable email notifications and reminders.
+    </p>
+    <div style="text-align:center;margin:2rem 0;">
+        <a href="{html_mod.escape(verify_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">Verify Email</a>
+    </div>
+    <p style="font-size:0.85rem;color:#B2BEB5;">If you didn't create this page, you can safely ignore this email.</p>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+        plain_text = _html_to_plain(html_content)
+
+        if not sendgrid_key:
+            print(f"[Verification] Would send verification to {email}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email as SGEmail, To, Content, MimeType
+
+            message = Mail(
+                from_email=SGEmail('updates@neshama.ca', 'Neshama'),
+                to_emails=To(email),
+                subject=f'Verify your email — {family_name} shiva page',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
+            print(f"[Verification] Sent to {email}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, shiva_id, 'verification',
+                                        email, None, sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Verification] Failed to log email")
+        except Exception:
+            logging.exception("[Verification] Email error")
 
     def _send_signup_confirmation(self, signup_data, result, support_id):
         """Send confirmation email to volunteer after meal signup (background)"""
@@ -1832,6 +1928,300 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    # ── API: V2 — Co-organizers ─────────────────────────────
+
+    def handle_invite_co_organizer(self, support_id, body):
+        """Invite a co-organizer to help manage a shiva page."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.pop('magic_token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+            result = shiva_mgr.invite_co_organizer(support_id, token, data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+                # Send invite email
+                self._send_co_organizer_invite_email(result)
+            status_code = 200 if result['status'] == 'success' else 400
+            # Don't expose token to client
+            safe_result = {'status': result['status'], 'message': result.get('message', '')}
+            if result.get('invite_id'):
+                safe_result['invite_id'] = result['invite_id']
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_accept_co_organizer(self):
+        """Accept a co-organizer invitation via token link."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [''])[0]
+        if not token:
+            self._serve_access_result_page('Error', 'Invalid invitation link.')
+            return
+        result = shiva_mgr.accept_co_organizer_invite(token)
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['token']}"
+            self._serve_access_result_page(
+                'Welcome, Co-Organizer!',
+                f'You are now a co-organizer for the {result["family_name"]} shiva. '
+                f'<a href="{dashboard_url}" style="color:#D2691E;">Go to dashboard &rarr;</a>'
+            )
+        elif result['status'] == 'already_accepted':
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['token']}"
+            self._serve_access_result_page(
+                'Already Accepted',
+                f'You are already a co-organizer. '
+                f'<a href="{dashboard_url}" style="color:#D2691E;">Go to dashboard &rarr;</a>'
+            )
+        else:
+            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
+
+    def handle_revoke_co_organizer(self, support_id, co_id, body):
+        """Revoke a co-organizer's access."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('magic_token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+            result = shiva_mgr.revoke_co_organizer(support_id, token, co_id)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_list_co_organizers(self, support_id):
+        """List co-organizers for a shiva page."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [''])[0]
+        if not token:
+            self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+            return
+        result = shiva_mgr.list_co_organizers(support_id, token)
+        status_code = 200 if result['status'] == 'success' else 400
+        self.send_json_response(result, status_code)
+
+    def _send_co_organizer_invite_email(self, result):
+        """Send invitation email to a co-organizer."""
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        if not sendgrid_key:
+            print(f"[Co-organizer] Would send invite to {result['invitee_email']}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            accept_url = f"{base_url}/api/shiva/accept-invite?token={result['co_token']}"
+
+            html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Co-Organizer Invitation</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">{html_mod.escape(result['family_name'])} shiva</p>
+    </div>
+    <p style="font-size:1rem;line-height:1.6;">
+        {html_mod.escape(result['organizer_name'])} has invited you to help co-organize the
+        <strong>{html_mod.escape(result['family_name'])}</strong> shiva support page on Neshama.
+    </p>
+    <p style="font-size:0.95rem;color:#5c534a;">
+        As a co-organizer you'll be able to view signups, manage the meal schedule,
+        and update page details.
+    </p>
+    <div style="text-align:center;margin:2rem 0;">
+        <a href="{html_mod.escape(accept_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">Accept Invitation</a>
+    </div>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(result['invitee_email'], result['invitee_name']),
+                subject=f"You're invited to co-organize — {result['family_name']} shiva",
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
+            print(f"[Co-organizer] Invite sent to {result['invitee_email']}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, result['shiva_id'], 'co_organizer_invite',
+                                        result['invitee_email'], result['invitee_name'],
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Co-organizer] Failed to log email")
+        except Exception:
+            logging.exception("[Co-organizer] Invite email error")
+
+    # ── API: V2 — Multi-date signup ──────────────────────────
+
+    def handle_meal_signup_multi(self, support_id, body):
+        """Handle multi-date meal signup (V2)."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            data['shiva_support_id'] = support_id
+            result = shiva_mgr.signup_meals_multi(data)
+            if result['status'] == 'success':
+                shiva_mgr.track_event('meal_signup_multi', support_id)
+                shiva_mgr._trigger_backup()
+                # Send grouped confirmation email
+                self._send_multi_signup_confirmation(data, result, support_id)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _send_multi_signup_confirmation(self, data, result, support_id):
+        """Send grouped confirmation email for multi-date signup."""
+        try:
+            sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+            vol_email = data.get('volunteer_email', '').strip()
+            vol_name = data.get('volunteer_name', 'Friend')
+            family_name = result.get('family_name', 'the family')
+            address = result.get('address', '')
+
+            if not vol_email:
+                return
+
+            # Build date list
+            signups = result.get('signups', [])
+            meal_type = data.get('meal_type', 'Meal')
+            date_items = ''
+            for s in signups:
+                try:
+                    d = datetime.strptime(s['date'], '%Y-%m-%d')
+                    formatted = d.strftime('%A, %B %d')
+                except Exception:
+                    formatted = s['date']
+                date_items += f'<li style="margin:0.3rem 0;">{html_mod.escape(meal_type)} &middot; {formatted}</li>'
+
+            html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.8rem;font-weight:400;color:#3E2723;margin:0;">Thank You, {html_mod.escape(vol_name.split()[0])}</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">You signed up for {len(signups)} meals!</p>
+    </div>
+    <div style="background:#f1f8e9;border:2px solid #a5d6a7;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Your Meal Signups</p>
+        <ul style="padding-left:1.5rem;margin:0;list-style:none;">{date_items}</ul>
+    </div>
+    <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Shiva Location</p>
+        <p style="font-size:1.1rem;font-weight:600;margin:0;">{html_mod.escape(address)}</p>
+    </div>
+    <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">May their memory be a blessing</p>
+    <div style="text-align:center;margin-top:1rem;">
+        <a href="https://neshama.ca/shiva/{html_mod.escape(support_id)}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">View Meal Schedule</a>
+    </div>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+            plain_text = _html_to_plain(html_content)
+
+            if not sendgrid_key:
+                print(f"[Multi Signup] Would send confirmation to {vol_email} for {len(signups)} meals")
+                return
+
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+            message = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(vol_email),
+                subject=f'Your {len(signups)} meal signups for {family_name} — Neshama',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
+            print(f"[Multi Signup] Confirmation sent to {vol_email}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, support_id, 'signup_confirmation',
+                                        vol_email, vol_name,
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Multi Signup] Failed to log email")
+        except Exception:
+            logging.exception("[Multi Signup] Email error")
+
+    # ── API: V2 — Email Verification ─────────────────────────
+
+    def handle_verify_email(self):
+        """Handle organizer email verification via token link."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [''])[0]
+        if not token:
+            self._serve_access_result_page('Error', 'Invalid verification link.')
+            return
+        result = shiva_mgr.verify_email(token)
+        if result['status'] == 'success':
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['magic_token']}"
+            self._serve_access_result_page(
+                'Email Verified!',
+                f'Your email has been verified for the {result["family_name"]} shiva page. '
+                f'<a href="{dashboard_url}" style="color:#D2691E;">Go to your dashboard &rarr;</a>'
+            )
+        elif result['status'] == 'already_verified':
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['magic_token']}"
+            self._serve_access_result_page(
+                'Already Verified',
+                f'Your email is already verified. '
+                f'<a href="{dashboard_url}" style="color:#D2691E;">Go to your dashboard &rarr;</a>'
+            )
+        else:
+            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
 
     # ── API: Shiva Access Requests ────────────────────────────
 
