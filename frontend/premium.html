@@ -431,6 +431,10 @@
             <div class="price-period">per year</div>
             <div class="price-meaning">Chai &#x05D7;&#x05D9; &mdash; a meaningful gift of life</div>
 
+            <div id="emailForm" style="display:none; margin-bottom: 1rem;">
+                <input type="email" id="premiumEmail" placeholder="Your email address" style="width:100%; padding:0.85rem 1rem; font-size:1rem; border:2px solid var(--light-taupe); border-radius:8px; margin-bottom:0.5rem; font-family:'Crimson Pro',serif; box-sizing:border-box;">
+                <div id="emailError" style="color:#c0392b; font-size:0.85rem; margin-bottom:0.5rem; display:none;">Please enter a valid email address.</div>
+            </div>
             <button class="cta-btn" onclick="startCheckout()">Upgrade to Premium</button>
 
             <div class="trust">
@@ -464,13 +468,23 @@
     <script>
         function startCheckout() {
             var email = localStorage.getItem('user_email');
+            var emailForm = document.getElementById('emailForm');
+            var emailInput = document.getElementById('premiumEmail');
+            var emailError = document.getElementById('emailError');
             if (!email) {
-                email = prompt('Enter your email address:');
-                if (email && email.includes('@')) {
-                    localStorage.setItem('user_email', email);
-                } else {
+                if (emailForm.style.display === 'none') {
+                    emailForm.style.display = 'block';
+                    emailInput.focus();
                     return;
                 }
+                email = emailInput.value.trim();
+                if (!email || !email.includes('@') || !email.includes('.')) {
+                    emailError.style.display = 'block';
+                    emailInput.focus();
+                    return;
+                }
+                emailError.style.display = 'none';
+                localStorage.setItem('user_email', email);
             }
 
             var btn = document.querySelector('.cta-btn');

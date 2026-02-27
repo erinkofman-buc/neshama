@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://neshama.ca/</loc><lastmod>2026-02-26</lastmod><priority>1.0</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://neshama.ca/feed</loc><lastmod>2026-02-26</lastmod><priority>0.9</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://neshama.ca/about</loc><lastmod>2026-02-26</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/faq</loc><lastmod>2026-02-26</lastmod><priority>0.5</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/privacy</loc><lastmod>2026-02-26</lastmod><priority>0.3</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/shiva/guide</loc><lastmod>2026-02-26</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/shiva/organize</loc><lastmod>2026-02-26</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/shiva/caterers</loc><lastmod>2026-02-26</lastmod><priority>0.6</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://neshama.ca/shiva/caterers/apply</loc><lastmod>2026-02-26</lastmod><priority>0.5</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/shiva-essentials</loc><lastmod>2026-02-26</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/what-to-bring-to-a-shiva</loc><lastmod>2026-02-26</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/directory</loc><lastmod>2026-02-26</lastmod><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://neshama.ca/gifts</loc><lastmod>2026-02-26</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://neshama.ca/gifts/plant-a-tree</loc><lastmod>2026-02-26</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://neshama.ca/premium</loc><lastmod>2026-02-26</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/</loc><lastmod>2026-02-27</lastmod><priority>1.0</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://neshama.ca/feed</loc><lastmod>2026-02-27</lastmod><priority>0.9</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://neshama.ca/directory</loc><lastmod>2026-02-27</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://neshama.ca/gifts</loc><lastmod>2026-02-27</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://neshama.ca/shiva-essentials</loc><lastmod>2026-02-27</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/what-to-bring-to-a-shiva</loc><lastmod>2026-02-27</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/shiva/organize</loc><lastmod>2026-02-27</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/premium</loc><lastmod>2026-02-27</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/gifts/plant-a-tree</loc><lastmod>2026-02-27</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/about</loc><lastmod>2026-02-27</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/faq</loc><lastmod>2026-02-27</lastmod><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/privacy</loc><lastmod>2026-02-27</lastmod><priority>0.3</priority><changefreq>monthly</changefreq></url>
 </urlset>
