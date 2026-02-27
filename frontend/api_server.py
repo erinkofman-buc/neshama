@@ -290,6 +290,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_scrape_status()
         elif path == '/admin/digest':
             self.handle_admin_digest()
+        # Redirects
+        elif path == '/shiva-guide':
+            self.send_response(301)
+            self.send_header('Location', '/what-to-bring-to-a-shiva')
+            self.end_headers()
+            self._log_request('GET', path, 301, _req_start)
+            return
         elif path in self.STATIC_FILES:
             self.serve_static(path)
         else:

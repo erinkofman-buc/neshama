@@ -347,6 +347,14 @@ class NeshamaApp {
                         tributeText +
                         shivaBadge +
                         organizeLink +
+                        '<div class="share-wrapper" onclick="event.stopPropagation()">' +
+                            '<button class="card-link share-toggle" onclick="window.app.toggleShareMenu(this)" type="button">Share &#x2197;</button>' +
+                            '<div class="share-menu">' +
+                                '<button class="share-option" data-action="whatsapp" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'whatsapp\')" type="button">\ud83d\udcac WhatsApp</button>' +
+                                '<button class="share-option" data-action="copy" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'copy\')" type="button">\ud83d\udd17 Copy Link</button>' +
+                                '<button class="share-option" data-action="email" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'email\')" type="button">\u2709\ufe0f Email</button>' +
+                            '</div>' +
+                        '</div>' +
                         '<a href="' + memorialUrl + '" class="card-link" onclick="event.stopPropagation()">View Memorial \u2192</a>' +
                     '</div>' +
                 '</div>' +

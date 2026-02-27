@@ -127,7 +127,7 @@ class WeeklyDigestSender:
             <p style="margin: 0 0 2px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 17px; color: #3E2723;">{name}</p>
             <p style="margin: 0 0 6px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 12px; color: #9e9488;">{source}</p>
             {details}
-            <p style="margin: 6px 0 0 0;"><a href="{obit['condolence_url']}" style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #3E2723; text-decoration: underline;">Read obituary</a></p>
+            <p style="margin: 6px 0 0 0;"><a href="{obit['condolence_url']}" target="_blank" rel="noopener noreferrer" style="font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #3E2723; text-decoration: underline;">Read obituary</a></p>
         </td></tr>'''
 
             day_sections += f'''

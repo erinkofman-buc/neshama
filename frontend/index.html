@@ -897,7 +897,11 @@
         }
 
         .share-toggle {
-            width: 100%;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-family: inherit;
         }
 
         .share-menu {
@@ -2147,13 +2151,17 @@
             }
         }
 
-        // Show popup after 30 seconds for non-subscribers (once per session)
-        setTimeout(function() {
+        // Show popup on second page visit for non-subscribers (once per session)
+        (function() {
             if (localStorage.getItem('neshama_subscribed')) return;
             if (sessionStorage.getItem('neshama_popup_shown')) return;
-            sessionStorage.setItem('neshama_popup_shown', '1');
-            showEmailPopup();
-        }, 30000);
+            var viewCount = parseInt(sessionStorage.getItem('neshama_page_views') || '0', 10) + 1;
+            sessionStorage.setItem('neshama_page_views', viewCount.toString());
+            if (viewCount >= 2) {
+                sessionStorage.setItem('neshama_popup_shown', '1');
+                showEmailPopup();
+            }
+        })();
 
         // Form submission
         var emailForm = document.getElementById('emailForm');

@@ -121,7 +121,7 @@ class DailyDigestSender:
         <p style="margin: 0 0 4px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 19px; color: #3E2723;">{name}</p>
         <p style="margin: 0 0 10px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488;">{source}</p>
         {details}
-        <p style="margin: 10px 0 0 0;"><a href="{obit['condolence_url']}" style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #3E2723; text-decoration: underline;">Read full obituary</a></p>
+        <p style="margin: 10px 0 0 0;"><a href="{obit['condolence_url']}" target="_blank" rel="noopener noreferrer" style="font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #3E2723; text-decoration: underline;">Read full obituary</a></p>
     </td></tr>'''
 
         html = f'''<!DOCTYPE html>
