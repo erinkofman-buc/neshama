@@ -18,11 +18,35 @@ from datetime import datetime
 import pytz
 import logging
 
+import time as _time_module
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
+
+# ── Rate Limiter ─────────────────────────────────────────
+# Simple in-memory rate limiter for email-sending endpoints.
+# Keyed by (client_ip, endpoint). Allows max N calls per window.
+_rate_limit_store = {}  # key -> list of timestamps
+_RATE_LIMIT_WINDOW = 300   # 5 minutes
+_RATE_LIMIT_MAX_CALLS = 3  # max 3 email-sends per 5 min per IP
+
+
+def _check_rate_limit(client_ip, endpoint, max_calls=_RATE_LIMIT_MAX_CALLS, window=_RATE_LIMIT_WINDOW):
+    """Return True if the request is within rate limits, False if exceeded."""
+    key = (client_ip, endpoint)
+    now = _time_module.time()
+    timestamps = _rate_limit_store.get(key, [])
+    # Prune old entries
+    timestamps = [t for t in timestamps if now - t < window]
+    if len(timestamps) >= max_calls:
+        _rate_limit_store[key] = timestamps
+        return False
+    timestamps.append(now)
+    _rate_limit_store[key] = timestamps
+    return True
 
 
 def _html_to_plain(html_str):
@@ -157,8 +181,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle GET requests"""
+        _req_start = _time_module.time()
         parsed_path = urlparse(self.path)
         path = parsed_path.path
+
+        # Health check endpoint (fast path, no auth)
+        if path == '/api/health':
+            self._handle_health_check()
+            self._log_request('GET', path, 200, _req_start)
+            return
 
         # API endpoints
         if path == '/api/obituaries':
@@ -1182,19 +1213,22 @@ button:hover{background:#c45a1a}</style></head>
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'success', 'data': []})
             return
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        filters = {
-            'kosher': query_params.get('kosher', [None])[0] == 'true',
-            'delivery': query_params.get('delivery', [None])[0] == 'true',
-            'online_ordering': query_params.get('online_ordering', [None])[0] == 'true',
-        }
-        has_filters = any(filters.values())
-        if has_filters:
-            result = shiva_mgr.get_caterers_filtered(filters)
-        else:
-            result = shiva_mgr.get_approved_caterers()
-        self.send_json_response(result)
+        try:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            filters = {
+                'kosher': query_params.get('kosher', [None])[0] == 'true',
+                'delivery': query_params.get('delivery', [None])[0] == 'true',
+                'online_ordering': query_params.get('online_ordering', [None])[0] == 'true',
+            }
+            has_filters = any(filters.values())
+            if has_filters:
+                result = shiva_mgr.get_caterers_filtered(filters)
+            else:
+                result = shiva_mgr.get_approved_caterers()
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def get_pending_caterers(self):
         """Get pending caterer applications (admin only)"""
@@ -1204,8 +1238,11 @@ button:hover{background:#c45a1a}</style></head>
         if not self._check_admin_token():
             self.send_error_response('Unauthorized', 403)
             return
-        result = shiva_mgr.get_pending_applications()
-        self.send_json_response(result)
+        try:
+            result = shiva_mgr.get_pending_applications()
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_caterer_apply(self, body):
         """Handle caterer application submission"""
@@ -1232,11 +1269,14 @@ button:hover{background:#c45a1a}</style></head>
         if not self._check_admin_token():
             self.send_error_response('Unauthorized', 403)
             return
-        result = shiva_mgr.approve_caterer(caterer_id)
-        if result['status'] == 'success':
-            shiva_mgr._trigger_backup()
-        status_code = 200 if result['status'] == 'success' else 400
-        self.send_json_response(result, status_code)
+        try:
+            result = shiva_mgr.approve_caterer(caterer_id)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_caterer_reject(self, caterer_id):
         """Reject a caterer application (admin only)"""
@@ -1246,11 +1286,14 @@ button:hover{background:#c45a1a}</style></head>
         if not self._check_admin_token():
             self.send_error_response('Unauthorized', 403)
             return
-        result = shiva_mgr.reject_caterer(caterer_id)
-        if result['status'] == 'success':
-            shiva_mgr._trigger_backup()
-        status_code = 200 if result['status'] == 'success' else 400
-        self.send_json_response(result, status_code)
+        try:
+            result = shiva_mgr.reject_caterer(caterer_id)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     # ── API: Vendor Directory ─────────────────────────────
 
@@ -1620,40 +1663,49 @@ button:hover{background:#c45a1a}</style></head>
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'not_found', 'message': 'Shiva support not available'})
             return
-        result = shiva_mgr.get_support_by_obituary(obit_id)
-        self.send_json_response(result)
+        try:
+            result = shiva_mgr.get_support_by_obituary(obit_id)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def get_shiva_details(self, support_id):
         """Get shiva support page details (no address)"""
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'not_found'})
             return
-        # Check for organizer token or access token in query params
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        token = query_params.get('token', [None])[0]
-        access_token = query_params.get('access', [None])[0]
+        try:
+            # Check for organizer token or access token in query params
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('token', [None])[0]
+            access_token = query_params.get('access', [None])[0]
 
-        if token:
-            result = shiva_mgr.get_support_for_organizer(support_id, token)
-        else:
-            result = shiva_mgr.get_support_by_id(support_id, access_token=access_token)
-        self.send_json_response(result)
+            if token:
+                result = shiva_mgr.get_support_for_organizer(support_id, token)
+            else:
+                result = shiva_mgr.get_support_by_id(support_id, access_token=access_token)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def get_shiva_meals(self, support_id):
         """Get meal signups for a shiva support page"""
         if not SHIVA_AVAILABLE:
             self.send_json_response({'status': 'success', 'data': []})
             return
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        token = query_params.get('token', [None])[0]
+        try:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('token', [None])[0]
 
-        if token:
-            result = shiva_mgr.get_signups_for_organizer(support_id, token)
-        else:
-            result = shiva_mgr.get_signups(support_id)
-        self.send_json_response(result)
+            if token:
+                result = shiva_mgr.get_signups_for_organizer(support_id, token)
+            else:
+                result = shiva_mgr.get_signups(support_id)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_create_shiva(self, body):
         """Create a new shiva support page"""
@@ -1947,7 +1999,13 @@ button:hover{background:#c45a1a}</style></head>
 
             result = shiva_mgr.post_update(support_id, token, message)
             if result['status'] == 'success' and data.get('email_volunteers'):
-                self._email_update_to_volunteers(support_id, message)
+                # Rate limit email sends
+                client_ip = self._get_client_ip()
+                if not _check_rate_limit(client_ip, 'email_update'):
+                    logging.warning(f"[RateLimit] Email update rate limit exceeded for {client_ip}")
+                    # Still post the update, just skip the email
+                else:
+                    self._email_update_to_volunteers(support_id, message)
 
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
@@ -2009,7 +2067,7 @@ button:hover{background:#c45a1a}</style></head>
                 plain_text = _html_to_plain(html_body)
                 try:
                     from sendgrid import SendGridAPIClient
-                    from sendgrid.helpers.mail import Mail, From
+                    from sendgrid.helpers.mail import Mail, From, Header
                     sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
                     mail = Mail(
                         from_email=From('updates@neshama.ca', 'Neshama'),
@@ -2018,6 +2076,7 @@ button:hover{background:#c45a1a}</style></head>
                         html_content=html_body,
                         plain_text_content=plain_text
                     )
+                    mail.header = Header('List-Unsubscribe', '<mailto:unsubscribe@neshama.ca>')
                     sg.send(mail)
                 except Exception as email_err:
                     logging.error(f"Failed to email update to {vol['volunteer_email']}: {email_err}")
@@ -2034,6 +2093,11 @@ button:hover{background:#c45a1a}</style></head>
             token = data.get('token', '')
             if not token:
                 self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+            # Rate limit thank-you sends
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'send_thank_you', max_calls=2, window=600):
+                self._send_rate_limit_error()
                 return
             result = shiva_mgr.send_thank_you_notes(support_id, token)
             status_code = 200 if result['status'] == 'success' else 400
@@ -2173,9 +2237,12 @@ button:hover{background:#c45a1a}</style></head>
         if not token:
             self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
             return
-        result = shiva_mgr.list_co_organizers(support_id, token)
-        status_code = 200 if result['status'] == 'success' else 400
-        self.send_json_response(result, status_code)
+        try:
+            result = shiva_mgr.list_co_organizers(support_id, token)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def _send_co_organizer_invite_email(self, result):
         """Send invitation email to a co-organizer."""
@@ -2657,15 +2724,83 @@ button:hover{background:#c45a1a}</style></head>
         self.wfile.write(response.encode('utf-8'))
 
     def send_error_response(self, message, status=500):
-        """Send error response"""
+        """Send error response with friendly message for 500s"""
+        if status >= 500:
+            logging.error(f"[API] Server error: {message}")
+            friendly = self._friendly_error(message)
+        else:
+            friendly = str(message)
         self.send_json_response({
             'status': 'error',
-            'error': {'message': message}
+            'error': {'message': friendly}
         }, status)
 
     def send_404(self):
         """Send 404 response"""
         self.send_error_response('Endpoint not found', 404)
+
+    def _log_request(self, method, path, status, start_time):
+        """Log request with method, path, status code, and response time."""
+        elapsed_ms = (_time_module.time() - start_time) * 1000
+        logging.info(f"[API] {method} {path} {status} {elapsed_ms:.0f}ms")
+
+    def _handle_health_check(self):
+        """GET /api/health — returns service status with counts."""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            obit_count = 0
+            vendor_count = 0
+            try:
+                cursor.execute('SELECT COUNT(*) FROM obituaries')
+                obit_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+            try:
+                cursor.execute('SELECT COUNT(*) FROM vendors')
+                vendor_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+            conn.close()
+            self.send_json_response({
+                'status': 'ok',
+                'obituaries': obit_count,
+                'vendors': vendor_count
+            })
+        except Exception:
+            self.send_json_response({'status': 'ok', 'obituaries': 0, 'vendors': 0})
+
+    def _get_client_ip(self):
+        """Get client IP from headers or socket."""
+        forwarded = self.headers.get('X-Forwarded-For', '')
+        if forwarded:
+            return forwarded.split(',')[0].strip()
+        return self.client_address[0] if self.client_address else '0.0.0.0'
+
+    def _send_rate_limit_error(self):
+        """Send a 429 Too Many Requests response."""
+        self.send_json_response({
+            'status': 'error',
+            'message': 'Too many requests. Please wait a few minutes before trying again.'
+        }, 429)
+
+    def _friendly_error(self, raw_message):
+        """Convert technical error messages to user-friendly text."""
+        msg = str(raw_message)
+        # Hide SQL / Python internals from users
+        if 'sqlite3' in msg.lower() or 'operationalerror' in msg.lower():
+            return 'A database error occurred. Please try again later.'
+        if 'no such table' in msg.lower():
+            return 'Service is initializing. Please try again in a moment.'
+        if 'database is locked' in msg.lower():
+            return 'The server is busy. Please try again in a moment.'
+        if 'filenotfounderror' in msg.lower() or 'database file not found' in msg.lower():
+            return 'Service temporarily unavailable. Please try again later.'
+        # Keep it short for other errors
+        if len(msg) > 200:
+            return 'An unexpected error occurred. Please try again later.'
+        return msg
 
     def log_message(self, format, *args):
         """Custom logging"""

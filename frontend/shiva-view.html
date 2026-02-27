@@ -1024,9 +1024,38 @@
             .footer-links { gap: 1.25rem; }
         }
 
+        /* ── Narrow phones (< 375px) ─────────────────── */
+        @media (max-width: 375px) {
+            .page-container { padding: 0 0.75rem 2rem; }
+            .meal-day-card { border-radius: 0.75rem; }
+            .meal-day-header { padding: 0.6rem 0.75rem; font-size: 0.88rem; }
+            .meal-slots-grid { grid-template-columns: 1fr; }
+            .meal-slot { min-height: 56px; padding: 0.65rem 0.75rem; }
+
+            /* Coverage summary wraps gracefully */
+            .coverage-summary { flex-wrap: wrap; gap: 0.5rem 1rem; justify-content: center; }
+            .coverage-stat { font-size: 0.82rem; }
+
+            /* Alt contribution section */
+            #altContribSection label { font-size: 0.88rem; }
+            #altOptions select, #altOptions input { font-size: 0.9rem; }
+
+            /* Updates feed */
+            #updatesFeed h3 { font-size: 1.15rem; }
+            #postUpdateSection { padding: 1rem; }
+            #postUpdateSection textarea { font-size: 0.92rem; }
+
+            /* Thank-you button — ensure 44px minimum tap target */
+            #sendThankYouBtn { min-height: 48px; padding: 0.75rem 1.5rem; font-size: 1rem; }
+
+            /* All inline buttons get minimum tap target */
+            .btn-primary, .btn-secondary { min-height: 48px; }
+        }
+
         @media (max-width: 360px) {
-            .meal-slot { padding: 0.6rem 0.5rem; min-height: 64px; }
+            .meal-slot { padding: 0.6rem 0.5rem; min-height: 56px; }
             .meal-slot.available .slot-action { font-size: 0.8rem; }
+            .info-card { padding: 1rem; }
         }
     </style>
     <meta name="twitter:card" content="summary_large_image">
