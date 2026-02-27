@@ -201,6 +201,79 @@ class ShivaManager:
             WHERE obituary_id IS NOT NULL AND status = 'active'
         ''')
 
+        # ── V2 Migrations ────────────────────────────────────────
+
+        # V2: shiva_support — 7 new columns
+        for col, defn in [
+            ('drop_off_instructions', 'TEXT'),
+            ('notification_prefs', "TEXT DEFAULT '{\"instant\":true,\"daily_summary\":true,\"uncovered_alert\":true}'"),
+            ('verification_status', "TEXT DEFAULT 'verified'"),
+            ('verification_token', 'TEXT'),
+            ('verified_at', 'TEXT'),
+            ('source', "TEXT DEFAULT 'web_standalone'"),
+            ('is_demo', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM shiva_support LIMIT 1')
+            except Exception:
+                cursor.execute(f'ALTER TABLE shiva_support ADD COLUMN {col} {defn}')
+
+        # V2: meal_signups — 5 new columns
+        for col, defn in [
+            ('signup_group_id', 'TEXT'),
+            ('status', "TEXT DEFAULT 'confirmed'"),
+            ('cancelled_at', 'TEXT'),
+            ('reminder_day_before', 'INTEGER DEFAULT 0'),
+            ('reminder_morning_of', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM meal_signups LIMIT 1')
+            except Exception:
+                cursor.execute(f'ALTER TABLE meal_signups ADD COLUMN {col} {defn}')
+
+        # V2: shiva_co_organizers table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_co_organizers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_support_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                magic_token TEXT NOT NULL,
+                invited_by_email TEXT NOT NULL,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT NOT NULL,
+                accepted_at TEXT,
+                FOREIGN KEY (shiva_support_id) REFERENCES shiva_support(id)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_coorg_shiva ON shiva_co_organizers(shiva_support_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_coorg_email ON shiva_co_organizers(email)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_coorg_token ON shiva_co_organizers(magic_token)')
+
+        # V2: email_log table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS email_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_support_id TEXT NOT NULL,
+                email_type TEXT NOT NULL,
+                recipient_email TEXT NOT NULL,
+                recipient_name TEXT,
+                related_signup_id INTEGER,
+                scheduled_for TEXT,
+                sent_at TEXT,
+                status TEXT DEFAULT 'pending',
+                error_message TEXT,
+                sendgrid_message_id TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (shiva_support_id) REFERENCES shiva_support(id),
+                FOREIGN KEY (related_signup_id) REFERENCES meal_signups(id)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_shiva ON email_log(shiva_support_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_status ON email_log(status)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_scheduled ON email_log(scheduled_for)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_email_type ON email_log(email_type)')
+
         conn.commit()
         conn.close()
 
