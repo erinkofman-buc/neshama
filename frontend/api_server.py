@@ -153,6 +153,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/email_popup.html': ('email_popup.html', 'text/html'),
         '/premium': ('premium.html', 'text/html'),
         '/premium.html': ('premium.html', 'text/html'),
+        '/sustain': ('premium.html', 'text/html'),
+        '/sustain-success': ('premium_success.html', 'text/html'),
+        '/sustain-cancelled': ('premium_cancelled.html', 'text/html'),
         '/favicon.svg': ('favicon.svg', 'image/svg+xml'),
         '/manifest.json': ('manifest.json', 'application/manifest+json'),
         '/sw.js': ('sw.js', 'application/javascript'),
@@ -1274,10 +1277,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         try:
             data = json.loads(body)
             email = data.get('email', '')
-            success_url = data.get('success_url', 'https://neshama.ca/premium-success')
-            cancel_url = data.get('cancel_url', 'https://neshama.ca/premium-cancelled')
+            success_url = data.get('success_url', 'https://neshama.ca/sustain-success')
+            cancel_url = data.get('cancel_url', 'https://neshama.ca/sustain-cancelled')
 
-            result = payment_mgr.create_checkout_session(email, success_url, cancel_url)
+            amount = data.get('amount', 18)
+            result = payment_mgr.create_checkout_session(email, success_url, cancel_url, amount=amount)
             self.send_json_response(result)
 
         except json.JSONDecodeError:
@@ -3107,8 +3111,9 @@ def run_server(port=None):
     logging.info(f" /confirm/{{token}} - Email confirmation")
     logging.info(f" /unsubscribe/{{token}} - Unsubscribe")
     logging.info(f" /manage-subscription - Stripe customer portal")
-    logging.info(f" /premium-success - Payment success")
-    logging.info(f" /premium-cancelled - Payment cancelled")
+    logging.info(f" /sustain - Community sustainer page")
+    logging.info(f" /sustain-success - Payment success")
+    logging.info(f" /sustain-cancelled - Payment cancelled")
     logging.info(f" /shiva/organize - Set up shiva support")
     logging.info(f" /shiva/{{id}} - Community support page")
     logging.info(f"\n API Endpoints:")

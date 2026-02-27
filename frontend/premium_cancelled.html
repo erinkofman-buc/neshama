@@ -11,6 +11,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -18,122 +19,105 @@
             --light-taupe: #D4C5B9;
             --soft-shadow: rgba(62, 39, 35, 0.08);
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Source Serif 4', serif;
-            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            background: var(--cream);
             color: var(--dark-brown);
             line-height: 1.7;
             min-height: 100vh;
         }
-        
+
         .container {
             max-width: 600px;
-            background: white;
-            border-radius: 2rem;
-            padding: 3rem;
-            box-shadow: 0 10px 40px var(--soft-shadow);
+            margin: 3rem auto;
+            padding: 3.5rem 2rem;
             text-align: center;
         }
-        
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-        }
-        
+
         h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 5vw, 2.5rem);
             font-weight: 400;
             margin-bottom: 1rem;
             color: var(--dark-brown);
         }
-        
+
         .message {
-            font-size: 1.2rem;
-            color: var(--sage);
+            font-size: 1.1rem;
+            color: var(--sage-dark);
             margin-bottom: 2rem;
         }
-        
+
         .info-box {
-            background: var(--warm-beige);
-            border-left: 4px solid var(--sage);
+            background: rgba(178, 190, 181, 0.12);
+            border-radius: 1rem;
             padding: 1.5rem;
-            margin: 2rem 0;
+            margin: 2rem auto;
+            max-width: 440px;
             text-align: left;
-            border-radius: 0.5rem;
         }
-        
+
         .info-box p {
+            font-size: 1rem;
             margin-bottom: 0.75rem;
         }
-        
-        .info-box strong {
-            color: var(--dark-brown);
+
+        .info-box ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
         }
-        
+
+        .info-box li {
+            margin-bottom: 0.35rem;
+        }
+
         .buttons {
             display: flex;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             justify-content: center;
         }
-        
+
         .btn {
             font-family: 'Source Serif 4', serif;
-            font-size: 1.1rem;
-            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            padding: 0.85rem 2.25rem;
             border-radius: 3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn-primary {
             background: var(--terracotta);
             color: white;
             border: none;
         }
-        
+
         .btn-primary:hover {
             background: #c45a1a;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
-        
+
         .btn-secondary {
             background: transparent;
             color: var(--dark-brown);
-            border: 2px solid var(--sage);
+            border: 1.5px solid var(--light-taupe);
         }
-        
+
         .btn-secondary:hover {
-            background: var(--warm-beige);
             border-color: var(--terracotta);
+            color: var(--terracotta);
         }
-        
+
         @media (max-width: 600px) {
-            .container {
-                padding: 2rem 1.5rem;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
+            .container { padding: 2.5rem 1.25rem; }
+            .buttons { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
         }
     </style>
     <meta name="twitter:card" content="summary_large_image">
@@ -153,28 +137,24 @@
             <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.4rem 1rem;border-radius:8px;font-weight:600;font-size:0.88rem;text-decoration:none;">Organize Shiva</a>
         </div>
     </nav>
-    <div class="container" style="margin: 3rem auto; padding: 3rem;">
-        <div class="icon">⏸️</div>
-        
-        <h1>Checkout Cancelled</h1>
-        <p class="message">No charges were made to your account</p>
-        
+    <div class="container">
+        <h1>No worries at all</h1>
+        <p class="message">No charges were made. Neshama is completely free to use.</p>
+
         <div class="info-box">
-            <p><strong>You can still enjoy Neshama for free:</strong></p>
-            <ul style="margin-top: 0.75rem; padding-left: 1.5rem;">
-                <li>Browse all obituaries</li>
+            <p>Everything on Neshama is available to you:</p>
+            <ul>
+                <li>Browse all obituary listings</li>
                 <li>Search by name</li>
                 <li>Share with family and friends</li>
+                <li>Coordinate shiva meals</li>
                 <li>Receive daily email updates</li>
             </ul>
-            <p style="margin-top: 1rem;">
-                Upgrade to Premium anytime for instant notifications, calendar integration, and more.
-            </p>
         </div>
-        
+
         <div class="buttons">
             <a href="/feed" class="btn btn-primary">Back to Listings</a>
-            <a href="javascript:history.back()" class="btn btn-secondary">Try Again</a>
+            <a href="/sustain" class="btn btn-secondary">Return to Sustain</a>
         </div>
     </div>
 </body>

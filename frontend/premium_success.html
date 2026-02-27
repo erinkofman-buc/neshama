@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Premium - Neshama</title>
+    <title>Thank You - Neshama</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -18,204 +19,111 @@
             --light-taupe: #D4C5B9;
             --soft-shadow: rgba(62, 39, 35, 0.08);
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Source Serif 4', serif;
-            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            background: var(--cream);
             color: var(--dark-brown);
             line-height: 1.7;
             min-height: 100vh;
         }
-        
+
         .container {
-            max-width: 700px;
-            background: white;
-            border-radius: 2rem;
-            padding: 4rem;
-            box-shadow: 0 10px 40px var(--soft-shadow);
+            max-width: 600px;
+            margin: 3rem auto;
+            padding: 3.5rem 2rem;
             text-align: center;
-            animation: fadeIn 0.6s ease;
         }
-        
-        .success-icon {
-            font-size: 5rem;
+
+        .chai-symbol {
+            font-size: 2rem;
+            color: var(--sage-dark);
+            letter-spacing: 0.2em;
             margin-bottom: 2rem;
-            animation: scaleIn 0.5s ease;
         }
-        
+
         h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 2.8rem);
             font-weight: 400;
-            margin-bottom: 1rem;
-            color: var(--dark-brown);
-        }
-        
-        .subtitle {
-            font-size: 1.3rem;
-            color: var(--sage);
-            margin-bottom: 3rem;
-        }
-        
-        .premium-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #D2691E 0%, #c45a1a 100%);
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 3rem;
-            letter-spacing: 1px;
-        }
-        
-        .features-unlocked {
-            background: var(--warm-beige);
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            margin: 2rem 0;
-            text-align: left;
-        }
-        
-        .features-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--dark-brown);
             margin-bottom: 1.5rem;
-            text-align: center;
+            color: var(--dark-brown);
         }
-        
-        .feature-list {
-            display: grid;
-            gap: 1.25rem;
+
+        .message {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.1rem;
+
+        .info-box {
+            background: rgba(178, 190, 181, 0.12);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            text-align: left;
+            max-width: 440px;
         }
-        
-        .feature-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
+
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.5rem;
         }
-        
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
         .buttons {
             display: flex;
             gap: 1rem;
-            margin-top: 3rem;
+            margin-top: 2.5rem;
             justify-content: center;
         }
-        
+
         .btn {
             font-family: 'Source Serif 4', serif;
-            font-size: 1.1rem;
-            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            padding: 0.85rem 2.25rem;
             border-radius: 3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn-primary {
             background: var(--terracotta);
             color: white;
             border: none;
         }
-        
+
         .btn-primary:hover {
             background: #c45a1a;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
-        
+
         .btn-secondary {
             background: transparent;
             color: var(--dark-brown);
-            border: 2px solid var(--sage);
+            border: 1.5px solid var(--light-taupe);
         }
-        
+
         .btn-secondary:hover {
-            background: var(--warm-beige);
             border-color: var(--terracotta);
-        }
-        
-        .info-box {
-            background: white;
-            border-left: 4px solid var(--terracotta);
-            padding: 1.5rem;
-            margin-top: 3rem;
-            text-align: left;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 10px var(--soft-shadow);
-        }
-        
-        .info-box h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-            color: var(--dark-brown);
-        }
-        
-        .info-box p {
-            font-size: 1rem;
-            color: var(--dark-brown);
-            margin-bottom: 0.5rem;
-        }
-        
-        .info-box a {
             color: var(--terracotta);
-            text-decoration: none;
-            font-weight: 600;
         }
-        
-        .info-box a:hover {
-            text-decoration: underline;
-        }
-        
+
         @media (max-width: 600px) {
-            .container {
-                padding: 2.5rem 1.5rem;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .features-unlocked {
-                padding: 1.5rem;
-            }
-            
-            .buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            .container { padding: 2.5rem 1.25rem; }
+            .buttons { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
         }
     </style>
     <meta name="twitter:card" content="summary_large_image">
@@ -235,68 +143,27 @@
             <a href="/shiva/organize" style="background:#C75B12;color:white;padding:0.4rem 1rem;border-radius:8px;font-weight:600;font-size:0.88rem;text-decoration:none;">Organize Shiva</a>
         </div>
     </nav>
-    <div class="container" style="margin: 3rem auto; padding: 4rem 4rem;">
-        <div class="success-icon">✨</div>
-        
-        <h1>Welcome to Neshama Premium!</h1>
-        <p class="subtitle">Your subscription is now active</p>
-        
-        <div class="premium-badge">PREMIUM MEMBER</div>
-        
-        <div class="features-unlocked">
-            <div class="features-title">What you now have access to:</div>
-            <div class="feature-list">
-                <div class="feature">
-                    <span class="feature-icon">🔔</span>
-                    <span><strong>Instant notifications</strong> when new obituaries are posted</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">📅</span>
-                    <span><strong>Calendar integration</strong> to add funerals to Google Calendar</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">⭐</span>
-                    <span><strong>Follow funeral homes</strong> for filtered notifications</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">🔍</span>
-                    <span><strong>Advanced search</strong> with filters and sorting</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">❤️</span>
-                    <span><strong>Supporting the community</strong> and keeping Neshama running</span>
-                </div>
-            </div>
-        </div>
-        
+    <div class="container">
+        <div class="chai-symbol">&#x05D7;&#x05D9;</div>
+
+        <h1>Thank you for sustaining Neshama</h1>
+
+        <p class="message">
+            Your support helps keep this service free for every family in our community. It is an act of real care, and it matters.
+        </p>
+
         <div class="info-box">
-            <h3>📧 Receipt & Subscription Details</h3>
-            <p>
-                A receipt has been sent to your email. You can manage your subscription 
-                (update payment method, view invoices, cancel) in your 
-                <a href="/manage-subscription">account settings</a>.
-            </p>
-            <p style="margin-top: 1rem;">
-                <strong>Renewal:</strong> Your subscription will auto-renew on 
-                <span id="renewalDate"></span> for $18/year.
-            </p>
+            <p>A receipt has been sent to your email from Stripe.</p>
+            <p>Your contribution will auto-renew in one year. You can cancel anytime from the link in your receipt email.</p>
         </div>
-        
+
         <div class="buttons">
-            <a href="/settings" class="btn btn-primary">Go to Settings</a>
-            <a href="/feed" class="btn btn-secondary">Back to Listings</a>
+            <a href="/feed" class="btn btn-primary">Return to Listings</a>
         </div>
     </div>
-    
+
     <script>
-        // Set renewal date
-        const renewalDate = new Date();
-        renewalDate.setFullYear(renewalDate.getFullYear() + 1);
-        document.getElementById('renewalDate').textContent = 
-            renewalDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-        
-        // Mark premium status in localStorage
-        localStorage.setItem('neshama_premium', 'true');
+        localStorage.setItem('neshama_sustainer', 'true');
     </script>
 </body>
 </html>

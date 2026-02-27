@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upgrade to Premium - Neshama</title>
+    <title>Sustain Neshama</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
+            --sage-dark: #8a9a8d;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -19,242 +19,193 @@
             --soft-shadow: rgba(62, 39, 35, 0.08);
             --warm-glow: rgba(210, 105, 30, 0.15);
         }
-        
-        /* Premium Upgrade Modal */
-        .premium-modal-overlay {
+
+        /* Sustain Modal */
+        .sustain-modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(62, 39, 35, 0.8);
+            background: rgba(62, 39, 35, 0.7);
             backdrop-filter: blur(6px);
             z-index: 10000;
             animation: fadeIn 0.3s ease;
         }
-        
-        .premium-modal-overlay.active {
+
+        .sustain-modal-overlay.active {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1rem;
         }
-        
-        .premium-modal {
+
+        .sustain-modal {
             background: white;
             border-radius: 1.5rem;
-            padding: 3rem;
-            max-width: 600px;
+            padding: 2.5rem;
+            max-width: 520px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             position: relative;
             animation: slideUp 0.4s ease;
         }
-        
+
         .modal-close {
             position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
+            top: 1.25rem;
+            right: 1.25rem;
             background: transparent;
             border: none;
             font-size: 1.5rem;
-            color: #B2BEB5;
+            color: var(--sage);
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        
+
         .modal-close:hover {
-            background: #F5F5DC;
-            color: #3E2723;
+            background: var(--warm-beige);
+            color: var(--dark-brown);
         }
-        
-        .premium-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #D2691E 0%, #c45a1a 100%);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.5px;
+
+        .modal-chai {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            letter-spacing: 0.15em;
+            margin-bottom: 1.25rem;
         }
-        
+
         .modal-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #3E2723;
-            margin-bottom: 1rem;
-        }
-        
-        .modal-subtitle {
-            font-size: 1.2rem;
-            color: #B2BEB5;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-        
-        .premium-features {
-            margin: 2rem 0;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: #FAF9F6;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-        }
-        
-        .feature-item:hover {
-            background: #F5F5DC;
-            transform: translateX(5px);
-        }
-        
-        .feature-icon {
-            font-size: 1.8rem;
-            flex-shrink: 0;
-        }
-        
-        .feature-content {
-            flex: 1;
-        }
-        
-        .feature-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #3E2723;
-            margin-bottom: 0.25rem;
-        }
-        
-        .feature-description {
-            font-size: 1rem;
-            color: #B2BEB5;
-            line-height: 1.5;
-        }
-        
-        .pricing-box {
-            background: linear-gradient(135deg, #FAF9F6 0%, #F5F5DC 100%);
-            border: 2px solid #D2691E;
-            border-radius: 1rem;
-            padding: 2rem;
-            margin: 2rem 0;
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            margin-bottom: 0.75rem;
             text-align: center;
         }
-        
-        .price-amount {
+
+        .modal-subtitle {
+            font-size: 1.05rem;
+            color: var(--sage-dark);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .modal-amount {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-amount .price {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 3.5rem;
-            font-weight: 600;
-            color: #D2691E;
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--terracotta);
             line-height: 1;
         }
-        
-        .price-currency {
-            font-size: 1.5rem;
-            vertical-align: super;
-        }
-        
-        .price-period {
-            font-size: 1.2rem;
-            color: #B2BEB5;
-            margin-top: 0.5rem;
-        }
-        
-        .price-chai {
+
+        .modal-amount .period {
             font-size: 1rem;
-            color: #B2BEB5;
-            font-style: italic;
-            margin-top: 0.5rem;
+            color: var(--sage-dark);
+            margin-top: 0.25rem;
         }
-        
-        .auto-renew-notice {
+
+        .modal-what {
+            margin: 1.5rem 0;
             font-size: 0.95rem;
-            color: #B2BEB5;
-            margin-top: 1rem;
-            line-height: 1.5;
+            color: var(--sage-dark);
+            line-height: 1.7;
         }
-        
+
+        .modal-what ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-what li {
+            padding: 0.35rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .modal-what li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.75rem;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--terracotta);
+            opacity: 0.5;
+        }
+
         .cta-buttons {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
         }
-        
-        .btn-upgrade {
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.2rem;
+
+        .btn-sustain {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
             font-weight: 600;
-            padding: 1.25rem 3rem;
-            background: #D2691E;
+            padding: 1rem 2.5rem;
+            background: var(--terracotta);
             color: white;
             border: none;
             border-radius: 3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 12px var(--warm-glow);
+        }
+
+        .btn-sustain:hover:not(:disabled) {
+            background: #c45a1a;
+            transform: translateY(-1px);
             box-shadow: 0 4px 20px var(--warm-glow);
         }
-        
-        .btn-upgrade:hover:not(:disabled) {
-            background: #c45a1a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px var(--warm-glow);
-        }
-        
-        .btn-upgrade:disabled {
+
+        .btn-sustain:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
-        
+
         .btn-later {
-            font-family: 'Crimson Pro', serif;
-            font-size: 1rem;
-            padding: 0.75rem 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.95rem;
+            padding: 0.6rem 1.5rem;
             background: transparent;
-            color: #3E2723;
-            border: 2px solid #B2BEB5;
-            border-radius: 3rem;
+            color: var(--sage-dark);
+            border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: color 0.2s ease;
         }
-        
+
         .btn-later:hover {
-            background: #F5F5DC;
-            border-color: #D2691E;
+            color: var(--dark-brown);
         }
-        
-        .trust-signals {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #D4C5B9;
-            flex-wrap: wrap;
+
+        .modal-disclaimer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--sage);
+            margin-top: 1.25rem;
+            line-height: 1.5;
         }
-        
-        .trust-signal {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: #B2BEB5;
-        }
-        
+
         @media (max-width: 600px) {
-            .premium-modal {
+            .sustain-modal {
                 padding: 2rem 1.5rem;
                 border-radius: 1rem 1rem 0 0;
                 position: fixed;
@@ -262,284 +213,168 @@
                 max-width: 100%;
                 animation: slideUpMobile 0.4s ease;
             }
-            
-            .modal-title {
-                font-size: 2rem;
-            }
-            
-            .price-amount {
-                font-size: 2.5rem;
-            }
-            
-            .trust-signals {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
+
+            .modal-title { font-size: 1.75rem; }
+            .modal-amount .price { font-size: 2.5rem; }
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        
+
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideUpMobile {
-            from {
-                opacity: 0;
-                transform: translateY(100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(100%); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Neshama — Every Soul Remembered">
-    <meta name="twitter:description" content="Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.">
-    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
-    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
-    <!-- Premium Upgrade Modal -->
-    <div class="premium-modal-overlay" id="premiumModal">
-        <div class="premium-modal">
-            <button class="modal-close" onclick="closePremiumModal()" aria-label="Close">×</button>
-            
-            <div class="premium-badge">✨ PREMIUM</div>
-            
-            <h2 class="modal-title">Upgrade to Neshama Premium</h2>
+    <!-- Sustain Neshama Modal -->
+    <div class="sustain-modal-overlay" id="premiumModal">
+        <div class="sustain-modal">
+            <button class="modal-close" onclick="closePremiumModal()" aria-label="Close">&times;</button>
+
+            <div class="modal-chai">&#x05D7;&#x05D9;</div>
+
+            <h2 class="modal-title">Sustain Neshama</h2>
             <p class="modal-subtitle">
-                Support our community and unlock powerful features
+                Neshama is free for every family. Your support keeps it that way.
             </p>
-            
-            <div class="premium-features">
-                <div class="feature-item">
-                    <div class="feature-icon">🔔</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Instant Notifications</div>
-                        <div class="feature-description">
-                            Get real-time browser alerts when new obituaries are posted
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="feature-item">
-                    <div class="feature-icon">📅</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Calendar Integration</div>
-                        <div class="feature-description">
-                            Add funeral services directly to Google Calendar with one click
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="feature-item">
-                    <div class="feature-icon">⭐</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Follow Funeral Homes</div>
-                        <div class="feature-description">
-                            Get notifications only for specific funeral homes you care about
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="feature-item">
-                    <div class="feature-icon">🔍</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Advanced Search</div>
-                        <div class="feature-description">
-                            Filter by location, date range, and more
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="feature-item">
-                    <div class="feature-icon">❤️</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Support the Community</div>
-                        <div class="feature-description">
-                            Keep Neshama running and help us serve the community
-                        </div>
-                    </div>
-                </div>
+
+            <div class="modal-amount">
+                <div class="price">$18</div>
+                <div class="period">per year &mdash; one chai</div>
             </div>
-            
-            <div class="pricing-box">
-                <div class="price-amount">
-                    <span class="price-currency">$</span>18
-                </div>
-                <div class="price-period">per year</div>
-                <div class="price-chai">Chai (חי) - A meaningful gift of life</div>
-                <div class="auto-renew-notice">
-                    Auto-renews annually. Cancel anytime.<br>
-                    You'll be charged $18 today, then $18 on <span id="renewalDate"></span>
-                </div>
+
+            <div class="modal-what">
+                <ul>
+                    <li>Daily obituary monitoring across funeral homes</li>
+                    <li>Meal coordination for grieving families</li>
+                    <li>A service that stays free for everyone</li>
+                </ul>
             </div>
-            
+
             <div class="cta-buttons">
-                <button class="btn-upgrade" onclick="startCheckout()" id="upgradeBtn">
-                    Upgrade to Premium
+                <button class="btn-sustain" onclick="startCheckout()" id="upgradeBtn">
+                    Sustain Neshama
                 </button>
                 <button class="btn-later" onclick="closePremiumModal()">
-                    Maybe Later
+                    Not right now
                 </button>
             </div>
-            
-            <div class="trust-signals">
-                <div class="trust-signal">
-                    <span>🔒</span>
-                    <span>Secure Payment</span>
-                </div>
-                <div class="trust-signal">
-                    <span>✓</span>
-                    <span>Cancel Anytime</span>
-                </div>
-                <div class="trust-signal">
-                    <span>🛡️</span>
-                    <span>30-Day Guarantee</span>
-                </div>
+
+            <div class="modal-disclaimer">
+                Voluntary contribution, not a charitable donation. Not tax-deductible.
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Set renewal date (1 year from now)
-        const renewalDate = new Date();
-        renewalDate.setFullYear(renewalDate.getFullYear() + 1);
-        document.getElementById('renewalDate').textContent = 
-            renewalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        
-        // Premium Modal Manager
-        class PremiumModalManager {
+        // Sustain Modal Manager
+        class SustainModalManager {
             constructor() {
                 this.modal = document.getElementById('premiumModal');
                 this.apiEndpoint = '/api/create-checkout';
             }
-            
+
             show() {
                 this.modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
-            
+
             hide() {
                 this.modal.classList.remove('active');
                 document.body.style.overflow = '';
             }
-            
+
             async createCheckout(email) {
-                const upgradeBtn = document.getElementById('upgradeBtn');
+                var upgradeBtn = document.getElementById('upgradeBtn');
                 upgradeBtn.disabled = true;
-                upgradeBtn.textContent = 'Redirecting to checkout...';
-                
+                upgradeBtn.textContent = 'Redirecting...';
+
                 try {
-                    const response = await fetch(this.apiEndpoint, {
+                    var response = await fetch(this.apiEndpoint, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: email,
-                            success_url: window.location.origin + '/premium-success',
-                            cancel_url: window.location.origin + '/premium-cancelled'
+                            success_url: window.location.origin + '/sustain-success',
+                            cancel_url: window.location.origin + '/sustain-cancelled'
                         })
                     });
-                    
-                    const data = await response.json();
-                    
+
+                    var data = await response.json();
+
                     if (data.url) {
-                        // Redirect to Stripe Checkout
                         window.location.href = data.url;
                     } else {
                         alert('Unable to start checkout. Please try again.');
                         upgradeBtn.disabled = false;
-                        upgradeBtn.textContent = 'Upgrade to Premium';
+                        upgradeBtn.textContent = 'Sustain Neshama';
                     }
-                    
                 } catch (error) {
                     alert('Unable to start checkout. Please try again.');
                     upgradeBtn.disabled = false;
-                    upgradeBtn.textContent = 'Upgrade to Premium';
+                    upgradeBtn.textContent = 'Sustain Neshama';
                 }
             }
         }
-        
+
         // Global instance
-        let premiumModal;
-        
+        var premiumModal;
+
         // Initialize
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                premiumModal = new PremiumModalManager();
+            document.addEventListener('DOMContentLoaded', function() {
+                premiumModal = new SustainModalManager();
             });
         } else {
-            premiumModal = new PremiumModalManager();
+            premiumModal = new SustainModalManager();
         }
-        
-        // Global functions
+
+        // Global functions (keep same names for backward compat with index.html)
         function showPremiumModal() {
-            if (premiumModal) {
-                premiumModal.show();
-            }
+            if (premiumModal) premiumModal.show();
         }
-        
+
         function closePremiumModal() {
-            if (premiumModal) {
-                premiumModal.hide();
-            }
+            if (premiumModal) premiumModal.hide();
         }
-        
+
         function startCheckout() {
-            // Get user email (from session, localStorage, or prompt)
-            const email = getUserEmail();
-            
+            var email = getUserEmail();
             if (!email) {
-                alert('Please subscribe to free email updates first');
+                alert('Please enter your email address first');
                 return;
             }
-            
-            if (premiumModal) {
-                premiumModal.createCheckout(email);
-            }
+            if (premiumModal) premiumModal.createCheckout(email);
         }
-        
+
         function getUserEmail() {
-            // In production, get from your authentication system
-            // For now, check localStorage or prompt
-            let email = localStorage.getItem('user_email');
-            
+            var email = localStorage.getItem('user_email');
             if (!email) {
                 email = prompt('Enter your email address:');
                 if (email && email.includes('@')) {
                     localStorage.setItem('user_email', email);
                 }
             }
-            
             return email;
         }
-        
+
         // Close on escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && premiumModal) {
-                closePremiumModal();
-            }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && premiumModal) closePremiumModal();
         });
-        
+
         // Close on overlay click
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('premium-modal-overlay')) {
-                closePremiumModal();
-            }
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('sustain-modal-overlay')) closePremiumModal();
         });
     </script>
 </body>

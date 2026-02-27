@@ -76,9 +76,9 @@ class PaymentManager:
         conn.commit()
         conn.close()
     
-    def create_checkout_session(self, email, success_url, cancel_url):
+    def create_checkout_session(self, email, success_url, cancel_url, amount=18):
         """
-        Create Stripe Checkout session for Premium subscription
+        Create Stripe Checkout session for community sustainer contribution
         Returns: {'url': 'checkout.stripe.com/...', 'session_id': '...'}
         """
         if not self.stripe_api_key:
@@ -91,6 +91,14 @@ class PaymentManager:
             # Create or retrieve Stripe customer
             customer = self.get_or_create_stripe_customer(email)
             
+            # Validate and convert amount to cents
+            try:
+                amount_cents = int(amount) * 100
+                if amount_cents < 100:
+                    amount_cents = 1800  # fallback to $18
+            except (ValueError, TypeError):
+                amount_cents = 1800
+
             # Create checkout session
             session = stripe.checkout.Session.create(
                 customer=customer.id,
@@ -99,10 +107,10 @@ class PaymentManager:
                     'price_data': {
                         'currency': self.currency,
                         'product_data': {
-                            'name': 'Neshama Premium',
-                            'description': 'Annual subscription - Every soul remembered',
+                            'name': 'Sustain Neshama',
+                            'description': 'Annual community sustainer contribution',
                         },
-                        'unit_amount': self.premium_annual_price,
+                        'unit_amount': amount_cents,
                         'recurring': {
                             'interval': 'year',
                         }
@@ -121,7 +129,7 @@ class PaymentManager:
                 billing_address_collection='required',
                 metadata={
                     'email': email,
-                    'product': 'neshama_premium_annual'
+                    'product': 'neshama_sustainer_annual'
                 }
             )
             
