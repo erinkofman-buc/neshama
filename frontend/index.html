@@ -1031,6 +1031,8 @@
             overflow: hidden;
             background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
             border-bottom: 1px solid rgba(212, 197, 185, 0.2);
+            position: relative;
+            flex-shrink: 0;
         }
 
         .card-image img {
@@ -1040,6 +1042,7 @@
             object-position: center 25%;
             display: block;
             transition: transform 0.25s ease;
+            position: relative;
         }
 
         .obituary-card:hover .card-image img {
@@ -1062,6 +1065,8 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 1;
         }
 
         .card-source {
@@ -1778,6 +1783,10 @@
                 max-width: 600px;
             }
 
+            .card-image {
+                flex-shrink: 0;
+            }
+
             .card-body {
                 padding: 1rem;
             }
@@ -1812,6 +1821,20 @@
             .share-menu {
                 bottom: auto;
                 top: calc(100% + 0.5rem);
+            }
+
+            .card-image {
+                aspect-ratio: 4 / 3;
+                max-height: 280px;
+            }
+
+            .card-image img {
+                max-height: 100%;
+            }
+
+            .card-body .card-source {
+                position: relative;
+                z-index: 2;
             }
 
             .card-photo-circle {
