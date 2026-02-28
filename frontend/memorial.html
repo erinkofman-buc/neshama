@@ -1277,6 +1277,7 @@
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
             <a href="/gifts">Send a Gift</a>
             <a href="/directory">Directory</a>
+            <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
@@ -1748,7 +1749,14 @@
                     candle: 'A candle has been lit. Thank you.'
                 };
                 msgEl.className = 'form-message success';
-                msgEl.textContent = successMsgs[entryType] || 'Thank you for your entry.';
+                var thankYou = successMsgs[entryType] || 'Thank you for your entry.';
+                // Show gentle sustain prompt (once, never for sustainers)
+                if (!localStorage.getItem('neshama_sustainer') && !localStorage.getItem('neshama_sustain_prompted')) {
+                    localStorage.setItem('neshama_sustain_prompted', '1');
+                    msgEl.innerHTML = thankYou + '<br><span style="font-size:0.9em;color:#6b7c6e;margin-top:0.3rem;display:inline-block;">Neshama is free for every family. <a href="/sustain" style="color:#D2691E;text-decoration:underline;">Help keep it that way.</a></span>';
+                } else {
+                    msgEl.textContent = thankYou;
+                }
                 nameInput.value = '';
                 relSelect.selectedIndex = 0;
                 messageInput.value = '';
