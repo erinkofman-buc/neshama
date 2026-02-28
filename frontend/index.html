@@ -1915,6 +1915,7 @@
         </button>
     </nav>
 
+    <main id="main-content">
     <!-- ════════════════════════════════════════════════════
          FILTER BAR
          ════════════════════════════════════════════════════ -->
@@ -1970,11 +1971,12 @@
         <button onclick="loadMore()">Load More</button>
     </div>
 
+    </main>
     <!-- ════════════════════════════════════════════════════
          FOOTER
          ════════════════════════════════════════════════════ -->
     <footer class="site-footer">
-        <nav class="footer-links">
+        <nav class="footer-links" aria-label="Footer navigation">
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
             <a href="/shiva-essentials">Shiva Essentials</a>
@@ -2005,7 +2007,7 @@
                 <div id="errorMessage" class="error-message"></div>
 
                 <form id="emailForm" class="email-form">
-                    <input type="email" id="emailInput" class="email-input" placeholder="Enter your email address" required aria-required="true" autocomplete="email">
+                    <input type="email" id="emailInput" class="email-input" placeholder="Enter your email address" required aria-required="true" autocomplete="email" aria-label="Email address">
 
                     <div style="margin: 0.75rem 0; font-size: 0.95rem;">
                         <p style="font-weight: 600; color: #3E2723; margin-bottom: 0.4rem;">Frequency</p>

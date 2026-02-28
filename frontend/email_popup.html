@@ -274,13 +274,13 @@
 </head>
 <body>
     <!-- Email Subscription Popup -->
-    <div class="email-popup-overlay" id="emailPopup">
+    <div class="email-popup-overlay" id="emailPopup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
         <div class="email-popup">
             <button class="popup-close" onclick="closeEmailPopup()" aria-label="Close">×</button>
             
             <!-- Form View -->
             <div id="formView">
-                <h2 class="popup-title">Daily obituary updates via email</h2>
+                <h2 class="popup-title" id="popupTitle">Daily obituary updates via email</h2>
                 <p class="popup-description">
                     Stay informed when new obituaries are posted. Never miss an opportunity to support our community.
                 </p>
@@ -295,6 +295,7 @@
                         placeholder="Enter your email address"
                         required
                         autocomplete="email"
+                        aria-label="Email address"
                     >
 
                     <div style="margin: 0.5rem 0; font-size: 0.95rem; font-family: 'Crimson Pro', serif;">

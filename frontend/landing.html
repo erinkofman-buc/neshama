@@ -208,9 +208,9 @@
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
-    <a href="#main" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <nav class="top-nav" id="nav">
+    <nav class="top-nav" id="nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
@@ -229,6 +229,7 @@
         </button>
     </nav>
 
+    <main id="main-content">
     <!-- Hero -->
     <section class="hero" role="banner">
         <div class="hero-content" id="main">
@@ -347,7 +348,7 @@
             </p>
             <form id="subscribeForm" class="reveal reveal-d2" style="text-align: left;">
                 <div id="subscribeError" style="display:none; background:rgba(239,83,80,0.15); border:1px solid rgba(239,83,80,0.4); color:#ffcdd2; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:0.95rem;"></div>
-                <input type="email" id="subscribeEmail" placeholder="Your email address" required autocomplete="email"
+                <input type="email" id="subscribeEmail" placeholder="Your email address" required autocomplete="email" aria-label="Email address for updates"
                     style="width:100%; font-family:var(--font-body); font-size:1.05rem; padding:0.9rem 1.25rem; border:1.5px solid rgba(251,246,240,0.2); border-radius:8px; background:rgba(251,246,240,0.08); color:var(--cream); outline:none; margin-bottom:1.25rem; box-sizing:border-box;">
 
                 <div style="margin-bottom:1.25rem;">
@@ -396,6 +397,7 @@
         </div>
     </section>
 
+    </main>
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
         <div class="footer-inner">
@@ -403,7 +405,7 @@
                 <div class="footer-brand">Neshama</div>
                 <p class="footer-tagline">Built with care for the Jewish community</p>
             </div>
-            <div class="footer-columns">
+            <nav class="footer-columns" aria-label="Footer navigation">
                 <div class="footer-col">
                     <h4>Browse</h4>
                     <a href="/feed">Obituary Listings</a>
@@ -425,7 +427,7 @@
                     <a href="/privacy">Privacy Policy</a>
                     <a href="mailto:contact@neshama.ca">Contact</a>
                 </div>
-            </div>
+            </nav>
         </div>
         <div class="footer-bottom">
             <p class="footer-copy">&copy; 2026 Neshama</p>

@@ -236,13 +236,13 @@
 </head>
 <body>
     <!-- Sustain Neshama Modal -->
-    <div class="sustain-modal-overlay" id="premiumModal">
+    <div class="sustain-modal-overlay" id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="sustainModalTitle">
         <div class="sustain-modal">
             <button class="modal-close" onclick="closePremiumModal()" aria-label="Close">&times;</button>
 
-            <div class="modal-chai">&#x05D7;&#x05D9;</div>
+            <div class="modal-chai" aria-hidden="true">&#x05D7;&#x05D9;</div>
 
-            <h2 class="modal-title">Sustain Neshama</h2>
+            <h2 class="modal-title" id="sustainModalTitle">Sustain Neshama</h2>
             <p class="modal-subtitle">
                 Neshama is free for every family. Your support keeps it that way.
             </p>
