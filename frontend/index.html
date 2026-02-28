@@ -2024,9 +2024,9 @@
 
             <!-- Form View -->
             <div id="formView">
-                <h2 id="popupTitle" class="popup-title">Daily obituary updates via email</h2>
+                <h2 id="popupTitle" class="popup-title">Stay connected to our community</h2>
                 <p class="popup-description">
-                    Receive a daily digest of new obituaries from Jewish funeral homes. Never miss an opportunity to support our community.
+                    When someone in our community passes away, you'll know &mdash; so you can show up when it matters.
                 </p>
 
                 <div id="errorMessage" class="error-message"></div>
@@ -2060,21 +2060,21 @@
 
                     <label class="consent-label">
                         <input type="checkbox" id="consentCheckbox" required aria-required="true">
-                        <span>I consent to receive email updates from Neshama (contact@neshama.ca). Unsubscribe anytime.</span>
+                        <span>Yes, send me updates from Neshama. I can unsubscribe anytime.</span>
                     </label>
 
                     <div class="popup-buttons">
                         <button type="submit" id="subscribeBtn" class="btn-subscribe">
-                            Get Updates
+                            Keep Me Informed
                         </button>
                         <button type="button" onclick="closeEmailPopup()" class="btn-later">
-                            Not Now
+                            Not Right Now
                         </button>
                     </div>
                 </form>
 
                 <p class="popup-footer-text">
-                    Free forever. <a href="/privacy" class="popup-privacy-link">Privacy Policy</a>
+                    Unsubscribe anytime. <a href="/privacy" class="popup-privacy-link">Privacy Policy</a>
                 </p>
             </div>
 
@@ -2083,11 +2083,10 @@
                 <div class="success-icon">&#x2709;&#xFE0F;</div>
                 <h2 class="popup-title">Check your email!</h2>
                 <p class="popup-description success-description">
-                    We sent a confirmation email to <strong id="confirmedEmail"></strong>
-                    <br><br>Click the link in the email to confirm your subscription.
-                    <br><br>(Check your spam folder if you don't see it)
+                    We sent a confirmation to <strong id="confirmedEmail"></strong>.
+                    <br><br>Click the link in the email to start receiving updates.
+                    <br><br><span style="color:#8B7E74;">(Check your spam folder if you don't see it)</span>
                 </p>
-                <p style="font-size:0.9rem;color:#6b7c6e;margin-top:1rem;line-height:1.5;">Neshama is free for every family, always. <a href="/sustain" style="color:#D2691E;">Help us keep it that way.</a></p>
             </div>
         </div>
     </div>
@@ -2274,7 +2273,7 @@
                         errEl.textContent = data.message || 'We weren\'t able to sign you up. Please try again.';
                         errEl.classList.add('active');
                         subscribeBtn.disabled = false;
-                        subscribeBtn.textContent = 'Get Updates';
+                        subscribeBtn.textContent = 'Keep Me Informed';
                     }
                 })
                 .catch(function() {
@@ -2282,7 +2281,7 @@
                     errEl.textContent = 'We weren\'t able to connect right now. Please try again.';
                     errEl.classList.add('active');
                     subscribeBtn.disabled = false;
-                    subscribeBtn.textContent = 'Get Updates';
+                    subscribeBtn.textContent = 'Keep Me Informed';
                 });
             });
         }

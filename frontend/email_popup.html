@@ -280,9 +280,9 @@
             
             <!-- Form View -->
             <div id="formView">
-                <h2 class="popup-title" id="popupTitle">Daily obituary updates via email</h2>
+                <h2 class="popup-title" id="popupTitle">Stay connected to our community</h2>
                 <p class="popup-description">
-                    Stay informed when new obituaries are posted. Never miss an opportunity to support our community.
+                    When someone in our community passes away, you'll know &mdash; so you can show up when it matters.
                 </p>
                 
                 <div class="error-message" id="errorMessage"></div>
@@ -324,22 +324,21 @@
 
                     <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 0.5rem 0; font-size: 0.9rem; color: #8B7E74; line-height: 1.5; font-family: 'Crimson Pro', serif; cursor: pointer;">
                         <input type="checkbox" id="popupConsent" required style="accent-color: #D2691E; margin-top: 3px; flex-shrink: 0;">
-                        I consent to receive email updates from Neshama (contact@neshama.ca). Unsubscribe anytime.
+                        Yes, send me updates from Neshama. I can unsubscribe anytime.
                     </label>
 
                     <div class="popup-buttons">
                         <button type="submit" class="btn-subscribe" id="subscribeBtn">
-                            Get Updates
+                            Keep Me Informed
                         </button>
                         <button type="button" class="btn-later" onclick="closeEmailPopup()">
-                            Not Now
+                            Not Right Now
                         </button>
                     </div>
                 </form>
 
                 <p class="popup-footer">
-                    Free forever. Unsubscribe anytime.<br>
-                    We respect your privacy.
+                    Unsubscribe anytime. We respect your privacy.
                 </p>
             </div>
             
@@ -348,11 +347,11 @@
                 <div class="success-icon">✉️</div>
                 <h2 class="success-title">Check your email!</h2>
                 <p class="success-text">
-                    We sent a confirmation email to <strong id="confirmedEmail"></strong>
+                    We sent a confirmation to <strong id="confirmedEmail"></strong>.
                     <br><br>
-                    Click the link in the email to confirm your subscription.
+                    Click the link in the email to start receiving updates.
                     <br><br>
-                    (Check your spam folder if you don't see it)
+                    <span style="color:#B2BEB5;">(Check your spam folder if you don't see it)</span>
                 </p>
             </div>
         </div>
@@ -517,7 +516,7 @@
             } else {
                 emailPopupManager.showError(result.error);
                 subscribeBtn.disabled = false;
-                subscribeBtn.textContent = 'Get Updates';
+                subscribeBtn.textContent = 'Keep Me Informed';
             }
         }
         
