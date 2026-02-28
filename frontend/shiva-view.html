@@ -1104,8 +1104,8 @@
     <!-- Error State -->
     <div class="page-container" id="errorState" style="display: none;">
         <div class="error-state">
-            <h2>Support Page Not Found</h2>
-            <p>This support page may have been archived or the link may be incorrect.</p>
+            <h2>We Couldn't Find This Page</h2>
+            <p>This support page may have been archived, or the link may be incorrect.</p>
             <a href="/feed">Return to Listings</a>
         </div>
     </div>
@@ -1510,7 +1510,7 @@
 
             <div class="modal-btn-row">
                 <button class="btn-secondary" id="reportCancelBtn">Cancel</button>
-                <button class="btn-primary" id="reportSubmitBtn">Submit Report</button>
+                <button class="btn-primary" id="reportSubmitBtn">Send Report</button>
             </div>
         </div>
     </div>
@@ -1746,7 +1746,7 @@
                     // Already approved — reload with token
                     window.location.href = '/shiva/' + encodeURIComponent(supportId) + '?access=' + encodeURIComponent(result.access_token);
                 } else {
-                    errEl.textContent = result.message || 'Something went wrong.';
+                    errEl.textContent = result.message || 'We weren\'t able to send your request. Please try again.';
                     errEl.style.display = '';
                     btn.disabled = false;
                     btn.textContent = 'Send Request';
@@ -2447,13 +2447,13 @@
                     showConfirmation(data, name, mealDescription);
                     refreshMeals();
                 } else {
-                    throw new Error(data.message || 'Failed to sign up');
+                    throw new Error(data.message || 'We weren\'t able to complete your signup. Please try again.');
                 }
             })
             .catch(function(err) {
                 btn.disabled = false;
                 btn.textContent = 'Sign Up';
-                errEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errEl.textContent = err.message || 'We weren\'t able to complete your signup. Please try again.';
                 errEl.classList.add('active');
             });
         });
@@ -2532,11 +2532,11 @@
                 if (data.status === 'success') {
                     refreshMeals();
                 } else {
-                    alert(data.message || 'Failed to remove signup');
+                    alert(data.message || 'We weren\'t able to remove this signup. Please try again.');
                 }
             })
             .catch(function() {
-                alert('Something went wrong. Please try again.');
+                alert('We weren\'t able to remove this signup. Please try again.');
             });
         }
 
@@ -2564,7 +2564,7 @@
             document.getElementById('reportReason').value = '';
             document.getElementById('reportError').classList.remove('active');
             document.getElementById('reportSubmitBtn').disabled = false;
-            document.getElementById('reportSubmitBtn').textContent = 'Submit Report';
+            document.getElementById('reportSubmitBtn').textContent = 'Send Report';
             document.getElementById('reportModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -2600,7 +2600,7 @@
             }
 
             btn.disabled = true;
-            btn.textContent = 'Submitting...';
+            btn.textContent = 'Sending...';
             errEl.classList.remove('active');
 
             fetch('/api/shiva/' + encodeURIComponent(supportId) + '/report', {
@@ -2612,15 +2612,15 @@
             .then(function(data) {
                 if (data.status === 'success') {
                     closeReportModal();
-                    alert('Thank you. Your report has been submitted and will be reviewed.');
+                    alert('Thank you. Your report has been received and will be reviewed.');
                 } else {
-                    throw new Error(data.message || 'Failed to submit report');
+                    throw new Error(data.message || 'We weren\'t able to send your report. Please try again.');
                 }
             })
             .catch(function(err) {
                 btn.disabled = false;
-                btn.textContent = 'Submit Report';
-                errEl.textContent = err.message || 'Something went wrong. Please try again.';
+                btn.textContent = 'Send Report';
+                errEl.textContent = err.message || 'We weren\'t able to send your report. Please try again.';
                 errEl.classList.add('active');
             });
         });
@@ -2757,7 +2757,7 @@
                 } else {
                     btn.disabled = false;
                     btn.textContent = 'Send Thank-You Notes';
-                    alert(result.message || 'Something went wrong');
+                    alert(result.message || 'We weren\'t able to send the thank-you notes right now. Please try again.');
                 }
             })
             .catch(function() {

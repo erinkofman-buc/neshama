@@ -54,7 +54,10 @@
             min-height: 100vh;
         }
 
-        a:focus-visible, button:focus-visible {
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
+        a:focus-visible, button:focus-visible, .faq-question:focus-visible {
             outline: 2px solid var(--terracotta);
             outline-offset: 3px;
             border-radius: 4px;
@@ -312,7 +315,8 @@
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
-    <nav class="top-nav">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
@@ -331,6 +335,7 @@
         </button>
     </nav>
 
+    <main id="main-content">
     <div class="page-hero">
         <h1>Frequently Asked Questions</h1>
         <p class="subtitle">Everything you need to know</p>
@@ -422,21 +427,40 @@
     </div>
 
     <script>
+        document.querySelectorAll('.faq-question').forEach(function(q) {
+            q.setAttribute('role', 'button');
+            q.setAttribute('tabindex', '0');
+            var item = q.closest('.faq-item');
+            q.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
+        });
         document.querySelectorAll('.faq-item').forEach(function(item) {
-            item.addEventListener('click', function() {
+            var q = item.querySelector('.faq-question');
+            function toggle() {
                 var wasOpen = item.classList.contains('open');
                 document.querySelectorAll('.faq-item').forEach(function(i) {
                     i.classList.remove('open');
+                    var iq = i.querySelector('.faq-question');
+                    if (iq) iq.setAttribute('aria-expanded', 'false');
                 });
                 if (!wasOpen) {
                     item.classList.add('open');
+                    if (q) q.setAttribute('aria-expanded', 'true');
                 }
-            });
+            }
+            item.addEventListener('click', toggle);
+            if (q) {
+                q.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggle();
+                    }
+                });
+            }
         });
     </script>
-
+    </main>
     <footer>
-        <nav class="footer-links">
+        <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/shiva-essentials">Shiva Essentials</a>

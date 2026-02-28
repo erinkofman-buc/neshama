@@ -1353,7 +1353,7 @@
             var errEl = document.getElementById('step3Error');
 
             btn.disabled = true;
-            btn.textContent = 'Creating...';
+            btn.textContent = 'Setting up...';
             errEl.classList.remove('active');
 
             var payload = {
@@ -1415,13 +1415,13 @@
                     btn.textContent = 'Set Up Support Page';
                     showSimilarMatches(data.matches);
                 } else {
-                    throw new Error(data.message || 'Failed to create support page');
+                    throw new Error(data.message || 'We weren\'t able to set up the support page. Please try again.');
                 }
             })
             .catch(function(err) {
                 btn.disabled = false;
                 btn.textContent = 'Set Up Support Page';
-                errEl.textContent = err.message || 'Something went wrong. Please try again.';
+                errEl.textContent = err.message || 'We weren\'t able to set up the page. Please try again.';
                 errEl.classList.add('active');
             });
         }

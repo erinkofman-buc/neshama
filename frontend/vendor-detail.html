@@ -55,6 +55,9 @@
         a { color: var(--terracotta); text-decoration: none; }
         a:hover { text-decoration: underline; }
 
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
         a:focus-visible, button:focus-visible {
             outline: 2px solid var(--terracotta);
             outline-offset: 3px;
@@ -373,7 +376,8 @@
 </head>
 <body>
 
-    <nav class="top-nav">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
@@ -399,11 +403,12 @@
 
     <!-- Not Found state -->
     <div class="page-msg" id="notFoundState" style="display:none;">
-        <h2>Vendor Not Found</h2>
-        <p>This vendor may have been removed or the link may be incorrect.</p>
+        <h2>We Couldn't Find This Vendor</h2>
+        <p>This listing may have been removed, or the link may be incorrect.</p>
         <p style="margin-top:1rem;"><a href="/directory">&larr; Back to Directory</a></p>
     </div>
 
+    <main id="main-content">
     <!-- Main Content -->
     <div id="mainContent" style="display:none;">
 
@@ -478,8 +483,9 @@
         </div>
     </div>
 
+    </main>
     <footer>
-        <nav class="footer-links">
+        <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
@@ -625,14 +631,14 @@
                     submitBtn.textContent = 'Sent!';
                 } else {
                     msgEl.className = 'form-msg error';
-                    msgEl.textContent = data.message || 'Something went wrong. Please try again.';
+                    msgEl.textContent = data.message || 'We weren\'t able to send your request. Please try again.';
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Send Request';
                 }
             })
             .catch(function() {
                 msgEl.className = 'form-msg error';
-                msgEl.textContent = 'Unable to send request. Please try again.';
+                msgEl.textContent = 'We weren\'t able to send your request. Please try again.';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Send Request';
             });

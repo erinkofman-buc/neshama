@@ -64,6 +64,9 @@
             min-height: 100vh;
         }
 
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
         a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
             outline: 2px solid var(--terracotta);
             outline-offset: 3px;
@@ -1065,8 +1068,8 @@
 </head>
 <body>
 
-    <!-- Navigation -->
-<nav class="top-nav">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+<nav class="top-nav" aria-label="Main navigation">
     <a href="/" class="nav-logo">Neshama</a>
     <div class="nav-center" id="navLinks">
         <div class="nav-group-primary">
@@ -1085,6 +1088,7 @@
     </button>
 </nav>
 
+    <main id="main-content">
     <!-- Page Loading State -->
     <div class="memorial-container" id="pageLoading">
         <div class="page-loading">
@@ -1263,8 +1267,9 @@
     </div>
 
     <!-- Footer -->
+    </main>
     <footer class="site-footer">
-        <nav class="footer-links">
+        <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
@@ -1756,7 +1761,7 @@
             })
             .catch(function(err) {
                 msgEl.className = 'form-message error';
-                msgEl.textContent = err.message || 'Unable to submit. Please try again.';
+                msgEl.textContent = err.message || 'We weren\'t able to save your entry. Please try again.';
                 btn.disabled = false;
                 btn.textContent = originalText;
             });

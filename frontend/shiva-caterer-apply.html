@@ -596,7 +596,7 @@
 
             <div class="form-error" id="formError"></div>
 
-            <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Submit Application</button>
+            <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Send Application</button>
         </div>
 
         <div class="success-card" id="successCard">
@@ -688,7 +688,7 @@
             };
 
             btn.disabled = true;
-            btn.textContent = 'Submitting...';
+            btn.textContent = 'Sending...';
 
             fetch('/api/caterers/apply', {
                 method: 'POST',
@@ -702,17 +702,17 @@
                     document.getElementById('successCard').classList.add('active');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    errEl.textContent = result.message || 'Something went wrong. Please try again.';
+                    errEl.textContent = result.message || 'We weren\'t able to send your application. Please try again.';
                     errEl.classList.add('active');
                     btn.disabled = false;
-                    btn.textContent = 'Submit Application';
+                    btn.textContent = 'Send Application';
                 }
             })
             .catch(function() {
                 errEl.textContent = 'Network error. Please check your connection and try again.';
                 errEl.classList.add('active');
                 btn.disabled = false;
-                btn.textContent = 'Submit Application';
+                btn.textContent = 'Send Application';
             });
         }
     </script>

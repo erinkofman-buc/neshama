@@ -539,7 +539,7 @@
                     }
                 })
                 .catch(function() {
-                    errEl.textContent = 'Unable to connect. Please try again.';
+                    errEl.textContent = 'We weren\'t able to connect right now. Please try again.';
                     errEl.style.display = 'block';
                     btn.disabled = false;
                     btn.textContent = 'Get Updates';
@@ -592,7 +592,7 @@
             .catch(function() {
                 var grid = document.getElementById('obitsGrid');
                 if (grid) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic;">Unable to load obituaries right now. Please try again later.</div>';
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic;">We couldn\'t load the listings right now. Please try again in a moment.</div>';
                 }
             });
     })();

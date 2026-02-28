@@ -557,12 +557,12 @@
                         renderCaterers();
                     } else {
                         document.getElementById('catererList').innerHTML =
-                            '<div class="empty-state">Unable to load caterers. Please try again later.</div>';
+                            '<div class="empty-state">We couldn\'t load the caterer listings right now. Please try again in a moment.</div>';
                     }
                 })
                 .catch(function() {
                     document.getElementById('catererList').innerHTML =
-                        '<div class="empty-state">Unable to load caterers. Please try again later.</div>';
+                        '<div class="empty-state">We couldn\'t load the caterer listings right now. Please try again in a moment.</div>';
                 });
         }
 
