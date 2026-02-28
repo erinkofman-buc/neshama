@@ -5,17 +5,27 @@
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unsubscribed - Neshama</title>
+    <meta name="description" content="You have been unsubscribed from Neshama email updates. You can always resubscribe or visit us anytime.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta property="og:title" content="Unsubscribed - Neshama">
+    <meta property="og:description" content="You have been unsubscribed from Neshama email updates.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Unsubscribed - Neshama">
+    <meta name="twitter:description" content="You have been unsubscribed from Neshama email updates.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --sage: #B2BEB5;
-            --sage-dark: #8a9a8d;
+            --sage-dark: #6b7c6e;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -253,7 +263,7 @@
 </nav>
 
 <div class="container">
-    <h1>You've been unsubscribed</h1>
+    <h1>You've been removed from our list</h1>
 
     <p class="message">
         You will no longer receive daily obituary emails from Neshama.
@@ -294,7 +304,7 @@
             <input type="text" class="feedback-other" id="otherReason" placeholder="Please specify...">
         </div>
 
-        <button class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+        <button class="btn btn-primary" onclick="submitFeedback()">Share Your Thoughts</button>
     </div>
 
     <div class="resubscribe-section">
@@ -339,7 +349,7 @@
         }
 
         if (reasons.length === 0) {
-            alert('Please select at least one reason');
+            alert('Please select at least one reason so we can do better.');
             return;
         }
 
@@ -353,11 +363,11 @@
             })
         })
         .then(function() {
-            alert('Thank you for your feedback!');
+            alert('Thank you for sharing. We appreciate it.');
             document.querySelector('.feedback-section').innerHTML = '<p style="color: var(--sage-dark); font-size: 1.1rem; padding: 1rem 0;">Thank you for your feedback.</p>';
         })
         .catch(function() {
-            alert('Feedback submitted. Thank you!');
+            alert('Thank you for sharing. We appreciate it.');
         });
     }
 </script>

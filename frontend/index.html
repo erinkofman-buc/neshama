@@ -13,14 +13,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Neshama">
-    <meta property="og:title" content="Neshama - Toronto Jewish Obituaries">
-    <meta property="og:description" content="One place to honor every soul in Toronto's Jewish community.">
+    <link rel="canonical" href="https://neshama.ca/feed">
+    <meta property="og:title" content="Neshama - Every Soul Remembered">
+    <meta property="og:description" content="View the latest obituaries from Toronto and Montreal's Jewish funeral homes. Search by name, share with family, and stay connected to your community.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca/feed">
     <meta property="og:site_name" content="Neshama">
     <meta property="og:image" content="https://neshama.ca/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Neshama - Every Soul Remembered">
+    <meta name="twitter:description" content="View the latest obituaries from Toronto and Montreal's Jewish funeral homes. Search by name, share with family, and stay connected to your community.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1887,7 +1892,8 @@
     <!-- ════════════════════════════════════════════════════
          TOP NAVIGATION
          ════════════════════════════════════════════════════ -->
-    <nav class="top-nav">
+    <a href="#feed" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
@@ -2203,7 +2209,7 @@
                 }
 
                 subscribeBtn.disabled = true;
-                subscribeBtn.textContent = 'Subscribing...';
+                subscribeBtn.textContent = 'Joining...';
 
                 // Hide any previous error
                 var errEl = document.getElementById('errorMessage');
@@ -2234,7 +2240,7 @@
                         localStorage.setItem('neshama_subscribed', 'true');
                     } else {
                         var errEl = document.getElementById('errorMessage');
-                        errEl.textContent = data.message || 'Subscription failed';
+                        errEl.textContent = data.message || 'We weren\'t able to sign you up. Please try again.';
                         errEl.classList.add('active');
                         subscribeBtn.disabled = false;
                         subscribeBtn.textContent = 'Get Updates';
