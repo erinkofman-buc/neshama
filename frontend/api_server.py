@@ -3430,6 +3430,11 @@ def run_server(port=None):
             "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'lesters-deli' AND category != 'Restaurants & Delis'",
             "UPDATE vendors SET category = 'Kosher Restaurants & Caterers' WHERE slug = 'wok--bowl' AND category != 'Kosher Restaurants & Caterers'",
             "UPDATE vendors SET category = 'Gift Baskets' WHERE slug = 'gifting-kosher-canada' AND category != 'Gift Baskets'",
+            # Migration 2026-02-28b: Fix Bagel World false kosher certification + wrong address
+            ("UPDATE vendors SET kosher_status = 'not_certified', address = '336 Wilson Ave, Toronto, ON', "
+             "website = 'https://bagelworld.ca', "
+             "description = 'Popular North York bagel shop since 1963, offering fresh bagels, cream cheese spreads, lox platters, and catering trays. Jewish-owned, kosher-style cooking but not formally certified.' "
+             "WHERE slug = 'bagel-world' AND kosher_status != 'not_certified'"),
         ]
         total_changed = 0
         for sql in vendor_updates:

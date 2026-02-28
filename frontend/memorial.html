@@ -1845,7 +1845,13 @@
                         show('supportSection');
                     } else {
                         // Hero CTA: organize meals for this family
-                        var familyName = obituaryData ? obituaryData.deceased_name.split(' ').pop() : '';
+                        var familyName = '';
+                        if (obituaryData && obituaryData.deceased_name) {
+                            // Strip parenthetical content (née Ifergan), titles, and get actual last name
+                            var cleanName = obituaryData.deceased_name.replace(/\s*\([^)]*\)\s*/g, '').replace(/^(Dr\.|Mr\.|Mrs\.|Ms\.|Rabbi|Rev\.|Hon\.)\s+/i, '').trim();
+                            var parts = cleanName.split(/\s+/).filter(function(p) { return p.length > 0; });
+                            if (parts.length > 0) familyName = parts[parts.length - 1];
+                        }
                         // Build organize URL with pre-filled shiva data
                         var organizeUrl = '/shiva/organize?obit=' + encodeURIComponent(obitId);
                         if (obituaryData && obituaryData.shiva_address) {
