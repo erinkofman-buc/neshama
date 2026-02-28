@@ -121,6 +121,17 @@ except Exception as e:
     shiva_mgr = None
     logging.info(f" Shiva support: Not available ({e})")
 
+# Optional Yahrzeit Reminder import
+try:
+    from yahrzeit_manager import YahrzeitManager
+    yahrzeit_mgr = YahrzeitManager(db_path=DB_PATH)
+    YAHRZEIT_AVAILABLE = True
+    logging.info(f" Yahrzeit reminders: Available")
+except Exception as e:
+    YAHRZEIT_AVAILABLE = False
+    yahrzeit_mgr = None
+    logging.info(f" Yahrzeit reminders: Not available ({e})")
+
 # Email queue processor (v2)
 try:
     from email_queue import process_email_queue, log_immediate_email
@@ -182,6 +193,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/gifts.html': ('gifts.html', 'text/html'),
         '/gifts/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/plant-a-tree': ('plant-a-tree.html', 'text/html'),
+        '/yahrzeit': ('yahrzeit.html', 'text/html'),
+        '/yahrzeit.html': ('yahrzeit.html', 'text/html'),
         '/sitemap.xml': ('sitemap.xml', 'application/xml'),
         '/robots.txt': ('robots.txt', 'text/plain'),
     }
@@ -283,6 +296,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         # Memorial pages
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
+        # Yahrzeit confirm/unsubscribe routes
+        elif path.startswith('/yahrzeit/confirm/'):
+            token = path[len('/yahrzeit/confirm/'):]
+            self.handle_yahrzeit_confirm(token)
+        elif path.startswith('/yahrzeit/unsubscribe/'):
+            token = path[len('/yahrzeit/unsubscribe/'):]
+            self.handle_yahrzeit_unsubscribe(token)
         # Dynamic routes for email confirmation and unsubscribe
         elif path.startswith('/confirm/'):
             token = path[len('/confirm/'):]
@@ -323,6 +343,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
         if path == '/admin/restore':
             self.handle_admin_restore(body)
+        elif path == '/api/yahrzeit/subscribe':
+            self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
             self.handle_subscribe(body)
         elif path == '/api/unsubscribe-feedback':
@@ -2290,6 +2312,125 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    # ── Yahrzeit Handlers ─────────────────────────────────────
+
+    def handle_yahrzeit_subscribe(self, body):
+        """Handle yahrzeit reminder subscription"""
+        if not YAHRZEIT_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Yahrzeit reminders not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+
+            # Rate limit
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'yahrzeit_subscribe', max_calls=5, window=300):
+                self._send_rate_limit_error()
+                return
+
+            result = yahrzeit_mgr.subscribe(data)
+
+            if result['status'] == 'success':
+                # Send confirmation email
+                yahrzeit_mgr.send_confirmation_email(result)
+                # Trigger backup
+                if SHIVA_AVAILABLE:
+                    shiva_mgr._trigger_backup()
+
+            # Don't expose confirmation_token to client
+            safe_result = dict(result)
+            safe_result.pop('confirmation_token', None)
+            safe_result.pop('email', None)
+
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_yahrzeit_confirm(self, token):
+        """Handle yahrzeit confirmation link click"""
+        if not YAHRZEIT_AVAILABLE:
+            self.send_error_response('Yahrzeit reminders not available', 503)
+            return
+        try:
+            result = yahrzeit_mgr.confirm(token)
+
+            # Serve a simple confirmation page (HTML-escape user data)
+            if result['status'] in ('success', 'already_confirmed'):
+                deceased = html_mod.escape(result.get('deceased_name', 'your loved one'))
+                hebrew = html_mod.escape(result.get('hebrew_date', '') or '')
+                hebrew_line = f'<p style="color:#6b7c6e; font-size:0.95rem;">Hebrew date: <strong>{hebrew}</strong></p>' if hebrew else ''
+                message = html_mod.escape(result.get('message', 'Your yahrzeit reminder is now active.'))
+                html = self._yahrzeit_result_page('Reminder Confirmed', message, hebrew_line)
+            else:
+                message = result.get('message', 'Invalid confirmation link.')
+                html = self._yahrzeit_result_page('Unable to Confirm', message, '', is_error=True)
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(html.encode('utf-8'))
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_yahrzeit_unsubscribe(self, token):
+        """Handle yahrzeit unsubscribe link click"""
+        if not YAHRZEIT_AVAILABLE:
+            self.send_error_response('Yahrzeit reminders not available', 503)
+            return
+        try:
+            result = yahrzeit_mgr.unsubscribe(token)
+
+            if result['status'] in ('success', 'already_unsubscribed'):
+                message = html_mod.escape(result.get('message', 'You have been unsubscribed.'))
+                html = self._yahrzeit_result_page('Unsubscribed', message, '')
+            else:
+                message = html_mod.escape(result.get('message', 'Invalid unsubscribe link.'))
+                html = self._yahrzeit_result_page('Unable to Unsubscribe', message, '', is_error=True)
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(html.encode('utf-8'))
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _yahrzeit_result_page(self, title, message, extra_html='', is_error=False):
+        """Generate a simple result page for yahrzeit confirm/unsubscribe."""
+        color = '#b71c1c' if is_error else 'var(--dark-brown, #3E2723)'
+        return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} - Neshama</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+    <style>
+        body {{ font-family: 'Source Serif 4', serif; background: linear-gradient(135deg, #FAF9F6, #F5F5DC); color: #3E2723; line-height: 1.7; min-height: 100vh; margin: 0; }}
+        .top-nav {{ display: flex; align-items: center; padding: 0 2rem; height: 56px; background: rgba(255,255,255,0.96); border-bottom: 1px solid rgba(212,197,185,0.3); }}
+        .nav-logo {{ font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: #3E2723; text-decoration: none; }}
+        .container {{ max-width: 560px; margin: 3rem auto; padding: 3rem 2rem; text-align: center; }}
+        h1 {{ font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.2rem); font-weight: 400; margin-bottom: 1rem; color: {color}; }}
+        p {{ font-size: 1.05rem; margin-bottom: 0.75rem; }}
+        .back-link {{ display: inline-block; margin-top: 1.5rem; color: #D2691E; text-decoration: none; font-size: 1rem; }}
+    </style>
+</head>
+<body>
+    <nav class="top-nav"><a href="/" class="nav-logo">Neshama</a></nav>
+    <div class="container">
+        <h1>{title}</h1>
+        <p>{message}</p>
+        {extra_html}
+        <a href="/" class="back-link">Return to Neshama &rarr;</a>
+    </div>
+</body>
+</html>'''
+
     def handle_update_shiva(self, support_id, body):
         """Handle organizer update to shiva support page"""
         if not SHIVA_AVAILABLE:
@@ -3092,6 +3233,25 @@ def run_server(port=None):
                 name='Process shiva email queue',
                 max_instances=1,
             )
+            # Add yahrzeit daily processor (9 AM Toronto time)
+            if YAHRZEIT_AVAILABLE:
+                try:
+                    from yahrzeit_processor import process_yahrzeit_reminders
+                    scheduler.add_job(
+                        process_yahrzeit_reminders,
+                        'cron',
+                        hour=9,
+                        minute=0,
+                        timezone='America/Toronto',
+                        args=[DB_PATH],
+                        id='yahrzeit_reminders',
+                        name='Process yahrzeit reminders',
+                        max_instances=1,
+                    )
+                    logging.info(f"[Yahrzeit] Scheduler added (daily at 9 AM Toronto)")
+                except Exception as e:
+                    logging.error(f"[Yahrzeit] Failed to add scheduler job: {e}")
+
             scheduler.start()
             logging.info(f"[EmailQueue] Scheduler started (every 15 minutes)")
         except Exception as e:

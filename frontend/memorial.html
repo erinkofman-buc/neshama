@@ -1132,6 +1132,7 @@
         <div id="heroCta" style="display:none; text-align:center; padding: 0 0 1rem;">
             <a id="heroCtaBtn" href="#" class="support-cta-btn" style="font-size:1.1rem; padding:0.9rem 2.5rem;">Organize Shiva Meals</a>
             <a href="/gifts" style="display:block; margin-top:0.75rem; color:var(--sage-dark); font-size:0.95rem; text-decoration:none; transition:color 0.2s;">Send Something Thoughtful &rarr;</a>
+            <a id="yahrzeitLink" href="/yahrzeit" style="display:block; margin-top:0.5rem; color:var(--sage-dark); font-size:0.9rem; text-decoration:none; transition:color 0.2s;">Set a Yahrzeit Reminder &rarr;</a>
         </div>
 
         <!-- Obituary Text -->
@@ -1277,6 +1278,7 @@
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
             <a href="/gifts">Send a Gift</a>
             <a href="/directory">Directory</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
             <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
@@ -2031,6 +2033,17 @@
 
                     // Check for shiva support
                     checkShivaSupport(obit.id || obituaryId);
+
+                    // Set yahrzeit reminder link with pre-populated params
+                    var yahrzeitLink = document.getElementById('yahrzeitLink');
+                    if (yahrzeitLink && obit) {
+                        var yParams = new URLSearchParams();
+                        if (obit.name) yParams.set('name', obit.name);
+                        if (obit.hebrew_name) yParams.set('hebrew_name', obit.hebrew_name);
+                        if (obit.date_of_death) yParams.set('date_of_death', obit.date_of_death);
+                        if (obit.id || obituaryId) yParams.set('obituary_id', obit.id || obituaryId);
+                        yahrzeitLink.href = '/yahrzeit?' + yParams.toString();
+                    }
 
                     // Show content, hide loading
                     hide('pageLoading');

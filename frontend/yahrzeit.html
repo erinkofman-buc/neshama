@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yahrzeit Reminders - Neshama</title>
+    <meta name="description" content="Set a free annual yahrzeit reminder. Receive a gentle email each year before the anniversary of your loved one's passing, with the Hebrew date, candle-lighting guidance, and Kaddish.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Neshama">
+    <link rel="canonical" href="https://neshama.ca/yahrzeit">
+    <meta property="og:title" content="Yahrzeit Reminders - Neshama">
+    <meta property="og:description" content="Set a free annual yahrzeit reminder. Receive a gentle email each year before the anniversary of your loved one's passing.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/yahrzeit">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Yahrzeit Reminders - Neshama">
+    <meta name="twitter:description" content="Set a free annual yahrzeit reminder.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #6b7c6e;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; border-radius: 4px; }
+        input:focus-visible, select:focus-visible { outline-offset: 0; }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* Nav */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; font-size: 0.72rem; font-weight: 400; opacity: 0.9; }
+        @media (min-width: 769px) { .nav-premium-btn:hover .nav-btn-subtext { display: block; position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; background: var(--dark-brown); color: white; padding: 0.3rem 0.65rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: 400; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 300; } }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* Mobile nav */
+        @media (max-width: 768px) {
+            .nav-center { display: none; }
+            .nav-hamburger { display: block; }
+            .nav-center.open { display: flex; flex-direction: column; position: absolute; top: 56px; left: 0; right: 0; background: rgba(255,255,255,0.98); padding: 1rem 2rem; border-bottom: 1px solid var(--light-taupe); gap: 0.5rem; z-index: 300; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .nav-divider { display: none; }
+        }
+
+        /* Page content */
+        .page-container {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            color: var(--dark-brown);
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Form card */
+        .form-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 16px var(--soft-shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group .optional {
+            font-weight: 400;
+            color: var(--sage-dark);
+            font-size: 0.85rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 8px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            color: var(--dark-brown);
+            background: #fff;
+            transition: border-color 0.2s;
+            min-height: 48px;
+        }
+
+        .form-group input:focus {
+            border-color: var(--terracotta);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--warm-glow);
+        }
+
+        .consent-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .consent-group input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--terracotta);
+            flex-shrink: 0;
+        }
+
+        .consent-group label {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--dark-brown);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px;
+        }
+
+        .submit-btn:hover {
+            background: #2a1a17;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(62, 39, 35, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Hebrew date preview */
+        .hebrew-date-preview {
+            background: var(--warm-beige);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            display: none;
+        }
+
+        .hebrew-date-preview.visible { display: block; }
+
+        /* Result states */
+        .result-message {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .result-message.visible { display: block; }
+
+        .result-message.success h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            margin-bottom: 0.75rem;
+        }
+
+        .result-message.success p {
+            color: var(--sage-dark);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .result-message.error {
+            color: #b71c1c;
+        }
+
+        .error-text {
+            color: #b71c1c;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        /* Info section */
+        .info-section {
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .info-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--dark-brown);
+            margin-bottom: 1rem;
+        }
+
+        .info-section p {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            max-width: 520px;
+            margin: 0 auto 0.75rem;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .site-footer { text-align: center; padding: 2rem 1.5rem; border-top: 1px solid rgba(212, 197, 185, 0.3); margin-top: 3rem; }
+        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-bottom: 0.75rem; }
+        .footer-links a { font-size: 0.85rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--dark-brown); }
+        .footer-copy { font-size: 0.8rem; color: var(--light-taupe); }
+    </style>
+</head>
+<body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navMenu">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Obituaries</a>
+                <a href="/shiva/organize" class="nav-link">Organize Meals</a>
+                <a href="/directory" class="nav-link">Directory</a>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-group-secondary">
+                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+                <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+                <a href="/sustain" class="nav-premium-btn">Sustain<span class="nav-btn-subtext">Keep Neshama Free</span></a>
+            </div>
+        </div>
+        <button class="nav-hamburger" onclick="document.getElementById('navMenu').classList.toggle('open')" aria-label="Menu">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main">
+        <div class="page-container">
+            <div class="page-header">
+                <h1>Yahrzeit Reminders</h1>
+                <p>Receive a gentle reminder each year before the anniversary of your loved one's passing, with the Hebrew date, candle-lighting guidance, and the Mourner's Kaddish.</p>
+            </div>
+
+            <div class="form-card" id="formCard">
+                <form id="yahrzeitForm" novalidate>
+                    <div class="form-group">
+                        <label for="deceasedName">Name of the Deceased</label>
+                        <input type="text" id="deceasedName" name="deceased_name" required placeholder="e.g. Sarah Goldstein" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hebrewName">Hebrew Name <span class="optional">(optional)</span></label>
+                        <input type="text" id="hebrewName" name="hebrew_name" placeholder="e.g. Sarah bat Avraham">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateOfDeath">Date of Death (Gregorian)</label>
+                        <input type="date" id="dateOfDeath" name="date_of_death" required>
+                        <div class="hebrew-date-preview" id="hebrewDatePreview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subscriberEmail">Your Email</label>
+                        <input type="email" id="subscriberEmail" name="email" required placeholder="you@example.com" autocomplete="email">
+                    </div>
+
+                    <div class="consent-group">
+                        <input type="checkbox" id="consentCheck" name="consent" required>
+                        <label for="consentCheck">Yes, please send me a gentle reminder each year before the yahrzeit. I can stop these at any time.</label>
+                    </div>
+
+                    <div id="formError" class="error-text" role="alert" aria-live="assertive"></div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">Set Yahrzeit Reminder</button>
+                </form>
+            </div>
+
+            <div class="result-message success" id="successResult">
+                <h2>Check Your Email</h2>
+                <p id="successText">We've sent a confirmation email. Please click the link in the email to activate your yahrzeit reminder.</p>
+                <p style="margin-top:1.5rem;">
+                    <a href="/" style="color:var(--terracotta); text-decoration:none;">Return to Neshama</a>
+                </p>
+            </div>
+
+            <div class="result-message error" id="errorResult">
+                <p id="errorText"></p>
+                <p style="margin-top:1rem;">
+                    <a href="/yahrzeit" style="color:var(--terracotta); text-decoration:none;">Try again</a>
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2>What is a Yahrzeit?</h2>
+                <p>A yahrzeit (Yiddish for "year's time") marks the annual anniversary of a loved one's death according to the Hebrew calendar. It is observed by lighting a yahrzeit candle, reciting the Mourner's Kaddish, and remembering the life of the departed.</p>
+                <p>Because the Hebrew calendar shifts relative to the Gregorian calendar, the yahrzeit date changes each year. We handle the conversion for you and send a reminder before each anniversary.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/shiva-essentials">Shiva Essentials</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/gifts">Send a Gift</a>
+            <a href="/directory">Directory</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        const form = document.getElementById('yahrzeitForm');
+        const formCard = document.getElementById('formCard');
+        const successResult = document.getElementById('successResult');
+        const errorResult = document.getElementById('errorResult');
+        const submitBtn = document.getElementById('submitBtn');
+        const formError = document.getElementById('formError');
+
+        // Pre-populate from URL params (when linked from memorial page)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('name')) document.getElementById('deceasedName').value = decodeURIComponent(params.get('name'));
+        if (params.get('hebrew_name')) document.getElementById('hebrewName').value = decodeURIComponent(params.get('hebrew_name'));
+        if (params.get('date_of_death')) document.getElementById('dateOfDeath').value = params.get('date_of_death');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            formError.style.display = 'none';
+
+            const name = document.getElementById('deceasedName').value.trim();
+            const email = document.getElementById('subscriberEmail').value.trim();
+            const date = document.getElementById('dateOfDeath').value;
+            const consent = document.getElementById('consentCheck').checked;
+
+            if (!name) { showError('Please enter the name of the deceased.'); return; }
+            if (!date) { showError('Please select the date of death.'); return; }
+            if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+            if (!consent) { showError('Please check the consent box to continue.'); return; }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Setting reminder...';
+
+            try {
+                const obituaryId = params.get('obituary_id') || '';
+                const response = await fetch('/api/yahrzeit/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deceased_name: name,
+                        hebrew_name: document.getElementById('hebrewName').value.trim(),
+                        date_of_death: date,
+                        email: email,
+                        obituary_id: obituaryId,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    formCard.style.display = 'none';
+                    successResult.classList.add('visible');
+                    if (result.hebrew_date) {
+                        // Use textContent to prevent XSS — build DOM safely
+                        var st = document.getElementById('successText');
+                        st.textContent = '';
+                        var line1 = document.createElement('span');
+                        line1.textContent = 'We\'ve sent a confirmation email to ';
+                        var bold1 = document.createElement('strong');
+                        bold1.textContent = email;
+                        var line2 = document.createTextNode('. Please click the link to activate your yahrzeit reminder.');
+                        st.appendChild(line1); st.appendChild(bold1); st.appendChild(line2);
+                        st.appendChild(document.createElement('br'));
+                        st.appendChild(document.createElement('br'));
+                        var dateSpan = document.createElement('span');
+                        dateSpan.style.color = 'var(--sage-dark)';
+                        dateSpan.textContent = 'Hebrew date of passing: ';
+                        var bold2 = document.createElement('strong');
+                        bold2.textContent = result.hebrew_date;
+                        dateSpan.appendChild(bold2);
+                        st.appendChild(dateSpan);
+                    }
+                } else {
+                    showError(result.message || 'Something went wrong. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Set Yahrzeit Reminder';
+                }
+            } catch (err) {
+                showError('Unable to connect. Please try again later.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Set Yahrzeit Reminder';
+            }
+        });
+
+        function showError(msg) {
+            formError.textContent = msg;
+            formError.style.display = 'block';
+        }
+    })();
+    </script>
+</body>
+</html>
