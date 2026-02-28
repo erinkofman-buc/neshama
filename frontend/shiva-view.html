@@ -1067,6 +1067,282 @@
             .meal-slot.available .slot-action { font-size: 0.8rem; }
             .info-card { padding: 1rem; }
         }
+
+        /* ── Print Button ──────────────────────────────────── */
+
+        .print-schedule-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 1.2rem;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: 2rem;
+            background: white;
+            color: var(--sage-dark);
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .print-schedule-btn:hover {
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+        }
+
+        .print-schedule-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ── Print Styles ──────────────────────────────────── */
+
+        @media print {
+            /* Hide everything non-essential */
+            .top-nav,
+            .nav-hamburger,
+            .skip-link,
+            .site-footer,
+            .organizer-banner,
+            .modal-overlay,
+            #cantCookSection,
+            #giftSection,
+            #catererSection,
+            #organizerEditSection,
+            #dropOffSection,
+            #notifSection,
+            #coOrgSection,
+            #postUpdateSection,
+            #thankYouSection,
+            #updatesFeed,
+            #privateNotice,
+            #heroShare,
+            #shivaShareBtn,
+            .print-schedule-btn,
+            .meal-slot.available .slot-action,
+            .remove-btn,
+            .support-cta-btn,
+            #heroCta,
+            .hero-divider {
+                display: none !important;
+            }
+
+            /* Reset page background */
+            body {
+                background: white !important;
+                color: #000 !important;
+                font-size: 11pt;
+                line-height: 1.4;
+            }
+
+            .page-container {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Hero — clean header */
+            .shiva-hero {
+                padding: 0.5rem 0 0.75rem !important;
+                border-bottom: 2px solid #333;
+                margin-bottom: 0.75rem;
+            }
+
+            .shiva-hero h1 {
+                font-size: 20pt !important;
+                margin-bottom: 0.15rem;
+            }
+
+            .shiva-hero .dates {
+                font-size: 11pt !important;
+                color: #333 !important;
+            }
+
+            .shiva-hero .organized-by {
+                font-size: 10pt !important;
+                color: #555 !important;
+            }
+
+            .shiva-hero .memorial-link { display: none !important; }
+
+            /* Info cards — compact */
+            .info-cards {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+                margin: 0.5rem 0 !important;
+                page-break-inside: avoid;
+            }
+
+            .info-card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                padding: 0.6rem !important;
+                border-radius: 0.3rem !important;
+            }
+
+            .info-card h3 { font-size: 10pt !important; margin-bottom: 0.2rem; }
+            .info-card p { font-size: 9pt !important; line-height: 1.3; }
+
+            /* Family notes — compact */
+            #familyNotesBox {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                border-left: 3px solid #999 !important;
+                padding: 0.5rem 0.75rem !important;
+                margin: 0.5rem 0 !important;
+                border-radius: 0.3rem !important;
+            }
+
+            /* Calendar section */
+            .calendar-section {
+                margin: 0.75rem 0 !important;
+            }
+
+            .section-heading {
+                font-size: 14pt !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            .section-heading::after {
+                display: none !important;
+            }
+
+            /* Coverage summary — clean */
+            .coverage-bar { display: none !important; }
+
+            .coverage-summary {
+                margin-bottom: 0.5rem !important;
+                font-size: 9pt !important;
+            }
+
+            /* Day cards — table-like */
+            .meal-calendar {
+                gap: 0.3rem !important;
+            }
+
+            .meal-day-card {
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                border-left: 3px solid #999 !important;
+                page-break-inside: avoid;
+            }
+
+            .meal-day-card.day-full {
+                border-left-color: #4caf50 !important;
+                background: white !important;
+            }
+
+            .meal-day-card.day-partial {
+                border-left-color: #ff9800 !important;
+                background: white !important;
+            }
+
+            .meal-day-card.day-empty {
+                border-left-color: #f44336 !important;
+                background: white !important;
+            }
+
+            .meal-day-card.shabbat {
+                background: #f5f5f5 !important;
+            }
+
+            .meal-day-header {
+                padding: 0.35rem 0.6rem !important;
+                font-size: 10pt !important;
+                background: #f9f9f9 !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+
+            .meal-day-card.day-full .meal-day-header,
+            .meal-day-card.day-partial .meal-day-header,
+            .meal-day-card.day-empty .meal-day-header,
+            .meal-day-card.shabbat .meal-day-header {
+                background: #f9f9f9 !important;
+            }
+
+            .meal-slots-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+
+            .meal-slot {
+                padding: 0.4rem 0.6rem !important;
+                min-height: auto !important;
+                border-left: none !important;
+            }
+
+            .meal-slot:first-child {
+                border-right: 1px solid #ddd !important;
+            }
+
+            .meal-slot-label {
+                font-size: 7pt !important;
+                margin-bottom: 0.15rem;
+            }
+
+            .meal-slot.taken .vol-name {
+                font-size: 9pt !important;
+            }
+
+            .meal-slot.taken .vol-desc {
+                font-size: 8pt !important;
+            }
+
+            .meal-slot.available {
+                background: white !important;
+                border-left: none !important;
+                cursor: default !important;
+            }
+
+            .meal-slot.available .slot-action {
+                display: none !important;
+            }
+
+            .meal-slot.available::after {
+                content: '(available)';
+                font-size: 8pt;
+                color: #999;
+                font-style: italic;
+            }
+
+            .shabbat-message {
+                font-size: 9pt !important;
+                padding: 0.4rem !important;
+            }
+
+            /* Shiva essentials banner */
+            .essentials-banner {
+                display: none !important;
+            }
+
+            /* Print footer */
+            .print-footer {
+                display: block !important;
+                text-align: center;
+                margin-top: 1rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid #ccc;
+                font-size: 8pt;
+                color: #999;
+            }
+
+            /* Page setup */
+            @page {
+                margin: 1.5cm;
+                size: portrait;
+            }
+        }
+
+        /* Print footer hidden on screen */
+        .print-footer {
+            display: none;
+        }
     </style>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Neshama — Every Soul Remembered">
@@ -1134,7 +1410,7 @@
             </div>
         </section>
 
-        <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin: 1rem 0; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
+        <div class="essentials-banner" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin: 1rem 0; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
             Preparing for shiva? See our <a href="/shiva-essentials" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
         </div>
 
@@ -1290,6 +1566,12 @@
         <!-- Meal Calendar -->
         <section class="calendar-section" id="calendarSection">
             <h2 class="section-heading">Meal Schedule</h2>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button class="print-schedule-btn" onclick="window.print()" type="button" aria-label="Print meal schedule">
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Print Schedule
+                </button>
+            </div>
             <div id="coverageSummary"></div>
             <div class="meal-calendar" id="mealCalendar"></div>
         </section>
@@ -1355,6 +1637,11 @@
                 </a>
             </div>
         </section>
+
+        <!-- Print-only footer -->
+        <div class="print-footer">
+            Meal schedule printed from neshama.ca &mdash; a free resource for the Jewish community
+        </div>
     </div>
 
     <!-- Signup Modal -->
