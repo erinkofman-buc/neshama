@@ -3411,6 +3411,49 @@ def run_server(port=None):
         except Exception as e:
             logging.info(f" Vendor seed: {e}")
 
+    # ── Run data migrations ──────────────────────────────────
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Migration 2026-02-28: Fix vendor miscategorizations
+        vendor_updates = [
+            ("UPDATE vendors SET category = 'Restaurants & Delis', featured = 0, "
+             "description = 'Fresh, wholesome salad platters and prepared meals with generous portions. "
+             "Great option for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.' "
+             "WHERE slug = 'jem-salads' AND category != 'Restaurants & Delis'"),
+            "UPDATE vendors SET category = 'Caterers' WHERE slug = 'yummy-market' AND category != 'Caterers'",
+            "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'centre-street-deli' AND category != 'Restaurants & Delis'",
+            "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'schmaltz-appetizing' AND category != 'Restaurants & Delis'",
+            "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'snowdon-deli' AND category != 'Restaurants & Delis'",
+            "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'schwartzs-deli' AND category != 'Restaurants & Delis'",
+            "UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'lesters-deli' AND category != 'Restaurants & Delis'",
+            "UPDATE vendors SET category = 'Kosher Restaurants & Caterers' WHERE slug = 'wok--bowl' AND category != 'Kosher Restaurants & Caterers'",
+            "UPDATE vendors SET category = 'Gift Baskets' WHERE slug = 'gifting-kosher-canada' AND category != 'Gift Baskets'",
+        ]
+        total_changed = 0
+        for sql in vendor_updates:
+            cursor.execute(sql)
+            total_changed += cursor.rowcount
+
+        # Fix Jem Salads in caterer_partners table (false kosher certification)
+        cursor.execute(
+            "UPDATE caterer_partners SET kosher_level = 'not_kosher', "
+            "shiva_menu_description = 'Fresh, wholesome salad platters and prepared meals with generous portions. "
+            "Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing. Not kosher certified.' "
+            "WHERE email = 'jem.salads@gmail.com' AND kosher_level != 'not_kosher'"
+        )
+        total_changed += cursor.rowcount
+
+        conn.commit()
+        conn.close()
+        if total_changed > 0:
+            logging.info(f" Migrations: {total_changed} rows updated")
+        else:
+            logging.info(f" Migrations: already up to date")
+    except Exception as e:
+        logging.info(f" Migrations: {e}")
+
     if SHIVA_AVAILABLE:
         # Auto-restore from backup if critical tables are empty
         try:
