@@ -204,8 +204,8 @@ VENDORS = [
     # Kosher Restaurants & Caterers
     {
         'name': 'Jem Salads',
-        'category': 'Kosher Restaurants & Caterers',
-        'description': 'Fresh, wholesome platters and prepared meals with generous portions. Extensive experience catering shiva meals with flexible delivery timing. Platters and hot meals for 10-50+ guests.',
+        'category': 'Restaurants & Delis',
+        'description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great option for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.',
         'address': '441 Clark Ave W, Toronto, ON',
         'neighborhood': 'North York',
         'phone': '(416) 886-1804',
@@ -214,7 +214,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA',
-        'featured': 1,
+        'featured': 0,
     },
     {
         'name': 'Bistro Grande',
@@ -302,7 +302,7 @@ VENDORS = [
     },
     {
         'name': 'Yummy Market',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'European food grocer with an extensive prepared foods section, scratch-made kitchen, and patisserie. Hot meals, salad bar, deli counter, and catering platters for any size gathering.',
         'address': '4400 Dufferin St, North York, ON',
         'neighborhood': 'North York',
@@ -437,7 +437,7 @@ VENDORS = [
     # Middle Eastern / Israeli
     {
         'name': 'Wok & Bowl',
-        'category': 'Middle Eastern & Israeli',
+        'category': 'Kosher Restaurants & Caterers',
         'description': "Toronto's first COR-certified kosher pho and ramen restaurant. Asian fusion including Chinese dishes, dumplings, noodles, and fried rice. Catering available. Great option for families who want something different at shiva.",
         'address': '3022 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -582,7 +582,7 @@ VENDORS = [
     },
     {
         'name': 'Centre Street Deli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'Classic Jewish deli in Thornhill since 1988. Montreal-style smoked meat, corned beef, matzo ball soup, and all the deli favourites. Catering platters and party trays available.',
         'address': '1136 Centre St, Thornhill, ON',
         'neighborhood': 'Thornhill',
@@ -644,7 +644,7 @@ VENDORS = [
     },
     {
         'name': 'Schmaltz Appetizing',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'Jewish-style appetizing shop specializing in smoked fish, bagel sandwiches, cream cheeses, and deli platters. Catering for groups of 10+. A modern take on classic Jewish comfort food.',
         'address': '414 Dupont St, Toronto, ON',
         'neighborhood': 'Annex',
@@ -857,7 +857,7 @@ MONTREAL_VENDORS = [
     # Jewish Delis
     {
         'name': 'Snowdon Deli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'A Montreal institution since 1946, beloved for classic smoked meat, deli sandwiches, and homestyle Jewish comfort food. Catering platters ideal for shiva meals.',
         'address': '5265 Boulevard Décarie, Montréal, QC',
         'neighborhood': 'Snowdon',
@@ -881,7 +881,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Schwartz\'s Deli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'World-famous Montreal smoked meat restaurant since 1928. An iconic Jewish culinary landmark on Boulevard Saint-Laurent. Not kosher certified but deeply rooted in Montreal Jewish food tradition.',
         'address': '3895 Boulevard Saint-Laurent, Montréal, QC',
         'neighborhood': 'Plateau Mont-Royal',
@@ -893,7 +893,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Lester\'s Deli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'Established in 1951, a beloved Outremont smoked meat institution known for hand-cut fries and community spirit. Catering, take-out, and delivery available.',
         'address': '1057 Avenue Bernard, Outremont, QC',
         'neighborhood': 'Outremont',
@@ -1162,7 +1162,7 @@ MONTREAL_VENDORS = [
     # Gift Baskets
     {
         'name': 'Gifting Kosher Canada',
-        'category': 'Caterers',
+        'category': 'Gift Baskets',
         'vendor_type': 'gift',
         'description': 'Canada\'s leading online retailer of kosher shiva gift baskets. Gourmet food, wine, cakes, chocolates, and customizable baskets. Same-day and next-day delivery to Montreal.',
         'address': 'Online — ships Canada-wide',

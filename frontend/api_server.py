@@ -3169,11 +3169,11 @@ def run_server(port=None):
                 'phone': '(416) 886-1804',
                 'website': 'https://www.jemsalads.com',
                 'delivery_area': 'Toronto & GTA',
-                'kosher_level': 'certified_kosher',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': False,
                 'price_range': '$$',
-                'shiva_menu_description': 'Fresh, wholesome platters and prepared meals with generous portions. Extensive experience catering shiva meals with flexible delivery timing. Platters and hot meals available, feeds 10\u201350+.',
+                'shiva_menu_description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing. Not kosher certified.',
             },
             {
                 'business_name': 'TOBEN Food by Design',
