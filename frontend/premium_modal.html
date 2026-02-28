@@ -10,7 +10,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
-            --sage-dark: #8a9a8d;
+            --sage-dark: #6b7c6e;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -314,7 +314,7 @@
                     if (data.url) {
                         window.location.href = data.url;
                     } else {
-                        alert('Unable to start checkout. Please try again.');
+                        alert('We weren\'t able to connect to our payment provider. Please try again in a moment.');
                         upgradeBtn.disabled = false;
                         upgradeBtn.textContent = 'Sustain Neshama';
                     }
@@ -350,7 +350,7 @@
         function startCheckout() {
             var email = getUserEmail();
             if (!email) {
-                alert('Please enter your email address first');
+                alert('Please enter your email address to continue.');
                 return;
             }
             if (premiumModal) premiumModal.createCheckout(email);

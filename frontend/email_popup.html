@@ -448,7 +448,7 @@
                     if (data.status === 'success') {
                         return { success: true };
                     } else {
-                        return { success: false, error: data.error?.message || 'Subscription failed' };
+                        return { success: false, error: data.error?.message || 'We weren\'t able to sign you up. Please try again.' };
                     }
                 } catch (error) {
                     return { success: false, error: 'Unable to connect. Please try again.' };
@@ -505,7 +505,7 @@
             
             // Disable button and show loading
             subscribeBtn.disabled = true;
-            subscribeBtn.textContent = 'Subscribing...';
+            subscribeBtn.textContent = 'Joining...';
             emailPopupManager.hideError();
             
             // Submit subscription

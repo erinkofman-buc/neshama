@@ -603,7 +603,7 @@
             // Resolve amount
             var amount = selectedAmount;
             if (!amount || amount < 1) {
-                alert('Please choose an amount.');
+                alert('Please choose an amount to continue.');
                 return;
             }
 
@@ -646,13 +646,13 @@
                 if (data.url) {
                     window.location.href = data.url;
                 } else {
-                    alert('Unable to start checkout. Please try again.');
+                    alert('We weren\'t able to connect to our payment provider. Please try again in a moment.');
                     btn.disabled = false;
                     btn.textContent = 'Sustain Neshama';
                 }
             })
             .catch(function() {
-                alert('Unable to start checkout. Please try again.');
+                alert('We weren\'t able to connect to our payment provider. Please try again in a moment.');
                 btn.disabled = false;
                 btn.textContent = 'Sustain Neshama';
             });

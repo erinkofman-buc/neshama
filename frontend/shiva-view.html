@@ -2232,6 +2232,9 @@
                     '<div class="coverage-stat"><span class="coverage-dot red"></span>' + emptyDays + ' open</div>' +
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
+                if (filledSlots === 0) {
+                    summaryEl.innerHTML += '<p style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
+                }
             }
         }
 

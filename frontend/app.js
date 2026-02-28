@@ -413,6 +413,9 @@ class NeshamaApp {
             .catch(function() {
                 btn.disabled = false;
                 btn.textContent = 'Get Updates';
+                emailInput.setCustomValidity('Something went wrong. Please try again.');
+                emailInput.reportValidity();
+                setTimeout(function() { emailInput.setCustomValidity(''); }, 3000);
             });
         });
     }
