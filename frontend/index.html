@@ -2154,16 +2154,31 @@
             }
         }
 
-        // Show popup on second page visit for non-subscribers (once per session)
+        // Show popup after 45s of idle time for non-subscribers (once per session)
         (function() {
             if (localStorage.getItem('neshama_subscribed')) return;
             if (sessionStorage.getItem('neshama_popup_shown')) return;
-            var viewCount = parseInt(sessionStorage.getItem('neshama_page_views') || '0', 10) + 1;
-            sessionStorage.setItem('neshama_page_views', viewCount.toString());
-            if (viewCount >= 2) {
-                sessionStorage.setItem('neshama_popup_shown', '1');
-                showEmailPopup();
+
+            var idleTimer = null;
+            var idleDelay = 45000; // 45 seconds
+
+            function startIdleTimer() {
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(function() {
+                    if (!sessionStorage.getItem('neshama_popup_shown')) {
+                        sessionStorage.setItem('neshama_popup_shown', '1');
+                        showEmailPopup();
+                    }
+                }, idleDelay);
             }
+
+            // Reset timer on user interaction
+            ['scroll', 'click', 'keydown', 'mousemove', 'touchstart'].forEach(function(evt) {
+                document.addEventListener(evt, startIdleTimer, { passive: true });
+            });
+
+            // Start the first timer
+            startIdleTimer();
         })();
 
         // Form submission
