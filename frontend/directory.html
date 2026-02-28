@@ -266,6 +266,18 @@
             flex-shrink: 0;
         }
 
+        .featured-badge {
+            display: inline-block;
+            background: #fdf6e3;
+            color: #8b6914;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .vendor-category {
             font-size: 0.85rem;
             color: var(--terracotta);
@@ -546,6 +558,9 @@
                 html += '<a href="/directory/' + v.slug + '" style="text-decoration:none;color:inherit;">';
                 html += '<div class="vendor-card-header">';
                 html += '<h3>' + escapeHtml(v.name) + '</h3>';
+                if (v.featured) {
+                    html += '<span class="featured-badge">Featured</span>';
+                }
                 if (v.kosher_status === 'COR') {
                     html += '<span class="kosher-badge">COR Certified</span>';
                 } else if (v.kosher_status === 'MK') {

@@ -75,6 +75,7 @@
         .badge-kosher { background: #e8f5e9; color: #2e7d32; }
         .badge-category { background: #fff3e0; color: #e65100; }
         .badge-delivery { background: #e3f2fd; color: #1565c0; }
+        .badge-featured { background: #fdf6e3; color: #8b6914; }
         .vendor-desc { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5; flex-grow: 1; }
         .vendor-cta { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; text-decoration: none; text-align: center; cursor: pointer; transition: background 0.2s; }
         .cta-local { background: var(--terracotta); color: white; border: none; }
@@ -529,6 +530,9 @@
             html += '<div class="vendor-card">';
             html += '<div class="vendor-name">' + escapeHtml(v.name) + '</div>';
             html += '<div class="vendor-badges">';
+            if (v.featured) {
+                html += '<span class="badge badge-featured">Featured</span>';
+            }
             html += '<span class="badge badge-category">' + escapeHtml(v.category) + '</span>';
             if (v.kosher_status && v.kosher_status !== 'not_certified' && v.kosher_status !== 'Various') {
                 html += '<span class="badge badge-kosher">' + escapeHtml(v.kosher_status) + '</span>';
