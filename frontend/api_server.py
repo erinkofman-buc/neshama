@@ -235,6 +235,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_directory_stats()
         elif path == '/api/dashboard-stats':
             self.get_dashboard_stats()
+        elif path == '/api/referral-stats':
+            self.get_referral_stats()
         elif path == '/api/tributes/counts':
             self.get_tribute_counts()
         # Single obituary API
@@ -372,6 +374,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_vendor_lead(body)
         elif path == '/api/vendor-views':
             self.handle_vendor_view(body)
+        elif path == '/api/track-referral':
+            self.handle_track_referral(body)
         elif path == '/api/shiva-access/request':
             self.handle_access_request(body)
         elif path == '/api/shiva':
@@ -1968,6 +1972,110 @@ button:hover{background:#c45a1a}</style></head>
             logging.error(f"[View] Failed to log view: {e}")
             self.send_json_response({'status': 'error', 'message': str(e)}, 500)
 
+    # ── API: Referral Tracking ─────────────────────────────
+
+    def handle_track_referral(self, body):
+        """Track a referral visit (POST /api/track-referral)"""
+        try:
+            data = json.loads(body)
+            ref_code = data.get('ref', '').strip()
+            page = data.get('page', '/').strip()
+
+            if not ref_code:
+                self.send_json_response({'status': 'error', 'message': 'ref required'}, 400)
+                return
+
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS referrals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ref_code TEXT NOT NULL,
+                    page TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+            ''')
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(ref_code)
+            ''')
+
+            cursor.execute(
+                'INSERT INTO referrals (ref_code, page, created_at) VALUES (?, ?, ?)',
+                (ref_code, page, datetime.now().isoformat())
+            )
+            conn.commit()
+            conn.close()
+
+            self.send_json_response({'status': 'success'})
+
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            logging.error(f"[Referral] Failed to log referral: {e}")
+            self.send_json_response({'status': 'error', 'message': str(e)}, 500)
+
+    def get_referral_stats(self):
+        """Get referral tracking stats (GET /api/referral-stats)"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Overall stats by ref_code
+            by_channel = []
+            total = 0
+            try:
+                cursor.execute('''
+                    SELECT ref_code,
+                           COUNT(*) as visits,
+                           MIN(created_at) as first_visit,
+                           MAX(created_at) as last_visit
+                    FROM referrals
+                    GROUP BY ref_code
+                    ORDER BY visits DESC
+                ''')
+                by_channel = [dict(row) for row in cursor.fetchall()]
+                cursor.execute('SELECT COUNT(*) FROM referrals')
+                total = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            # Last 7 days trend
+            daily_trend = []
+            try:
+                cursor.execute('''
+                    SELECT DATE(created_at) as day,
+                           ref_code,
+                           COUNT(*) as visits
+                    FROM referrals
+                    WHERE created_at >= DATE('now', '-7 days')
+                    GROUP BY day, ref_code
+                    ORDER BY day DESC, visits DESC
+                ''')
+                daily_trend = [dict(row) for row in cursor.fetchall()]
+            except Exception:
+                pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'total_referrals': total,
+                    'by_channel': by_channel,
+                    'daily_trend': daily_trend,
+                }
+            })
+        except Exception as e:
+            logging.error(f"[Referral] Stats error: {e}")
+            self.send_json_response({
+                'status': 'success',
+                'data': {'total_referrals': 0, 'by_channel': [], 'daily_trend': []}
+            })
+
     # ── API: Shiva Support ─────────────────────────────────
 
     def serve_shiva_page(self):
@@ -3397,6 +3505,80 @@ def run_server(port=None):
                     logging.info(f"[Yahrzeit] Scheduler added (daily at 9 AM Toronto)")
                 except Exception as e:
                     logging.error(f"[Yahrzeit] Failed to add scheduler job: {e}")
+
+            # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
+            try:
+                from daily_digest import DailyDigestSender
+                def _run_daily_digest():
+                    if is_shabbat():
+                        logging.info("[DailyDigest] Shabbat — skipping digest")
+                        return
+                    try:
+                        sender = DailyDigestSender(db_path=DB_PATH)
+                        sender.send_daily_digest()
+                    except Exception as e:
+                        logging.error(f"[DailyDigest] Error: {e}")
+                scheduler.add_job(
+                    _run_daily_digest,
+                    'cron',
+                    hour=7,
+                    minute=0,
+                    day_of_week='mon-sat',
+                    timezone='America/Toronto',
+                    id='daily_digest',
+                    name='Send daily obituary digest',
+                    max_instances=1,
+                )
+                logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Mon-Sat)")
+            except Exception as e:
+                logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
+
+            # Add weekly digest (Sunday 9 AM ET)
+            try:
+                from weekly_digest import WeeklyDigestSender
+                def _run_weekly_digest():
+                    try:
+                        sender = WeeklyDigestSender(db_path=DB_PATH)
+                        sender.send_weekly_digest()
+                    except Exception as e:
+                        logging.error(f"[WeeklyDigest] Error: {e}")
+                scheduler.add_job(
+                    _run_weekly_digest,
+                    'cron',
+                    hour=9,
+                    minute=0,
+                    day_of_week='sun',
+                    timezone='America/Toronto',
+                    id='weekly_digest',
+                    name='Send weekly obituary digest',
+                    max_instances=1,
+                )
+                logging.info(f"[WeeklyDigest] Scheduler added (Sunday at 9 AM ET)")
+            except Exception as e:
+                logging.error(f"[WeeklyDigest] Failed to add scheduler job: {e}")
+
+            # Add monthly vendor report (1st of month, 9 AM ET)
+            try:
+                from vendor_report import run_monthly_reports
+                def _run_vendor_report():
+                    try:
+                        run_monthly_reports(db_path=DB_PATH)
+                    except Exception as e:
+                        logging.error(f"[VendorReport] Error: {e}")
+                scheduler.add_job(
+                    _run_vendor_report,
+                    'cron',
+                    day=1,
+                    hour=9,
+                    minute=0,
+                    timezone='America/Toronto',
+                    id='vendor_report',
+                    name='Send monthly vendor reports',
+                    max_instances=1,
+                )
+                logging.info(f"[VendorReport] Scheduler added (1st of month at 9 AM ET)")
+            except Exception as e:
+                logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
 
             scheduler.start()
             logging.info(f"[EmailQueue] Scheduler started (every 15 minutes)")
