@@ -613,7 +613,7 @@
                 html += '</div>';
 
                 html += '<div class="caterer-contact">';
-                if (c.website) html += '<a href="' + escapeHtml(c.website) + '" target="_blank" rel="noopener">' + escapeHtml(c.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a>';
+                if (c.website) html += '<a href="/api/track-click?vendor=' + encodeURIComponent(c.slug || c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + '&dest=' + encodeURIComponent(c.website) + '" target="_blank" rel="noopener">' + escapeHtml(c.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a>';
                 if (c.phone) html += '<a href="tel:' + escapeHtml(c.phone) + '">' + escapeHtml(c.phone) + '</a>';
                 if (c.email) html += '<a href="mailto:' + escapeHtml(c.email) + '">' + escapeHtml(c.email) + '</a>';
                 if (c.instagram) {
