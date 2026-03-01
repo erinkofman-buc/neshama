@@ -61,6 +61,25 @@ ENTRY_LABELS = {
 }
 
 
+def _register_hebrew_font():
+    """Register Noto Serif Hebrew font for proper Hebrew text rendering."""
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(this_dir, 'NotoSerifHebrew-Regular.ttf'),
+        os.path.join(this_dir, '..', 'fonts', 'NotoSerifHebrew-Regular.ttf'),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                pdfmetrics.registerFont(TTFont('NotoSerifHebrew', path))
+                return True
+            except Exception as e:
+                logging.warning(f"Could not register Hebrew font: {e}")
+    return False
+
+_HEBREW_FONT_AVAILABLE = _register_hebrew_font()
+
+
 def _build_styles():
     """Build all paragraph styles for the keepsake PDF."""
     styles = {}
@@ -79,7 +98,7 @@ def _build_styles():
     # Hebrew name
     styles['hebrew'] = ParagraphStyle(
         'HebrewName',
-        fontName='Times-Italic',
+        fontName='NotoSerifHebrew' if _HEBREW_FONT_AVAILABLE else 'Times-Italic',
         fontSize=16,
         leading=20,
         textColor=SAGE_DARK,
