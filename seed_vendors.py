@@ -812,6 +812,32 @@ VENDORS = [
         'delivery': 0,
         'delivery_area': '',
     },
+    # Mediterranean / Turkish
+    {
+        'name': 'Sofram Restaurant',
+        'category': 'Mediterranean',
+        'description': 'Turkish and Mediterranean cuisine in North York. Known for generous portions, fresh-baked pide, grilled kebabs, hummus, and mixed grill platters. Reasonably priced and popular for shiva catering orders.',
+        'address': '5849 Leslie St, North York, ON',
+        'neighborhood': 'North York',
+        'phone': '(416) 223-1818',
+        'website': 'https://www.sofram.ca',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    # Italian
+    {
+        'name': 'Paese Ristorante',
+        'category': 'Italian',
+        'description': 'Upscale Italian restaurant on Bloor West. Known for housemade pastas, wood-fired pizzas, and refined Italian dishes. A popular choice for shiva catering in the Bloor-Annex neighbourhood.',
+        'address': '3827 Bloor St W, Etobicoke, ON',
+        'neighborhood': 'Bloor West',
+        'phone': '(416) 207-9995',
+        'website': 'https://www.paeseristorante.com',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
 ]
 
 

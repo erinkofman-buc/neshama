@@ -741,6 +741,10 @@
                 <p style="font-size: 0.92rem; color: var(--sage-dark); margin-bottom: 1rem;">Search for the family to link their shiva page to their memorial listing.</p>
                 <input type="text" id="obiSearchBox" placeholder="Search by family name..." aria-label="Search by family name" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); box-sizing: border-box; transition: border-color 0.2s;" autocomplete="off">
                 <div id="searchResults" style="margin-top: 0.75rem; max-height: 280px; overflow-y: auto;"></div>
+                <div id="recentFamilies" style="margin-top: 1rem;">
+                    <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.5rem; font-weight: 500;">Or select from recent listings:</p>
+                    <div id="recentList" style="max-height: 320px; overflow-y: auto;"></div>
+                </div>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
                 <p style="font-size: 0.92rem; color: var(--sage-dark);">Don't see the family listed?</p>
@@ -1069,17 +1073,47 @@
         // ── Search functionality ─────────────────────────
         var searchTimeout = null;
 
+        function loadRecentFamilies() {
+            fetch('/api/obituaries')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var obits = [];
+                    if (data && data.status === 'success' && Array.isArray(data.data)) {
+                        obits = data.data.slice(0, 12);
+                    }
+                    var list = document.getElementById('recentList');
+                    if (!list || obits.length === 0) return;
+                    var html = '';
+                    obits.forEach(function(obit) {
+                        html += '<div class="search-result-card" style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0.9rem;background:var(--cream);border:1.5px solid var(--light-taupe);border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.15s;" onclick="selectObituary(\'' + escapeHtml(obit.id) + '\')" onmouseover="this.style.borderColor=\'var(--terracotta)\'" onmouseout="this.style.borderColor=\'var(--light-taupe)\'">';
+                        html += '<div><div style="font-weight:600;font-size:0.95rem;">' + escapeHtml(obit.deceased_name) + '</div>';
+                        html += '<div style="font-size:0.82rem;color:var(--sage-dark);">' + escapeHtml(obit.city || 'Toronto') + '</div></div>';
+                        html += '<span style="color:var(--terracotta);font-size:0.85rem;font-weight:600;">Select &rarr;</span>';
+                        html += '</div>';
+                    });
+                    list.innerHTML = html;
+                })
+                .catch(function() {});
+        }
+
         function initSearch() {
             var input = document.getElementById('obiSearchBox');
             if (!input) return;
 
+            // Load recent families for browsing
+            loadRecentFamilies();
+
             input.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
                 var query = this.value.trim();
+                var recentEl = document.getElementById('recentFamilies');
                 if (query.length < 2) {
                     document.getElementById('searchResults').innerHTML = '';
+                    if (recentEl) recentEl.style.display = '';
                     return;
                 }
+                // Hide recent list when actively searching
+                if (recentEl) recentEl.style.display = 'none';
                 searchTimeout = setTimeout(function() {
                     fetch('/api/search?q=' + encodeURIComponent(query))
                         .then(function(r) { return r.json(); })

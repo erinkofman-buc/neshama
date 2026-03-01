@@ -712,9 +712,33 @@
 
         .form-message.success {
             display: block;
-            background: rgba(178, 190, 181, 0.2);
-            color: var(--sage-dark);
-            border: 1px solid #a5d6a7;
+            background: rgba(178, 190, 181, 0.15);
+            color: var(--dark-brown);
+            border: 1px solid var(--sage);
+            text-align: center;
+            padding: 1.25rem 1.5rem;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .form-message.success .confirm-icon {
+            display: block;
+            font-size: 1.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        @keyframes gentle-fade-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-message.success {
+            animation: gentle-fade-in 0.4s ease;
+        }
+
+        .guestbook-entry.just-posted {
+            animation: gentle-fade-in 0.5s ease;
+            box-shadow: 0 0 0 2px var(--sage), 0 2px 12px rgba(178,190,181,0.18);
         }
 
         .form-message.error {
@@ -1589,7 +1613,7 @@
             list.innerHTML = html;
         }
 
-        function loadGuestbook() {
+        function loadGuestbook(highlightFirst) {
             fetch('/api/tributes/' + encodeURIComponent(obituaryId))
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
@@ -1600,6 +1624,14 @@
                         entries = data.data;
                     }
                     renderGuestbookEntries(entries);
+                    if (highlightFirst) {
+                        var first = document.querySelector('.guestbook-entry');
+                        if (first) {
+                            first.classList.add('just-posted');
+                            first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(function() { first.classList.remove('just-posted'); }, 3000);
+                        }
+                    }
                 })
                 .catch(function() {
                     renderGuestbookEntries([]);
@@ -1745,14 +1777,15 @@
                     throw new Error(data.message || 'We weren\'t able to save your entry. Please try again.');
                 }
                 var successMsgs = {
-                    memory: 'Your memory has been shared. Thank you.',
-                    condolence: 'Your condolences have been sent. Thank you.',
-                    prayer: 'Your prayer has been offered. Thank you.',
-                    candle: 'A candle has been lit. Thank you.'
+                    memory: 'Your memory has been shared.',
+                    condolence: 'Your condolences have been sent.',
+                    prayer: 'Your prayer has been offered.',
+                    candle: 'A candle has been lit.'
                 };
                 msgEl.className = 'form-message success';
                 var thankYou = successMsgs[entryType] || 'Thank you for your entry.';
-                msgEl.innerHTML = thankYou + '<br><span style="font-size:0.85em;color:var(--sage-dark);margin-top:0.3rem;display:inline-block;">Thank you for honoring their memory.</span>';
+                msgEl.innerHTML = '<span class="confirm-icon">&#x2713;</span>' + thankYou + '<br><span style="font-size:0.88em;color:var(--sage-dark);margin-top:0.25rem;display:inline-block;">Your entry will appear in the guestbook below.</span>';
+                msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 nameInput.value = '';
                 relSelect.selectedIndex = 0;
                 messageInput.value = '';
@@ -1761,7 +1794,10 @@
                 document.querySelectorAll('.prayer-preset').forEach(function(p) { p.classList.remove('selected'); });
                 btn.disabled = false;
                 btn.textContent = originalText;
-                setTimeout(loadGuestbook, 500);
+                // Reload guestbook and highlight new entry
+                setTimeout(function() {
+                    loadGuestbook(true);
+                }, 600);
             })
             .catch(function(err) {
                 msgEl.className = 'form-message error';
