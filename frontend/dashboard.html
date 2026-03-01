@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neshama - Cofounder Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FAF9F6;
+            --terracotta: #D2691E;
+            --sage: #B2BEB5;
+            --dark-brown: #3E2723;
+            --light-sage: #d8e0da;
+            --card-bg: #FFFFFF;
+            --border: #e5e1dc;
+            --text-secondary: #6b5e54;
+            --success: #4a7c59;
+            --warning: #c9963a;
+            --error: #a94442;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--cream);
+            color: var(--dark-brown);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── Header ────────────────────────────────────── */
+        .dash-header {
+            background: var(--dark-brown);
+            color: var(--cream);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .dash-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .dash-header h1 span {
+            color: var(--terracotta);
+        }
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .refresh-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .btn-refresh {
+            background: var(--terracotta);
+            color: var(--cream);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+        .btn-refresh:hover { opacity: 0.85; }
+
+        /* ── Layout ────────────────────────────────────── */
+        .dash-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+        }
+
+        /* ── Overview Cards ────────────────────────────── */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            box-shadow: 0 2px 12px rgba(62, 39, 35, 0.08);
+        }
+        .stat-card .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .stat-card .stat-sublabel {
+            font-size: 0.75rem;
+            color: var(--sage);
+            margin-top: 2px;
+        }
+        .stat-card.loading .stat-value {
+            color: var(--sage);
+        }
+
+        /* ── Sections ──────────────────────────────────── */
+        .dash-section {
+            margin-bottom: 32px;
+        }
+        .section-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--terracotta);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── Tables ────────────────────────────────────── */
+        .dash-table-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dash-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .dash-table thead {
+            background: #f5f0eb;
+        }
+        .dash-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .dash-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0ece8;
+            vertical-align: top;
+        }
+        .dash-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .dash-table tbody tr:hover {
+            background: #faf7f3;
+        }
+        .empty-state {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ── Two-Column Layout ─────────────────────────── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* ── Activity Feed ─────────────────────────────── */
+        .activity-list {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0;
+            list-style: none;
+        }
+        .activity-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0ece8;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-item .activity-title {
+            font-weight: 500;
+            color: var(--dark-brown);
+        }
+        .activity-item .activity-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .activity-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .tag-obituary { background: #f3e8de; color: var(--terracotta); }
+        .tag-tribute { background: #e4ebe5; color: var(--success); }
+        .tag-meal { background: #e8eaf0; color: #4a5e7c; }
+
+        /* ── Revenue Section ───────────────────────────── */
+        .revenue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .revenue-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .revenue-card h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-brown);
+        }
+        .revenue-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--terracotta);
+        }
+        .revenue-note {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ── Outreach Checklist ────────────────────────── */
+        .outreach-list {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            list-style: none;
+        }
+        .outreach-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0ece8;
+        }
+        .outreach-item:last-child {
+            border-bottom: none;
+        }
+        .outreach-item input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--terracotta);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .outreach-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+        .outreach-item.checked label {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        .outreach-category {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--terracotta);
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+        .outreach-category:first-child {
+            margin-top: 0;
+        }
+
+        /* ── Responsive ────────────────────────────────── */
+        @media (max-width: 768px) {
+            .dash-header {
+                padding: 16px;
+            }
+            .dash-header h1 {
+                font-size: 1.3rem;
+            }
+            .dash-container {
+                padding: 16px 12px 40px;
+            }
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 14px 10px;
+            }
+            .stat-card .stat-value {
+                font-size: 1.8rem;
+            }
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            .dash-table {
+                font-size: 0.82rem;
+            }
+            .dash-table th, .dash-table td {
+                padding: 8px 10px;
+            }
+            .revenue-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .overview-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .stat-card .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ── Utility ───────────────────────────────────── */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0ece8 25%, #f7f4f0 50%, #f0ece8 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            height: 1em;
+            width: 60%;
+            margin: 0 auto;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .error-text {
+            color: var(--error);
+            font-size: 0.85rem;
+        }
+        .last-updated {
+            text-align: right;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="dash-header">
+    <h1><span>Neshama</span> &mdash; Cofounder Dashboard</h1>
+    <div class="header-meta">
+        <div class="refresh-indicator">
+            <div class="dot"></div>
+            <span id="refresh-status">Live</span>
+        </div>
+        <button class="btn-refresh" onclick="refreshAll()">Refresh Now</button>
+    </div>
+</header>
+
+<div class="dash-container">
+
+    <!-- ═══════ OVERVIEW CARDS ═══════ -->
+    <div class="overview-grid">
+        <div class="stat-card loading" id="card-obituaries">
+            <div class="stat-value" id="val-obituaries"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Obituaries</div>
+            <div class="stat-sublabel">All time</div>
+        </div>
+        <div class="stat-card loading" id="card-vendors">
+            <div class="stat-value" id="val-vendors"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Vendors</div>
+            <div class="stat-sublabel">Directory listings</div>
+        </div>
+        <div class="stat-card loading" id="card-caterers">
+            <div class="stat-value" id="val-caterers"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Caterers</div>
+            <div class="stat-sublabel">Approved partners</div>
+        </div>
+        <div class="stat-card loading" id="card-subscribers">
+            <div class="stat-value" id="val-subscribers"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Email Subscribers</div>
+            <div class="stat-sublabel">Confirmed</div>
+        </div>
+        <div class="stat-card loading" id="card-tributes">
+            <div class="stat-value" id="val-tributes"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Tributes</div>
+            <div class="stat-sublabel">Guestbook entries</div>
+        </div>
+        <div class="stat-card loading" id="card-shiva">
+            <div class="stat-value" id="val-shiva"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Active Shiva Pages</div>
+            <div class="stat-sublabel">Currently running</div>
+        </div>
+    </div>
+
+    <!-- ═══════ VENDOR CLICK TRACKING ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Vendor Click Tracking</h2>
+        <div class="dash-table-wrap">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Total Clicks</th>
+                        <th>Total Views</th>
+                        <th>Last Click</th>
+                    </tr>
+                </thead>
+                <tbody id="vendor-clicks-body">
+                    <tr><td colspan="4" class="empty-state">Loading vendor data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════ RECENT ACTIVITY ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Recent Activity</h2>
+        <div class="two-col">
+            <div>
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; margin-bottom: 8px; color: var(--text-secondary);">Recent Obituaries</h3>
+                <ul class="activity-list" id="recent-obituaries">
+                    <li class="activity-item"><span class="activity-meta">Loading...</span></li>
+                </ul>
+            </div>
+            <div>
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; margin-bottom: 8px; color: var(--text-secondary);">Recent Tributes &amp; Guestbook</h3>
+                <ul class="activity-list" id="recent-tributes">
+                    <li class="activity-item"><span class="activity-meta">Loading...</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ REVENUE TRACKING ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Revenue Tracking</h2>
+        <div class="revenue-grid">
+            <div class="revenue-card">
+                <h4>Stripe Revenue</h4>
+                <div class="revenue-value" id="val-stripe-revenue">--</div>
+                <div class="revenue-note">Sustainer + Premium payments</div>
+                <div class="revenue-note" style="color: var(--warning);">Connect Stripe API for live data</div>
+            </div>
+            <div class="revenue-card">
+                <h4>Vendor Affiliate Clicks</h4>
+                <div class="revenue-value" id="val-affiliate-clicks"><div class="loading-shimmer"></div></div>
+                <div class="revenue-note">Total outbound vendor clicks</div>
+            </div>
+            <div class="revenue-card">
+                <h4>Sustainer Members</h4>
+                <div class="revenue-value" id="val-sustainers">--</div>
+                <div class="revenue-note">Monthly recurring supporters</div>
+                <div class="revenue-note" style="color: var(--warning);">Connect Stripe for live count</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ OUTREACH PROGRESS ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Outreach Progress</h2>
+        <div class="outreach-list" id="outreach-checklist">
+            <div class="outreach-category">Synagogues &amp; Congregations</div>
+            <div class="outreach-item" data-key="outreach-beth-emeth">
+                <input type="checkbox" id="chk-beth-emeth">
+                <label for="chk-beth-emeth">Beth Emeth Bais Yehuda (Downsview)</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-beth-tzedec">
+                <input type="checkbox" id="chk-beth-tzedec">
+                <label for="chk-beth-tzedec">Beth Tzedec Congregation</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-adath-israel">
+                <input type="checkbox" id="chk-adath-israel">
+                <label for="chk-adath-israel">Adath Israel Congregation</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-holy-blossom">
+                <input type="checkbox" id="chk-holy-blossom">
+                <label for="chk-holy-blossom">Holy Blossom Temple</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-shaar-shalom">
+                <input type="checkbox" id="chk-shaar-shalom">
+                <label for="chk-shaar-shalom">Shaar Shalom Synagogue</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-chabad">
+                <input type="checkbox" id="chk-chabad">
+                <label for="chk-chabad">Chabad Houses (various)</label>
+            </div>
+
+            <div class="outreach-category">WhatsApp / Community Groups</div>
+            <div class="outreach-item" data-key="outreach-whatsapp-thornhill">
+                <input type="checkbox" id="chk-whatsapp-thornhill">
+                <label for="chk-whatsapp-thornhill">Thornhill Jewish Community WhatsApp</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-whatsapp-forest-hill">
+                <input type="checkbox" id="chk-whatsapp-forest-hill">
+                <label for="chk-whatsapp-forest-hill">Forest Hill / Cedarvale Jewish Group</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-whatsapp-bathurst">
+                <input type="checkbox" id="chk-whatsapp-bathurst">
+                <label for="chk-whatsapp-bathurst">Bathurst Corridor Moms Group</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-facebook-jewish-to">
+                <input type="checkbox" id="chk-facebook-jewish-to">
+                <label for="chk-facebook-jewish-to">Facebook: Jewish Toronto Groups</label>
+            </div>
+
+            <div class="outreach-category">Funeral Homes &amp; Chevra Kadisha</div>
+            <div class="outreach-item" data-key="outreach-benjamin">
+                <input type="checkbox" id="chk-benjamin">
+                <label for="chk-benjamin">Benjamin's Park Memorial Chapel</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-steeles">
+                <input type="checkbox" id="chk-steeles">
+                <label for="chk-steeles">Steeles Memorial Chapel</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-paperman">
+                <input type="checkbox" id="chk-paperman">
+                <label for="chk-paperman">Paperman &amp; Sons (Montreal)</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-chevra-kadisha">
+                <input type="checkbox" id="chk-chevra-kadisha">
+                <label for="chk-chevra-kadisha">Toronto Chevra Kadisha</label>
+            </div>
+
+            <div class="outreach-category">Vendors Contacted</div>
+            <div class="outreach-item" data-key="outreach-caterers-contacted">
+                <input type="checkbox" id="chk-caterers-contacted">
+                <label for="chk-caterers-contacted">Shiva caterers outreach (batch 1)</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-florists">
+                <input type="checkbox" id="chk-florists">
+                <label for="chk-florists">Kosher florists / gift baskets</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-meal-delivery">
+                <input type="checkbox" id="chk-meal-delivery">
+                <label for="chk-meal-delivery">Meal delivery services</label>
+            </div>
+
+            <div class="outreach-category">Media &amp; Press</div>
+            <div class="outreach-item" data-key="outreach-cjn">
+                <input type="checkbox" id="chk-cjn">
+                <label for="chk-cjn">Canadian Jewish News pitch</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-jewish-tribune">
+                <input type="checkbox" id="chk-jewish-tribune">
+                <label for="chk-jewish-tribune">Jewish Tribune / TJP</label>
+            </div>
+            <div class="outreach-item" data-key="outreach-jspace">
+                <input type="checkbox" id="chk-jspace">
+                <label for="chk-jspace">JSpace.com feature request</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="last-updated">
+        Last updated: <span id="last-updated-time">--</span>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const BASE = window.location.origin;
+    let refreshTimer = null;
+
+    // ── Fetch Helpers ─────────────────────────────────────
+
+    async function fetchJSON(url) {
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return await resp.json();
+        } catch (err) {
+            console.warn(`[Dashboard] Failed to fetch ${url}:`, err.message);
+            return null;
+        }
+    }
+
+    function setCardValue(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = value;
+        const card = el.closest('.stat-card');
+        if (card) card.classList.remove('loading');
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '--';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '--';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) + ' ' +
+                   d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' });
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // ── Data Fetchers ─────────────────────────────────────
+
+    async function fetchOverviewStats() {
+        // Try the consolidated dashboard endpoint first
+        const dashData = await fetchJSON(`${BASE}/api/dashboard-stats`);
+        if (dashData && dashData.status === 'success') {
+            const d = dashData.data;
+            setCardValue('val-obituaries', d.obituaries || 0);
+            setCardValue('val-vendors', d.vendors || 0);
+            setCardValue('val-caterers', d.caterers || 0);
+            setCardValue('val-subscribers', d.subscribers || 0);
+            setCardValue('val-tributes', d.tributes || 0);
+            setCardValue('val-shiva', d.active_shiva || 0);
+            setCardValue('val-affiliate-clicks', d.total_clicks || 0);
+            return;
+        }
+
+        // Fallback: fetch from individual endpoints
+        const [health, dirStats, subCount, communityStats] = await Promise.all([
+            fetchJSON(`${BASE}/api/health`),
+            fetchJSON(`${BASE}/api/directory-stats`),
+            fetchJSON(`${BASE}/api/subscribers/count`),
+            fetchJSON(`${BASE}/api/community-stats`)
+        ]);
+
+        if (health) {
+            setCardValue('val-obituaries', health.obituaries || 0);
+            setCardValue('val-vendors', health.vendors || 0);
+        }
+        if (dirStats && dirStats.data) {
+            setCardValue('val-caterers', dirStats.data.caterer_count || 0);
+            setCardValue('val-shiva', dirStats.data.active_shiva_count || 0);
+        }
+        if (subCount) {
+            setCardValue('val-subscribers', subCount.count || 0);
+        }
+        if (communityStats && communityStats.data) {
+            setCardValue('val-tributes', communityStats.data.tributes_left || 0);
+        }
+    }
+
+    async function fetchVendorClicks() {
+        const data = await fetchJSON(`${BASE}/api/dashboard-stats`);
+        const tbody = document.getElementById('vendor-clicks-body');
+        if (!tbody) return;
+
+        let clicks = [];
+        if (data && data.status === 'success' && data.data && data.data.vendor_clicks) {
+            clicks = data.data.vendor_clicks;
+        }
+
+        if (clicks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No vendor click data yet. Clicks are tracked when visitors use vendor links.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = clicks.map(v => `
+            <tr>
+                <td><strong>${escapeHTML(v.vendor_slug)}</strong></td>
+                <td>${v.click_count || 0}</td>
+                <td>${v.view_count || 0}</td>
+                <td>${formatDateTime(v.last_click)}</td>
+            </tr>
+        `).join('');
+    }
+
+    async function fetchRecentActivity() {
+        const data = await fetchJSON(`${BASE}/api/dashboard-stats`);
+        const obitList = document.getElementById('recent-obituaries');
+        const tributeList = document.getElementById('recent-tributes');
+
+        // Recent obituaries
+        let obituaries = [];
+        if (data && data.data && data.data.recent_obituaries) {
+            obituaries = data.data.recent_obituaries;
+        } else {
+            // Fallback: fetch from obituaries endpoint
+            const obitData = await fetchJSON(`${BASE}/api/obituaries`);
+            if (obitData && obitData.data) {
+                obituaries = obitData.data.slice(0, 8);
+            }
+        }
+
+        if (obitList) {
+            if (obituaries.length === 0) {
+                obitList.innerHTML = '<li class="activity-item"><span class="activity-meta">No recent obituaries.</span></li>';
+            } else {
+                obitList.innerHTML = obituaries.map(o => `
+                    <li class="activity-item">
+                        <span class="activity-title">
+                            <span class="activity-tag tag-obituary">Obit</span>
+                            ${escapeHTML(o.name || o.deceased_name || 'Unknown')}
+                        </span>
+                        <span class="activity-meta">${escapeHTML(o.funeral_home || o.source || '')} &mdash; ${formatDate(o.date_added || o.scraped_at || o.created_at)}</span>
+                    </li>
+                `).join('');
+            }
+        }
+
+        // Recent tributes
+        let tributes = [];
+        if (data && data.data && data.data.recent_tributes) {
+            tributes = data.data.recent_tributes;
+        }
+
+        if (tributeList) {
+            if (tributes.length === 0) {
+                tributeList.innerHTML = '<li class="activity-item"><span class="activity-meta">No recent tributes yet.</span></li>';
+            } else {
+                tributeList.innerHTML = tributes.map(t => `
+                    <li class="activity-item">
+                        <span class="activity-title">
+                            <span class="activity-tag tag-tribute">Tribute</span>
+                            ${escapeHTML(t.author_name || 'Anonymous')}
+                        </span>
+                        <span class="activity-meta">${escapeHTML((t.message || '').substring(0, 80))}${(t.message || '').length > 80 ? '...' : ''}</span>
+                        <span class="activity-meta">${formatDateTime(t.created_at)}</span>
+                    </li>
+                `).join('');
+            }
+        }
+    }
+
+    // ── Outreach Checklist Persistence ────────────────────
+
+    function initOutreachChecklist() {
+        const items = document.querySelectorAll('.outreach-item');
+        items.forEach(item => {
+            const key = item.getAttribute('data-key');
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (!key || !checkbox) return;
+
+            // Load saved state
+            const saved = localStorage.getItem(`neshama-dash-${key}`);
+            if (saved === 'true') {
+                checkbox.checked = true;
+                item.classList.add('checked');
+            }
+
+            // Save on change
+            checkbox.addEventListener('change', () => {
+                localStorage.setItem(`neshama-dash-${key}`, checkbox.checked);
+                if (checkbox.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        });
+    }
+
+    // ── Refresh Logic ─────────────────────────────────────
+
+    async function refreshAll() {
+        const status = document.getElementById('refresh-status');
+        if (status) status.textContent = 'Refreshing...';
+
+        try {
+            await Promise.all([
+                fetchOverviewStats(),
+                fetchVendorClicks(),
+                fetchRecentActivity()
+            ]);
+        } catch (err) {
+            console.error('[Dashboard] Refresh error:', err);
+        }
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateStr = now.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+
+        const lastUpdated = document.getElementById('last-updated-time');
+        if (lastUpdated) lastUpdated.textContent = `${dateStr} ${timeStr}`;
+        if (status) status.textContent = 'Live';
+    }
+
+    // Make refreshAll available globally for the button
+    window.refreshAll = refreshAll;
+
+    // ── Init ──────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initOutreachChecklist();
+        refreshAll();
+
+        // Auto-refresh every 60 seconds
+        refreshTimer = setInterval(refreshAll, 60000);
+    });
+
+    // Clean up on page hide
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(refreshTimer);
+        } else {
+            refreshAll();
+            refreshTimer = setInterval(refreshAll, 60000);
+        }
+    });
+
+})();
+</script>
+
+</body>
+</html>

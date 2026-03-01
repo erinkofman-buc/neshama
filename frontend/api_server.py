@@ -195,6 +195,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/yahrzeit': ('yahrzeit.html', 'text/html'),
         '/yahrzeit.html': ('yahrzeit.html', 'text/html'),
+        '/dashboard': ('dashboard.html', 'text/html'),
+        '/cofounder': ('dashboard.html', 'text/html'),
+        '/dashboard.html': ('dashboard.html', 'text/html'),
         '/sitemap.xml': ('sitemap.xml', 'application/xml'),
         '/robots.txt': ('robots.txt', 'text/plain'),
     }
@@ -230,6 +233,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_community_stats()
         elif path == '/api/directory-stats':
             self.get_directory_stats()
+        elif path == '/api/dashboard-stats':
+            self.get_dashboard_stats()
         elif path == '/api/tributes/counts':
             self.get_tribute_counts()
         # Single obituary API
@@ -1127,6 +1132,147 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_json_response({
                 'status': 'success',
                 'data': {'obituary_count': 0, 'active_shiva_count': 0, 'caterer_count': 0}
+            })
+
+    # ── API: Dashboard Stats (Cofounder) ────────────────────────
+
+    def get_dashboard_stats(self):
+        """Consolidated stats endpoint for the cofounder dashboard"""
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Core counts
+            obituary_count = 0
+            vendor_count = 0
+            caterer_count = 0
+            subscriber_count = 0
+            tribute_count = 0
+            active_shiva_count = 0
+            total_clicks = 0
+
+            try:
+                cursor.execute('SELECT COUNT(*) FROM obituaries')
+                obituary_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            try:
+                cursor.execute('SELECT COUNT(*) FROM vendors')
+                vendor_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            try:
+                cursor.execute("SELECT COUNT(*) FROM caterer_partners WHERE status = 'approved'")
+                caterer_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+            if caterer_count == 0:
+                try:
+                    cursor.execute("SELECT COUNT(*) FROM vendors WHERE vendor_type = 'food'")
+                    caterer_count = cursor.fetchone()[0]
+                except Exception:
+                    pass
+
+            try:
+                cursor.execute('SELECT COUNT(*) FROM subscribers WHERE confirmed = TRUE')
+                subscriber_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            try:
+                cursor.execute('SELECT COUNT(*) FROM tributes')
+                tribute_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            try:
+                cursor.execute("SELECT COUNT(*) FROM shiva_support WHERE status = 'active'")
+                active_shiva_count = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            # Vendor click tracking
+            vendor_clicks = []
+            try:
+                cursor.execute('''
+                    SELECT
+                        vc.vendor_slug,
+                        COUNT(vc.id) as click_count,
+                        MAX(vc.created_at) as last_click,
+                        COALESCE(vv.view_count, 0) as view_count
+                    FROM vendor_clicks vc
+                    LEFT JOIN (
+                        SELECT vendor_slug, COUNT(*) as view_count
+                        FROM vendor_views
+                        GROUP BY vendor_slug
+                    ) vv ON vc.vendor_slug = vv.vendor_slug
+                    GROUP BY vc.vendor_slug
+                    ORDER BY click_count DESC
+                    LIMIT 50
+                ''')
+                vendor_clicks = [dict(row) for row in cursor.fetchall()]
+                cursor.execute('SELECT COUNT(*) FROM vendor_clicks')
+                total_clicks = cursor.fetchone()[0]
+            except Exception:
+                pass
+
+            # Recent obituaries (last 8)
+            recent_obituaries = []
+            try:
+                cursor.execute('''
+                    SELECT id, name, funeral_home, scraped_at as date_added
+                    FROM obituaries
+                    ORDER BY scraped_at DESC
+                    LIMIT 8
+                ''')
+                recent_obituaries = [dict(row) for row in cursor.fetchall()]
+            except Exception:
+                pass
+
+            # Recent tributes (last 8)
+            recent_tributes = []
+            try:
+                cursor.execute('''
+                    SELECT id, author_name, message, created_at
+                    FROM tributes
+                    ORDER BY created_at DESC
+                    LIMIT 8
+                ''')
+                recent_tributes = [dict(row) for row in cursor.fetchall()]
+            except Exception:
+                pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'obituaries': obituary_count,
+                    'vendors': vendor_count,
+                    'caterers': caterer_count,
+                    'subscribers': subscriber_count,
+                    'tributes': tribute_count,
+                    'active_shiva': active_shiva_count,
+                    'total_clicks': total_clicks,
+                    'vendor_clicks': vendor_clicks,
+                    'recent_obituaries': recent_obituaries,
+                    'recent_tributes': recent_tributes
+                }
+            })
+        except Exception as e:
+            logging.error(f"[Dashboard] Stats error: {e}")
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'obituaries': 0, 'vendors': 0, 'caterers': 0,
+                    'subscribers': 0, 'tributes': 0, 'active_shiva': 0,
+                    'total_clicks': 0, 'vendor_clicks': [],
+                    'recent_obituaries': [], 'recent_tributes': []
+                }
             })
 
     # ── Admin: Scraper ─────────────────────────────────────────

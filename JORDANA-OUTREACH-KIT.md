@@ -1,118 +1,270 @@
-# Jordana's Outreach Kit — Neshama
+# Neshama — Cofounder Briefing for Jordana
 **Updated: March 1, 2026**
 
-> Copy-paste ready. Organized by who you're reaching out to. Adjust tone to fit — you know these people, we don't.
+Jordana — this is everything. How the product works, how it makes money, what we're tracking, what's next, and how you can see it all in real time.
 
 ---
 
-## Your Channels
+## What Neshama Is
 
-| Channel | What to share | Template below |
-|---------|--------------|----------------|
-| Personal WhatsApp groups | Quick intro + link | §1 |
-| Orthodox community circles | Warm personal message | §2 |
-| Synagogue contacts / chesed committees | Slightly more formal, offer for newsletter | §3 |
-| Vendor warm intros (caterers you know) | Peer-to-peer, caterer-to-caterer | §4 |
-| Funeral home contacts | Intel-gathering + awareness | §5 |
-| Dana Cohen Ezer / Hartsman Institute | Specific warm intro | §6 |
+Neshama (neshama.ca) is a free community platform for Jewish families in Toronto and Montreal. When someone passes away, the people around them want to help — but the logistics are a mess. We bring everything together in one place.
 
----
+**What's live right now:**
+- **Obituary feed** — Aggregated automatically from 3 funeral homes (Steeles, Benjamin's, Paperman's). 100+ real listings. Updated daily.
+- **Shiva meal coordination** — A friend or family member creates a shiva page. Community members sign up for specific meal slots (breakfast/lunch/dinner) on each day. Everyone sees what's covered and what's still needed. Supports co-organizers.
+- **Vendor directory** — 110 verified vendors: 86 food (caterers, bakeries, delis) + 24 gift (baskets, comfort items, memorial trees). Browsable by category.
+- **Caterer directory** — 18 caterers with detailed profiles (kosher level, delivery area, price range, descriptions).
+- **Digital condolence guestbook** — Friends leave tributes, light a memorial candle, share memories. Exportable as a PDF keepsake the family keeps forever.
+- **Yahrzeit reminders** — Annual reminders on the Hebrew calendar anniversary of a loved one's passing. Double opt-in, handles leap years and Adar edge cases.
+- **Plant a Memorial Tree** — JNF partnership for tree planting in Israel ($18/tree).
+- **"What to Bring to a Shiva" guide** — Educational content that ranks in search.
+- **Shiva Essentials page** — Products and guidance for setting up the shiva home.
 
-## §1. WhatsApp Groups — Quick Drop
-
-For your personal groups, mom groups, community groups. Keep it casual — you're sharing something you believe in, not selling anything.
-
----
-
-Hey everyone — I wanted to share something really close to my heart. My friend Erin Kofman built a site called Neshama for our community. You know how when someone passes away, everyone wants to help but nobody knows who's bringing what, and you're googling three different funeral home sites to find the details? Neshama puts it all in one place — obituaries from Toronto and Montreal funeral homes, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine 😊).
-
-I've been helping her test it and it's beautifully done — really respectful, no ads, no sign-up required. Worth bookmarking: www.neshama.ca
+**Scale:** 24 pages, 100+ obituaries, 110 vendors, 18 caterers. This is not a prototype.
 
 ---
 
-## §2. Orthodox Community Circles
+## How Users Find Us & What They Experience
 
-For your deeper community connections. More personal. You're vouching for this.
+### The First Visit
+Someone finds neshama.ca — through a Google search ("Toronto Jewish obituaries"), a WhatsApp share, or word of mouth. They land on the homepage.
+
+**Above the fold:** They see the obituary search bar, a clear explanation of what the site does, and jump-navigation to all features. No sign-up required. No paywall. Everything is immediately accessible.
+
+### The Email Popup
+**When:** After 45 seconds of idle time on any page.
+**What:** A non-intrusive overlay: "Stay connected to our community. When someone in our community passes away, you'll know — so you can show up when it matters."
+**Fields:** Email, frequency preference (daily or weekly digest), location (Toronto and/or Montreal).
+**CTA:** "Keep Me Informed"
+**Rules:** Only shows once per session. If dismissed, waits 24 hours before showing again. Once subscribed, never shows again. This is tracked via localStorage on their device.
+
+**What happens with those emails:** They go into our subscriber database. We send daily or weekly digest emails with new obituaries. Powered by SendGrid.
+
+### The Sustain Page
+**Where:** neshama.ca/sustain (linked in nav + footer on every page)
+**When shown:** Only when someone clicks it. We never push this during grief. No pop-ups for payment. Ever.
+**What it is:** A voluntary annual contribution of $18 CAD (one chai). Not a donation — we're a for-profit. Not tax-deductible. We're transparent about this.
+**Payment:** Stripe Checkout → annual recurring subscription → success page.
+**Amounts:** Default $18/year. Custom amounts available.
+**Key line on the page:** "Voluntary contribution, not a charitable donation. Not tax-deductible."
 
 ---
 
-Hi [Name] — I've been meaning to tell you about something. My close friend Erin Kofman built a resource for the community called Neshama (www.neshama.ca). I've been involved from the early stages and I really believe in what she's doing.
+## How We Make Money
 
-You know how it is when there's a loss — everyone wants to help, but the coordination falls apart. Three people bring chicken on Monday, nobody brings anything Wednesday. And the family is dealing with funeral arrangements on top of everything else.
+Three revenue streams. The first is the main one.
 
-Neshama pulls together obituaries from the local funeral homes so you don't have to check multiple sites, and it has a meal coordination tool where friends can sign up for specific days. There's also a full directory of caterers and vendors who serve shiva families — I see this firsthand through Jem Salads.
+### 1. Featured Vendor Listings (Primary Revenue)
 
-It's free, it's respectful, and it's already live with over 100 real listings. I think it could genuinely help our community. If you know anyone on a chesed committee or who organizes for families, I'd love for them to see it.
+This is B2B, not family-facing.
+
+**How it works:**
+- All 110 vendors have a free listing. That never changes. Nobody gets removed.
+- Behind the scenes, we track every click and view on every vendor listing (more on this below).
+- **Month 1-2:** We email each vendor: "Hey, you're listed on Neshama. Families are finding you. Here's your free listing."
+- **Month 2-3:** We start sending automated monthly performance reports: "Your listing got X views and Y clicks this month."
+- **Month 3+:** Now we have real data. We reach out: "You got 47 clicks last month. Featured vendors get ~3x more visibility. Want to try it?"
+
+**Featured listing ($49/mo founding rate):**
+- Priority placement in directory (appears first)
+- "Featured" badge on listing
+- Photo gallery on profile
+- Access to detailed analytics dashboard
+- Monthly performance reports
+
+**The math for vendors:** One shiva catering order = $200-$1,500. One order covers months of listing fees. Sells itself once we have the data.
+
+**Year 1 target:** 5-20 vendors paying $39-79/month = $2,300-$16,500/year.
+
+### 2. Community Sustainers (Voluntary)
+
+- $18 CAD/year (chai)
+- Voluntary, not a paywall. Nothing gets locked.
+- 10% goes to Jewish community organizations (JFCS Toronto, Federation CJA Montreal)
+- **Year 1 target:** 100-500 people × $18 = $1,800-$9,000/year
+
+### 3. Affiliate & Partnerships
+
+- **Amazon affiliate links** on all product pages — tag `neshama07-20`. When someone clicks through and buys, we get 1-5% commission depending on category.
+- **JNF memorial tree planting** — $18/tree partnership
+- **UTM-tracked vendor links** — all outbound vendor links tagged with `utm_source=neshama` for attribution
+- **Year 1 target:** $870-$4,680/year
+
+### Total Year 1 Projections
+| Scenario | Revenue |
+|----------|---------|
+| Conservative | $7,250 |
+| Moderate | $28,272 |
+| Optimistic | $56,460 |
+| **Monthly costs** | **$8.25** (Render hosting + domain) |
+
+Break-even: Month 2-3.
 
 ---
 
-## §3. Synagogue Contacts / Chesed Committees
+## What We're Tracking (Metrics)
 
-For rabbis, executive directors, chesed committee chairs. Offer something concrete — a blurb for their newsletter.
+### Vendor Performance (This Is How We Sell Featured Listings)
+
+Every vendor interaction is tracked:
+
+1. **Profile views** — When someone views a vendor's listing page. Logged with timestamp and referrer (which page they came from).
+2. **Website clicks** — When someone clicks through to a vendor's actual website. Routed through `/api/track-click` which logs the click then redirects. We capture: vendor slug, destination URL, referrer page, timestamp.
+3. **Lead submissions** — When someone fills out the inquiry form on a vendor page. We capture: vendor name, contact info, event type, date, guest count, message.
+
+**Monthly vendor reports** go out automatically on the 1st of each month. Each vendor gets: profile views, website clicks, and inquiry count for the past 30 days.
+
+### Email Subscriber Metrics
+- Total confirmed subscribers
+- Frequency breakdown (daily vs. weekly)
+- Location breakdown (Toronto vs. Montreal)
+- Bounce count per subscriber
+- Unsubscribe rate + reasons (we ask why)
+- Last email sent date per subscriber
+
+### Shiva Adoption Metrics
+- Shiva pages created
+- Meal signups per shiva
+- Co-organizer invites
+- Community updates posted
+
+### Site-Wide Analytics (Plausible)
+Plausible analytics is on every single page. It tracks:
+- Page views, unique visitors, sessions
+- Referral sources (where traffic comes from)
+- Device/browser breakdown
+- User journey through the site
+- **Dashboard:** plausible.io (we'll share access)
+
+### Amazon Affiliate
+Amazon Associates dashboard shows clicks and commissions. Tag: `neshama07-20`.
 
 ---
+
+## Your Dashboard
+
+**URL:** neshama.ca/dashboard (or neshama.ca/cofounder)
+
+This is a live dashboard — not linked from the public site. Only accessible if you know the URL. Shows:
+
+- **Overview cards** — Obituaries, vendors, caterers, subscribers, tributes, active shiva pages. Real-time from the database.
+- **Vendor click tracking** — Table of every vendor with their total clicks, views, and last activity.
+- **Recent activity** — Latest obituaries and guestbook entries.
+- **Revenue tracking** — Affiliate clicks, sustainer count (Stripe integration coming).
+- **Outreach progress** — Checkboxes for your channels (synagogues, WhatsApp groups, funeral homes, vendors contacted, media). Your check marks persist between sessions.
+
+Auto-refreshes every 60 seconds. Works on mobile.
+
+---
+
+## What's Built, What's Next
+
+### Done ✅
+- Full product live on neshama.ca (24 pages, all features working)
+- 100+ obituaries from 3 funeral homes (auto-scraped daily)
+- 110 vendors, 18 caterers in directory
+- Stripe payments live (tested with real payment + refund)
+- Email subscription with daily/weekly digests via SendGrid
+- Yahrzeit reminder system (Hebrew calendar, daily 9AM cron)
+- All tracking infrastructure (vendor clicks, views, leads, analytics)
+- Monthly vendor performance reports (automated)
+- Amazon affiliate links on all product pages
+- UTM tracking on all outbound vendor links
+- 7 beta fixes deployed from tester feedback
+- Founder story on About page, 14 FAQs
+- Cofounder dashboard at /dashboard
+- All Instagram posts created + scheduled (Mar 2-8)
+
+### Next — Timeline
+
+**This week (Mar 1-7):**
+- [ ] Jordana begins outreach (WhatsApp groups, Orthodox circles, synagogues)
+- [ ] Instagram posts go live (scheduled: Mon-Sun)
+- [ ] Instagram Highlights set up (About, Resources, Community)
+- [ ] Monitor analytics daily, fix any issues immediately
+
+**Week 2 (Mar 8-14):**
+- [ ] Vendor outreach emails sent — "You're listed on Neshama" (110 vendors)
+- [ ] Call 5 kosher caterers — pitch Featured Vendor ($49/mo founding rate)
+- [ ] Synagogue outreach emails (12+ synagogues)
+- [ ] Press pitch: Canadian Jewish News
+
+**Month 1 (March):**
+- [ ] First monthly vendor performance reports sent
+- [ ] Offer "Founding Partner" rate to first 10 vendors ($29/mo locked 12 months)
+- [ ] Formalize funeral home partnerships (Steeles, Benjamin's, Paperman's)
+- [ ] Build vendor analytics dashboard for vendors themselves
+
+**Month 2-3:**
+- [ ] Revenue activation: convert 5-20 vendors to Featured
+- [ ] Shiva-to-vendor ordering flow (10-15% commission)
+- [ ] Memorial donation integration
+- [ ] Expand to more funeral homes
+- [ ] US expansion research (South Florida first — 620K Jews, snowbird overlap)
+
+---
+
+## Outreach Materials Ready for You
+
+All copy-paste ready. Organized by channel.
+
+### WhatsApp Groups — Quick Drop
+
+Hey everyone — I wanted to share something really close to my heart. My friend Erin Kofman and I have been working on a site called Neshama for our community. You know how when someone passes away, everyone wants to help but nobody knows who's bringing what, and you're googling three different funeral home sites to find the details? Neshama puts it all in one place — obituaries from Toronto and Montreal funeral homes, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine 😊).
+
+It's beautifully done — really respectful, no ads, no sign-up required. Worth bookmarking: www.neshama.ca
+
+### Orthodox Community Circles
+
+Hi [Name] — I've been meaning to tell you about something. Erin Kofman and I built a resource for the community called Neshama (www.neshama.ca). I've been involved from the beginning and I really believe in what we're doing.
+
+You know how it is when there's a loss — everyone wants to help, but the coordination falls apart. Three people bring chicken on Monday, nobody brings anything Wednesday.
+
+Neshama pulls together obituaries from the local funeral homes so you don't have to check multiple sites, and it has a meal coordination tool where friends can sign up for specific days. There's also a full directory of caterers and vendors who serve shiva families — I see this need firsthand through Jem Salads.
+
+It's free, it's respectful, and it's already live with over 100 real listings. If you know anyone on a chesed committee or who organizes for families, I'd love for them to see it.
+
+### Synagogue Contacts / Chesed Committees
 
 Hi [Name],
 
 I wanted to share a community resource that I think would be valuable for [Synagogue Name]'s congregation.
 
-A friend of mine, Erin Kofman, built a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a directory of 110+ local caterers and vendors.
+I've been working with Erin Kofman on a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a directory of 110+ local caterers and vendors.
 
-As someone who runs a catering business that serves shiva families, I see how fragmented and stressful the logistics can be — especially for the people trying to help. Neshama gives the community a simple way to find information, coordinate meals, and connect with vendors, all in one place.
+As someone who runs a catering business that serves shiva families, I see how fragmented and stressful the logistics can be. Neshama gives the community a simple way to find information, coordinate meals, and connect with vendors, all in one place. Free for families. No sign-up, no fees.
 
-It's completely free for families. No sign-up, no fees.
-
-Would you be open to mentioning it in your next newsletter or sharing it with your chesed committee? I've included a short blurb below that you're welcome to use as-is or adapt:
+Would you be open to mentioning it in your next newsletter or sharing it with your chesed committee? Here's a blurb you can use:
 
 > **Community Resource: Neshama** — A new resource for Jewish families in Toronto and Montreal. Search obituaries from local funeral homes, coordinate shiva meals with friends and neighbours, and browse a directory of verified caterers and vendors. Free to use, no sign-up required. Visit www.neshama.ca
-
-Thank you for considering it. Happy to answer any questions.
 
 Warmly,
 Jordana Mednick
 
----
+### Vendor Peers (Caterer-to-Caterer)
 
-## §4. Vendor Warm Intros (Caterer-to-Caterer)
+Hey [Name] — hope business is good! I wanted to let you know about something Erin and I have been building. It's called Neshama (www.neshama.ca) — a community hub for Jewish families dealing with a loss. Obituary feed, meal coordination for shiva, vendor directory.
 
-You're a peer. You run Jem Salads. This is a colleague-to-colleague message.
+You're actually already listed on it — Erin compiled a directory of caterers and vendors across Toronto and Montreal who serve shiva families. You can see your listing at [listing URL].
 
----
-
-Hey [Name] — hope business is good! I wanted to let you know about something. My friend Erin built a site called Neshama (www.neshama.ca) that's like a community hub for Jewish families dealing with a loss — obituary feed, meal coordination for shiva, vendor directory.
-
-You're actually already listed on it — she compiled a directory of caterers and vendors across Toronto and Montreal who serve shiva families. You can see your listing at [listing URL].
-
-If any of the details need updating (phone, website, menu info), just let me know and I'll pass it along. There's also an option to get a featured listing if you want to stand out, but your current listing is there either way.
+If any details need updating (phone, website, menu info), just let me know. There's also an option for a featured listing if you want more visibility, but your current listing stays free either way.
 
 Worth checking out: www.neshama.ca/shiva/caterers
 
----
-
-## §5. Funeral Home Contacts
-
-This is intel-gathering AND relationship-building. You're not pitching — you're informing them and asking what they think.
-
----
+### Funeral Home Contacts
 
 Hi [Name] — I'm reaching out because I wanted to make you aware of a community resource called Neshama (www.neshama.ca). It aggregates obituaries from Jewish funeral homes across Toronto and Montreal — including [Funeral Home Name] — along with shiva meal coordination tools and a vendor directory.
 
-A friend of mine built it, and I've been helping spread the word in the community. I wanted to make sure you knew about it, and I'd genuinely appreciate any feedback. Is this useful? Is there anything about how your listings appear that you'd want adjusted?
+I've been working on this with Erin Kofman, and I wanted to make sure you knew about it. We'd genuinely appreciate any feedback. Is this useful from your perspective? Is there anything about how your listings appear that you'd want adjusted?
 
 Happy to chat anytime.
 
 Best,
 Jordana Mednick
 
----
+### Dana Cohen Ezer / Hartsman Institute
 
-## §6. Dana Cohen Ezer / Hartsman Institute
-
-Specific warm intro — you know Dana personally.
-
----
-
-Hey Dana — I've been meaning to tell you about this. My friend Erin Kofman built something called Neshama (www.neshama.ca) — it's a community resource for Jewish families during a loss. Pulls together obituaries from Toronto and Montreal funeral homes, has meal coordination for shiva, vendor directory, the whole thing.
+Hey Dana — I've been meaning to tell you about this. Erin Kofman and I built something called Neshama (www.neshama.ca) — it's a community resource for Jewish families during a loss. Pulls together obituaries from Toronto and Montreal funeral homes, has meal coordination for shiva, vendor directory, the whole thing.
 
 I know through your work with the Hartsman Institute you see the community side of grief and support. I think Neshama could be a really natural fit to share with people in that world — chesed committees, community organizations, anyone who works with families during difficult times.
 
@@ -122,43 +274,38 @@ Would love for you to take a look and tell me what you think. And if you see an 
 
 ## FAQ — When People Ask Questions
 
-### "What is this exactly?"
-> A free website for Jewish families when someone passes away. Pulls together obituaries from funeral homes, has a meal coordination tool so friends don't overlap, and a directory of 110+ local caterers and vendors. Think of it as everything the community needs during shiva, in one place.
+**"What is this exactly?"**
+> A free website for Jewish families when someone passes away. Pulls together obituaries from funeral homes, has a meal coordination tool so friends don't overlap, and a directory of 110+ local caterers and vendors. Everything the community needs during shiva, in one place.
 
-### "Why not just call a caterer?"
+**"Why not just call a caterer?"**
 > You absolutely should — the site even has a directory to help you find one. But the coordination piece is different. When 12 people want to bring food, you end up with three kugels Monday and nothing Wednesday. The meal tool lets everyone sign up for specific days. It works alongside caterers, not instead of them.
 
-### "Does it cost anything?"
-> No. Free for families. No accounts, no fees. Erin built it as a community resource — it sustains itself through optional vendor listings.
+**"Does it cost anything?"**
+> No. Free for families. No accounts, no fees. We sustain the site through optional vendor listings — the family side will always be free.
 
-### "How does she make money?"
-> Right now she doesn't — it's a passion project. Long-term, caterers and vendors can pay for featured listings. But the family-facing side will always be free.
+**"How do you make money?"**
+> Vendors can pay for featured listings to get more visibility. We also have Amazon affiliate links and a voluntary sustainer program ($18/year). But the family-facing side is free. Always.
 
----
-
-## Key Pages to Share
-
-| Page | Link | When to share |
-|------|------|---------------|
-| **Homepage** | www.neshama.ca | Default |
-| **Obituary Feed** | www.neshama.ca/feed | "How do I find out about a loss?" |
-| **Meal Coordination** | www.neshama.ca/shiva-organize | "I want to organize meals for a family" |
-| **Caterer Directory** | www.neshama.ca/shiva/caterers | "I need a caterer for shiva" |
-| **Full Vendor Directory** | www.neshama.ca/directory | "I want to send food or a gift" |
-| **What to Bring** | www.neshama.ca/what-to-bring-to-a-shiva | "What should I bring?" |
-| **Gift Ideas** | www.neshama.ca/gifts | "I want to send something other than food" |
-| **About** | www.neshama.ca/about | "Who built this?" |
+**"Is this only for Jewish families?"**
+> It was built for the Jewish community — shiva, yahrzeit, kosher considerations. But anyone is welcome to use it.
 
 ---
 
-## Reminders
+## Key Pages
 
-- **The site is live and real.** 100+ obituaries, 110 vendors, 18 caterers, 24 pages.
-- **All beta feedback has been addressed.** Mobile UX overhauled, meal coordination flow simplified, browsable obituary list added.
-- **Tone matters.** This is about loss. If something feels like a pitch, pull back. You're sharing a resource, not selling a product.
-- **Send all feedback to Erin.** Even tiny things — hard to read on phone, confusing button, missing vendor — all of it helps.
-- **You don't need to do everything at once.** Start with 2-3 WhatsApp groups and see what resonates. Then expand.
+| Page | Link |
+|------|------|
+| Homepage | www.neshama.ca |
+| Obituary Feed | www.neshama.ca/feed |
+| Meal Coordination | www.neshama.ca/shiva-organize |
+| Caterer Directory | www.neshama.ca/shiva/caterers |
+| Full Vendor Directory | www.neshama.ca/directory |
+| What to Bring | www.neshama.ca/what-to-bring-to-a-shiva |
+| Shiva Essentials | www.neshama.ca/shiva-essentials |
+| Gift Ideas | www.neshama.ca/gifts |
+| About | www.neshama.ca/about |
+| **Cofounder Dashboard** | **www.neshama.ca/dashboard** |
 
 ---
 
-*Thank you, Jordana. This wouldn't happen without you.*
+*This is your thing, Jordana. You had the idea. Let's make it matter.*
