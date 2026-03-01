@@ -127,8 +127,8 @@
 
         .kosher-badge {
             display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: rgba(178, 190, 181, 0.2);
+            color: var(--sage-dark);
             font-size: 0.85rem;
             font-weight: 600;
             padding: 0.35rem 0.85rem;
@@ -291,16 +291,16 @@
 
         .form-msg.success {
             display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
+            background: rgba(178, 190, 181, 0.2);
+            color: var(--sage-dark);
+            border: 1px solid var(--sage);
         }
 
         .form-msg.error {
             display: block;
             background: #fce4ec;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
+            color: var(--dark-brown);
+            border: 1px solid var(--light-taupe);
         }
 
         .back-link {
@@ -345,7 +345,7 @@
         }
 
         .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
-        .footer-links a:hover { color: var(--terracotta); text-decoration: none; }
+        .footer-links a:hover { color: var(--terracotta); }
         .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
 
         @media (max-width: 768px) {

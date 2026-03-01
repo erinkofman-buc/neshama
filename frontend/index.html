@@ -1249,7 +1249,7 @@
            FOOTER
            ══════════════════════════════════════════════════════ */
 
-        .site-footer {
+        footer {
             max-width: 860px;
             margin: 2rem auto 0;
             padding: 2.5rem 1.25rem;
@@ -1276,21 +1276,12 @@
         }
 
         .footer-links a:hover {
-            color: var(--gold);
+            color: var(--terracotta);
         }
 
         .footer-copy {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--sage-dark);
-            font-style: italic;
-        }
-
-        .footer-neshama {
-            font-size: 0.78rem;
-            color: var(--sage-dark);
-            opacity: 0.5;
-            margin-top: 0.6rem;
-            letter-spacing: 0.01em;
         }
 
         /* ══════════════════════════════════════════════════════
@@ -1483,9 +1474,9 @@
 
         .error-message {
             display: none;
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
+            background: rgba(210, 105, 30, 0.08);
+            border: 1px solid #c45a1a;
+            color: var(--dark-brown);
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             margin-bottom: 1rem;
@@ -1918,7 +1909,7 @@
     <!-- ════════════════════════════════════════════════════
          TOP NAVIGATION
          ════════════════════════════════════════════════════ -->
-    <a href="#feed" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
@@ -1998,8 +1989,9 @@
     <!-- ════════════════════════════════════════════════════
          FOOTER
          ════════════════════════════════════════════════════ -->
-    <footer class="site-footer">
+    <footer>
         <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
             <a href="/shiva-essentials">Shiva Essentials</a>
@@ -2012,7 +2004,6 @@
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
         <p class="footer-copy">Built with care for the Jewish community</p>
-        <p class="footer-neshama">Neshama (&#x05E0;&#x05E9;&#x05DE;&#x05D4;) means <em>soul</em> in Hebrew. Every soul remembered.</p>
     </footer>
 
     <!-- ════════════════════════════════════════════════════

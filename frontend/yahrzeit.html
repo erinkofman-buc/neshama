@@ -281,38 +281,36 @@
         }
 
         /* Footer */
-        .site-footer { text-align: center; padding: 2rem 1.5rem; border-top: 1px solid rgba(212, 197, 185, 0.3); margin-top: 3rem; }
-        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-bottom: 0.75rem; }
-        .footer-links a { font-size: 0.85rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; }
-        .footer-links a:hover { color: var(--dark-brown); }
-        .footer-copy { font-size: 0.8rem; color: var(--light-taupe); }
+        footer { padding: 2rem 1.5rem; border-top: 1px solid var(--light-taupe); text-align: center; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
     </style>
 </head>
 <body>
-    <a href="#main" class="skip-link">Skip to content</a>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+    <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
-        <div class="nav-center" id="navMenu">
+        <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
-                <a href="/feed" class="nav-link">Obituaries</a>
-                <a href="/shiva/organize" class="nav-link">Organize Meals</a>
-                <a href="/directory" class="nav-link">Directory</a>
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva<span class="nav-btn-subtext">For friends &amp; family coordinating meals</span></a>
             </div>
-            <div class="nav-divider"></div>
+            <span class="nav-divider"></span>
             <div class="nav-group-secondary">
-                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
                 <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
                 <a href="/about" class="nav-link nav-link-secondary">About</a>
-                <a href="/sustain" class="nav-premium-btn">Sustain<span class="nav-btn-subtext">Keep Neshama Free</span></a>
             </div>
         </div>
-        <button class="nav-hamburger" onclick="document.getElementById('navMenu').classList.toggle('open')" aria-label="Menu">
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
             <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
     </nav>
 
-    <main id="main">
+    <main id="main-content">
         <div class="page-container">
             <div class="page-header">
                 <h1>Yahrzeit Reminders</h1>
@@ -376,7 +374,7 @@
         </div>
     </main>
 
-    <footer class="site-footer">
+    <footer>
         <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/about">About</a>
@@ -482,5 +480,15 @@
         }
     })();
     </script>
+<script>
+var hamburgerBtn = document.getElementById('hamburgerBtn');
+var navLinks = document.getElementById('navLinks');
+if (hamburgerBtn && navLinks) {
+    hamburgerBtn.addEventListener('click', function() {
+        var isOpen = navLinks.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+}
+</script>
 </body>
 </html>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
     <title>Email Subscription Component - Neshama</title>
     <style>
         /* Email Popup Overlay */
@@ -65,7 +68,7 @@
         
         /* Popup Content */
         .popup-title {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.8rem;
             font-weight: 600;
             color: #3E2723;
@@ -74,7 +77,7 @@
         }
         
         .popup-description {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             color: #3E2723;
             text-align: center;
@@ -90,7 +93,7 @@
         }
         
         .email-input {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             padding: 1rem 1.5rem;
             border: 2px solid #D4C5B9;
@@ -117,7 +120,7 @@
         
         .btn-subscribe {
             flex: 1;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             font-weight: 600;
             padding: 1rem 2rem;
@@ -142,7 +145,7 @@
         
         .btn-later {
             flex: 1;
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             font-weight: 500;
             padding: 1rem 2rem;
@@ -184,7 +187,7 @@
         }
         
         .success-title {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.8rem;
             font-weight: 600;
             color: #3E2723;
@@ -192,7 +195,7 @@
         }
         
         .success-text {
-            font-family: 'Crimson Pro', serif;
+            font-family: 'Source Serif 4', serif;
             font-size: 1.1rem;
             color: #3E2723;
             line-height: 1.6;
@@ -201,9 +204,9 @@
         /* Error Message */
         .error-message {
             display: none;
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
+            background: rgba(210, 105, 30, 0.08);
+            border: 1px solid #c45a1a;
+            color: var(--dark-brown);
             padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             margin-bottom: 1rem;
@@ -298,7 +301,7 @@
                         aria-label="Email address"
                     >
 
-                    <div style="margin: 0.5rem 0; font-size: 0.95rem; font-family: 'Crimson Pro', serif;">
+                    <div style="margin: 0.5rem 0; font-size: 0.95rem; font-family: 'Source Serif 4', serif;">
                         <p style="font-weight: 600; color: #3E2723; margin-bottom: 0.4rem;">Frequency</p>
                         <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; cursor: pointer;">
                             <input type="radio" name="popupFreq" value="daily" checked style="accent-color: #D2691E;">
@@ -310,7 +313,7 @@
                         </label>
                     </div>
 
-                    <div style="margin: 0.5rem 0; font-size: 0.95rem; font-family: 'Crimson Pro', serif;">
+                    <div style="margin: 0.5rem 0; font-size: 0.95rem; font-family: 'Source Serif 4', serif;">
                         <p style="font-weight: 600; color: #3E2723; margin-bottom: 0.4rem;">Location</p>
                         <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; cursor: pointer;">
                             <input type="checkbox" name="popupLoc" value="toronto" checked style="accent-color: #D2691E;">
@@ -322,7 +325,7 @@
                         </label>
                     </div>
 
-                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 0.5rem 0; font-size: 0.9rem; color: #8B7E74; line-height: 1.5; font-family: 'Crimson Pro', serif; cursor: pointer;">
+                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 0.5rem 0; font-size: 0.9rem; color: #8B7E74; line-height: 1.5; font-family: 'Source Serif 4', serif; cursor: pointer;">
                         <input type="checkbox" id="popupConsent" required style="accent-color: #D2691E; margin-top: 3px; flex-shrink: 0;">
                         Yes, send me updates from Neshama. I can unsubscribe anytime.
                     </label>

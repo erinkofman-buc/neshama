@@ -712,16 +712,16 @@
 
         .form-message.success {
             display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: rgba(178, 190, 181, 0.2);
+            color: var(--sage-dark);
             border: 1px solid #a5d6a7;
         }
 
         .form-message.error {
             display: block;
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef5350;
+            background: rgba(210, 105, 30, 0.08);
+            color: var(--dark-brown);
+            border: 1px solid #c45a1a;
         }
 
         /* ── Support the Family Section ──────────────────── */
@@ -866,7 +866,7 @@
 
         /* ── Footer ──────────────────────────────────────── */
 
-        .site-footer {
+        footer {
             max-width: 800px;
             margin: 3rem auto 0;
             padding: 2rem 1.5rem;
@@ -1005,7 +1005,7 @@
             .tribute-form-wrapper,
             .share-section,
             .source-link-section,
-            .site-footer,
+            footer,
             .share-buttons,
             #supportSection {
                 display: none !important;
@@ -1269,7 +1269,7 @@
 
     <!-- Footer -->
     </main>
-    <footer class="site-footer">
+    <footer>
         <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/about">About</a>
@@ -1752,13 +1752,7 @@
                 };
                 msgEl.className = 'form-message success';
                 var thankYou = successMsgs[entryType] || 'Thank you for your entry.';
-                // Show gentle sustain prompt (once, never for sustainers)
-                if (!localStorage.getItem('neshama_sustainer') && !localStorage.getItem('neshama_sustain_prompted')) {
-                    localStorage.setItem('neshama_sustain_prompted', '1');
-                    msgEl.innerHTML = thankYou + '<br><span style="font-size:0.9em;color:#6b7c6e;margin-top:0.3rem;display:inline-block;">Neshama is free for every family. <a href="/sustain" style="color:#D2691E;text-decoration:underline;">Help keep it that way.</a></span>';
-                } else {
-                    msgEl.textContent = thankYou;
-                }
+                msgEl.innerHTML = thankYou + '<br><span style="font-size:0.85em;color:var(--sage-dark);margin-top:0.3rem;display:inline-block;">Thank you for honoring their memory.</span>';
                 nameInput.value = '';
                 relSelect.selectedIndex = 0;
                 messageInput.value = '';
