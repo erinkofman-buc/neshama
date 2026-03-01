@@ -308,28 +308,42 @@
             letter-spacing: 0.02em;
         }
 
-        /* ── Founder ── */
-        .founder-section {
-            display: flex;
+        /* ── Founders ── */
+        .founders-intro {
+            font-size: 1.1rem;
+            line-height: 1.85;
+            margin-bottom: 2rem;
+        }
+
+        .founders-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2.5rem;
-            align-items: flex-start;
+        }
+
+        .founder-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .founder-photo-placeholder {
             flex-shrink: 0;
-            width: 160px;
-            height: 160px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             background: var(--warm-beige);
             border: 3px solid rgba(210, 105, 30, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 1.25rem;
         }
 
         .founder-photo-placeholder svg {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             stroke: var(--light-taupe);
             fill: none;
             stroke-width: 1.5;
@@ -337,33 +351,45 @@
             stroke-linejoin: round;
         }
 
-        .founder-text h2 {
-            display: inline-block;
-        }
-
         .founder-name {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--terracotta);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
-        @media (max-width: 600px) {
-            .founder-section {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
+        .founder-role {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .founder-card p {
+            font-size: 1.02rem;
+            line-height: 1.8;
+            text-align: left;
+        }
+
+        .founders-closing {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(212, 197, 185, 0.3);
+            font-size: 1.05rem;
+            line-height: 1.85;
+            text-align: center;
+            font-style: italic;
+            color: var(--sage-dark);
+        }
+
+        @media (max-width: 700px) {
+            .founders-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
             }
-            .founder-photo-placeholder {
-                width: 120px;
-                height: 120px;
-            }
-            .founder-text h2 {
-                display: block;
+            .founder-card p {
                 text-align: center;
-                border-bottom: none;
-                padding-bottom: 0;
             }
         }
 
@@ -640,41 +666,78 @@
             <div class="community-badge">Not affiliated with any funeral home</div>
         </div>
 
-        <!-- Founder -->
+        <!-- Founders -->
         <div class="section" data-animate>
-            <div class="founder-section">
-                <div class="founder-photo-placeholder">
-                    <!-- Photo placeholder: add founder photo here -->
-                    <svg viewBox="0 0 24 24">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
+            <h2>The People Behind Neshama</h2>
+            <p class="founders-intro">
+                Neshama was born from personal loss and a thirty-year friendship. It started
+                with one woman's quiet ritual, and became something the whole community can use.
+            </p>
+
+            <div class="founders-grid">
+                <div class="founder-card">
+                    <div class="founder-photo-placeholder">
+                        <!-- Photo placeholder: add Jordana photo here -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <p class="founder-name">Jordana Mednick</p>
+                    <p class="founder-role">Cofounder &amp; Community Lead</p>
+                    <p>
+                        Jordana's mother was a therapist who read obituaries to identify
+                        former patients and pay her respects. Nearly eight years ago, Jordana
+                        lost her to Multiple System Atrophy. After her mother's passing,
+                        Jordana found herself doing the same thing &mdash; reading every
+                        obituary, finding comfort in the act of noticing.
+                    </p>
+                    <p>
+                        She saw how fragmented the information was. Multiple funeral home
+                        websites, word-of-mouth confusion, meals overlapping while other days
+                        went uncovered. She knew there had to be a better way &mdash; one place
+                        where the community could come together. That idea became Neshama.
+                    </p>
+                    <p>
+                        Jordana runs Jem Salads, a catering business that serves shiva
+                        families across Toronto. She sees this need every single week.
+                    </p>
                 </div>
-                <div class="founder-text">
-                    <h2>The Person Behind Neshama</h2>
+
+                <div class="founder-card">
+                    <div class="founder-photo-placeholder">
+                        <!-- Photo placeholder: add Erin photo here -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
                     <p class="founder-name">Erin Kofman, BPharm</p>
+                    <p class="founder-role">Cofounder &amp; Builder</p>
                     <p>
-                        I built Neshama because I saw how hard it is to navigate
-                        the practical side of mourning. When someone in the community passes
-                        away, there's no single place to find the details &mdash; which funeral
-                        home, when the service is, where to sit shiva. You end up checking
-                        multiple websites, making phone calls, relying on word of mouth. In the
-                        middle of grief, that kind of fragmentation feels like too much.
+                        Erin's father is originally from Montreal. Her maternal grandmother
+                        was American. Her husband's family lives in Germany. She knows what
+                        it means to feel disconnected across borders and distances &mdash; to
+                        hear about a loss too late, or not at all.
                     </p>
                     <p>
-                        By day, I'm a licensed pharmacist with over eighteen years of experience.
-                        By night &mdash; and most weekends &mdash; I'm the one building this.
-                        There's no team, no investors, no board. Just one person who believes our
-                        community deserves a better way to honour those we've lost and support
-                        the people left behind.
+                        When Jordana described what she was looking for, Erin saw the gap
+                        clearly &mdash; and knew how to build it. By day, she's a licensed
+                        pharmacist with over eighteen years of experience. The rest of the
+                        time, she's the one writing the code, designing the pages, and
+                        making sure every feature passes one test: would this actually
+                        help someone during the hardest week of their life?
                     </p>
                     <p>
-                        Neshama is a labour of care. Every feature gets built with one question
-                        in mind: would this actually help someone during the hardest week of their
-                        life? If the answer is yes, it goes in. If it feels like noise, it stays out.
+                        No team. No investors. Two friends who believe our community
+                        deserves better.
                     </p>
                 </div>
             </div>
+
+            <p class="founders-closing">
+                Thirty years of friendship. One shared conviction: a lost soul should never be lost.
+            </p>
         </div>
 
         <!-- Contact -->

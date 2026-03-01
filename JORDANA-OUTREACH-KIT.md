@@ -5,6 +5,20 @@ Jordana — this is everything. How the product works, how it makes money, what 
 
 ---
 
+## Our Story — When People Ask "Why Did You Build This?"
+
+Your mom was a therapist who read obituaries to identify former patients and pay her respects. When you lost her to MSA nearly eight years ago, you started doing the same thing — reading every obituary, finding comfort in the act of noticing. And you saw how broken the process was. Three different funeral home websites. Word-of-mouth chaos around meals. People wanting to help but not knowing how.
+
+You came to me and said: there should be one place for all of this.
+
+My reasons are different but they point in the same direction. My dad is from Montreal. My grandmother was American. My husband's family is in Germany. I know what it's like to hear about a loss too late, or not at all — to feel disconnected from community across countries and time zones.
+
+Thirty years of friendship and one shared conviction: a lost soul should never be lost. That's Neshama.
+
+**When someone asks you about it, you don't need a pitch. You just tell the truth.** Your mom read obituaries. You do the same. You saw the gap. We built the thing. That's the whole story.
+
+---
+
 ## What Neshama Is
 
 Neshama (neshama.ca) is a free community platform for Jewish families in Toronto and Montreal. When someone passes away, the people around them want to help — but the logistics are a mess. We bring everything together in one place.
@@ -210,9 +224,11 @@ All copy-paste ready. Organized by channel.
 
 ### WhatsApp Groups — Quick Drop
 
-Hey everyone — I wanted to share something really close to my heart. My friend Erin Kofman and I have been working on a site called Neshama for our community. You know how when someone passes away, everyone wants to help but nobody knows who's bringing what, and you're googling three different funeral home sites to find the details? Neshama puts it all in one place — obituaries from Toronto and Montreal funeral homes, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine 😊).
+Hey everyone — I wanted to share something really close to my heart. Some of you know my mom used to read obituaries to find former patients and pay her respects. After losing her, I started doing the same thing. And I kept thinking — why is this information scattered across three different funeral home websites? Why is there no one place for the community?
 
-It's beautifully done — really respectful, no ads, no sign-up required. Worth bookmarking: www.neshama.ca
+So my friend Erin Kofman and I built one. It's called Neshama (www.neshama.ca). Obituaries from Toronto and Montreal funeral homes in one feed, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine).
+
+Free, respectful, no ads, no sign-up. Worth bookmarking: www.neshama.ca
 
 ### Orthodox Community Circles
 
@@ -264,11 +280,15 @@ Jordana Mednick
 
 ### Dana Cohen Ezer / Hartsman Institute
 
-Hey Dana — I've been meaning to tell you about this. Erin Kofman and I built something called Neshama (www.neshama.ca) — it's a community resource for Jewish families during a loss. Pulls together obituaries from Toronto and Montreal funeral homes, has meal coordination for shiva, vendor directory, the whole thing.
+Hey Dana — I've been meaning to tell you about this. You know what losing my mom did to me. One of the things that came out of it — you'll understand this — is that I started reading obituaries the way she used to. She did it to find former patients. I do it because it makes me feel connected to her.
 
-I know through your work with the Hartsman Institute you see the community side of grief and support. I think Neshama could be a really natural fit to share with people in that world — chesed committees, community organizations, anyone who works with families during difficult times.
+And the whole time I kept thinking: why is this so hard for families? The information is all over the place, nobody coordinates meals, people want to help but don't know how.
 
-Would love for you to take a look and tell me what you think. And if you see an opportunity to share it with the right people, that would mean a lot.
+So Erin Kofman and I built something. It's called Neshama (www.neshama.ca). It brings together obituaries from Toronto and Montreal funeral homes, has a meal coordination tool for shiva, and a full directory of caterers and vendors. Free for families, no sign-up.
+
+I know through your work with the Hartsman Institute you see the community side of grief and support every day. I think Neshama could be a natural fit to share with chesed committees, community organizations, anyone working with families during difficult times.
+
+Would love for you to take a look. And if you see the right people to share it with, that would mean a lot.
 
 ---
 
