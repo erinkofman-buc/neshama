@@ -308,6 +308,65 @@
             letter-spacing: 0.02em;
         }
 
+        /* ── Founder ── */
+        .founder-section {
+            display: flex;
+            gap: 2.5rem;
+            align-items: flex-start;
+        }
+
+        .founder-photo-placeholder {
+            flex-shrink: 0;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: var(--warm-beige);
+            border: 3px solid rgba(210, 105, 30, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .founder-photo-placeholder svg {
+            width: 48px;
+            height: 48px;
+            stroke: var(--light-taupe);
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .founder-text h2 {
+            display: inline-block;
+        }
+
+        .founder-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--terracotta);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .founder-section {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .founder-photo-placeholder {
+                width: 120px;
+                height: 120px;
+            }
+            .founder-text h2 {
+                display: block;
+                text-align: center;
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+        }
+
         /* ── Contact ── */
         .contact-section {
             text-align: center;
@@ -579,6 +638,43 @@
                 and that every mourner feels the embrace of their community.
             </p>
             <div class="community-badge">Not affiliated with any funeral home</div>
+        </div>
+
+        <!-- Founder -->
+        <div class="section" data-animate>
+            <div class="founder-section">
+                <div class="founder-photo-placeholder">
+                    <!-- Photo placeholder: add founder photo here -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="founder-text">
+                    <h2>The Person Behind Neshama</h2>
+                    <p class="founder-name">Erin Kofman, BPharm</p>
+                    <p>
+                        I built Neshama because I saw how hard it is to navigate
+                        the practical side of mourning. When someone in the community passes
+                        away, there's no single place to find the details &mdash; which funeral
+                        home, when the service is, where to sit shiva. You end up checking
+                        multiple websites, making phone calls, relying on word of mouth. In the
+                        middle of grief, that kind of fragmentation feels like too much.
+                    </p>
+                    <p>
+                        By day, I'm a licensed pharmacist with over eighteen years of experience.
+                        By night &mdash; and most weekends &mdash; I'm the one building this.
+                        There's no team, no investors, no board. Just one person who believes our
+                        community deserves a better way to honour those we've lost and support
+                        the people left behind.
+                    </p>
+                    <p>
+                        Neshama is a labour of care. Every feature gets built with one question
+                        in mind: would this actually help someone during the hardest week of their
+                        life? If the answer is yes, it goes in. If it feels like noise, it stays out.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <!-- Contact -->
