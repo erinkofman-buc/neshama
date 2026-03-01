@@ -7,15 +7,15 @@ Jordana — this is everything. How the product works, how it makes money, what 
 
 ## Our Story — When People Ask "Why Did You Build This?"
 
-Your mom was a therapist who read obituaries to identify former patients and pay her respects. When you lost her to MSA nearly eight years ago, you started doing the same thing — reading every obituary, finding comfort in the act of noticing. And you saw how broken the process was. Three different funeral home websites. Word-of-mouth chaos around meals. People wanting to help but not knowing how.
+Your mom was a therapist who read obituaries to identify former patients and pay her respects. She was also the person who made the big salads, who cooked, who brought everyone together around a table. When you lost her to MSA nearly eight years ago, you started doing both — reading every obituary, and feeding people. Jem Salads grew out of that. Carrying on what she did.
 
-You came to me and said: there should be one place for all of this.
+And through catering shivas every single week, you saw how broken the process was. Three different funeral home websites. Meals overlapping on Monday, nothing on Wednesday. Families drowning in logistics during the worst week of their lives. You came to me and said: there should be one place for all of this.
 
 My reasons are different but they point in the same direction. My dad is from Montreal. My grandmother was American. My husband's family is in Germany. I know what it's like to hear about a loss too late, or not at all — to feel disconnected from community across countries and time zones.
 
 Thirty years of friendship and one shared conviction: a lost soul should never be lost. That's Neshama.
 
-**When someone asks you about it, you don't need a pitch. You just tell the truth.** Your mom read obituaries. You do the same. You saw the gap. We built the thing. That's the whole story.
+**When someone asks you about it, you don't need a pitch. You just tell the truth.** Your mom read obituaries. You do the same. You started feeding people the way she did. Through catering you saw the gap. We built the thing. That's the whole story.
 
 ---
 
@@ -224,9 +224,11 @@ All copy-paste ready. Organized by channel.
 
 ### WhatsApp Groups — Quick Drop
 
-Hey everyone — I wanted to share something really close to my heart. Some of you know my mom used to read obituaries to find former patients and pay her respects. After losing her, I started doing the same thing. And I kept thinking — why is this information scattered across three different funeral home websites? Why is there no one place for the community?
+Hey everyone — I wanted to share something really close to my heart. Some of you know my mom used to read obituaries to find former patients and pay her respects. She was also the one who cooked for everyone — the big salads, the meals that brought people together. After I lost her, I started doing both. That's actually how Jem Salads started.
 
-So my friend Erin Kofman and I built one. It's called Neshama (www.neshama.ca). Obituaries from Toronto and Montreal funeral homes in one feed, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine).
+And through catering shivas every week, I kept seeing the same thing — meals overlapping, days uncovered, families checking three different funeral home websites just to find the details. I kept thinking: there has to be one place for all of this.
+
+So my friend Erin Kofman and I built one. It's called Neshama (www.neshama.ca). Obituaries from Toronto and Montreal funeral homes in one feed, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors.
 
 Free, respectful, no ads, no sign-up. Worth bookmarking: www.neshama.ca
 
