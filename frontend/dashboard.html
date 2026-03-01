@@ -437,6 +437,11 @@
             <div class="stat-label">Active Shiva Pages</div>
             <div class="stat-sublabel">Currently running</div>
         </div>
+        <div class="stat-card loading" id="card-referrals">
+            <div class="stat-value" id="val-referrals"><div class="loading-shimmer"></div></div>
+            <div class="stat-label">Referral Visits</div>
+            <div class="stat-sublabel">All tracked channels</div>
+        </div>
     </div>
 
     <!-- ═══════ VENDOR CLICK TRACKING ═══════ -->
@@ -454,6 +459,26 @@
                 </thead>
                 <tbody id="vendor-clicks-body">
                     <tr><td colspan="4" class="empty-state">Loading vendor data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════ REFERRAL TRACKING ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Referral Tracking</h2>
+        <div class="dash-table-wrap">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Channel</th>
+                        <th>Visits</th>
+                        <th>First Visit</th>
+                        <th>Last Visit</th>
+                    </tr>
+                </thead>
+                <tbody id="referral-stats-body">
+                    <tr><td colspan="4" class="empty-state">Loading referral data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -784,6 +809,38 @@
         }
     }
 
+    // ── Referral Stats ─────────────────────────────────────
+
+    async function fetchReferralStats() {
+        const data = await fetchJSON(`${BASE}/api/referral-stats`);
+        const tbody = document.getElementById('referral-stats-body');
+
+        let channels = [];
+        let total = 0;
+        if (data && data.status === 'success' && data.data) {
+            channels = data.data.by_channel || [];
+            total = data.data.total_referrals || 0;
+        }
+
+        setCardValue('val-referrals', total);
+
+        if (!tbody) return;
+
+        if (channels.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No referral data yet. Share links like neshama.ca/?ref=jordana-whatsapp to start tracking.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = channels.map(c => `
+            <tr>
+                <td><strong>${escapeHTML(c.ref_code)}</strong></td>
+                <td>${c.visits || 0}</td>
+                <td>${formatDateTime(c.first_visit)}</td>
+                <td>${formatDateTime(c.last_visit)}</td>
+            </tr>
+        `).join('');
+    }
+
     // ── Outreach Checklist Persistence ────────────────────
 
     function initOutreachChecklist() {
@@ -822,6 +879,7 @@
             await Promise.all([
                 fetchOverviewStats(),
                 fetchVendorClicks(),
+                fetchReferralStats(),
                 fetchRecentActivity()
             ]);
         } catch (err) {

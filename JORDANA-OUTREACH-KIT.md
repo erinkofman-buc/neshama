@@ -330,4 +330,25 @@ Would love for you to take a look. And if you see the right people to share it w
 
 ---
 
+## Referral Tracking URLs
+
+Use these links when sharing Neshama so we can see which channels drive traffic. Results appear on the dashboard in real time.
+
+| Channel | Tracking Link |
+|---------|---------------|
+| Jordana WhatsApp (personal) | `neshama.ca/?ref=jordana-whatsapp` |
+| Jordana WhatsApp (community groups) | `neshama.ca/?ref=jordana-whatsapp-groups` |
+| Dana's network | `neshama.ca/?ref=dana` |
+| Synagogue emails | `neshama.ca/?ref=synagogue-email` |
+| Facebook Jewish groups | `neshama.ca/?ref=facebook-jewish` |
+| Instagram bio | `neshama.ca/?ref=instagram` |
+| Funeral home partnerships | `neshama.ca/?ref=funeral-home` |
+| Canadian Jewish News | `neshama.ca/?ref=cjn-press` |
+| Friend/family word of mouth | `neshama.ca/?ref=word-of-mouth` |
+| Vendor outreach | `neshama.ca/?ref=vendor-email` |
+
+**How it works:** When someone clicks a tracking link, the `?ref=` tag is logged automatically. The dashboard shows total visits per channel, first/last visit dates, and a 7-day trend. One visit per session per link is counted (no duplicate inflation).
+
+---
+
 *This is your thing, Jordana. You had the idea. Let's make it matter.*

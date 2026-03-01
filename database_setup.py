@@ -165,6 +165,26 @@ class NeshamaDatabase:
             ON tributes(obituary_id, entry_type)
         ''')
 
+        # Referral tracking table
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS referrals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ref_code TEXT NOT NULL,
+                page TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_referrals_code
+            ON referrals(ref_code)
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_referrals_created
+            ON referrals(created_at)
+        ''')
+
         self.conn.commit()
         self.close()
 

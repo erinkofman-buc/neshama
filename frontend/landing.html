@@ -636,5 +636,22 @@ if (hamburgerBtn && navLinks) {
 }
 </script>
     <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+    <script>
+    (function(){
+        var params = new URLSearchParams(window.location.search);
+        var ref = params.get('ref');
+        if (ref) {
+            var key = 'neshama_ref_' + ref;
+            if (!sessionStorage.getItem(key)) {
+                sessionStorage.setItem(key, '1');
+                fetch('/api/track-referral', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ref: ref, page: window.location.pathname})
+                }).catch(function(){});
+            }
+        }
+    })();
+    </script>
 </body>
 </html>
