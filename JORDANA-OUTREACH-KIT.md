@@ -1,129 +1,164 @@
-# Jordana's Outreach Kit — Neshama Soft Launch
+# Jordana's Outreach Kit — Neshama
 **Updated: March 1, 2026**
 
-> Everything below is ready to copy, paste, and send. You don't need to write anything from scratch. Just pick the version that fits the situation and go.
+> Copy-paste ready. Organized by who you're reaching out to. Adjust tone to fit — you know these people, we don't.
 
 ---
 
-## 1. Quick Intro Message (WhatsApp / Text)
+## Your Channels
 
-Copy and send as-is. Works for friends, family, WhatsApp groups, or anyone you'd normally text.
+| Channel | What to share | Template below |
+|---------|--------------|----------------|
+| Personal WhatsApp groups | Quick intro + link | §1 |
+| Orthodox community circles | Warm personal message | §2 |
+| Synagogue contacts / chesed committees | Slightly more formal, offer for newsletter | §3 |
+| Vendor warm intros (caterers you know) | Peer-to-peer, caterer-to-caterer | §4 |
+| Funeral home contacts | Intel-gathering + awareness | §5 |
+| Dana Cohen Ezer / Hartsman Institute | Specific warm intro | §6 |
 
 ---
 
-Hey! My friend Erin built something really thoughtful for our community and I wanted to share it with you. It's called Neshama (www.neshama.co) — a free site for Jewish families dealing with a loss. You can find obituaries from local funeral homes, coordinate shiva meals so nothing overlaps, and browse a directory of 110+ caterers and vendors. Worth bookmarking for when you or someone you know might need it.
+## §1. WhatsApp Groups — Quick Drop
+
+For your personal groups, mom groups, community groups. Keep it casual — you're sharing something you believe in, not selling anything.
 
 ---
 
-## 2. Longer Email Version
+Hey everyone — I wanted to share something really close to my heart. My friend Erin Kofman built a site called Neshama for our community. You know how when someone passes away, everyone wants to help but nobody knows who's bringing what, and you're googling three different funeral home sites to find the details? Neshama puts it all in one place — obituaries from Toronto and Montreal funeral homes, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors (yes, including mine 😊).
 
-For people who want more detail — a rabbi, a chesed committee chair, a community leader, or anyone who asks "tell me more." Still warm, still personal.
+I've been helping her test it and it's beautifully done — really respectful, no ads, no sign-up required. Worth bookmarking: www.neshama.ca
 
-**Subject line:** A community resource I wanted you to know about
+---
+
+## §2. Orthodox Community Circles
+
+For your deeper community connections. More personal. You're vouching for this.
+
+---
+
+Hi [Name] — I've been meaning to tell you about something. My close friend Erin Kofman built a resource for the community called Neshama (www.neshama.ca). I've been involved from the early stages and I really believe in what she's doing.
+
+You know how it is when there's a loss — everyone wants to help, but the coordination falls apart. Three people bring chicken on Monday, nobody brings anything Wednesday. And the family is dealing with funeral arrangements on top of everything else.
+
+Neshama pulls together obituaries from the local funeral homes so you don't have to check multiple sites, and it has a meal coordination tool where friends can sign up for specific days. There's also a full directory of caterers and vendors who serve shiva families — I see this firsthand through Jem Salads.
+
+It's free, it's respectful, and it's already live with over 100 real listings. I think it could genuinely help our community. If you know anyone on a chesed committee or who organizes for families, I'd love for them to see it.
+
+---
+
+## §3. Synagogue Contacts / Chesed Committees
+
+For rabbis, executive directors, chesed committee chairs. Offer something concrete — a blurb for their newsletter.
 
 ---
 
 Hi [Name],
 
-I wanted to share something with you that I think could be really valuable for our community.
+I wanted to share a community resource that I think would be valuable for [Synagogue Name]'s congregation.
 
-My friend Erin Kofman built a free resource called Neshama (www.neshama.co) for Jewish families in Montreal and Toronto. When someone passes away, the people around them want to help — but the logistics can be overwhelming, especially for the family. Neshama brings everything together in one place.
+A friend of mine, Erin Kofman, built a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a directory of 110+ local caterers and vendors.
 
-Here's what it does:
+As someone who runs a catering business that serves shiva families, I see how fragmented and stressful the logistics can be — especially for the people trying to help. Neshama gives the community a simple way to find information, coordinate meals, and connect with vendors, all in one place.
 
-**Obituary Feed** — Aggregates listings from local funeral homes (Paperman's, Steeles, Benjamin's) so you can stay informed without checking multiple sites. There are already 109+ real listings.
+It's completely free for families. No sign-up, no fees.
 
-**Meal Coordination** — Families or friends can set up a page where volunteers sign up to bring food on specific days. Everyone can see what's covered and what's still needed — no more duplicate kugels on Tuesday and nothing on Thursday. There's a clear step-by-step walkthrough right on the page so it's easy to set up even if you've never done it before.
+Would you be open to mentioning it in your next newsletter or sharing it with your chesed committee? I've included a short blurb below that you're welcome to use as-is or adapt:
 
-**Vendor Directory** — 110+ verified caterers, bakeries, gift basket companies, and comfort food vendors across Montreal and Toronto. You can browse by category and find exactly what you need.
+> **Community Resource: Neshama** — A new resource for Jewish families in Toronto and Montreal. Search obituaries from local funeral homes, coordinate shiva meals with friends and neighbours, and browse a directory of verified caterers and vendors. Free to use, no sign-up required. Visit www.neshama.ca
 
-**Condolence Guestbook** — Friends and community members can leave tributes, light a memorial candle, or share a memory. The family gets a beautiful keepsake.
-
-Everything is completely free. No sign-up required, no fees, no paywall. Erin built this as a passion project because she saw how hard it is for families to manage logistics during the hardest week of their lives.
-
-I'd love for you to take a look: www.neshama.co
-
-And if you think it would be useful for people you know — your shul, your chesed committee, your community groups — please share it. It's the kind of resource that's most helpful when people know about it before they need it.
+Thank you for considering it. Happy to answer any questions.
 
 Warmly,
-Jordana
+Jordana Mednick
 
 ---
 
-## 3. FAQ / Objection Handling
+## §4. Vendor Warm Intros (Caterer-to-Caterer)
 
-When people ask questions, here's what to say. Keep it conversational — you're not selling anything.
+You're a peer. You run Jem Salads. This is a colleague-to-colleague message.
+
+---
+
+Hey [Name] — hope business is good! I wanted to let you know about something. My friend Erin built a site called Neshama (www.neshama.ca) that's like a community hub for Jewish families dealing with a loss — obituary feed, meal coordination for shiva, vendor directory.
+
+You're actually already listed on it — she compiled a directory of caterers and vendors across Toronto and Montreal who serve shiva families. You can see your listing at [listing URL].
+
+If any of the details need updating (phone, website, menu info), just let me know and I'll pass it along. There's also an option to get a featured listing if you want to stand out, but your current listing is there either way.
+
+Worth checking out: www.neshama.ca/shiva/caterers
+
+---
+
+## §5. Funeral Home Contacts
+
+This is intel-gathering AND relationship-building. You're not pitching — you're informing them and asking what they think.
+
+---
+
+Hi [Name] — I'm reaching out because I wanted to make you aware of a community resource called Neshama (www.neshama.ca). It aggregates obituaries from Jewish funeral homes across Toronto and Montreal — including [Funeral Home Name] — along with shiva meal coordination tools and a vendor directory.
+
+A friend of mine built it, and I've been helping spread the word in the community. I wanted to make sure you knew about it, and I'd genuinely appreciate any feedback. Is this useful? Is there anything about how your listings appear that you'd want adjusted?
+
+Happy to chat anytime.
+
+Best,
+Jordana Mednick
+
+---
+
+## §6. Dana Cohen Ezer / Hartsman Institute
+
+Specific warm intro — you know Dana personally.
+
+---
+
+Hey Dana — I've been meaning to tell you about this. My friend Erin Kofman built something called Neshama (www.neshama.ca) — it's a community resource for Jewish families during a loss. Pulls together obituaries from Toronto and Montreal funeral homes, has meal coordination for shiva, vendor directory, the whole thing.
+
+I know through your work with the Hartsman Institute you see the community side of grief and support. I think Neshama could be a really natural fit to share with people in that world — chesed committees, community organizations, anyone who works with families during difficult times.
+
+Would love for you to take a look and tell me what you think. And if you see an opportunity to share it with the right people, that would mean a lot.
+
+---
+
+## FAQ — When People Ask Questions
 
 ### "What is this exactly?"
-
-> It's a free website for Jewish families when someone passes away. It pulls together obituaries from funeral homes in one place, has a tool to coordinate who's bringing meals on which days during shiva, and has a directory of local caterers and vendors. Think of it as a community resource — everything a family or their friends might need during that first week, all in one spot.
+> A free website for Jewish families when someone passes away. Pulls together obituaries from funeral homes, has a meal coordination tool so friends don't overlap, and a directory of 110+ local caterers and vendors. Think of it as everything the community needs during shiva, in one place.
 
 ### "Why not just call a caterer?"
-
-> You absolutely can — and the site actually has a directory of 110+ caterers to help you find one. But the coordination piece is different. When someone is sitting shiva, it's not just one person helping — it's a dozen friends all wanting to bring food. Without coordination, you get three trays of lasagna on Tuesday and nothing on Thursday. The meal tool lets everyone see what days are covered and sign up for a specific slot. It works alongside calling a caterer, not instead of it.
-
-### "Is this only for Jewish families?"
-
-> It was designed with the Jewish community in mind — shiva, yahrzeit, the traditions around mourning. The obituaries come from Jewish funeral homes and the vendors serve shiva families. But anyone is welcome to use it. There's nothing that locks it to one group.
+> You absolutely should — the site even has a directory to help you find one. But the coordination piece is different. When 12 people want to bring food, you end up with three kugels Monday and nothing Wednesday. The meal tool lets everyone sign up for specific days. It works alongside caterers, not instead of them.
 
 ### "Does it cost anything?"
+> No. Free for families. No accounts, no fees. Erin built it as a community resource — it sustains itself through optional vendor listings.
 
-> No. It's completely free for families. No accounts, no fees, no premium tier. Erin built it as a community resource. She's not trying to make money off grief — the site sustains itself through optional vendor listings, not from families.
-
-### "How do I use it if someone I know is sitting shiva?"
-
-> Go to www.neshama.co. You can:
-> - Check the obituary feed to find the listing
-> - If a meal coordination page has been set up, sign up to bring food on a specific day
-> - Browse the vendor directory if you want to send a meal, gift basket, or something from a caterer
-> - Leave a condolence message in the guestbook
->
-> If no one has set up a meal coordination page yet, you can be the one to do it — there's a simple walkthrough on the site. You don't need to be family to organize.
+### "How does she make money?"
+> Right now she doesn't — it's a passion project. Long-term, caterers and vendors can pay for featured listings. But the family-facing side will always be free.
 
 ---
 
-## 4. What to Ask Testers
-
-After someone has spent a few minutes on the site, ask them these five questions. Text or voice — whatever is natural. Write down what they say (even a few words) and send it to Erin.
-
-1. **When you first landed on the site, was it clear what Neshama is and what it does?** (Did you get it within a few seconds, or were you confused at first?)
-
-2. **Did you try the meal coordination page? Was it obvious how to set one up or sign up to bring food?** (If not, what was confusing?)
-
-3. **Was there anything on the site that felt off-tone — too salesy, too clinical, or not right for a grieving family?** (Be honest. This matters a lot.)
-
-4. **If someone you knew passed away tomorrow, would you actually use this site? Why or why not?**
-
-5. **Is there anything missing that you'd want to see?** (A feature, a vendor, a piece of information — anything.)
-
----
-
-## 5. Key Pages to Share
-
-These are the most useful direct links. Share whichever ones fit the situation.
+## Key Pages to Share
 
 | Page | Link | When to share |
 |------|------|---------------|
-| **Homepage** | www.neshama.co | Default — share this one most of the time |
-| **Obituary Feed** | www.neshama.co/feed | When someone asks "how do I find out about a loss?" |
-| **Meal Coordination** | www.neshama.co/shiva-organize | When someone is organizing meals for a family |
-| **Caterer & Vendor Directory** | www.neshama.co/directory | When someone wants to send food or a gift |
-| **Shiva Caterers** | www.neshama.co/shiva/caterers | When someone specifically wants catering options |
-| **What to Bring to a Shiva** | www.neshama.co/what-to-bring-to-a-shiva | When someone asks "what should I bring?" |
-| **Shiva Essentials** | www.neshama.co/shiva-essentials | When a family is figuring out what they need to arrange |
-| **Gift Ideas** | www.neshama.co/gifts | When someone wants to send something other than food |
-| **Plant a Memorial Tree** | www.neshama.co/plant-a-tree | When someone wants a meaningful tribute |
+| **Homepage** | www.neshama.ca | Default |
+| **Obituary Feed** | www.neshama.ca/feed | "How do I find out about a loss?" |
+| **Meal Coordination** | www.neshama.ca/shiva-organize | "I want to organize meals for a family" |
+| **Caterer Directory** | www.neshama.ca/shiva/caterers | "I need a caterer for shiva" |
+| **Full Vendor Directory** | www.neshama.ca/directory | "I want to send food or a gift" |
+| **What to Bring** | www.neshama.ca/what-to-bring-to-a-shiva | "What should I bring?" |
+| **Gift Ideas** | www.neshama.ca/gifts | "I want to send something other than food" |
+| **About** | www.neshama.ca/about | "Who built this?" |
 
 ---
 
-## Notes for Jordana
+## Reminders
 
-- **The site is live and real.** 109 obituaries, 110 vendors, 24 pages — this is not a prototype.
-- **All the beta feedback has been addressed.** The mobile UX was overhauled based on what Jennifer, Alana, and others said. Features are now above the fold, the meal coordination flow has a clear "How It Works" explainer, there's a "Why coordinate?" section, condolences now show confirmation feedback, and the obituary list is browsable (no need to spell names correctly).
-- **Erin is not asking people to pay for anything.** This is about getting honest feedback and spreading awareness before families actually need it.
-- **Tone matters.** This is about loss. Keep it warm, keep it real, keep it human. If something feels like a sales pitch, pull back.
-- **Send feedback to Erin directly.** Even small things — "the font was hard to read on my phone" or "I didn't know what to click" — all of it helps.
+- **The site is live and real.** 100+ obituaries, 110 vendors, 18 caterers, 24 pages.
+- **All beta feedback has been addressed.** Mobile UX overhauled, meal coordination flow simplified, browsable obituary list added.
+- **Tone matters.** This is about loss. If something feels like a pitch, pull back. You're sharing a resource, not selling a product.
+- **Send all feedback to Erin.** Even tiny things — hard to read on phone, confusing button, missing vendor — all of it helps.
+- **You don't need to do everything at once.** Start with 2-3 WhatsApp groups and see what resonates. Then expand.
 
 ---
 
-*Thank you for doing this, Jordana. It means everything.*
+*Thank you, Jordana. This wouldn't happen without you.*
