@@ -77,6 +77,20 @@
 
         /* Hero */
         .hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 96px 24px 80px; position: relative; }
+
+        /* Jump Nav */
+        .jump-nav { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 14px 24px; background: white; border-bottom: 1px solid var(--light-border); position: sticky; top: 56px; z-index: 190; }
+        .jump-nav a { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 500; color: var(--warm-gray); text-decoration: none; padding: 6px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
+        .jump-nav a:hover { color: var(--terracotta); background: rgba(210,105,30,0.06); }
+        .jump-nav-dot { color: var(--light-border); font-size: 0.6rem; user-select: none; }
+
+        /* Sticky Mobile CTA */
+        .sticky-cta { display: none; }
+        @media (max-width: 768px) {
+            .sticky-cta { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 195; background: var(--terracotta); padding: 12px 20px; justify-content: center; align-items: center; box-shadow: 0 -2px 12px rgba(0,0,0,0.12); }
+            .sticky-cta a { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 500; color: white; text-decoration: none; display: flex; align-items: center; gap: 8px; letter-spacing: 0.03em; }
+            .sticky-cta a:hover { color: white; }
+        }
         .hero::after { content: ''; position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); width: 560px; height: 560px; background: radial-gradient(ellipse at center, rgba(201,169,110,0.07) 0%, rgba(210,105,30,0.03) 40%, transparent 70%); pointer-events: none; z-index: 0; }
         .hero-content { position: relative; z-index: 1; max-width: 620px; }
         .hero-title { font-family: var(--font-heading); font-size: clamp(2.8rem, 7vw, 4.2rem); font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--dark); }
@@ -159,6 +173,9 @@
         }
 
         @media (max-width: 768px) {
+            .hero { min-height: auto; padding: 60px 20px 40px; }
+            .hero::after { width: 300px; height: 300px; }
+            .hero-desc { margin-bottom: 28px; }
             .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-border); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
             .nav-center.open { display: flex; }
             .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
@@ -169,11 +186,12 @@
             .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
             .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
             .nav-hamburger { display: block; }
+            body { padding-bottom: 52px; }
         }
 
         @media (max-width: 640px) {
-            .hero { padding: 80px 20px 60px; }
-            .hero-title { letter-spacing: 0.08em; }
+            .hero { padding: 48px 20px 32px; }
+            .hero-title { letter-spacing: 0.08em; font-size: 2.4rem; }
             .section { padding: 72px 20px; }
             .trust { flex-direction: column; gap: 10px; padding: 28px 20px; }
             .trust-item:not(:last-child) { border-right: none; }
@@ -244,6 +262,17 @@
         </div>
     </section>
 
+    <!-- Jump Nav -->
+    <nav class="jump-nav" aria-label="Quick links">
+        <a href="#recent-heading">Obituaries</a>
+        <span class="jump-nav-dot" aria-hidden="true">&#x2022;</span>
+        <a href="#shiva-heading">Meals</a>
+        <span class="jump-nav-dot" aria-hidden="true">&#x2022;</span>
+        <a href="/directory">Directory</a>
+        <span class="jump-nav-dot" aria-hidden="true">&#x2022;</span>
+        <a href="/yahrzeit">Yahrzeit</a>
+    </nav>
+
     <!-- Trust Bar -->
     <div class="trust reveal" id="trustBar" role="region" aria-label="Trust signals">
         <span class="trust-item"><span class="trust-num" id="trustObits">--</span> obituaries indexed</span>
@@ -282,11 +311,16 @@
                     </ol>
                     <a href="/shiva/organize" class="btn btn-primary">Get Started</a>
                 </div>
-                <div class="reveal reveal-d2" style="text-align:center;">
-                    <div style="background:var(--cream); border-radius:14px; padding:2.5rem; border:1px solid var(--light-border);">
-                        <div style="font-size:3.5rem; margin-bottom:1rem; opacity:0.6;">&#x1F56F;&#xFE0F;</div>
-                        <p style="font-family:var(--font-heading); font-size:1.3rem; color:var(--dark); margin-bottom:0.5rem;">Built for our community</p>
-                        <p style="font-size:0.95rem; color:var(--warm-gray);">No accounts, no fees, no ads. Just neighbours helping each other.</p>
+                <div class="reveal reveal-d2">
+                    <div style="background:var(--cream); border-radius:14px; padding:2rem; border:1px solid var(--light-border);">
+                        <p style="font-family:var(--font-heading); font-size:1.3rem; color:var(--dark); margin-bottom:1rem;">Why coordinate?</p>
+                        <ul style="list-style:none; padding:0; margin:0;">
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Prevent duplicates — no three kugels Tuesday, nothing Thursday</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Cover all 7 days so the family is looked after</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Multiple friends contribute without stepping on each other</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Family sees what's covered at a glance</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Works alongside caterers — order Sonny's for Tuesday, cook for Wednesday</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -410,6 +444,14 @@
         <p class="footer-copy">Built with care for the Jewish community</p>
     </footer>
 
+    <!-- Sticky Mobile CTA -->
+    <div class="sticky-cta" id="stickyCta" aria-label="Coordinate meals">
+        <a href="/shiva/organize">
+            Coordinate a Meal
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+    </div>
+
     <script>
     (function() {
         'use strict';
@@ -435,12 +477,20 @@
             document.querySelectorAll('.hero .reveal').forEach(function(el) { el.classList.add('visible'); });
         }, 120);
 
-        // Nav background on scroll
+        // Nav background on scroll + sticky CTA visibility
         var nav = document.getElementById('nav');
+        var stickyCta = document.getElementById('stickyCta');
         if (nav) {
             window.addEventListener('scroll', function() {
                 nav.classList.toggle('scrolled', window.scrollY > 60);
+                if (stickyCta) {
+                    stickyCta.style.transform = window.scrollY > 300 ? 'translateY(0)' : 'translateY(100%)';
+                }
             }, { passive: true });
+        }
+        if (stickyCta) {
+            stickyCta.style.transition = 'transform 0.3s ease';
+            stickyCta.style.transform = 'translateY(100%)';
         }
 
         // Subscribe form handler
