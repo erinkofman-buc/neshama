@@ -15,6 +15,7 @@ import sys
 import subprocess
 import threading
 from urllib.parse import urlparse, parse_qs, unquote
+import urllib.request
 from datetime import datetime
 import pytz
 import logging
@@ -3759,6 +3760,92 @@ def run_server(port=None):
             except Exception as e:
                 logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
 
+            # Add weekly offsite backup (Sunday 3 AM ET — emails backup JSON)
+            try:
+                def _run_offsite_backup():
+                    try:
+                        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+                        admin_email = os.environ.get('ADMIN_EMAIL', 'contact@neshama.ca')
+                        if not sendgrid_key:
+                            logging.info("[OffsiteBackup] No SendGrid key — skipping email backup")
+                            return
+                        if not SHIVA_AVAILABLE:
+                            logging.error("[OffsiteBackup] Shiva manager unavailable — cannot backup")
+                            return
+
+                        import base64 as b64
+                        backup_data = shiva_mgr.get_backup_data()
+                        backup_json = json.dumps(backup_data, ensure_ascii=False, indent=2)
+                        row_count = sum(len(rows) for rows in backup_data.get('tables', {}).values())
+                        table_count = len([t for t in backup_data.get('tables', {}) if backup_data['tables'][t]])
+                        timestamp = datetime.now().strftime('%Y-%m-%d')
+                        filename = f"neshama-backup-{timestamp}.json"
+
+                        # Build summary for email body
+                        table_summary = ""
+                        for tname, rows in backup_data.get('tables', {}).items():
+                            if rows:
+                                table_summary += f"<li>{tname}: {len(rows)} rows</li>"
+
+                        html_body = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <h2 style="font-size:1.4rem;font-weight:400;margin-bottom:1rem;">Weekly Database Backup</h2>
+    <p style="font-size:1rem;color:#555;">Automated backup from <strong>neshama.ca</strong></p>
+    <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="margin:0 0 0.5rem;font-weight:600;">Backup Summary</p>
+        <p style="margin:0;font-size:0.95rem;">Date: {timestamp}</p>
+        <p style="margin:0;font-size:0.95rem;">Tables: {table_count}</p>
+        <p style="margin:0;font-size:0.95rem;">Total rows: {row_count}</p>
+        <ul style="margin:0.75rem 0 0;padding-left:1.25rem;font-size:0.9rem;color:#555;">
+            {table_summary}
+        </ul>
+    </div>
+    <p style="font-size:0.9rem;color:#8a9a8d;">The full backup JSON is attached. Save this email or download the attachment to Google Drive.</p>
+</div>"""
+
+                        encoded_attachment = b64.b64encode(backup_json.encode('utf-8')).decode('utf-8')
+                        sg_data = {
+                            "personalizations": [{"to": [{"email": admin_email}]}],
+                            "from": {"email": "reminders@neshama.ca", "name": "Neshama Backup"},
+                            "subject": f"Neshama Weekly Backup — {timestamp} ({row_count} rows)",
+                            "content": [{"type": "text/html", "value": html_body}],
+                            "attachments": [{
+                                "content": encoded_attachment,
+                                "type": "application/json",
+                                "filename": filename,
+                                "disposition": "attachment",
+                            }]
+                        }
+
+                        req = urllib.request.Request(
+                            'https://api.sendgrid.com/v3/mail/send',
+                            data=json.dumps(sg_data).encode('utf-8'),
+                            headers={
+                                'Authorization': f'Bearer {sendgrid_key}',
+                                'Content-Type': 'application/json',
+                            },
+                            method='POST'
+                        )
+                        response = urllib.request.urlopen(req, timeout=30)
+                        logging.info(f"[OffsiteBackup] Emailed backup to {admin_email} ({row_count} rows, {len(backup_json)} bytes)")
+                    except Exception as e:
+                        logging.error(f"[OffsiteBackup] Error: {e}")
+
+                scheduler.add_job(
+                    _run_offsite_backup,
+                    'cron',
+                    hour=3,
+                    minute=0,
+                    day_of_week='sun',
+                    timezone='America/Toronto',
+                    id='offsite_backup',
+                    name='Email weekly backup',
+                    max_instances=1,
+                )
+                logging.info(f"[OffsiteBackup] Scheduler added (Sunday at 3 AM ET)")
+            except Exception as e:
+                logging.error(f"[OffsiteBackup] Failed to add scheduler job: {e}")
+
             scheduler.start()
             logging.info(f"[EmailQueue] Scheduler started (every 15 minutes)")
         except Exception as e:
@@ -3784,6 +3871,7 @@ def run_server(port=None):
     logging.info(f" /sustain-cancelled - Payment cancelled")
     logging.info(f" /shiva/organize - Set up shiva support")
     logging.info(f" /shiva/{{id}} - Community support page")
+    logging.info(f" /find-my-page - Link recovery")
     logging.info(f"\n API Endpoints:")
     logging.info(f" GET /api/obituaries - All obituaries")
     logging.info(f" GET /api/obituary/{{id}} - Single obituary")
@@ -3816,11 +3904,13 @@ def run_server(port=None):
     logging.info(f" GET /api/vendors/{{slug}} - Vendor by slug")
     logging.info(f" POST /api/vendor-leads - Vendor inquiry")
     logging.info(f" GET /directory/{{slug}} - Vendor detail page")
+    logging.info(f" POST /api/find-my-page - Link recovery lookup")
     logging.info(f" GET /admin/backup - Download backup JSON (admin)")
     logging.info(f" POST /admin/restore - Upload backup JSON (admin)")
     logging.info(f"\n Email: {'SendGrid connected' if EMAIL_AVAILABLE and subscription_mgr.sendgrid_api_key else 'TEST MODE' if EMAIL_AVAILABLE else 'Not available'}")
     logging.info(f" Stripe: {'Connected' if STRIPE_AVAILABLE else 'Not configured (set STRIPE_SECRET_KEY)'}")
     logging.info(f" Shiva support: {'Available' if SHIVA_AVAILABLE else 'Not available'}")
+    logging.info(f" Offsite backup: Sunday 3 AM ET (email)")
 
     # Archive expired shiva support pages + seed caterer data
     if SHIVA_AVAILABLE:
