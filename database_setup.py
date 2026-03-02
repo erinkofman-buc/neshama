@@ -420,6 +420,14 @@ class NeshamaDatabase:
 def initialize_database():
     """Create database and tables if they don't exist"""
     db_path = os.environ.get('DATABASE_PATH', 'neshama.db')
+
+    # Skip if the database directory doesn't exist (e.g., Render build step
+    # where persistent disk at /data/ isn't mounted yet).
+    db_dir = os.path.dirname(os.path.abspath(db_path))
+    if not os.path.isdir(db_dir):
+        logging.info(f"⏭️  Database directory {db_dir} not available — skipping setup (tables created at runtime)")
+        return
+
     db = NeshamaDatabase(db_path)
     db.create_tables()
     logging.info("✅ Database initialized successfully")

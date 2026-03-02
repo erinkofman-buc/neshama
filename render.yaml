@@ -2,7 +2,7 @@ services:
   - type: web
     name: neshama
     runtime: python
-    buildCommand: pip install -r requirements.txt && python database_setup.py
+    buildCommand: pip install -r requirements.txt
     startCommand: python frontend/api_server.py
     envVars:
       - key: PYTHON_VERSION

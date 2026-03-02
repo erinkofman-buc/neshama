@@ -3641,6 +3641,16 @@ def run_server(port=None):
     """Start the API server"""
     if port is None:
         port = int(os.environ.get('PORT', 5000))
+
+    # Initialize core database tables (obituaries, comments, scraper_log, tributes, referrals).
+    # These were previously created by database_setup.py in the build step, but Render's
+    # persistent disk at /data/ isn't available during builds — only at runtime.
+    try:
+        from database_setup import initialize_database
+        initialize_database()
+    except Exception as e:
+        logging.warning(f"[Startup] database_setup: {e}")
+
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, NeshamaAPIHandler)
 
