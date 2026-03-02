@@ -522,13 +522,20 @@ class YahrzeitManager:
         if hebrew_name:
             name_display = f"{deceased_name} ({hebrew_name})"
 
-        # Memorial page link if we have an obituary_id
+        # Memorial page link if we have an obituary_id, otherwise link to yahrzeit page
         memorial_link = ''
         if safe_obit_id:
             memorial_link = f'''<p style="font-size:15px; margin:24px 0;">
                 <a href="{self.base_url}/memorial/{safe_obit_id}"
                    style="color:#D2691E; text-decoration:none;">
                     Visit the memorial page &rarr;
+                </a>
+            </p>'''
+        else:
+            memorial_link = f'''<p style="font-size:15px; margin:24px 0;">
+                <a href="{self.base_url}/yahrzeit"
+                   style="color:#D2691E; text-decoration:none;">
+                    Manage your yahrzeit reminders &rarr;
                 </a>
             </p>'''
 

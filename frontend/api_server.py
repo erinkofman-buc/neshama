@@ -195,6 +195,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/plant-a-tree': ('plant-a-tree.html', 'text/html'),
         '/yahrzeit': ('yahrzeit.html', 'text/html'),
         '/yahrzeit.html': ('yahrzeit.html', 'text/html'),
+        '/find-my-page': ('find-my-page.html', 'text/html'),
         '/dashboard': ('dashboard.html', 'text/html'),
         '/cofounder': ('dashboard.html', 'text/html'),
         '/dashboard.html': ('dashboard.html', 'text/html'),
@@ -376,6 +377,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_vendor_view(body)
         elif path == '/api/track-referral':
             self.handle_track_referral(body)
+        elif path == '/api/find-my-page':
+            self.handle_find_my_page(body)
         elif path == '/api/shiva-access/request':
             self.handle_access_request(body)
         elif path == '/api/shiva':
@@ -2076,6 +2079,175 @@ button:hover{background:#c45a1a}</style></head>
                 'data': {'total_referrals': 0, 'by_channel': [], 'daily_trend': []}
             })
 
+    # ── API: Find My Page (Link Recovery) ───────────────────
+
+    def handle_find_my_page(self, body):
+        """Look up email across all tables and send recovery email with links."""
+        try:
+            data = json.loads(body)
+        except (json.JSONDecodeError, ValueError):
+            self.send_json_response({'status': 'error', 'message': 'Invalid request'}, 400)
+            return
+
+        email = (data.get('email') or '').strip().lower()
+        if not email or '@' not in email:
+            self.send_json_response({'status': 'error', 'message': 'Please enter a valid email address.'}, 400)
+            return
+
+        # Rate limit: 3 lookups per 10 minutes per IP
+        client_ip = self._get_client_ip()
+        if not _check_rate_limit(client_ip, 'find_my_page', max_calls=3, window=600):
+            self._send_rate_limit_error()
+            return
+
+        base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+        found_pages = []
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # 1. Shiva pages organized by this email
+            cursor.execute('''
+                SELECT id, family_name, status, magic_token, created_at
+                FROM shiva_support
+                WHERE LOWER(organizer_email) = ?
+                ORDER BY created_at DESC
+            ''', (email,))
+            for row in cursor.fetchall():
+                token_param = f"?token={row['magic_token']}" if row['magic_token'] else ''
+                found_pages.append({
+                    'type': 'shiva_organizer',
+                    'label': f"Shiva page you organized for {row['family_name']}",
+                    'url': f"{base_url}/shiva/{row['id']}{token_param}",
+                    'status': row['status'] or 'active',
+                    'date': row['created_at'],
+                })
+
+            # 2. Meal signups by this email
+            cursor.execute('''
+                SELECT ms.shiva_support_id, ms.meal_type, ms.meal_date, ms.volunteer_name,
+                       ss.family_name
+                FROM meal_signups ms
+                JOIN shiva_support ss ON ms.shiva_support_id = ss.id
+                WHERE LOWER(ms.volunteer_email) = ?
+                ORDER BY ms.meal_date DESC
+            ''', (email,))
+            seen_shiva = set()
+            for row in cursor.fetchall():
+                sid = row['shiva_support_id']
+                if sid not in seen_shiva:
+                    seen_shiva.add(sid)
+                    found_pages.append({
+                        'type': 'meal_signup',
+                        'label': f"Meal signup for {row['family_name']} family",
+                        'url': f"{base_url}/shiva/{sid}",
+                        'date': row['meal_date'],
+                    })
+
+            # 3. Yahrzeit reminders set by this email
+            cursor.execute('''
+                SELECT id, deceased_name, hebrew_date_of_death
+                FROM yahrzeit_reminders
+                WHERE LOWER(subscriber_email) = ? AND confirmed = 1
+                ORDER BY created_at DESC
+            ''', (email,))
+            for row in cursor.fetchall():
+                found_pages.append({
+                    'type': 'yahrzeit',
+                    'label': f"Yahrzeit reminder for {row['deceased_name']}",
+                    'url': f"{base_url}/yahrzeit",
+                    'date': row['hebrew_date_of_death'] or '',
+                })
+
+            # 4. Co-organizer invitations
+            cursor.execute('''
+                SELECT co.shiva_support_id, ss.family_name, co.status
+                FROM shiva_co_organizers co
+                JOIN shiva_support ss ON co.shiva_support_id = ss.id
+                WHERE LOWER(co.email) = ?
+                ORDER BY co.created_at DESC
+            ''', (email,))
+            for row in cursor.fetchall():
+                sid = row['shiva_support_id']
+                if sid not in seen_shiva:
+                    seen_shiva.add(sid)
+                    found_pages.append({
+                        'type': 'co_organizer',
+                        'label': f"Co-organizer for {row['family_name']} shiva",
+                        'url': f"{base_url}/shiva/{sid}",
+                        'date': '',
+                    })
+
+            conn.close()
+        except Exception as e:
+            logging.error(f"[FindMyPage] Database error: {e}")
+            self.send_json_response({'status': 'error', 'message': 'Something went wrong. Please try again.'}, 500)
+            return
+
+        # Always respond success (don't reveal whether email exists)
+        # But only send email if there are actually pages found
+        if found_pages:
+            self._send_find_my_page_email(email, found_pages, base_url)
+
+        self.send_json_response({'status': 'success'})
+
+    def _send_find_my_page_email(self, email, pages, base_url):
+        """Send recovery email with all found page links."""
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+
+        # Build page list HTML
+        pages_html = ''
+        for page in pages:
+            icon = '🏠' if page['type'] == 'shiva_organizer' else '🍽' if page['type'] == 'meal_signup' else '🕯' if page['type'] == 'yahrzeit' else '👥'
+            label = html_mod.escape(page['label'])
+            url = html_mod.escape(page['url'])
+            pages_html += f'''
+            <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1rem 1.25rem;margin:0.75rem 0;">
+                <p style="font-size:1rem;margin:0 0 0.5rem;font-weight:600;color:#3E2723;">{icon} {label}</p>
+                <a href="{url}" style="color:#D2691E;text-decoration:none;font-size:0.95rem;word-break:break-all;">{url}</a>
+            </div>'''
+
+        html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Your Neshama Pages</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">Here are all the pages associated with your email.</p>
+    </div>
+    {pages_html}
+    <p style="text-align:center;font-size:0.9rem;color:#8a9a8d;margin-top:1.5rem;">
+        Save this email so you always have your links.
+    </p>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="{base_url}" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+        if not sendgrid_key:
+            logging.info(f"[FindMyPage] Would send {len(pages)} page links to {email}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Content, MimeType
+
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=('updates@neshama.ca', 'Neshama'),
+                to_emails=email,
+                subject=f'Your Neshama pages ({len(pages)} found)',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            sg.send(message)
+            logging.info(f"[FindMyPage] Sent {len(pages)} page links to {email}")
+        except Exception as e:
+            logging.error(f"[FindMyPage] Email send error: {e}")
+
     # ── API: Shiva Support ─────────────────────────────────
 
     def serve_shiva_page(self):
@@ -2214,6 +2386,8 @@ button:hover{background:#c45a1a}</style></head>
         base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
         verify_url = f"{base_url}/api/shiva/verify-email?token={token}"
 
+        shiva_page_url = f"{base_url}/shiva/{shiva_id}"
+
         html_content = f"""
 <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
     <div style="text-align:center;margin-bottom:1.5rem;">
@@ -2226,6 +2400,11 @@ button:hover{background:#c45a1a}</style></head>
     </p>
     <div style="text-align:center;margin:2rem 0;">
         <a href="{html_mod.escape(verify_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">Verify Email</a>
+    </div>
+    <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1.5rem 0;">
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Your Shiva Page Link</p>
+        <p style="font-size:1rem;margin:0;">Save this link &mdash; share it with family and friends so they can sign up to bring meals:</p>
+        <p style="font-size:1rem;margin:0.5rem 0 0;"><a href="{html_mod.escape(shiva_page_url)}" style="color:#D2691E;text-decoration:none;font-weight:600;">{html_mod.escape(shiva_page_url)}</a></p>
     </div>
     <p style="font-size:0.85rem;color:#B2BEB5;">If you didn't create this page, you can safely ignore this email.</p>
     <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">

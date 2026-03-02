@@ -103,7 +103,7 @@ def _send_via_sendgrid(sendgrid_key, to_email, to_name, subject, html_content):
 # ── Email body generators ────────────────────────────────────
 
 def _day_before_reminder_html(vol_name, meal_type, meal_date, family_name,
-                               address, drop_off_instructions):
+                               address, drop_off_instructions, support_id=None):
     first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
     instructions_block = ''
     if drop_off_instructions:
@@ -112,6 +112,14 @@ def _day_before_reminder_html(vol_name, meal_type, meal_date, family_name,
             <p style="font-size:0.75rem;color:#F57F17;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Drop-off Instructions</p>
             <p style="font-size:1rem;margin:0;">{html_mod.escape(drop_off_instructions)}</p>
         </div>'''
+
+    page_link = ''
+    if support_id:
+        page_url = f'https://neshama.ca/shiva/{support_id}'
+        page_link = f'''
+    <div style="text-align:center;margin:1.5rem 0 0.5rem;">
+        <a href="{page_url}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:0.95rem;">View Full Meal Schedule</a>
+    </div>'''
 
     return _email_wrapper(f"""
     <div style="text-align:center;margin-bottom:1.5rem;">
@@ -127,13 +135,14 @@ def _day_before_reminder_html(vol_name, meal_type, meal_date, family_name,
         <p style="font-size:1.1rem;font-weight:600;margin:0;">{html_mod.escape(address)}</p>
     </div>
     {instructions_block}
+    {page_link}
     <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">
         {html_mod.escape(first)}, your generosity means the world.
     </p>""")
 
 
 def _morning_of_reminder_html(vol_name, meal_type, meal_date, family_name,
-                               address, drop_off_instructions):
+                               address, drop_off_instructions, support_id=None):
     first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
     instructions_block = ''
     if drop_off_instructions:
@@ -142,6 +151,14 @@ def _morning_of_reminder_html(vol_name, meal_type, meal_date, family_name,
             <p style="font-size:0.75rem;color:#F57F17;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Drop-off Instructions</p>
             <p style="font-size:1rem;margin:0;">{html_mod.escape(drop_off_instructions)}</p>
         </div>'''
+
+    page_link = ''
+    if support_id:
+        page_url = f'https://neshama.ca/shiva/{support_id}'
+        page_link = f'''
+    <div style="text-align:center;margin:1.5rem 0 0.5rem;">
+        <a href="{page_url}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:0.95rem;">View Full Meal Schedule</a>
+    </div>'''
 
     return _email_wrapper(f"""
     <div style="text-align:center;margin-bottom:1.5rem;">
@@ -157,6 +174,7 @@ def _morning_of_reminder_html(vol_name, meal_type, meal_date, family_name,
         <p style="font-size:1.1rem;font-weight:600;margin:0;">{html_mod.escape(address)}</p>
     </div>
     {instructions_block}
+    {page_link}
     <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">
         May their memory be a blessing.
     </p>""")
@@ -363,7 +381,8 @@ def _process_day_before_reminders(cursor, sendgrid_key, now_toronto):
             address = f'{address}, {city}'
 
         html = _day_before_reminder_html(vol_name, meal_type, meal_date,
-                                          family_name, address, drop_off)
+                                          family_name, address, drop_off,
+                                          support_id=support_id)
         subject = f'Reminder: your meal for {family_name} is tomorrow'
         email_id = _log_email(cursor, support_id, 'day_before_reminder',
                               vol_email, vol_name, signup_id)
@@ -405,7 +424,8 @@ def _process_morning_of_reminders(cursor, sendgrid_key, now_toronto):
             address = f'{address}, {city}'
 
         html = _morning_of_reminder_html(vol_name, meal_type, meal_date,
-                                          family_name, address, drop_off)
+                                          family_name, address, drop_off,
+                                          support_id=support_id)
         subject = f'Today: your meal for {family_name}'
         email_id = _log_email(cursor, support_id, 'morning_of_reminder',
                               vol_email, vol_name, signup_id)

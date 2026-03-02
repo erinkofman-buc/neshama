@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Page - Neshama</title>
+    <meta name="description" content="Lost your shiva page or meal signup link? Enter your email and we'll send you all your Neshama links.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://neshama.ca/find-my-page">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #6b7c6e;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        ::selection { background: rgba(210, 105, 30, 0.2); color: var(--dark-brown); }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a:focus-visible, button:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; border-radius: 4px; }
+
+        /* ── Navigation ── */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* ── Hero ── */
+        .hero { text-align: center; padding: 4rem 1.5rem 2rem; }
+        .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 400; margin-bottom: 0.5rem; }
+        .hero .subtitle { font-size: 1.15rem; color: var(--sage-dark); max-width: 500px; margin: 0 auto; }
+
+        /* ── Form Card ── */
+        .form-card {
+            max-width: 520px;
+            margin: 0 auto 4rem;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.05rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.75rem;
+            color: var(--dark-brown);
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.95rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            background: var(--terracotta);
+            border: none;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .submit-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .error-text { color: #c62828; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+
+        .help-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            margin-top: 1.25rem;
+            line-height: 1.6;
+        }
+
+        /* ── Results ── */
+        .result-message {
+            max-width: 520px;
+            margin: 0 auto 4rem;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            text-align: center;
+            display: none;
+        }
+        .result-message.visible { display: block; }
+        .result-message h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+        }
+        .result-message p { font-size: 1.05rem; line-height: 1.7; color: var(--sage-dark); }
+
+        .result-message.success { border-top: 4px solid #4caf50; }
+        .result-message.error { border-top: 4px solid #c62828; }
+
+        .check-icon {
+            width: 56px; height: 56px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: #e8f5e9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .check-icon svg { width: 28px; height: 28px; stroke: #4caf50; fill: none; stroke-width: 2.5; }
+
+        /* ── Footer ── */
+        footer { padding: 2rem 1.5rem; border-top: 1px solid var(--light-taupe); text-align: center; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-divider { display: none; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
+            .nav-hamburger { display: block; }
+        }
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.2rem; }
+            .form-card { margin: 0 1rem 3rem; padding: 1.75rem 1.5rem; }
+            .result-message { margin: 0 1rem 3rem; padding: 1.75rem 1.5rem; }
+        }
+    </style>
+    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva<span class="nav-btn-subtext">For friends &amp; family coordinating meals</span></a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main>
+        <header class="hero">
+            <h1>Find My Page</h1>
+            <p class="subtitle">Lost a link? Enter your email and we'll send you all your Neshama pages.</p>
+        </header>
+
+        <div class="form-card" id="formCard">
+            <form id="findForm" novalidate>
+                <div class="form-group">
+                    <label for="email">Your Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div id="formError" class="error-text" role="alert" aria-live="assertive"></div>
+                <button type="submit" class="submit-btn" id="submitBtn">Send My Links</button>
+            </form>
+            <p class="help-text">
+                We'll email you links to any shiva pages you organized,<br>
+                meals you signed up for, and yahrzeit reminders you set.
+            </p>
+        </div>
+
+        <div class="result-message success" id="successResult">
+            <div class="check-icon">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2>Check Your Email</h2>
+            <p id="successText">If we found any pages associated with your email, we've sent you the links. Check your inbox (and spam folder) in the next few minutes.</p>
+        </div>
+
+        <div class="result-message error" id="errorResult">
+            <h2>Something Went Wrong</h2>
+            <p id="errorText"></p>
+        </div>
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/shiva-essentials">Shiva Essentials</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/gifts">Send a Gift</a>
+            <a href="/directory">Directory</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+<script>
+var hamburgerBtn = document.getElementById('hamburgerBtn');
+var navLinks = document.getElementById('navLinks');
+if (hamburgerBtn && navLinks) {
+    hamburgerBtn.addEventListener('click', function() {
+        var isOpen = navLinks.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+}
+
+(function() {
+    var form = document.getElementById('findForm');
+    var formCard = document.getElementById('formCard');
+    var successResult = document.getElementById('successResult');
+    var errorResult = document.getElementById('errorResult');
+    var submitBtn = document.getElementById('submitBtn');
+    var formError = document.getElementById('formError');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        formError.style.display = 'none';
+
+        var email = document.getElementById('email').value.trim();
+
+        if (!email || !email.includes('@')) {
+            formError.textContent = 'Please enter a valid email address.';
+            formError.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Looking up your pages...';
+
+        try {
+            var response = await fetch('/api/find-my-page', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+
+            var result = await response.json();
+
+            if (result.status === 'success') {
+                formCard.style.display = 'none';
+                successResult.classList.add('visible');
+            } else {
+                formError.textContent = result.message || 'Something went wrong. Please try again.';
+                formError.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send My Links';
+            }
+        } catch (err) {
+            formError.textContent = 'Unable to connect. Please try again later.';
+            formError.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send My Links';
+        }
+    });
+})();
+</script>
+</body>
+</html>
