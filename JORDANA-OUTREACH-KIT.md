@@ -1,7 +1,24 @@
 # Neshama — Cofounder Briefing for Jordana
-**Updated: March 1, 2026**
+**Updated: March 2, 2026**
 
-Jordana — this is everything. How the product works, how it makes money, what we're tracking, what's next, and how you can see it all in real time.
+Jordana — this is everything. How the product works, how it makes money, what we're tracking, what's next, and why your outreach right now is the single most important thing for Neshama.
+
+---
+
+## Why Your Outreach Matters — Read This First
+
+The product is built. 24 pages, 100+ obituaries, 110 vendors, 18 caterers, meal coordination, yahrzeit reminders, guestbooks — all live, all working. The tech is done.
+
+But none of it matters without people.
+
+Right now, Neshama is a fully stocked store with no customers walking in. The obituaries update daily. The vendor directory is ready. The meal coordination tool works. But families don't know it exists yet. Vendors don't know they're being tracked. Synagogues haven't heard of us.
+
+**Your outreach is the ignition.** Every WhatsApp message you send, every chesed committee you tell, every caterer friend you loop in — that's what turns a built product into a living community. We can't buy this kind of trust. It has to come from you, person to person, community to community.
+
+Here's why timing matters:
+- **Vendor revenue depends on traffic data.** We can't sell featured listings until we show vendors they're getting clicks. Your outreach drives the traffic that creates the data that generates the revenue.
+- **Community trust compounds.** The earlier real people start using it, the more organic word-of-mouth builds.
+- **We're spending $8.25/month.** We don't need millions of users. We need the right 500 people — and you know them.
 
 ---
 
@@ -29,12 +46,12 @@ Neshama (neshama.ca) is a free community platform for Jewish families in Toronto
 - **Vendor directory** — 110 verified vendors: 86 food (caterers, bakeries, delis) + 24 gift (baskets, comfort items, memorial trees). Browsable by category.
 - **Caterer directory** — 18 caterers with detailed profiles (kosher level, delivery area, price range, descriptions).
 - **Digital condolence guestbook** — Friends leave tributes, light a memorial candle, share memories. Exportable as a PDF keepsake the family keeps forever.
-- **Yahrzeit reminders** — Annual reminders on the Hebrew calendar anniversary of a loved one's passing. Double opt-in, handles leap years and Adar edge cases.
+- **Yahrzeit reminders** — This is a big one. Annual reminders on the exact Hebrew calendar anniversary of a loved one's passing. Users enter the info once, and every year on the yahrzeit date they get an email reminder. Fully automated — runs every morning at 9 AM. Handles leap years, Adar edge cases, everything. Double opt-in so no one gets surprised. This feature alone is something no other site does properly.
 - **Plant a Memorial Tree** — JNF partnership for tree planting in Israel ($18/tree).
 - **"What to Bring to a Shiva" guide** — Educational content that ranks in search.
 - **Shiva Essentials page** — Products and guidance for setting up the shiva home.
 
-**Scale:** 24 pages, 100+ obituaries, 110 vendors, 18 caterers. This is not a prototype.
+**Scale:** 27 pages, 100+ obituaries, 110 vendors, 18 caterers. This is not a prototype.
 
 ---
 
@@ -88,7 +105,7 @@ This is B2B, not family-facing.
 
 **The math for vendors:** One shiva catering order = $200-$1,500. One order covers months of listing fees. Sells itself once we have the data.
 
-**Year 1 target:** 5-20 vendors paying $39-79/month = $2,300-$16,500/year.
+**Year 1 target:** 5-15 paying vendors at $49/month.
 
 ### 2. Community Sustainers (Voluntary)
 
@@ -105,14 +122,14 @@ This is B2B, not family-facing.
 - **Year 1 target:** $870-$4,680/year
 
 ### Total Year 1 Projections
-| Scenario | Revenue |
-|----------|---------|
-| Conservative | $7,250 |
-| Moderate | $28,272 |
-| Optimistic | $56,460 |
-| **Monthly costs** | **$8.25** (Render hosting + domain) |
+| Scenario | Revenue | What It Takes |
+|----------|---------|---------------|
+| Slow start | $2,000-$4,000 | 2-3 paying vendors, 50 sustainers, minimal affiliate |
+| Moderate | $8,000-$15,000 | 5-8 paying vendors, 150 sustainers, steady traffic |
+| Strong | $20,000-$30,000 | 10-15 paying vendors, 300+ sustainers, organic growth |
+| **Monthly costs** | **$8.25** | Render hosting + domain |
 
-Break-even: Month 2-3.
+Break-even: Month 3-4 at the slow start level. The math works because costs are nearly zero.
 
 ---
 
@@ -185,33 +202,33 @@ Auto-refreshes every 60 seconds. Works on mobile.
 - Amazon affiliate links on all product pages
 - UTM tracking on all outbound vendor links
 - 7 beta fixes deployed from tester feedback
-- Founder story on About page, 14 FAQs
+- About page focused on mission & values (no personal bios — intentional; we keep the human story for outreach conversations, not the public site)
 - Cofounder dashboard at /dashboard
+- Deploy pipeline fixed — database now initializes at runtime, builds are clean
 - All Instagram posts created + scheduled (Mar 2-8)
 
 ### Next — Timeline
 
-**This week (Mar 1-7):**
-- [ ] Jordana begins outreach (WhatsApp groups, Orthodox circles, synagogues)
-- [ ] Instagram posts go live (scheduled: Mon-Sun)
-- [ ] Instagram Highlights set up (About, Resources, Community)
-- [ ] Monitor analytics daily, fix any issues immediately
+**NOW (Mar 2-7) — You Start Outreach:**
+- [ ] Send your first WhatsApp messages (personal contacts, community groups)
+- [ ] Reach out to Orthodox circles and chesed committee contacts
+- [ ] Instagram posts are already scheduled (Mon-Sun)
+- [ ] Set up Instagram Highlights on phone (About, Resources, Community)
+- [ ] Test a referral link yourself — visit `neshama.ca/?ref=jordana-whatsapp` and check the dashboard to see it tracked
 
-**Week 2 (Mar 8-14):**
+**Week 2 (Mar 8-14) — Vendor + Synagogue Push:**
 - [ ] Vendor outreach emails sent — "You're listed on Neshama" (110 vendors)
 - [ ] Call 5 kosher caterers — pitch Featured Vendor ($49/mo founding rate)
 - [ ] Synagogue outreach emails (12+ synagogues)
 - [ ] Press pitch: Canadian Jewish News
 
-**Month 1 (March):**
-- [ ] First monthly vendor performance reports sent
-- [ ] Offer "Founding Partner" rate to first 10 vendors ($29/mo locked 12 months)
+**Month 1 (March) — Data Builds, Revenue Starts:**
+- [ ] First monthly vendor performance reports sent automatically
+- [ ] Pitch featured listings to vendors who have real click data
 - [ ] Formalize funeral home partnerships (Steeles, Benjamin's, Paperman's)
-- [ ] Build vendor analytics dashboard for vendors themselves
 
-**Month 2-3:**
-- [ ] Revenue activation: convert 5-20 vendors to Featured
-- [ ] Shiva-to-vendor ordering flow (10-15% commission)
+**Month 2-3 — Revenue Activation:**
+- [ ] Convert 5-20 vendors to Featured ($49/mo founding rate)
 - [ ] Memorial donation integration
 - [ ] Expand to more funeral homes
 - [ ] US expansion research (South Florida first — 620K Jews, snowbird overlap)
@@ -222,25 +239,21 @@ Auto-refreshes every 60 seconds. Works on mobile.
 
 All copy-paste ready. Organized by channel.
 
-### WhatsApp Groups — Quick Drop
+### WhatsApp Groups — Quick Drop (keep it SHORT — 4 lines max for groups)
 
-Hey everyone — I wanted to share something really close to my heart. Some of you know my mom used to read obituaries to find former patients and pay her respects. She was also the one who cooked for everyone — the big salads, the meals that brought people together. After I lost her, I started doing both. That's actually how Jem Salads started.
+Hey — some of you know my mom used to read obituaries. After losing her, I started doing the same. Erin Kofman and I built neshama.ca — one place for Toronto/Montreal Jewish obituaries, shiva meal coordination, and 110+ caterers and vendors. Free, no sign-up. Worth bookmarking: www.neshama.ca
 
-And through catering shivas every week, I kept seeing the same thing — meals overlapping, days uncovered, families checking three different funeral home websites just to find the details. I kept thinking: there has to be one place for all of this.
+### WhatsApp — Longer Version (for personal messages, not groups)
 
-So my friend Erin Kofman and I built one. It's called Neshama (www.neshama.ca). Obituaries from Toronto and Montreal funeral homes in one feed, a tool to coordinate shiva meals so nothing overlaps, and a directory of 110+ caterers and vendors.
+Hey — I wanted to share something close to my heart. You know my mom read obituaries to find former patients. After losing her, I started doing both — reading obituaries and feeding people. Through Jem Salads I saw the same problem every week: meals overlapping, days uncovered, families checking three different funeral home websites.
 
-Free, respectful, no ads, no sign-up. Worth bookmarking: www.neshama.ca
+So Erin and I built Neshama (www.neshama.ca). Obituaries from Toronto and Montreal in one feed, a meal coordination tool so nothing overlaps, and 110+ caterers and vendors. Free, respectful, no ads. Worth a look.
 
 ### Orthodox Community Circles
 
-Hi [Name] — I've been meaning to tell you about something. Erin Kofman and I built a resource for the community called Neshama (www.neshama.ca). I've been involved from the beginning and I really believe in what we're doing.
+Hi [Name] — quick one. Erin Kofman and I built a community resource called Neshama (www.neshama.ca). You know how it is — three people bring chicken Monday, nobody brings anything Wednesday.
 
-You know how it is when there's a loss — everyone wants to help, but the coordination falls apart. Three people bring chicken on Monday, nobody brings anything Wednesday.
-
-Neshama pulls together obituaries from the local funeral homes so you don't have to check multiple sites, and it has a meal coordination tool where friends can sign up for specific days. There's also a full directory of caterers and vendors who serve shiva families — I see this need firsthand through Jem Salads.
-
-It's free, it's respectful, and it's already live with over 100 real listings. If you know anyone on a chesed committee or who organizes for families, I'd love for them to see it.
+Neshama has obituaries from local funeral homes in one place, a meal coordination tool for shiva, and a full caterer/vendor directory. Free, already live with 100+ listings. If you know anyone on a chesed committee, I'd love for them to see it.
 
 ### Synagogue Contacts / Chesed Committees
 
@@ -324,6 +337,10 @@ Would love for you to take a look. And if you see the right people to share it w
 | Full Vendor Directory | www.neshama.ca/directory |
 | What to Bring | www.neshama.ca/what-to-bring-to-a-shiva |
 | Shiva Essentials | www.neshama.ca/shiva-essentials |
+| How to Sit Shiva | www.neshama.ca/how-to-sit-shiva |
+| What Is Yahrzeit | www.neshama.ca/what-is-yahrzeit |
+| Kosher Shiva Food | www.neshama.ca/kosher-shiva-food |
+| Yahrzeit Reminders | www.neshama.ca/yahrzeit |
 | Gift Ideas | www.neshama.ca/gifts |
 | About | www.neshama.ca/about |
 | **Cofounder Dashboard** | **www.neshama.ca/dashboard** |
