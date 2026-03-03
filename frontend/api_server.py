@@ -3493,31 +3493,89 @@ button:hover{background:#c45a1a}</style></head>
         logging.info(f"[API] {method} {path} {status} {elapsed_ms:.0f}ms")
 
     def _handle_health_check(self):
-        """GET /api/health — returns service status with counts."""
+        """GET /api/health — comprehensive service health check.
+        Returns status of every subsystem so smoke tests can verify nothing broke."""
+        checks = {}
+        all_ok = True
+
+        # 1. Database connection + table counts
         try:
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
-            obit_count = 0
-            vendor_count = 0
+
+            for table, min_expected in [('obituaries', 50), ('vendors', 80), ('subscribers', 0)]:
+                try:
+                    cursor.execute(f'SELECT COUNT(*) FROM {table}')
+                    count = cursor.fetchone()[0]
+                    checks[table] = {'ok': True, 'count': count}
+                    if count < min_expected:
+                        checks[table]['warning'] = f'Expected {min_expected}+, got {count}'
+                except Exception as e:
+                    checks[table] = {'ok': False, 'error': str(e)}
+                    all_ok = False
+
+            # Test DB is writable (insert + rollback)
             try:
-                cursor.execute('SELECT COUNT(*) FROM obituaries')
-                obit_count = cursor.fetchone()[0]
-            except Exception:
-                pass
-            try:
-                cursor.execute('SELECT COUNT(*) FROM vendors')
-                vendor_count = cursor.fetchone()[0]
-            except Exception:
-                pass
+                cursor.execute("BEGIN")
+                cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
+                conn.rollback()
+                checks['db_writable'] = {'ok': True}
+            except Exception as e:
+                checks['db_writable'] = {'ok': False, 'error': str(e)}
+                all_ok = False
+
             conn.close()
-            self.send_json_response({
-                'status': 'ok',
-                'obituaries': obit_count,
-                'vendors': vendor_count
-            })
-        except Exception:
-            self.send_json_response({'status': 'ok', 'obituaries': 0, 'vendors': 0})
+        except Exception as e:
+            checks['database'] = {'ok': False, 'error': str(e)}
+            all_ok = False
+
+        # 2. Email subsystem
+        checks['email'] = {
+            'ok': EMAIL_AVAILABLE,
+            'sendgrid_connected': EMAIL_AVAILABLE and subscription_mgr and bool(subscription_mgr.sendgrid_api_key)
+        }
+        if not EMAIL_AVAILABLE:
+            all_ok = False
+
+        # 3. Shiva subsystem
+        checks['shiva'] = {'ok': SHIVA_AVAILABLE}
+        if not SHIVA_AVAILABLE:
+            all_ok = False
+
+        # 4. Yahrzeit subsystem
+        checks['yahrzeit'] = {'ok': YAHRZEIT_AVAILABLE}
+
+        # 5. Stripe subsystem
+        checks['stripe'] = {'ok': STRIPE_AVAILABLE}
+
+        # 6. Vendors subsystem
+        checks['vendor_directory'] = {'ok': VENDORS_AVAILABLE}
+
+        # 7. Static files spot check
+        critical_pages = ['/', '/feed', '/directory', '/gifts', '/shiva/organize',
+                          '/how-to-sit-shiva', '/what-is-yahrzeit', '/kosher-shiva-food',
+                          '/yahrzeit', '/find-my-page', '/dashboard']
+        missing = []
+        for page in critical_pages:
+            if page == '/':
+                fname = 'index.html'
+            elif page in self.STATIC_FILES:
+                fname = self.STATIC_FILES[page][0]
+            else:
+                continue
+            if not os.path.exists(os.path.join(FRONTEND_DIR, fname)):
+                missing.append(page)
+        checks['static_files'] = {'ok': len(missing) == 0}
+        if missing:
+            checks['static_files']['missing'] = missing
+            all_ok = False
+
+        status_code = 200 if all_ok else 503
+        self.send_json_response({
+            'status': 'ok' if all_ok else 'degraded',
+            'checks': checks
+        }, status_code)
 
     def _get_client_ip(self):
         """Get client IP from headers or socket."""
