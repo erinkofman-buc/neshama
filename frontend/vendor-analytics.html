@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Performance — Neshama</title>
+    <meta name="description" content="View your vendor performance metrics on Neshama — page views, clicks, leads, and trends.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #6b7c6e;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a { color: var(--terracotta); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Nav */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; }
+        .nav-premium-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); text-decoration: none; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 3rem 1.5rem 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 400;
+            margin-bottom: 0.4rem;
+        }
+
+        .hero .vendor-name {
+            color: var(--terracotta);
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .hero .period {
+            font-size: 0.95rem;
+            color: var(--sage);
+            margin-top: 0.5rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.75rem 1.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(62, 39, 35, 0.12);
+        }
+
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: var(--terracotta);
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            margin-top: 0.3rem;
+        }
+
+        .stat-sublabel {
+            font-size: 0.8rem;
+            color: var(--sage);
+            margin-top: 0.15rem;
+        }
+
+        /* Section Cards */
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem 2.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px var(--soft-shadow);
+        }
+
+        .section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid rgba(210, 105, 30, 0.15);
+            display: inline-block;
+        }
+
+        /* Chart */
+        .chart-container {
+            margin-top: 1rem;
+        }
+
+        .chart-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-label {
+            font-size: 0.82rem;
+            color: var(--sage-dark);
+            min-width: 52px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .chart-bar-bg {
+            flex: 1;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            height: 28px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--terracotta), #e08040);
+            border-radius: 0.5rem;
+            transition: width 0.6s ease;
+            min-width: 2px;
+        }
+
+        .chart-bar-fill.views {
+            background: linear-gradient(90deg, var(--sage), var(--sage-dark));
+        }
+
+        .chart-count {
+            font-size: 0.8rem;
+            color: var(--sage-dark);
+            min-width: 32px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.clicks { background: var(--terracotta); }
+        .legend-dot.views { background: var(--sage); }
+
+        /* Referrer Table */
+        .referrer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.75rem;
+        }
+
+        .referrer-table th {
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--sage-dark);
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 2px solid var(--light-taupe);
+        }
+
+        .referrer-table td {
+            font-size: 0.95rem;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+        }
+
+        .referrer-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--sage-dark);
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Loading */
+        .loading .stat-value {
+            color: var(--sage);
+        }
+
+        /* Tip box */
+        .tip-box {
+            background: var(--cream);
+            border-left: 3px solid var(--gold);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-top: 1.25rem;
+            font-size: 1rem;
+        }
+
+        .tip-box strong {
+            color: var(--terracotta);
+        }
+
+        /* CTA */
+        .cta-btn {
+            display: inline-block;
+            background: var(--terracotta);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.15);
+            text-decoration: none;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+
+        /* Mobile Nav */
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-divider { display: none; }
+            .nav-link-secondary { opacity: 0.7; font-size: 0.92rem; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-hamburger { display: block; }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.9rem; }
+            .hero { padding: 2.5rem 1.5rem 1.5rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+            .stat-card { padding: 1.25rem 1rem; }
+            .stat-value { font-size: 2rem; }
+            .section { padding: 1.5rem 1.25rem; }
+            .section h2 { font-size: 1.4rem; }
+            .footer-links { gap: 1.25rem; }
+        }
+    </style>
+    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<nav class="top-nav" aria-label="Main navigation">
+    <a href="/" class="nav-logo">Neshama</a>
+    <div class="nav-center" id="navLinks">
+        <div class="nav-group-primary">
+            <a href="/feed" class="nav-link">Listings</a>
+            <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva</a>
+        </div>
+        <span class="nav-divider"></span>
+        <div class="nav-group-secondary">
+            <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
+            <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+            <a href="/about" class="nav-link nav-link-secondary">About</a>
+        </div>
+    </div>
+    <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+</nav>
+
+<main id="main-content">
+    <header class="hero">
+        <h1>Performance &mdash; <span class="vendor-name" id="vendorNameHero">Loading&hellip;</span></h1>
+        <p class="subtitle">Your listing metrics on Neshama</p>
+        <p class="period" id="datePeriod"></p>
+    </header>
+
+    <div class="container">
+
+        <!-- Overview Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card loading">
+                <div class="stat-value" id="totalViews">&mdash;</div>
+                <div class="stat-label">Page Views</div>
+                <div class="stat-sublabel">your listing page</div>
+            </div>
+            <div class="stat-card loading">
+                <div class="stat-value" id="totalClicks">&mdash;</div>
+                <div class="stat-label">Outbound Clicks</div>
+                <div class="stat-sublabel">to your website</div>
+            </div>
+            <div class="stat-card loading">
+                <div class="stat-value" id="clickRate">&mdash;</div>
+                <div class="stat-label">Click Rate</div>
+                <div class="stat-sublabel">clicks / views</div>
+            </div>
+            <div class="stat-card loading">
+                <div class="stat-value" id="totalLeads">&mdash;</div>
+                <div class="stat-label">Inquiries</div>
+                <div class="stat-sublabel">contact requests</div>
+            </div>
+        </div>
+
+        <!-- Weekly Trend -->
+        <div class="section" id="trendSection">
+            <h2>Last 4 Weeks</h2>
+            <div class="chart-container" id="weeklyChart">
+                <p style="color: var(--sage); text-align: center; padding: 2rem;">Loading trend data&hellip;</p>
+            </div>
+            <div class="chart-legend">
+                <div class="chart-legend-item"><div class="legend-dot clicks"></div> Clicks</div>
+                <div class="chart-legend-item"><div class="legend-dot views"></div> Views</div>
+            </div>
+        </div>
+
+        <!-- Top Referrers -->
+        <div class="section" id="referrerSection">
+            <h2>Where Visitors Come From</h2>
+            <table class="referrer-table" id="referrerTable">
+                <thead>
+                    <tr>
+                        <th>Source Page</th>
+                        <th>Visits</th>
+                    </tr>
+                </thead>
+                <tbody id="referrerBody">
+                    <tr><td colspan="2" style="text-align:center; color: var(--sage); padding: 1.5rem;">Loading&hellip;</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Upgrade CTA -->
+        <div class="section" style="text-align: center; padding: 2.5rem 2rem;" id="ctaSection">
+            <h2 style="display: block; text-align: center; border-bottom: none; padding-bottom: 0;">Want More Visibility?</h2>
+            <p style="color: var(--sage-dark); margin-top: 0.5rem;">
+                Featured vendors appear at the top of search results and get highlighted placement across the site.
+            </p>
+            <a href="mailto:contact@neshama.ca?subject=Featured%20Vendor%20Inquiry" class="cta-btn">Ask About Featured Listings</a>
+        </div>
+
+    </div>
+</main>
+
+<footer>
+    <nav class="footer-links" aria-label="Footer navigation">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/faq">FAQ</a>
+        <a href="/shiva-essentials">Shiva Essentials</a>
+        <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+        <a href="/gifts">Send a Gift</a>
+        <a href="/directory">Directory</a>
+        <a href="/yahrzeit">Yahrzeit Reminders</a>
+        <a href="/sustain">Sustain</a>
+        <a href="/privacy">Privacy</a>
+        <a href="mailto:contact@neshama.ca">Contact</a>
+    </nav>
+    <p class="footer-copy">Built with care for the Jewish community</p>
+</footer>
+
+<script>
+(function() {
+    // Get vendor slug from URL path
+    var pathParts = window.location.pathname.split('/');
+    var slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+
+    if (!slug) {
+        document.getElementById('vendorNameHero').textContent = 'Unknown Vendor';
+        return;
+    }
+
+    // Fetch analytics data
+    fetch('/api/vendor-analytics/' + encodeURIComponent(slug))
+        .then(function(r) { return r.json(); })
+        .then(function(resp) {
+            if (resp.status !== 'success') {
+                showEmpty();
+                return;
+            }
+
+            var d = resp.data;
+
+            // Update vendor name
+            document.getElementById('vendorNameHero').textContent = d.vendor_name || slug.replace(/-/g, ' ');
+            document.title = (d.vendor_name || slug) + ' — Performance | Neshama';
+
+            // Date period
+            document.getElementById('datePeriod').textContent = 'Data since ' + (d.first_activity || 'listing creation');
+
+            // Stats cards
+            document.getElementById('totalViews').textContent = formatNum(d.total_views);
+            document.getElementById('totalClicks').textContent = formatNum(d.total_clicks);
+            document.getElementById('totalLeads').textContent = formatNum(d.total_leads);
+
+            var ctr = d.total_views > 0
+                ? ((d.total_clicks / d.total_views) * 100).toFixed(1) + '%'
+                : '0%';
+            document.getElementById('clickRate').textContent = ctr;
+
+            // Remove loading state
+            var cards = document.querySelectorAll('.stat-card');
+            cards.forEach(function(c) { c.classList.remove('loading'); });
+
+            // Weekly trend chart
+            renderWeeklyChart(d.weekly_trend || []);
+
+            // Referrer table
+            renderReferrerTable(d.top_referrers || []);
+        })
+        .catch(function(err) {
+            console.error('Analytics fetch error:', err);
+            showEmpty();
+        });
+
+    function formatNum(n) {
+        if (n === undefined || n === null) return '0';
+        if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+        return String(n);
+    }
+
+    function showEmpty() {
+        document.getElementById('vendorNameHero').textContent = 'Your Listing';
+        var grid = document.getElementById('statsGrid');
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-icon">&#x1f4ca;</div><p>No data yet</p><p style="font-size: 0.95rem; color: var(--sage);">Analytics will appear once visitors start viewing your listing.</p></div>';
+    }
+
+    function renderWeeklyChart(weeks) {
+        var container = document.getElementById('weeklyChart');
+        if (!weeks.length) {
+            container.innerHTML = '<div class="empty-state"><p>No weekly data available yet</p></div>';
+            return;
+        }
+
+        var maxVal = 1;
+        weeks.forEach(function(w) {
+            if (w.clicks > maxVal) maxVal = w.clicks;
+            if (w.views > maxVal) maxVal = w.views;
+        });
+
+        var html = '';
+        weeks.forEach(function(w) {
+            var clickPct = Math.max(1, (w.clicks / maxVal) * 100);
+            var viewPct = Math.max(1, (w.views / maxVal) * 100);
+            html += '<div class="chart-bar-row">'
+                + '<div class="chart-label">' + w.week_label + '</div>'
+                + '<div class="chart-bar-bg"><div class="chart-bar-fill views" style="width:' + viewPct + '%"></div></div>'
+                + '<div class="chart-count">' + w.views + '</div>'
+                + '</div>';
+            html += '<div class="chart-bar-row">'
+                + '<div class="chart-label"></div>'
+                + '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:' + clickPct + '%"></div></div>'
+                + '<div class="chart-count">' + w.clicks + '</div>'
+                + '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function renderReferrerTable(refs) {
+        var tbody = document.getElementById('referrerBody');
+        if (!refs.length) {
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color: var(--sage); padding: 1.5rem;">No referrer data yet</td></tr>';
+            return;
+        }
+
+        var html = '';
+        refs.forEach(function(r) {
+            var page = r.referrer_page || 'Direct';
+            // Clean up referrer URLs to show friendly names
+            if (page.indexOf('/directory') >= 0) page = 'Vendor Directory';
+            else if (page.indexOf('/gifts') >= 0) page = 'Gifts Page';
+            else if (page.indexOf('/shiva') >= 0) page = 'Shiva Pages';
+            else if (page.indexOf('/what-to-bring') >= 0) page = 'What to Bring Guide';
+            else if (page.indexOf('/kosher-shiva-food') >= 0) page = 'Kosher Food Guide';
+            else if (page.indexOf('/shiva-essentials') >= 0) page = 'Shiva Essentials';
+            else if (page === '' || page === 'Direct') page = 'Direct / Bookmarked';
+            html += '<tr><td>' + page + '</td><td>' + r.count + '</td></tr>';
+        });
+        tbody.innerHTML = html;
+    }
+})();
+</script>
+<script>
+var hamburgerBtn = document.getElementById('hamburgerBtn');
+var navLinks = document.getElementById('navLinks');
+if (hamburgerBtn && navLinks) {
+    hamburgerBtn.addEventListener('click', function() {
+        var isOpen = navLinks.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+}
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+</body>
+</html>

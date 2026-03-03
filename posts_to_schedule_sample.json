@@ -1,0 +1,24 @@
+{
+  "posts": [
+    {
+      "text": "Every Jewish community deserves a place to come together during loss.\n\nNeshama connects Toronto and Montreal families with obituary listings, shiva meal coordination, and local kosher vendors \u2014 all in one place.\n\nLink in bio \u2192 neshama.ca\n\n#JewishCommunity #TorontoJewish #MontrealJewish #Shiva #JewishLife #NeshamaCa",
+      "profile_ids": ["YOUR_BUFFER_PROFILE_ID"],
+      "scheduled_at": "next_slot",
+      "media": [
+        {"photo": "https://neshama.ca/og-image.png"}
+      ]
+    },
+    {
+      "text": "Not sure what to bring to a shiva house? \ud83e\udd5e\n\nOur guide covers everything \u2014 food ideas, kosher considerations, non-food gifts, timing etiquette, and what to avoid.\n\nRead the full guide: neshama.ca/what-to-bring-to-a-shiva\n\n#ShivaHouse #JewishMourning #TorontoJewish #KosherFood #ShivaFood #JewishTradition",
+      "profile_ids": ["YOUR_BUFFER_PROFILE_ID"],
+      "scheduled_at": "next_slot",
+      "media": []
+    },
+    {
+      "text": "Yahrzeit reminders, handled for you. \ud83d\udd6f\ufe0f\n\nEnter your loved one\u2019s name and date \u2014 Neshama calculates the Hebrew calendar date and sends you a reminder every year, automatically.\n\nSet yours up at neshama.ca/yahrzeit\n\n#Yahrzeit #JewishMemorial #HebrewCalendar #JewishCommunity #NeverForget #NeshamaCa",
+      "profile_ids": ["YOUR_BUFFER_PROFILE_ID"],
+      "scheduled_at": "next_slot",
+      "media": []
+    }
+  ]
+}

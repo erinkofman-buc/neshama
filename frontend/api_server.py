@@ -194,6 +194,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/what-is-yahrzeit.html': ('what-is-yahrzeit.html', 'text/html'),
         '/kosher-shiva-food': ('kosher-shiva-food.html', 'text/html'),
         '/kosher-shiva-food.html': ('kosher-shiva-food.html', 'text/html'),
+        '/jewish-funeral-etiquette': ('jewish-funeral-etiquette.html', 'text/html'),
+        '/jewish-funeral-etiquette.html': ('jewish-funeral-etiquette.html', 'text/html'),
+        '/condolence-messages': ('condolence-messages.html', 'text/html'),
+        '/condolence-messages.html': ('condolence-messages.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
         '/gifts': ('gifts.html', 'text/html'),
@@ -270,9 +274,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_gift_vendors()
         elif path == '/api/track-click':
             self.handle_track_click()
+        elif path.startswith('/api/vendor-analytics/'):
+            slug = path[len('/api/vendor-analytics/'):]
+            self.get_vendor_analytics(slug)
         elif path.startswith('/api/vendors/'):
             slug = path[len('/api/vendors/'):]
             self.get_vendor_by_slug(slug)
+        # Vendor analytics page (/vendor-analytics/slug)
+        elif path.startswith('/vendor-analytics/') and path != '/vendor-analytics/':
+            self.serve_vendor_analytics_page()
         # Vendor detail pages (/directory/slug)
         elif path.startswith('/directory/') and path != '/directory/' and path not in self.STATIC_FILES:
             self.serve_vendor_page()
@@ -1980,6 +1990,174 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             logging.error(f"[View] Failed to log view: {e}")
+            self.send_json_response({'status': 'error', 'message': str(e)}, 500)
+
+    # ── Vendor Analytics Page + API ──────────────────────────
+
+    def serve_vendor_analytics_page(self):
+        """Serve the vendor analytics HTML page for /vendor-analytics/{slug}"""
+        filepath = os.path.join(FRONTEND_DIR, 'vendor-analytics.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    def get_vendor_analytics(self, slug):
+        """GET /api/vendor-analytics/{slug} — vendor-specific performance data"""
+        if not slug:
+            self.send_json_response({'status': 'error', 'message': 'Vendor slug required'}, 400)
+            return
+
+        try:
+            db_path = self.get_db_path()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Check vendor exists
+            vendor_name = slug.replace('-', ' ').title()
+            try:
+                cursor.execute('SELECT name FROM vendors WHERE slug = ?', (slug,))
+                row = cursor.fetchone()
+                if row:
+                    vendor_name = row['name']
+            except Exception:
+                pass
+
+            # Total clicks
+            total_clicks = 0
+            first_click = None
+            try:
+                cursor.execute('SELECT COUNT(*) as cnt, MIN(created_at) as first_at FROM vendor_clicks WHERE vendor_slug = ?', (slug,))
+                row = cursor.fetchone()
+                total_clicks = row['cnt'] or 0
+                first_click = row['first_at']
+            except Exception:
+                pass
+
+            # Total views
+            total_views = 0
+            first_view = None
+            try:
+                cursor.execute('SELECT COUNT(*) as cnt, MIN(created_at) as first_at FROM vendor_views WHERE vendor_slug = ?', (slug,))
+                row = cursor.fetchone()
+                total_views = row['cnt'] or 0
+                first_view = row['first_at']
+            except Exception:
+                pass
+
+            # Total leads
+            total_leads = 0
+            try:
+                cursor.execute('''
+                    SELECT COUNT(*) as cnt FROM vendor_leads vl
+                    JOIN vendors v ON vl.vendor_id = v.id
+                    WHERE v.slug = ?
+                ''', (slug,))
+                total_leads = cursor.fetchone()['cnt'] or 0
+            except Exception:
+                pass
+
+            # First activity date
+            first_activity = None
+            if first_click and first_view:
+                first_activity = min(first_click, first_view)[:10]
+            elif first_click:
+                first_activity = first_click[:10]
+            elif first_view:
+                first_activity = first_view[:10]
+
+            # Weekly trend (last 4 weeks)
+            weekly_trend = []
+            try:
+                cursor.execute('''
+                    SELECT
+                        strftime('%Y-W%W', created_at) as week_key,
+                        CASE
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now') THEN 'This week'
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now', '-7 days') THEN 'Last week'
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now', '-14 days') THEN '2 weeks ago'
+                            ELSE '3+ weeks ago'
+                        END as week_label,
+                        COUNT(*) as clicks
+                    FROM vendor_clicks
+                    WHERE vendor_slug = ?
+                    AND created_at >= datetime('now', '-28 days')
+                    GROUP BY week_key
+                    ORDER BY week_key ASC
+                ''', (slug,))
+                click_weeks = {row['week_key']: {'week_label': row['week_label'], 'clicks': row['clicks'], 'views': 0} for row in cursor.fetchall()}
+
+                cursor.execute('''
+                    SELECT
+                        strftime('%Y-W%W', created_at) as week_key,
+                        CASE
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now') THEN 'This week'
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now', '-7 days') THEN 'Last week'
+                            WHEN strftime('%W', created_at) = strftime('%W', 'now', '-14 days') THEN '2 weeks ago'
+                            ELSE '3+ weeks ago'
+                        END as week_label,
+                        COUNT(*) as views
+                    FROM vendor_views
+                    WHERE vendor_slug = ?
+                    AND created_at >= datetime('now', '-28 days')
+                    GROUP BY week_key
+                    ORDER BY week_key ASC
+                ''', (slug,))
+                for row in cursor.fetchall():
+                    wk = row['week_key']
+                    if wk in click_weeks:
+                        click_weeks[wk]['views'] = row['views']
+                    else:
+                        click_weeks[wk] = {'week_label': row['week_label'], 'clicks': 0, 'views': row['views']}
+
+                weekly_trend = sorted(click_weeks.values(), key=lambda x: x.get('week_label', ''))
+            except Exception:
+                pass
+
+            # Top referrers (where views/clicks come from)
+            top_referrers = []
+            try:
+                cursor.execute('''
+                    SELECT referrer_page, COUNT(*) as count
+                    FROM (
+                        SELECT referrer_page FROM vendor_views WHERE vendor_slug = ?
+                        UNION ALL
+                        SELECT referrer_page FROM vendor_clicks WHERE vendor_slug = ?
+                    )
+                    GROUP BY referrer_page
+                    ORDER BY count DESC
+                    LIMIT 10
+                ''', (slug, slug))
+                top_referrers = [dict(row) for row in cursor.fetchall()]
+            except Exception:
+                pass
+
+            conn.close()
+
+            self.send_json_response({
+                'status': 'success',
+                'data': {
+                    'vendor_name': vendor_name,
+                    'vendor_slug': slug,
+                    'total_views': total_views,
+                    'total_clicks': total_clicks,
+                    'total_leads': total_leads,
+                    'first_activity': first_activity,
+                    'weekly_trend': weekly_trend,
+                    'top_referrers': top_referrers
+                }
+            })
+
+        except Exception as e:
+            logging.error(f"[VendorAnalytics] Error for {slug}: {e}")
             self.send_json_response({'status': 'error', 'message': str(e)}, 500)
 
     # ── API: Referral Tracking ─────────────────────────────

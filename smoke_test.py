@@ -41,6 +41,8 @@ CRITICAL_PAGES = [
     "/how-to-sit-shiva",
     "/what-is-yahrzeit",
     "/kosher-shiva-food",
+    "/jewish-funeral-etiquette",
+    "/condolence-messages",
     "/yahrzeit",
     "/find-my-page",
     "/dashboard",
