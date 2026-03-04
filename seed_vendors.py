@@ -13,6 +13,15 @@ from datetime import datetime
 
 DB_PATH = os.environ.get('DATABASE_PATH', 'neshama.db')
 
+# Vendors to remove from DB (permanently closed)
+VENDORS_TO_REMOVE = [
+    "My Zaidy's Pizza",       # Closed Jan 2026
+    "Yehudales Falafel and Pizza",  # Closed Dec 2025
+    "Pizza Pita",             # No longer exists per Jordana Mar 2026
+    "Shwarma Express",        # No longer exists per Jordana Mar 2026
+    "Pita Box",               # No longer exists per Jordana Mar 2026
+]
+
 
 def slugify(name):
     """Convert vendor name to URL slug"""
@@ -490,27 +499,16 @@ VENDORS = [
     {
         'name': 'Olive Branch',
         'category': 'Kosher Restaurants & Caterers',
-        'description': 'Kosher restaurant offering Mediterranean and Israeli-inspired dishes. Catering platters and family meals available.',
-        'address': 'Toronto, ON',
-        'neighborhood': 'Toronto',
-        'phone': '',
+        'description': 'Kosher supermarket and restaurant offering Mediterranean and Israeli-inspired dishes. Catering platters and family meals available.',
+        'address': '1 Promenade Circle, Thornhill, ON',
+        'neighborhood': 'Thornhill',
+        'phone': '(905) 886-0255',
         'website': '',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto',
     },
-    {
-        'name': "My Zaidy's Pizza",
-        'category': 'Italian',
-        'description': 'Kosher pizza shop serving the Toronto Jewish community. Pizza trays, pasta platters, and casual meals for gatherings and shiva.',
-        'address': 'Toronto, ON',
-        'neighborhood': 'Toronto',
-        'phone': '',
-        'website': '',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto',
-    },
+    # My Zaidy's Pizza — removed Mar 2026 (permanently closed per Yelp Jan 2026)
     {
         'name': 'Pizza Cafe',
         'category': 'Italian',
@@ -823,7 +821,7 @@ VENDORS = [
         'description': 'Upscale COR-certified kosher restaurant inside the Windsor Arms Hotel. Globally-inspired menu by Chef David Adjey. Intimate 32-seat dining room. Open Sunday-Thursday for dinner.',
         'address': '18 St. Thomas St, Toronto, ON',
         'neighborhood': 'Yorkville',
-        'phone': '',
+        'phone': '(416) 934-6037',
         'website': 'https://chagallto.com',
         'kosher_status': 'COR',
         'delivery': 0,
@@ -869,10 +867,10 @@ VENDORS = [
         'name': "Bubby's",
         'category': 'Restaurants & Delis',
         'description': 'COR-certified deli with two locations. NY-style bagels and bialys on Bathurst, plus sandwiches, burgers, tacos, and onion rings at the larger Lawrence Ave diner.',
-        'address': '3020 Bathurst St, Toronto, ON',
+        'address': '3030 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
-        'phone': '',
-        'website': '',
+        'phone': '(416) 862-2435',
+        'website': 'https://www.bubbysbagels.com',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -913,18 +911,7 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
     },
-    {
-        'name': 'Yehudales Falafel and Pizza',
-        'category': 'Middle Eastern & Israeli',
-        'description': 'COR-certified kosher falafel and pizza restaurant in Thornhill. Middle Eastern favourites and Italian staples under one roof.',
-        'address': '7241 Bathurst St, Vaughan, ON',
-        'neighborhood': 'Thornhill',
-        'phone': '',
-        'website': '',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Thornhill/Vaughan,North York',
-    },
+    # Yehudales Falafel and Pizza — removed Mar 2026 (permanently closed per Yelp Dec 2025)
     {
         'name': 'Shalom India',
         'category': 'Kosher Restaurants & Caterers',
@@ -1347,6 +1334,139 @@ MONTREAL_VENDORS = [
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont,Mile End,Côte-Saint-Luc',
     },
+    # ── Montreal restaurants (MK-certified, added Mar 4 research) ──
+    {
+        'name': 'Benny & Fils (Queen Mary)',
+        'category': 'Middle Eastern & Israeli',
+        'description': 'Family-run kosher grill serving shawarma, falafel, schnitzel, and Mediterranean-style meat dishes on Queen Mary Road.',
+        'address': '4944 Queen Mary Rd, Montreal, QC H3W 1X2',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 735-5858',
+        'website': 'https://www.bennyetfils.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Snowdon,Cote-des-Neiges,Hampstead,Cote-Saint-Luc',
+    },
+    {
+        'name': 'Benny & Fils (Downtown)',
+        'category': 'Middle Eastern & Israeli',
+        'description': 'Downtown branch of the popular kosher grill near McGill University, serving shawarma, falafel, and fried chicken.',
+        'address': '575 Boul. de Maisonneuve Ouest, Montreal, QC H3A 1L8',
+        'neighborhood': 'Downtown Montreal',
+        'phone': '(514) 842-7575',
+        'website': 'https://www.bennyetfils.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Downtown Montreal,Plateau,Westmount',
+    },
+    {
+        'name': 'Deli 770',
+        'category': 'Delis & Smoked Meat',
+        'description': 'Chabad-inspired kosher deli in the Westbury complex specializing in Montreal-style smoked meat sandwiches and gourmet grill fusions.',
+        'address': '5193 Avenue de Courtrai, Montreal, QC H3W 2X7',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 335-4770',
+        'website': 'https://deli770.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc',
+    },
+    {
+        'name': 'Deli Boyz',
+        'category': 'Delis & Smoked Meat',
+        'description': 'Kosher deli in Quartier Cavendish Mall serving smoked meat, schnitzel, burgers, wraps, and salads.',
+        'address': '5800 Cavendish Blvd, Cote-Saint-Luc, QC H4W 2T5',
+        'neighborhood': 'Cote-Saint-Luc',
+        'phone': '(514) 303-2699',
+        'website': 'https://restaurantdeliboyz.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Cote-Saint-Luc,Hampstead,Snowdon',
+    },
+    {
+        'name': 'Le Plezl',
+        'category': 'Cafes & Dairy',
+        'description': 'Family-owned kosher dairy cafe near McGill serving freshly made sandwiches, salads, soups, wraps, and Mediterranean specialties.',
+        'address': '3429 Rue Peel, Montreal, QC H3A 1W7',
+        'neighborhood': 'Downtown Montreal',
+        'phone': '(514) 400-5147',
+        'website': 'https://www.leplezl.com',
+        'kosher_status': 'MK',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'Chanoch Sushi',
+        'category': 'Japanese & Sushi',
+        'description': 'Kosher sushi restaurant on Wilderton Avenue offering fresh sushi and sushi salads with delivery available across Montreal.',
+        'address': '6947 Av Wilderton, Montreal, QC H3S 2H7',
+        'neighborhood': 'Cote-des-Neiges',
+        'phone': '(514) 616-3879',
+        'website': 'https://www.chanochsushi.site',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Cote-des-Neiges,Snowdon,Outremont',
+    },
+    {
+        'name': 'Chiyoko',
+        'category': 'Japanese & Sushi',
+        'description': 'Upscale kosher Japanese restaurant in Ville Saint-Laurent serving sushi-grade fish and fine cuts of meat in an elegant setting.',
+        'address': '2113 Rue Saint-Louis, Saint-Laurent, QC H4M 1P1',
+        'neighborhood': 'Saint-Laurent',
+        'phone': '(514) 804-0581',
+        'website': 'https://www.chiyokosushi.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Saint-Laurent,Cote-des-Neiges,Town of Mount Royal',
+    },
+    {
+        'name': 'LeFalafel Plus',
+        'category': 'Middle Eastern & Israeli',
+        'description': 'Israeli-style MK Mehadrin kosher restaurant on Decarie serving high-quality falafel, shawarma, schnitzel, and Middle Eastern dishes.',
+        'address': '6245 Decarie Blvd, Montreal, QC H3W 3E1',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 731-1221',
+        'website': '',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc,Hampstead',
+    },
+    {
+        'name': 'BSTRO Pret-a-Manger',
+        'category': 'Mediterranean & Grills',
+        'description': 'Mediterranean-style kosher restaurant and bakery offering grilled items, sandwiches, prepared Shabbat meals, catering, and a boutique counter.',
+        'address': '5663 Royalmount Ave, Mount Royal, QC H4P 2P9',
+        'neighborhood': 'Town of Mount Royal',
+        'phone': '(514) 731-1862',
+        'website': 'https://lebstro.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Town of Mount Royal,Snowdon,Cote-des-Neiges,Cote-Saint-Luc',
+    },
+    {
+        'name': 'Pizza Gourmetti',
+        'category': 'Pizza & Dairy',
+        'description': 'Authentic New York-style kosher Cholov Yisroel pizza restaurant in Saint-Laurent serving thin-crust pizzas, salads, and sandwiches since 2009.',
+        'address': '2075 Rue Saint-Louis, Saint-Laurent, QC H4W 1S5',
+        'neighborhood': 'Saint-Laurent',
+        'phone': '(514) 739-7707',
+        'website': 'https://www.pizzagourmetti.com',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Saint-Laurent,Cote-des-Neiges,Town of Mount Royal',
+    },
+    {
+        'name': 'Pizza Pita Prime',
+        'category': 'Pizza & Dairy',
+        'description': 'Long-standing kosher pizzeria run by the Shpiegelman family for three decades, serving pizza, pasta, and dairy dishes with catering services.',
+        'address': '5345 Vezina, Montreal, QC H3X 4A8',
+        'neighborhood': 'Snowdon',
+        'phone': '(514) 731-7482',
+        'website': '',
+        'kosher_status': 'MK',
+        'delivery': 1,
+        'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc,Hampstead',
+    },
     # Gift Baskets
     {
         'name': 'Gifting Kosher Canada',
@@ -1725,9 +1845,18 @@ def seed_vendors(db_path=None):
         gift_inserted += 1
         inserted += 1
 
+    # Remove closed/defunct vendors
+    removed = 0
+    for name in VENDORS_TO_REMOVE:
+        slug = slugify(name)
+        cursor.execute('DELETE FROM vendors WHERE slug = ?', (slug,))
+        if cursor.rowcount > 0:
+            removed += cursor.rowcount
+            logging.info(f"Removed closed vendor: {name}")
+
     conn.commit()
     conn.close()
-    logging.info(f"Vendor seed complete: {inserted} inserted ({gift_inserted} gift), {skipped} skipped (already exist)")
+    logging.info(f"Vendor seed complete: {inserted} inserted ({gift_inserted} gift), {skipped} skipped, {removed} removed")
     return inserted
 
 

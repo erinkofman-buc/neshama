@@ -43,6 +43,7 @@ CRITICAL_PAGES = [
     "/kosher-shiva-food",
     "/jewish-funeral-etiquette",
     "/condolence-messages",
+    "/shiva-preparation-checklist",
     "/yahrzeit",
     "/find-my-page",
     "/dashboard",

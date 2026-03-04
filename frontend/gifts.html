@@ -127,6 +127,15 @@
         .footer-links a:hover { color: var(--terracotta); }
         .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
 
+        /* Section Headers */
+        .gift-section { max-width: 1100px; margin: 0 auto 1.5rem; padding: 0 1.5rem; }
+        .gift-section:first-child { margin-top: 0; }
+        .section-header { text-align: center; margin-bottom: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--light-taupe); }
+        .gift-section:first-child .section-header { border-top: none; padding-top: 0; }
+        .section-header h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem, 4vw, 1.8rem); font-weight: 500; color: var(--dark-brown); margin-bottom: 0.25rem; }
+        .section-header p { color: var(--sage-dark); font-size: 0.95rem; max-width: 540px; margin: 0 auto; line-height: 1.5; }
+        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.2rem; }
+
         /* No Results */
         .no-results { text-align: center; padding: 3rem 1.5rem; color: var(--sage-dark); }
         .no-results h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--dark-brown); }
@@ -206,8 +215,8 @@
     <a href="https://shop.jnf.org/collections/in-memory?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener">Plant a Tree &rarr;</a>
 </div>
 
-<div class="vendor-grid" id="vendorGrid">
-    <!-- Populated by JS -->
+<div id="sectionedVendors">
+    <!-- Populated by JS as grouped sections -->
 </div>
 
 <div class="no-results" id="noResults" style="display: none;">
@@ -514,64 +523,113 @@
         return false;
     }
 
+    // Section definitions with display order
+    var sections = [
+        { key: 'gift-baskets', title: 'Gift Baskets & Platters', subtitle: 'Curated kosher gift baskets, shiva platters, and gourmet packages delivered to the family.' },
+        { key: 'chocolate', title: 'Chocolate & Sweets', subtitle: 'Comforting treats and premium chocolate gift boxes.' },
+        { key: 'fruit-nuts', title: 'Fruit & Nuts', subtitle: 'Fresh fruit arrangements and dried fruit trays — healthy, universally appreciated.' },
+        { key: 'baked-goods', title: 'Baked Goods', subtitle: 'Artisan cookies, pastries, and baked goods gift boxes.' },
+        { key: 'candles', title: 'Candles & Ritual Items', subtitle: 'Memorial candles and yahrzeit candles for the shiva home.' }
+    ];
+
+    // Map vendors to sections
+    function getVendorSection(v) {
+        var cat = (v.category || '').toLowerCase();
+        if (v.type === 'affiliate' && v.categories) {
+            // Use primary category from affiliate
+            if (v.categories.indexOf('gift-baskets') >= 0 || v.categories.indexOf('shiva-platters') >= 0) return 'gift-baskets';
+            if (v.categories.indexOf('chocolate') >= 0) return 'chocolate';
+            if (v.categories.indexOf('fruit-nuts') >= 0) return 'fruit-nuts';
+            if (v.categories.indexOf('baked-goods') >= 0) return 'baked-goods';
+        }
+        if (cat.indexOf('gift basket') >= 0 || cat.indexOf('shiva platter') >= 0 || cat.indexOf('gourmet') >= 0) return 'gift-baskets';
+        if (cat.indexOf('chocolate') >= 0 || cat.indexOf('sweet') >= 0) return 'chocolate';
+        if (cat.indexOf('fruit') >= 0 || cat.indexOf('nut') >= 0) return 'fruit-nuts';
+        if (cat.indexOf('baked') >= 0) return 'baked-goods';
+        if (cat.indexOf('candle') >= 0 || cat.indexOf('ritual') >= 0) return 'candles';
+        return 'gift-baskets'; // default
+    }
+
+    function renderVendorCard(v) {
+        var html = '<div class="vendor-card">';
+        html += '<div class="vendor-name">' + escapeHtml(v.name) + '</div>';
+        html += '<div class="vendor-badges">';
+        if (v.featured) html += '<span class="badge badge-featured">Featured</span>';
+        html += '<span class="badge badge-category">' + escapeHtml(v.category) + '</span>';
+        if (v.kosher_status && v.kosher_status !== 'not_certified' && v.kosher_status !== 'Various') {
+            html += '<span class="badge badge-kosher">' + escapeHtml(v.kosher_status) + '</span>';
+        }
+        if (v.delivery_area) {
+            html += '<span class="badge badge-delivery">' + escapeHtml(v.delivery_area) + '</span>';
+        } else if (v.delivery) {
+            html += '<span class="badge badge-delivery">Delivers</span>';
+        }
+        html += '</div>';
+        html += '<p class="vendor-desc">' + escapeHtml(v.description) + '</p>';
+        if (v.phone) {
+            html += '<p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0.75rem;"><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">&#128222; ' + escapeHtml(v.phone) + '</a></p>';
+        }
+        if (v.type === 'affiliate') {
+            html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
+        } else if (v.website) {
+            html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
+        } else if (v.phone) {
+            html += '<a href="tel:' + escapeHtml(v.phone) + '" class="vendor-cta cta-local">Call ' + escapeHtml(v.phone) + '</a>';
+        }
+        html += '</div>';
+        return html;
+    }
+
     function renderVendors() {
-        var grid = document.getElementById('vendorGrid');
+        var container = document.getElementById('sectionedVendors');
         var allVendors = [];
 
-        // Mix local and affiliate vendors
-        localVendors.forEach(function(v) {
-            v.type = 'local';
-            allVendors.push(v);
-        });
-        affiliateVendors.forEach(function(v) {
-            allVendors.push(v);
-        });
+        localVendors.forEach(function(v) { v.type = 'local'; allVendors.push(v); });
+        affiliateVendors.forEach(function(v) { allVendors.push(v); });
 
-        // Filter
+        // Filter by selected category
         var filtered = allVendors.filter(function(v) {
             return matchesCategory(v, currentCategory);
         });
 
         if (filtered.length === 0) {
-            grid.innerHTML = '';
+            container.innerHTML = '';
             document.getElementById('noResults').style.display = '';
             return;
         }
         document.getElementById('noResults').style.display = 'none';
 
-        var html = '';
+        // Group vendors into sections
+        var grouped = {};
+        sections.forEach(function(s) { grouped[s.key] = []; });
         filtered.forEach(function(v) {
-            html += '<div class="vendor-card">';
-            html += '<div class="vendor-name">' + escapeHtml(v.name) + '</div>';
-            html += '<div class="vendor-badges">';
-            if (v.featured) {
-                html += '<span class="badge badge-featured">Featured</span>';
-            }
-            html += '<span class="badge badge-category">' + escapeHtml(v.category) + '</span>';
-            if (v.kosher_status && v.kosher_status !== 'not_certified' && v.kosher_status !== 'Various') {
-                html += '<span class="badge badge-kosher">' + escapeHtml(v.kosher_status) + '</span>';
-            }
-            if (v.delivery_area) {
-                html += '<span class="badge badge-delivery">' + escapeHtml(v.delivery_area) + '</span>';
-            } else if (v.delivery) {
-                html += '<span class="badge badge-delivery">Delivers</span>';
-            }
-            html += '</div>';
-            html += '<p class="vendor-desc">' + escapeHtml(v.description) + '</p>';
-            if (v.phone) {
-                html += '<p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0.75rem;"><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">&#128222; ' + escapeHtml(v.phone) + '</a></p>';
-            }
-
-            if (v.type === 'affiliate') {
-                html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
-            } else if (v.website) {
-                html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
-            } else if (v.phone) {
-                html += '<a href="tel:' + escapeHtml(v.phone) + '" class="vendor-cta cta-local">Call ' + escapeHtml(v.phone) + '</a>';
-            }
-            html += '</div>';
+            var sec = getVendorSection(v);
+            if (grouped[sec]) grouped[sec].push(v);
+            else grouped['gift-baskets'].push(v);
         });
-        grid.innerHTML = html;
+
+        // If filtering a specific category, render flat (no section headers)
+        if (currentCategory !== 'all' && currentCategory !== 'kosher') {
+            var html = '<div class="gift-section"><div class="section-grid">';
+            filtered.forEach(function(v) { html += renderVendorCard(v); });
+            html += '</div></div>';
+            container.innerHTML = html;
+            return;
+        }
+
+        // Render sections
+        var html = '';
+        sections.forEach(function(sec) {
+            var items = grouped[sec.key];
+            if (items.length === 0) return;
+            html += '<div class="gift-section">';
+            html += '<div class="section-header"><h2>' + sec.title + '</h2>';
+            html += '<p>' + sec.subtitle + '</p></div>';
+            html += '<div class="section-grid">';
+            items.forEach(function(v) { html += renderVendorCard(v); });
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
     }
 
     function filterCategory(cat, el) {

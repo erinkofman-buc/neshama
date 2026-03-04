@@ -194,6 +194,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/what-is-yahrzeit.html': ('what-is-yahrzeit.html', 'text/html'),
         '/kosher-shiva-food': ('kosher-shiva-food.html', 'text/html'),
         '/kosher-shiva-food.html': ('kosher-shiva-food.html', 'text/html'),
+        '/shiva-preparation-checklist': ('shiva-preparation-checklist.html', 'text/html'),
+        '/shiva-preparation-checklist.html': ('shiva-preparation-checklist.html', 'text/html'),
         '/jewish-funeral-etiquette': ('jewish-funeral-etiquette.html', 'text/html'),
         '/jewish-funeral-etiquette.html': ('jewish-funeral-etiquette.html', 'text/html'),
         '/condolence-messages': ('condolence-messages.html', 'text/html'),
@@ -3774,7 +3776,7 @@ button:hover{background:#c45a1a}</style></head>
 
         # 7. Static files spot check
         critical_pages = ['/', '/feed', '/directory', '/gifts', '/shiva/organize',
-                          '/how-to-sit-shiva', '/what-is-yahrzeit', '/kosher-shiva-food',
+                          '/how-to-sit-shiva', '/what-is-yahrzeit', '/kosher-shiva-food', '/shiva-preparation-checklist',
                           '/yahrzeit', '/find-my-page', '/dashboard']
         missing = []
         for page in critical_pages:
