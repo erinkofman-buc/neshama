@@ -422,6 +422,11 @@
     </header>
 
     <div class="filter-bar">
+        <div style="display:flex;justify-content:center;gap:0.6rem;margin-bottom:0.75rem;">
+            <button class="filter-toggle active" id="cityAll" onclick="setCity('all',this)">All</button>
+            <button class="filter-toggle" id="cityToronto" onclick="setCity('toronto',this)">Toronto</button>
+            <button class="filter-toggle" id="cityMontreal" onclick="setCity('montreal',this)">Montreal</button>
+        </div>
         <div class="filter-controls">
             <div class="search-box">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -438,54 +443,6 @@
             </select>
             <select class="filter-select" id="neighborhoodFilter" aria-label="Filter by area">
                 <option value="">All Areas</option>
-                <optgroup label="Toronto">
-                    <option value="Annex">Annex</option>
-                    <option value="Bathurst Manor">Bathurst Manor</option>
-                    <option value="Bayview Village">Bayview Village</option>
-                    <option value="Cabbagetown">Cabbagetown</option>
-                    <option value="Church-Wellesley">Church-Wellesley</option>
-                    <option value="Don Mills">Don Mills</option>
-                    <option value="Eglinton West">Eglinton West</option>
-                    <option value="GTA-wide">GTA-wide</option>
-                    <option value="Harbord Village">Harbord Village</option>
-                    <option value="Kensington">Kensington</option>
-                    <option value="Lawrence Heights">Lawrence Heights</option>
-                    <option value="Lawrence Park">Lawrence Park</option>
-                    <option value="Leslieville">Leslieville</option>
-                    <option value="Liberty Village">Liberty Village</option>
-                    <option value="Little Italy">Little Italy</option>
-                    <option value="North York">North York</option>
-                    <option value="Queen West">Queen West</option>
-                    <option value="Summerhill">Summerhill</option>
-                    <option value="Thornhill">Thornhill</option>
-                    <option value="Yorkville">Yorkville</option>
-                </optgroup>
-                <optgroup label="Montreal">
-                    <option value="Côte-des-Neiges">Côte-des-Neiges</option>
-                    <option value="Côte-Saint-Luc">Côte-Saint-Luc</option>
-                    <option value="Dollard-des-Ormeaux">Dollard-des-Ormeaux</option>
-                    <option value="Downtown">Downtown</option>
-                    <option value="Mile End">Mile End</option>
-                    <option value="Old Montreal">Old Montreal</option>
-                    <option value="Outremont">Outremont</option>
-                    <option value="Plateau Mont-Royal">Plateau Mont-Royal</option>
-                    <option value="Saint-Henri">Saint-Henri</option>
-                    <option value="Snowdon">Snowdon</option>
-                </optgroup>
-            </select>
-            <select class="filter-select" id="deliveryZoneFilter" aria-label="Filter by delivery zone">
-                <option value="">Delivers to...</option>
-                <optgroup label="Toronto">
-                    <option value="Toronto">Toronto</option>
-                    <option value="North York">North York</option>
-                    <option value="Thornhill/Vaughan">Thornhill/Vaughan</option>
-                    <option value="GTA-wide">GTA-wide</option>
-                </optgroup>
-                <optgroup label="Montreal">
-                    <option value="Montreal">Montreal</option>
-                    <option value="Côte-Saint-Luc">Côte-Saint-Luc</option>
-                    <option value="Outremont">Outremont</option>
-                </optgroup>
             </select>
             <button class="filter-toggle" id="kosherToggle" aria-label="Show kosher certified only" aria-pressed="false">Kosher Certified</button>
             <button class="filter-toggle" id="deliveryToggle" aria-label="Show delivery available only" aria-pressed="false">Delivers</button>
@@ -526,10 +483,10 @@
     (function() {
         'use strict';
         var allVendors = [];
+        var activeCity = 'all';
         var searchInput = document.getElementById('searchInput');
         var categoryFilter = document.getElementById('categoryFilter');
         var neighborhoodFilter = document.getElementById('neighborhoodFilter');
-        var deliveryZoneFilter = document.getElementById('deliveryZoneFilter');
         var kosherToggle = document.getElementById('kosherToggle');
         var deliveryToggle = document.getElementById('deliveryToggle');
         var vendorGrid = document.getElementById('vendorGrid');
@@ -537,13 +494,60 @@
         var kosherActive = false;
         var deliveryActive = false;
 
+        var montrealKeywords = ['montreal','montréal','côte-saint-luc','cote-saint-luc',
+            'outremont','mile end','snowdon','hampstead','westmount','dollard',
+            'mount royal','plateau','saint-henri','old montreal','côte-des-neiges'];
+
+        var torontoNeighborhoods = ['Annex','Bathurst Manor','Bayview Village','Bloor West',
+            'Cabbagetown','Church-Wellesley','Don Mills','Eglinton West','Forest Hill',
+            'GTA-wide','Harbord Village','Kensington','Lawrence Heights','Lawrence Park',
+            'Leslieville','Liberty Village','Little Italy','North York','Queen West',
+            'Richmond Hill','Summerhill','Thornhill','Toronto','Yorkville'];
+        var montrealNeighborhoods = ['Côte-des-Neiges','Côte-Saint-Luc','Dollard-des-Ormeaux',
+            'Downtown','Mile End','Mount Royal','Old Montreal','Outremont',
+            'Plateau Mont-Royal','Saint-Henri','Snowdon'];
+
+        function isMontrealVendor(v) {
+            var nb = (v.neighborhood || '').toLowerCase();
+            var da = (v.delivery_area || '').toLowerCase();
+            var addr = (v.address || '').toLowerCase();
+            var combined = nb + ' ' + da + ' ' + addr;
+            return montrealKeywords.some(function(kw) { return combined.indexOf(kw) !== -1; });
+        }
+
+        window.setCity = function(city, btn) {
+            activeCity = city;
+            var btns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            updateNeighborhoodDropdown();
+            filterVendors();
+        };
+
+        function updateNeighborhoodDropdown() {
+            var html = '<option value="">All Areas</option>';
+            var neighborhoods = [];
+            if (activeCity === 'all' || activeCity === 'toronto') {
+                if (activeCity === 'all') html += '<optgroup label="Toronto">';
+                torontoNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
+                if (activeCity === 'all') html += '</optgroup>';
+            }
+            if (activeCity === 'all' || activeCity === 'montreal') {
+                if (activeCity === 'all') html += '<optgroup label="Montreal">';
+                montrealNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
+                if (activeCity === 'all') html += '</optgroup>';
+            }
+            neighborhoodFilter.innerHTML = html;
+        }
+
         function fetchVendors() {
             fetch('/api/vendors')
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (data.status === 'success') {
                         allVendors = data.data;
-                        renderVendors(allVendors);
+                        updateNeighborhoodDropdown();
+                        filterVendors();
                     } else {
                         vendorGrid.innerHTML = '<div class="no-results"><h3>We couldn\'t load the directory right now</h3><p>Please try again in a moment.</p></div>';
                     }
@@ -576,6 +580,8 @@
                     html += '<span class="kosher-badge">COR Certified</span>';
                 } else if (v.kosher_status === 'MK') {
                     html += '<span class="kosher-badge">MK Certified</span>';
+                } else if (v.kosher_status === 'Kosher Style') {
+                    html += '<span class="kosher-badge">Kosher Style</span>';
                 }
                 html += '</div>';
                 html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
@@ -604,9 +610,12 @@
             var query = searchInput.value.toLowerCase().trim();
             var category = categoryFilter.value;
             var neighborhood = neighborhoodFilter.value;
-            var zone = deliveryZoneFilter.value;
 
             var filtered = allVendors.filter(function(v) {
+                // City filter
+                if (activeCity === 'toronto' && isMontrealVendor(v)) return false;
+                if (activeCity === 'montreal' && !isMontrealVendor(v)) return false;
+                // Search
                 if (query && v.name.toLowerCase().indexOf(query) === -1 &&
                     (v.description || '').toLowerCase().indexOf(query) === -1 &&
                     (v.neighborhood || '').toLowerCase().indexOf(query) === -1) {
@@ -614,7 +623,6 @@
                 }
                 if (category && v.category !== category) return false;
                 if (neighborhood && (v.neighborhood || '') !== neighborhood) return false;
-                if (zone && (!v.delivery_area || (v.delivery_area.indexOf(zone) === -1 && v.delivery_area.indexOf('GTA-wide') === -1 && v.delivery_area.indexOf('Canada-wide') === -1))) return false;
                 if (kosherActive && v.kosher_status !== 'COR' && v.kosher_status !== 'MK') return false;
                 if (deliveryActive && !v.delivery) return false;
                 return true;
@@ -632,7 +640,6 @@
         searchInput.addEventListener('input', filterVendors);
         categoryFilter.addEventListener('change', filterVendors);
         neighborhoodFilter.addEventListener('change', filterVendors);
-        deliveryZoneFilter.addEventListener('change', filterVendors);
 
         kosherToggle.addEventListener('click', function() {
             kosherActive = !kosherActive;
