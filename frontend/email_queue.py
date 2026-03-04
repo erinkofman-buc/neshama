@@ -316,7 +316,7 @@ def _thank_you_html(vol_name, family_name, shiva_url):
 def _log_email(cursor, shiva_support_id, email_type, recipient_email,
                recipient_name=None, related_signup_id=None, scheduled_for=None):
     """Insert a row into email_log. Returns the new row id."""
-    now = datetime.now().isoformat()
+    now = datetime.now(TORONTO_TZ).strftime('%Y-%m-%dT%H:%M:%S')
     cursor.execute('''
         INSERT INTO email_log
             (shiva_support_id, email_type, recipient_email, recipient_name,
@@ -329,7 +329,7 @@ def _log_email(cursor, shiva_support_id, email_type, recipient_email,
 
 def _mark_sent(cursor, email_id, sendgrid_message_id=None):
     """Mark an email_log row as sent."""
-    now = datetime.now().isoformat()
+    now = datetime.now(TORONTO_TZ).strftime('%Y-%m-%dT%H:%M:%S')
     cursor.execute('''
         UPDATE email_log SET status='sent', sent_at=?, sendgrid_message_id=?
         WHERE id=?
@@ -351,6 +351,32 @@ def _already_sent(cursor, shiva_support_id, email_type, extra_where='', extra_pa
         {extra_where}
     ''', (shiva_support_id, email_type) + extra_params)
     return cursor.fetchone() is not None
+
+
+MAX_DAILY_EMAILS_PER_RECIPIENT = 3
+
+
+def _check_daily_cap(cursor, recipient_email, now_toronto):
+    """Check if recipient has hit daily email cap. Returns True if OK to send."""
+    today_str = now_toronto.strftime('%Y-%m-%d')
+    cursor.execute(
+        'SELECT send_count FROM email_daily_cap WHERE recipient_email=? AND cap_date=?',
+        (recipient_email, today_str))
+    row = cursor.fetchone()
+    if row and row[0] >= MAX_DAILY_EMAILS_PER_RECIPIENT:
+        logger.warning(f"[EmailQueue] Daily cap reached for {recipient_email} ({row[0]} emails today)")
+        return False
+    return True
+
+
+def _increment_daily_cap(cursor, recipient_email, now_toronto):
+    """Increment the daily send count for a recipient."""
+    today_str = now_toronto.strftime('%Y-%m-%d')
+    cursor.execute('''
+        INSERT INTO email_daily_cap (recipient_email, cap_date, send_count)
+        VALUES (?, ?, 1)
+        ON CONFLICT(recipient_email, cap_date) DO UPDATE SET send_count = send_count + 1
+    ''', (recipient_email, today_str))
 
 
 # ── The 7 email type processors ──────────────────────────────
@@ -473,6 +499,10 @@ def _process_uncovered_alerts(cursor, sendgrid_key, now_toronto):
                          "AND DATE(created_at)=?", (today,)):
             continue
 
+        # Daily cap check
+        if not _check_daily_cap(cursor, org_email, now_toronto):
+            continue
+
         # Find dates with no signups from tomorrow onward
         tomorrow = (now_toronto + timedelta(days=1)).strftime('%Y-%m-%d')
         try:
@@ -507,6 +537,7 @@ def _process_uncovered_alerts(cursor, sendgrid_key, now_toronto):
                                               org_name, subject, html)
         if ok:
             _mark_sent(cursor, email_id, msg_id)
+            _increment_daily_cap(cursor, org_email, now_toronto)
             sent += 1
         else:
             _mark_failed(cursor, email_id, err)
@@ -542,6 +573,10 @@ def _process_daily_summaries(cursor, sendgrid_key, now_toronto):
 
         if _already_sent(cursor, shiva_id, 'daily_summary',
                          "AND DATE(created_at)=?", (today,)):
+            continue
+
+        # Daily cap check
+        if not _check_daily_cap(cursor, org_email, now_toronto):
             continue
 
         # Gather summary data
@@ -586,6 +621,7 @@ def _process_daily_summaries(cursor, sendgrid_key, now_toronto):
                                               org_name, subject, html)
         if ok:
             _mark_sent(cursor, email_id, msg_id)
+            _increment_daily_cap(cursor, org_email, now_toronto)
             sent += 1
         else:
             _mark_failed(cursor, email_id, err)
@@ -623,6 +659,10 @@ def _process_guestbook_digests(cursor, sendgrid_key, now_toronto):
         # Dedup: skip if already sent today
         if _already_sent(cursor, shiva_id, 'guestbook_digest',
                          "AND DATE(created_at)=?", (today,)):
+            continue
+
+        # Daily cap check
+        if not _check_daily_cap(cursor, org_email, now_toronto):
             continue
 
         # Determine cutoff: last digest sent_at, or 24h ago
@@ -668,6 +708,7 @@ def _process_guestbook_digests(cursor, sendgrid_key, now_toronto):
                                               org_name, subject, html)
         if ok:
             _mark_sent(cursor, email_id, msg_id)
+            _increment_daily_cap(cursor, org_email, now_toronto)
             sent += 1
         else:
             _mark_failed(cursor, email_id, err)
@@ -872,6 +913,19 @@ def process_email_queue(db_path):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
+    # Safety: skip organizer scheduled emails if they already received 5+ today
+    # (prevents spam from timezone bugs or scheduler issues)
+    today_str = now_toronto.strftime('%Y-%m-%d')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS email_daily_cap (
+            recipient_email TEXT,
+            cap_date TEXT,
+            send_count INTEGER DEFAULT 0,
+            PRIMARY KEY (recipient_email, cap_date)
+        )
+    ''')
+    conn.commit()
+
     results = {}
     try:
         results['day_before_reminders'] = _process_day_before_reminders(cursor, sendgrid_key, now_toronto)
@@ -911,7 +965,7 @@ def log_immediate_email(db_path, shiva_support_id, email_type, recipient_email,
                         sendgrid_message_id=None, status='sent'):
     """Log an immediately-sent email (signup confirmations, access requests, etc.)
     to email_log for audit trail. Called after synchronous sends."""
-    now = datetime.now().isoformat()
+    now = datetime.now(TORONTO_TZ).strftime('%Y-%m-%dT%H:%M:%S')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''

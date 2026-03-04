@@ -484,6 +484,11 @@
             Contact them directly to discuss your needs.
         </p>
 
+        <div class="filter-bar" id="cityFilterBar" style="margin-bottom:0.5rem;">
+            <button class="filter-btn active" data-city="all" onclick="setCity(this)">All</button>
+            <button class="filter-btn" data-city="Toronto" onclick="setCity(this)">Toronto</button>
+            <button class="filter-btn" data-city="Montreal" onclick="setCity(this)">Montreal</button>
+        </div>
         <div class="filter-bar" id="filterBar">
             <button class="filter-btn" data-filter="kosher" onclick="toggleFilter(this)">Kosher</button>
             <button class="filter-btn" data-filter="delivery" onclick="toggleFilter(this)">Delivery Available</button>
@@ -535,6 +540,15 @@
     (function() {
         var activeFilters = {};
         var allCaterers = [];
+        var activeCity = 'all';
+
+        window.setCity = function(btn) {
+            activeCity = btn.getAttribute('data-city');
+            var cityBtns = document.querySelectorAll('#cityFilterBar .filter-btn');
+            cityBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            loadCaterers();
+        };
 
         window.toggleFilter = function(btn) {
             var filter = btn.getAttribute('data-filter');
@@ -553,6 +567,7 @@
             if (activeFilters.kosher) params.push('kosher=true');
             if (activeFilters.delivery) params.push('delivery=true');
             if (activeFilters.online_ordering) params.push('online_ordering=true');
+            if (activeCity && activeCity !== 'all') params.push('city=' + encodeURIComponent(activeCity));
 
             var url = '/api/caterers' + (params.length ? '?' + params.join('&') : '');
 

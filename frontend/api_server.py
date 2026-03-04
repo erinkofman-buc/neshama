@@ -269,7 +269,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_pending_caterers()
         # Vendor API endpoints
         elif path == '/api/vendors':
-            self.get_vendors()
+            query_params = parse_qs(parsed_path.query)
+            city_filter = query_params.get('city', [None])[0]
+            self.get_vendors(city_filter)
         elif path == '/api/gift-vendors':
             self.get_gift_vendors()
         elif path == '/api/track-click':
@@ -1577,11 +1579,29 @@ button:hover{background:#c45a1a}</style></head>
                 'delivery': query_params.get('delivery', [None])[0] == 'true',
                 'online_ordering': query_params.get('online_ordering', [None])[0] == 'true',
             }
+            city_filter = query_params.get('city', [None])[0]
             has_filters = any(filters.values())
             if has_filters:
                 result = shiva_mgr.get_caterers_filtered(filters)
             else:
                 result = shiva_mgr.get_approved_caterers()
+
+            # Filter by city if specified
+            if city_filter and city_filter.lower() in ('toronto', 'montreal') and result.get('data'):
+                city = city_filter.lower()
+                montreal_keywords = ['montreal', 'montréal', 'côte-saint-luc', 'cote-saint-luc',
+                                     'outremont', 'mile end', 'snowdon', 'hampstead', 'westmount',
+                                     'dollard', 'mount royal', 'plateau', 'saint-henri', 'old montreal', ', qc']
+                filtered = []
+                for c in result['data']:
+                    area = (c.get('delivery_area') or '').lower()
+                    is_montreal = any(kw in area for kw in montreal_keywords)
+                    if city == 'montreal' and is_montreal:
+                        filtered.append(c)
+                    elif city == 'toronto' and not is_montreal:
+                        filtered.append(c)
+                result['data'] = filtered
+
             self.send_json_response(result)
         except Exception as e:
             self.send_error_response(str(e))
@@ -1653,8 +1673,8 @@ button:hover{background:#c45a1a}</style></head>
 
     # ── API: Vendor Directory ─────────────────────────────
 
-    def get_vendors(self):
-        """Get food vendors"""
+    def get_vendors(self, city_filter=None):
+        """Get food vendors, optionally filtered by city"""
         try:
             db_path = self.get_db_path()
             conn = sqlite3.connect(db_path)
@@ -1666,6 +1686,28 @@ button:hover{background:#c45a1a}</style></head>
                 cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
             vendors = [dict(row) for row in cursor.fetchall()]
             conn.close()
+
+            # Filter by city if specified
+            if city_filter and city_filter.lower() in ('toronto', 'montreal'):
+                city = city_filter.lower()
+                montreal_keywords = ['montreal', 'montréal', 'côte-saint-luc', 'cote-saint-luc',
+                                     'outremont', 'mile end', 'snowdon', 'hampstead', 'westmount',
+                                     'dollard', 'mount royal', 'plateau', 'saint-henri', 'old montreal', ', qc']
+                filtered = []
+                for v in vendors:
+                    area = (v.get('delivery_area') or '').lower()
+                    addr = (v.get('address') or '').lower()
+                    neighborhood = (v.get('neighborhood') or '').lower()
+                    combined = f'{area} {addr} {neighborhood}'
+
+                    is_montreal = any(kw in combined for kw in montreal_keywords)
+
+                    if city == 'montreal' and is_montreal:
+                        filtered.append(v)
+                    elif city == 'toronto' and not is_montreal:
+                        filtered.append(v)
+                vendors = filtered
+
             self.send_json_response({'status': 'success', 'data': vendors})
         except Exception as e:
             self.send_json_response({'status': 'success', 'data': []})
@@ -4459,6 +4501,22 @@ def run_server(port=None):
             "WHERE email = 'jem.salads@gmail.com' AND kosher_level != 'not_kosher'"
         )
         total_changed += cursor.rowcount
+
+        # Migration 2026-03-04: Fix vendor kosher labels per Jordana feedback
+        mar4_updates = [
+            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'What A Bagel' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Gryfe''s Bagel Bakery' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Kiva''s Bagels' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Sonny Langers Dairy & Vegetarian Caterers' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Me-Va-Me' AND kosher_status = 'COR'",
+            # Remove nonexistent vendors
+            "DELETE FROM vendors WHERE name = 'Pizza Pita'",
+            "DELETE FROM vendors WHERE name = 'Shwarma Express'",
+            "DELETE FROM vendors WHERE name = 'Pita Box'",
+        ]
+        for sql in mar4_updates:
+            cursor.execute(sql)
+            total_changed += cursor.rowcount
 
         conn.commit()
         conn.close()

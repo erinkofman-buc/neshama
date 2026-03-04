@@ -941,16 +941,6 @@
         <div class="step-card" id="step3">
             <h2 class="step-title">Review &amp; Submit</h2>
 
-            <div class="form-group">
-                <label for="donationUrl">Donation Link <span class="optional">(optional)</span></label>
-                <input type="url" id="donationUrl" placeholder="https://...">
-            </div>
-
-            <div class="form-group">
-                <label for="donationLabel">Donation Label <span class="optional">(optional)</span></label>
-                <input type="text" id="donationLabel" placeholder="In memory of...">
-            </div>
-
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;margin:1.5rem 0 1rem;">Summary</h3>
             <div class="review-summary" id="reviewSummary">
                 <!-- Populated by JS -->
@@ -1439,8 +1429,6 @@
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
                 drop_off_instructions: document.getElementById('dropOffInstructions').value.trim(),
                 family_notes: document.getElementById('familyNotes').value.trim(),
-                donation_url: document.getElementById('donationUrl').value.trim(),
-                donation_label: document.getElementById('donationLabel').value.trim(),
                 privacy: document.getElementById('privacyToggle').checked ? 'private' : 'public',
                 privacy_consent: true,
                 recommended_vendors: selectedVendors.length ? selectedVendors : undefined
@@ -1604,7 +1592,9 @@
         };
 
         function loadVendors() {
-            fetch('/api/vendors')
+            var city = document.getElementById('shivaCity').value || '';
+            var url = '/api/vendors' + (city ? '?city=' + encodeURIComponent(city) : '');
+            fetch(url)
             .then(function(r) { return r.json(); })
             .then(function(result) {
                 if (result.status === 'success' && result.data) {

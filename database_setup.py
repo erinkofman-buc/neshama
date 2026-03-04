@@ -190,7 +190,11 @@ class NeshamaDatabase:
 
     def generate_obituary_id(self, source, deceased_name, date_of_death):
         """Generate unique ID for obituary using hash"""
-        key = f"{source}_{deceased_name}_{date_of_death}".lower()
+        # Normalize name: strip whitespace, collapse spaces, lowercase
+        name = ' '.join(deceased_name.strip().split()).lower()
+        source_norm = source.strip().lower()
+        dod = (date_of_death or '').strip()
+        key = f"{source_norm}_{name}_{dod}"
         return hashlib.md5(key.encode()).hexdigest()
 
     def generate_content_hash(self, obituary_data):
