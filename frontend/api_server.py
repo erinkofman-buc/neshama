@@ -4865,6 +4865,20 @@ def run_server(port=None):
             "DELETE FROM vendors WHERE name = 'Kapara'",
             "DELETE FROM vendors WHERE name = 'Olive Branch'",
             "DELETE FROM vendors WHERE name = 'Noah''s Natural Foods'",
+            # Migration 2026-03-05: Remove vendors with dead URLs (DNS failure / connection refused / HTTP 500)
+            "DELETE FROM vendors WHERE name = 'Chanoch Sushi'",
+            "DELETE FROM vendors WHERE name = 'BSTRO Pret-a-Manger'",
+            "DELETE FROM vendors WHERE name = 'Eden Hall Kosher Caterer'",
+            "DELETE FROM vendors WHERE name = 'Chagall'",
+            # Migration 2026-03-05: Remove ghost entries (no website, no phone, no email, no Instagram)
+            "DELETE FROM vendors WHERE name = 'A&T Fruit Market'",
+            "DELETE FROM vendors WHERE name = 'Becked Goods'",
+            "DELETE FROM vendors WHERE name = 'Bubbies Bagels'",
+            "DELETE FROM vendors WHERE name = 'Candy Catchers'",
+            "DELETE FROM vendors WHERE name = 'Chocolate Charm'",
+            "DELETE FROM vendors WHERE name = 'Dave Young Fruit Market'",
+            "DELETE FROM vendors WHERE name = 'SugarMommy Chocolates'",
+            "DELETE FROM vendors WHERE name = 'Sweetsie''s Cookies'",
             # Move memorial candles from gifts to home/essentials category
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",

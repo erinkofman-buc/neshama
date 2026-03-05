@@ -1075,7 +1075,7 @@ class ShivaManager:
             cursor.execute('''
                 SELECT id FROM meal_signups
                 WHERE shiva_support_id = ? AND meal_date = ? AND meal_type = ?
-                  AND (status IS NULL OR status != 'alternative')
+                  AND (status IS NULL OR status NOT IN ('alternative', 'cancelled'))
             ''', (support_id, meal_date, data['meal_type']))
             if cursor.fetchone():
                 conn.close()
@@ -1215,6 +1215,7 @@ class ShivaManager:
                    status, alternative_type, alternative_note
             FROM meal_signups
             WHERE shiva_support_id = ?
+              AND (status IS NULL OR status != 'cancelled')
             ORDER BY meal_date, meal_type
         ''', (support_id,))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -1246,6 +1247,7 @@ class ShivaManager:
         cursor.execute('''
             SELECT meal_date, meal_type FROM meal_signups
             WHERE shiva_support_id = ?
+              AND (status IS NULL OR status != 'cancelled')
         ''', (support_id,))
         signups = {}
         for row in cursor.fetchall():
@@ -1402,9 +1404,10 @@ class ShivaManager:
 
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, volunteer_email,
-                   volunteer_phone, meal_description, num_servings, will_serve, created_at
+                   volunteer_phone, meal_description, num_servings, will_serve, created_at, status
             FROM meal_signups
             WHERE shiva_support_id = ?
+              AND (status IS NULL OR status != 'cancelled')
             ORDER BY meal_date, meal_type
         ''', (support_id,))
         rows = [dict(row) for row in cursor.fetchall()]
@@ -1964,11 +1967,12 @@ class ShivaManager:
             conn.close()
             return {'status': 'error', 'message': 'Thank-you notes have already been sent'}
 
-        # Get all unique volunteer emails
+        # Get all unique volunteer emails (exclude cancelled signups)
         cursor.execute('''
             SELECT DISTINCT volunteer_name, volunteer_email
             FROM meal_signups
             WHERE shiva_support_id = ? AND volunteer_email IS NOT NULL
+              AND (status IS NULL OR status != 'cancelled')
         ''', (support_id,))
         volunteers = [dict(row) for row in cursor.fetchall()]
 
