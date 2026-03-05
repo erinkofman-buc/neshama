@@ -4853,6 +4853,21 @@ def run_server(port=None):
             "DELETE FROM vendors WHERE name = 'Pizza Pita'",
             "DELETE FROM vendors WHERE name = 'Shwarma Express'",
             "DELETE FROM vendors WHERE name = 'Pita Box'",
+            # Migration 2026-03-05: Remove unverified vendors (no working website/instagram)
+            "DELETE FROM vendors WHERE name = 'Butzi Gift Baskets'",
+            "DELETE FROM vendors WHERE name = 'Dani Gifts'",
+            "DELETE FROM vendors WHERE name = 'Gifts for Every Reason'",
+            "DELETE FROM vendors WHERE name = 'Baskets n'' Stuf'",
+            "DELETE FROM vendors WHERE name = 'Epic Baskets'",
+            "DELETE FROM vendors WHERE name = 'Fruitate'",
+            "DELETE FROM vendors WHERE name = 'My Baskets'",
+            "DELETE FROM vendors WHERE name = 'Romi''s Bakery'",
+            "DELETE FROM vendors WHERE name = 'Kapara'",
+            "DELETE FROM vendors WHERE name = 'Olive Branch'",
+            "DELETE FROM vendors WHERE name = 'Noah''s Natural Foods'",
+            # Move memorial candles from gifts to home/essentials category
+            "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
+            "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",
         ]
         for sql in mar4_updates:
             cursor.execute(sql)
