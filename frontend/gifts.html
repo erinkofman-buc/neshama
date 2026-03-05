@@ -529,7 +529,7 @@
         { key: 'chocolate', title: 'Chocolate & Sweets', subtitle: 'Comforting treats and premium chocolate gift boxes.' },
         { key: 'fruit-nuts', title: 'Fruit & Nuts', subtitle: 'Fresh fruit arrangements and dried fruit trays — healthy, universally appreciated.' },
         { key: 'baked-goods', title: 'Baked Goods', subtitle: 'Artisan cookies, pastries, and baked goods gift boxes.' },
-        { key: 'candles', title: 'Candles & Ritual Items', subtitle: 'Memorial candles and yahrzeit candles for the shiva home.' }
+        // Candles & Ritual Items removed — see /shiva-essentials instead
     ];
 
     // Map vendors to sections
@@ -573,6 +573,10 @@
             html += '<a href="' + escapeHtml(v.url) + '" target="_blank" rel="noopener sponsored" class="vendor-cta cta-affiliate">Visit Website &rarr;</a>';
         } else if (v.website) {
             html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">Visit Website &rarr;</a>';
+        } else if (v.instagram) {
+            var ig = v.instagram.replace(/^@/, '');
+            var igUrl = 'https://instagram.com/' + ig;
+            html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug || '') + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" class="vendor-cta cta-local">@' + escapeHtml(ig) + ' on Instagram &rarr;</a>';
         } else if (v.phone) {
             html += '<a href="tel:' + escapeHtml(v.phone) + '" class="vendor-cta cta-local">Call ' + escapeHtml(v.phone) + '</a>';
         }

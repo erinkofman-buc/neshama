@@ -105,6 +105,12 @@ def create_tables(conn):
     except Exception:
         cursor.execute("ALTER TABLE vendors ADD COLUMN email TEXT")
 
+    # Migration: add instagram column if missing
+    try:
+        cursor.execute('SELECT instagram FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN instagram TEXT")
+
     # Create vendor_clicks table for click tracking
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS vendor_clicks (
@@ -950,6 +956,32 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA',
     },
+    {
+        'name': 'Dave Young Fruit Market',
+        'category': 'Fruit Platters',
+        'description': 'Fresh fruit platters and arrangements. A neighbourhood staple on Eglinton Ave W. Beautiful, generous platters perfect for shiva homes.',
+        'address': '494 Eglinton Ave W, Toronto, ON M5N 1A5',
+        'neighborhood': 'Midtown',
+        'phone': '(416) 489-1118',
+        'website': '',
+        'instagram': 'daveyoungfruitmarket',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'A&T Fruit Market',
+        'category': 'Fruit Platters',
+        'description': 'Fresh fruit platters, cut fruit trays, and produce. Family-run market on Bathurst St. Known for quality fruit arrangements at great prices.',
+        'address': '3375 Bathurst St, North York, ON M6A 2B8',
+        'neighborhood': 'Bathurst',
+        'phone': '(416) 785-3678',
+        'website': '',
+        'instagram': 'a_tmarketdelivery',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
 ]
 
 
@@ -1765,6 +1797,110 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'North America',
     },
+    {
+        'name': "Bubby's New York Bagels",
+        'category': 'Baked Goods',
+        'description': "Toronto's only kosher New York-style bagel shop. Fresh-baked daily with 25+ varieties, platters, and catering. A warm, comforting gift that feeds the whole shiva house.",
+        'address': '3035 Bathurst St, Toronto, ON M6B 3B5',
+        'neighborhood': 'Bathurst',
+        'phone': '(416) 862-2435',
+        'website': 'https://www.bubbysbagels.com',
+        'instagram': 'bubbysnybagels',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': "Sweetsie's Cookies",
+        'category': 'Baked Goods',
+        'description': 'Made-to-order gourmet cookies and sweet treats. Beautiful gift boxes and platters perfect for a shiva home. Local Toronto baker.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': 'https://www.sweetsiescookies.com',
+        'instagram': 'sweetsiescookies',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Becked Goods',
+        'category': 'Baked Goods',
+        'description': 'Neighbourhood bakery on St. Clair West. Fresh baked goods, cookies, espresso, and treats. Beautifully packaged gift boxes that bring comfort to families during shiva.',
+        'address': '621 St Clair Ave W, Toronto, ON',
+        'neighborhood': 'St. Clair West',
+        'phone': '(647) 348-9888',
+        'website': 'https://beckedgoods.com',
+        'instagram': 'beckedgoods',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'Chocolate Charm',
+        'category': 'Chocolate',
+        'description': 'Hand-made truffles from Swiss and Belgian chocolate. COR certified kosher. Gift baskets, platters, chocolate sculptures, and seasonal items.',
+        'address': '3541 Bathurst St, Toronto, ON M6A 2C7',
+        'neighborhood': 'Bathurst',
+        'phone': '(416) 787-4256',
+        'website': 'https://chocolatecharm.ca',
+        'instagram': 'chocolatecharm.ca',
+        'kosher_status': 'COR',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'SugarMommy Chocolates',
+        'category': 'Chocolate',
+        'description': 'Handcrafted chocolate gifts and decorative arrangements. 30 years of chocolate-making experience. Beautiful packaging for shiva and sympathy gifts.',
+        'address': 'Richmond Hill, ON',
+        'neighborhood': 'Richmond Hill',
+        'phone': '(416) 731-7315',
+        'website': 'https://www.sugarmommy.ca',
+        'instagram': 'sugarmommychocolates',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Candy Catchers',
+        'category': 'Chocolate',
+        'description': 'COR certified kosher candy store. Candy trays, hand-dipped chocolate pretzels, bulk candy, and custom favours. GTA-wide daily delivery.',
+        'address': '265 Rimrock Rd, Unit 8, Toronto, ON',
+        'neighborhood': 'North York',
+        'phone': '(647) 617-7352',
+        'website': 'https://candycatchers.com',
+        'instagram': 'thecandycatchers',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'GTA',
+    },
+    {
+        'name': 'Good Person Biscotti',
+        'category': 'Baked Goods',
+        'description': 'Artisan biscotti — a perfect accompaniment to coffee and tea during shiva. A thoughtful, comforting gift.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': '',
+        'instagram': 'goodpersonbiscotti',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'AB Cookies',
+        'category': 'Baked Goods',
+        'description': 'Beautiful custom cookies and sweet treats. Gift boxes perfect for bringing something special to a shiva home.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': 'https://abcookies.co',
+        'instagram': 'abcookies.co',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
 ]
 
 
@@ -1792,8 +1928,8 @@ def seed_vendors(db_path=None):
         vendor_type = v.get('vendor_type', 'food')
         cursor.execute('''
             INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
-                                 phone, website, kosher_status, delivery, delivery_area, image_url, featured, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                 phone, website, instagram, kosher_status, delivery, delivery_area, image_url, featured, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             v['name'],
             slug,
@@ -1804,6 +1940,7 @@ def seed_vendors(db_path=None):
             v.get('neighborhood', ''),
             v.get('phone', ''),
             v.get('website', ''),
+            v.get('instagram', ''),
             v.get('kosher_status', 'not_certified'),
             v.get('delivery', 0),
             v.get('delivery_area', ''),
@@ -1824,8 +1961,8 @@ def seed_vendors(db_path=None):
 
         cursor.execute('''
             INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
-                                 phone, website, kosher_status, delivery, delivery_area, image_url, featured, created_at)
-            VALUES (?, ?, ?, 'gift', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                 phone, website, instagram, kosher_status, delivery, delivery_area, image_url, featured, created_at)
+            VALUES (?, ?, ?, 'gift', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             v['name'],
             slug,
@@ -1835,6 +1972,7 @@ def seed_vendors(db_path=None):
             v.get('neighborhood', ''),
             v.get('phone', ''),
             v.get('website', ''),
+            v.get('instagram', ''),
             v.get('kosher_status', 'not_certified'),
             v.get('delivery', 0),
             v.get('delivery_area', ''),

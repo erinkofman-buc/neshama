@@ -2147,11 +2147,19 @@
             // V3: Show organizer-only sections
             if (isOrganizerMode) {
                 document.getElementById('postUpdateSection').style.display = '';
-                document.getElementById('thankYouSection').style.display = '';
-                // Check if thank-you already sent
-                if (supportData.thank_you_sent) {
-                    document.getElementById('sendThankYouBtn').style.display = 'none';
-                    document.getElementById('thankYouAlready').style.display = '';
+                // Only show thank-you section AFTER shiva has ended
+                var shivaEnded = false;
+                try {
+                    var endDate = new Date(supportData.shiva_end_date + 'T23:59:59');
+                    shivaEnded = new Date() > endDate;
+                } catch(e) {}
+                if (shivaEnded) {
+                    document.getElementById('thankYouSection').style.display = '';
+                    // Check if thank-you already sent
+                    if (supportData.thank_you_sent) {
+                        document.getElementById('sendThankYouBtn').style.display = 'none';
+                        document.getElementById('thankYouAlready').style.display = '';
+                    }
                 }
             }
 
@@ -2312,16 +2320,41 @@
                 ? 'Help coordinate meals for ' + familyName + '\'s shiva: ' + pageUrl
                 : familyName + ' \u2014 shiva meal coordination on Neshama: ' + pageUrl;
 
-            shareBtn.addEventListener('click', function() {
-                if (navigator.share) {
-                    navigator.share({
-                        title: familyName + ' - Shiva Support',
-                        text: shareMessage.replace(pageUrl, '').trim(),
-                        url: pageUrl
-                    }).catch(function() {});
-                } else {
-                    window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank');
-                }
+            // Build share menu with multiple options
+            var shareMenu = document.createElement('div');
+            shareMenu.id = 'shareMenu';
+            shareMenu.style.cssText = 'display:none; position:absolute; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(62,39,35,0.15); padding:0.5rem; margin-top:0.5rem; z-index:50; min-width:200px;';
+            var shareOptions = [
+                { label: 'WhatsApp', icon: '\uD83D\uDCAC', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank'); } },
+                { label: 'Email', icon: '\u2709\uFE0F', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(familyName + ' — Shiva Support') + '&body=' + encodeURIComponent(shareMessage); } },
+                { label: 'Text Message', icon: '\uD83D\uDCF1', action: function() { window.location.href = 'sms:?body=' + encodeURIComponent(shareMessage); } },
+                { label: 'Copy Link', icon: '\uD83D\uDD17', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
+            ];
+            shareOptions.forEach(function(opt) {
+                var btn = document.createElement('button');
+                btn.style.cssText = 'display:flex; align-items:center; gap:0.6rem; width:100%; padding:0.6rem 0.75rem; border:none; background:none; font-family:inherit; font-size:0.95rem; color:var(--dark-brown); cursor:pointer; border-radius:8px; text-align:left;';
+                btn.onmouseover = function() { this.style.background = 'var(--cream)'; };
+                btn.onmouseout = function() { this.style.background = 'none'; };
+                btn.textContent = opt.icon + '  ' + opt.label;
+                btn.addEventListener('click', function() { opt.action(); shareMenu.style.display = 'none'; });
+                shareMenu.appendChild(btn);
+            });
+            var copyConfirm = document.createElement('div');
+            copyConfirm.id = 'copyConfirm';
+            copyConfirm.style.cssText = 'display:none; text-align:center; padding:0.4rem; font-size:0.85rem; color:var(--sage-dark);';
+            copyConfirm.textContent = 'Link copied!';
+            shareMenu.appendChild(copyConfirm);
+            shareDiv.style.position = 'relative';
+            shareDiv.appendChild(shareMenu);
+
+            shareBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var menu = document.getElementById('shareMenu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            });
+            document.addEventListener('click', function() {
+                var menu = document.getElementById('shareMenu');
+                if (menu) menu.style.display = 'none';
             });
         }
 

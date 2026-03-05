@@ -1023,6 +1023,7 @@ class ShivaManager:
 
         support_id = data['shiva_support_id'].strip()
         meal_date = data['meal_date'].strip()[:10]
+        access_token = data.get('access_token', '').strip()
 
         conn = self._get_conn()
         cursor = conn.cursor()
@@ -1036,6 +1037,18 @@ class ShivaManager:
             return {'status': 'error', 'message': 'Support page not found or is no longer active'}
 
         support = dict(support)
+
+        # Check privacy: private shivas require a valid access token
+        if support.get('privacy') == 'private':
+            if not access_token:
+                conn.close()
+                return {'status': 'error', 'message': 'This shiva page is private. Please request access from the organizer.'}
+            cursor.execute(
+                'SELECT id FROM shiva_access_requests WHERE shiva_id = ? AND access_token = ? AND status = ?',
+                (support_id, access_token, 'approved'))
+            if not cursor.fetchone():
+                conn.close()
+                return {'status': 'error', 'message': 'This shiva page is private. Please request access from the organizer.'}
 
         # Validate date within shiva range
         try:

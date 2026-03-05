@@ -597,6 +597,10 @@
                 html += '<span>' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span>';
                 if (v.website) {
                     html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">Visit Website &rarr;</a>';
+                } else if (v.instagram) {
+                    var ig = v.instagram.replace(/^@/, '');
+                    var igUrl = 'https://instagram.com/' + ig;
+                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">@' + escapeHtml(ig) + ' &rarr;</a>';
                 } else if (v.phone) {
                     html += '<a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">Call ' + escapeHtml(v.phone) + '</a>';
                 }

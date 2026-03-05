@@ -559,6 +559,12 @@
                 var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(v.website);
                 rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener">' + escapeHtml(displayUrl) + '</a></span></div>';
             }
+            if (v.instagram) {
+                var ig = v.instagram.replace(/^@/, '');
+                var igUrl = 'https://instagram.com/' + ig;
+                var igTrackUrl = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(igUrl);
+                rows += '<div class="info-row"><span class="info-label">Instagram</span><span class="info-value"><a href="' + escapeHtml(igTrackUrl) + '" target="_blank" rel="noopener">@' + escapeHtml(ig) + '</a></span></div>';
+            }
             rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">' + (v.kosher_status === 'COR' ? 'COR Certified' : 'Not certified kosher') + '</span></div>';
             rows += '<div class="info-row"><span class="info-label">Delivery</span><span class="info-value">' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span></div>';
 
