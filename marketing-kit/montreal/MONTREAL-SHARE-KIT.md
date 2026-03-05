@@ -10,7 +10,7 @@ Hey [Name],
 
 I built something I think Montreal's Jewish community would really find useful and I want you to be one of the first to see it.
 
-It's called Neshama (neshama.ca) — a free resource for Jewish families dealing with a loss. It pulls together obituaries from Paperman & Sons (and Toronto funeral homes too), has a meal coordination tool so people can sign up to bring food on specific days, and a caterer directory.
+It's called Neshama (neshama.ca) — a free resource for Jewish families dealing with a loss. It pulls together obituaries from Paperman & Sons (and Toronto funeral homes too), has a meal coordination tool so people can sign up to bring food on specific days, and a "How Can I Help?" hub with local food partners and gifts.
 
 It's free. No sign-up, no fees. I started with Toronto and Montreal because they're the two biggest Jewish communities in Canada, and Paperman's is such a cornerstone of Montreal's community.
 
@@ -29,7 +29,7 @@ It's called Neshama (neshama.ca) — a site that pulls together obituary listing
 It does three things:
 1. Obituary feed — Paperman's listings plus Toronto funeral homes, all in one place
 2. Meal coordination — families set up a page, volunteers sign up for which day to bring food
-3. Caterer directory — local food vendors who do shiva meals
+3. "How Can I Help?" hub — local food partners and gift vendors for shiva
 
 Completely free. No sign-up, no fees, no ads.
 
@@ -41,13 +41,13 @@ Worth bookmarking: neshama.ca
 
 ## MESSAGE 3: Shorter version
 
-Hey — my friend built neshama.ca. It's a free site with obituaries from Paperman's, plus a shiva meal coordination tool and caterer directory. Really useful community resource. Worth bookmarking.
+Hey — my friend built neshama.ca. It's a free site with obituaries from Paperman's, plus a shiva meal coordination tool and a "How Can I Help?" hub with local food partners and gifts. Really useful community resource. Worth bookmarking.
 
 ---
 
 ## MESSAGE 4: For friends with FAMILY in Montreal (Toronto-based friends)
 
-Hey [Name] — I know you have family in Montreal. I built a site called neshama.ca that covers obituaries from Paperman & Sons in Montreal (plus Toronto funeral homes). Free meal coordination tool and caterer directory too. Might be useful for your family to know about. Would you share it with them?
+Hey [Name] — I know you have family in Montreal. I built a site called neshama.ca that covers obituaries from Paperman & Sons in Montreal (plus Toronto funeral homes). Free meal coordination tool and "How Can I Help?" hub too. Might be useful for your family to know about. Would you share it with them?
 
 ---
 

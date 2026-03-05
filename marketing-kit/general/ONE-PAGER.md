@@ -18,8 +18,8 @@ Listings from Steeles Memorial Chapel, Benjamin's Park Memorial Chapel, and Pape
 **2. Meal Coordination**
 Families set up a page. Volunteers sign up to bring food on specific days. Everyone sees what's covered and what's still needed. No more 47 WhatsApp messages.
 
-**3. Caterer Directory**
-Local food vendors who do shiva meals. Browse, compare, order.
+**3. "How Can I Help?" Hub**
+Local food partners and gift vendors for shiva. Browse, compare, order.
 
 ## What it costs
 
@@ -35,7 +35,7 @@ Visit **neshama.ca**. That's it. No sign-up required.
 
 - Browse obituaries: neshama.ca/feed
 - Coordinate meals: neshama.ca/shiva/organize
-- Find caterers: neshama.ca/shiva/caterers
+- How Can I Help?: neshama.ca/help/food
 - Learn about shiva: neshama.ca/shiva/guide
 
 ## How to help
@@ -50,4 +50,4 @@ contact@neshama.ca
 
 ## TEXT VERSION (copy-paste for email or WhatsApp)
 
-Neshama (neshama.ca) is a free resource for Jewish families in Toronto and Montreal. It has an obituary feed from local funeral homes, a meal coordination tool for shiva, and a directory of caterers. Free — no accounts, no fees. Worth bookmarking: neshama.ca
+Neshama (neshama.ca) is a free resource for Jewish families in Toronto and Montreal. It has an obituary feed from local funeral homes, a meal coordination tool for shiva, and a "How Can I Help?" hub with local food partners and gifts. Free — no accounts, no fees. Worth bookmarking: neshama.ca

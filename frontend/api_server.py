@@ -186,6 +186,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-caterer-apply.html': ('shiva-caterer-apply.html', 'text/html'),
         '/shiva-essentials': ('shiva-essentials.html', 'text/html'),
         '/shiva-essentials.html': ('shiva-essentials.html', 'text/html'),
+        '/help': ('help.html', 'text/html'),
+        '/help/food': ('directory.html', 'text/html'),
+        '/help/gifts': ('gifts.html', 'text/html'),
+        '/help/supplies': ('shiva-essentials.html', 'text/html'),
         '/what-to-bring-to-a-shiva': ('what-to-bring-to-a-shiva.html', 'text/html'),
         '/what-to-bring-to-a-shiva.html': ('what-to-bring-to-a-shiva.html', 'text/html'),
         '/how-to-sit-shiva': ('how-to-sit-shiva.html', 'text/html'),
@@ -301,6 +305,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         # V2: Accept co-organizer invite
         elif path == '/api/shiva/accept-invite':
             self.handle_accept_co_organizer()
+        # V4: Accept host transfer (must be before /api/shiva/{id} catch-all)
+        elif path == '/api/shiva/accept-transfer':
+            self.handle_accept_host_transfer()
         # V2: List co-organizers (must be before /api/shiva/{id} catch-all)
         elif path.startswith('/api/shiva/') and path.endswith('/co-organizers'):
             support_id = path[len('/api/shiva/'):-len('/co-organizers')]
@@ -404,6 +411,18 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_access_request(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
+        # V4: Transfer host
+        elif path.startswith('/api/shiva/') and path.endswith('/transfer-host'):
+            support_id = path[len('/api/shiva/'):-len('/transfer-host')]
+            self.handle_transfer_host(support_id, body)
+        # V4: Cancel transfer
+        elif path.startswith('/api/shiva/') and path.endswith('/cancel-transfer'):
+            support_id = path[len('/api/shiva/'):-len('/cancel-transfer')]
+            self.handle_cancel_transfer(support_id, body)
+        # V4: Volunteer cancel own signup
+        elif path.startswith('/api/shiva/') and path.endswith('/cancel-signup'):
+            support_id = path[len('/api/shiva/'):-len('/cancel-signup')]
+            self.handle_cancel_own_signup(support_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/remove-signup'):
             support_id = path[len('/api/shiva/'):-len('/remove-signup')]
             self.handle_remove_signup(support_id, body)
@@ -432,6 +451,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/send-thank-you'):
             support_id = path[len('/api/shiva/'):-len('/send-thank-you')]
             self.handle_send_thank_you(support_id, body)
+        # V4: Donation prompt tracking
+        elif path.startswith('/api/shiva/') and path.endswith('/donation-prompt'):
+            support_id = path[len('/api/shiva/'):-len('/donation-prompt')]
+            self.handle_donation_prompt(support_id, body)
+        elif path.startswith('/api/shiva/') and path.endswith('/donation'):
+            support_id = path[len('/api/shiva/'):-len('/donation')]
+            self.handle_donation(support_id, body)
         elif path.startswith('/api/shiva/') and path.endswith('/report'):
             support_id = path[len('/api/shiva/'):-len('/report')]
             self.handle_shiva_report(support_id, body)
@@ -445,6 +471,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length) if content_length > 0 else b''
 
+        # V4: Volunteer edit own signup — PUT /api/shiva/{id}/signup/{signupId}
+        if path.startswith('/api/shiva/') and '/signup/' in path:
+            parts = path[len('/api/shiva/'):].split('/signup/')
+            if len(parts) == 2:
+                support_id = parts[0]
+                signup_id = parts[1]
+                self.handle_edit_signup(support_id, signup_id, body)
+                return
         if path.startswith('/api/shiva/'):
             support_id = path[len('/api/shiva/'):]
             self.handle_update_shiva(support_id, body)
@@ -2567,8 +2601,8 @@ button:hover{background:#c45a1a}</style></head>
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
                 shiva_mgr._trigger_backup()
-                # V2: Send email verification
-                self._send_verification_email(result)
+                # Send welcome email with share links
+                self._send_welcome_email(result)
             status_code = 200 if result['status'] in ('success', 'duplicate', 'similar_found') else 400
             # Don't expose verification_token to client
             safe_result = dict(result)
@@ -2601,40 +2635,58 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
-    def _send_verification_email(self, result):
-        """Send email verification link to organizer after page creation."""
+    def _send_welcome_email(self, result):
+        """Send warm welcome email to organizer after page creation, with share links."""
         sendgrid_key = os.environ.get('SENDGRID_API_KEY')
         email = result.get('organizer_email', '')
-        token = result.get('verification_token', '')
         family_name = result.get('family_name', '')
         shiva_id = result.get('id', '')
+        magic_token = result.get('magic_token', '')
 
-        if not email or not token:
+        if not email:
             return
 
         base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
-        verify_url = f"{base_url}/api/shiva/verify-email?token={token}"
-
         shiva_page_url = f"{base_url}/shiva/{shiva_id}"
+        edit_url = f"{shiva_page_url}?token={magic_token}"
+
+        import urllib.parse
+        share_text = f"Help coordinate meals for the {family_name} shiva: {shiva_page_url}"
+        wa_url = f"https://wa.me/?text={urllib.parse.quote(share_text)}"
+        email_url = f"mailto:?subject={urllib.parse.quote(family_name + ' — Shiva Meal Coordination')}&body={urllib.parse.quote(share_text)}"
+        sms_url = f"sms:?body={urllib.parse.quote(share_text)}"
+
+        share_btn_style = "display:inline-block;padding:0.6rem 1.25rem;border-radius:2rem;text-decoration:none;font-size:0.95rem;margin:0.25rem;"
 
         html_content = f"""
 <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
     <div style="text-align:center;margin-bottom:1.5rem;">
-        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Verify Your Email</h1>
-        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">{html_mod.escape(family_name)} shiva support page</p>
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Your shiva page is ready</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">for the {html_mod.escape(family_name)} family</p>
     </div>
     <p style="font-size:1rem;line-height:1.6;">
-        Thank you for setting up a shiva support page. Please verify your email
-        to enable email notifications and reminders.
+        Thank you for taking care of this. The community can now sign up to bring meals
+        and show their support.
     </p>
-    <div style="text-align:center;margin:2rem 0;">
-        <a href="{html_mod.escape(verify_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">Verify Email</a>
-    </div>
+
     <div style="background:#FAF9F6;border:2px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1.5rem 0;">
-        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Your Shiva Page Link</p>
-        <p style="font-size:1rem;margin:0;">Save this link &mdash; share it with family and friends so they can sign up to bring meals:</p>
-        <p style="font-size:1rem;margin:0.5rem 0 0;"><a href="{html_mod.escape(shiva_page_url)}" style="color:#D2691E;text-decoration:none;font-weight:600;">{html_mod.escape(shiva_page_url)}</a></p>
+        <p style="font-size:0.75rem;color:#558b2f;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Share This Page</p>
+        <p style="font-size:1rem;margin:0 0 1rem;">Send this link to family and friends so they can sign up to bring meals:</p>
+        <p style="font-size:1rem;margin:0 0 1rem;"><a href="{html_mod.escape(shiva_page_url)}" style="color:#D2691E;text-decoration:none;font-weight:600;">{html_mod.escape(shiva_page_url)}</a></p>
+        <div style="text-align:center;">
+            <a href="{html_mod.escape(wa_url)}" style="{share_btn_style}background:#25D366;color:white;">Share via WhatsApp</a>
+            <a href="{html_mod.escape(email_url)}" style="{share_btn_style}background:#D2691E;color:white;">Share via Email</a>
+            <a href="{html_mod.escape(sms_url)}" style="{share_btn_style}background:#3E2723;color:white;">Share via Text</a>
+        </div>
     </div>
+
+    <div style="background:white;border:1px solid #D4C5B9;border-radius:12px;padding:1.25rem;margin:1.5rem 0;">
+        <p style="font-size:0.75rem;color:#D2691E;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Your Organizer Link</p>
+        <p style="font-size:0.95rem;margin:0;">Use this link to manage the page, view signups, and invite co-organizers:</p>
+        <p style="font-size:0.95rem;margin:0.5rem 0 0;word-break:break-all;"><a href="{html_mod.escape(edit_url)}" style="color:#D2691E;text-decoration:none;">{html_mod.escape(edit_url)}</a></p>
+        <p style="font-size:0.8rem;color:#B2BEB5;margin-top:0.5rem;">Keep this link private &mdash; it gives full editing access to the page.</p>
+    </div>
+
     <p style="font-size:0.85rem;color:#B2BEB5;">If you didn't create this page, you can safely ignore this email.</p>
     <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
     <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
@@ -2646,7 +2698,7 @@ button:hover{background:#c45a1a}</style></head>
         plain_text = _html_to_plain(html_content)
 
         if not sendgrid_key:
-            logging.info(f"[Verification] Would send verification to {email}")
+            logging.info(f"[Welcome] Would send welcome email to {email}")
             return
 
         try:
@@ -2656,23 +2708,23 @@ button:hover{background:#c45a1a}</style></head>
             message = Mail(
                 from_email=SGEmail('updates@neshama.ca', 'Neshama'),
                 to_emails=To(email),
-                subject=f'Verify your email — {family_name} shiva page',
+                subject=f'Your shiva page is ready \u2014 {family_name}',
                 plain_text_content=Content(MimeType.text, plain_text),
                 html_content=Content(MimeType.html, html_content)
             )
             sg = SendGridAPIClient(sendgrid_key)
             response = sg.send(message)
             msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            logging.info(f"[Verification] Sent to {email}")
+            logging.info(f"[Welcome] Sent to {email}")
 
             if EMAIL_QUEUE_AVAILABLE:
                 try:
-                    log_immediate_email(DB_PATH, shiva_id, 'verification',
+                    log_immediate_email(DB_PATH, shiva_id, 'welcome',
                                         email, None, sendgrid_message_id=msg_id)
                 except Exception:
-                    logging.exception("[Verification] Failed to log email")
+                    logging.exception("[Welcome] Failed to log email")
         except Exception:
-            logging.exception("[Verification] Email error")
+            logging.exception("[Welcome] Email error")
 
     def _send_signup_confirmation(self, signup_data, result, support_id):
         """Send confirmation email to volunteer after meal signup (background)"""
@@ -2953,6 +3005,292 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.send_thank_you_notes(support_id, token)
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    # ── API: V4 — Pass Host ─────────────────────────────────
+
+    def handle_transfer_host(self, support_id, body):
+        """Initiate a host transfer to a new organizer."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.pop('magic_token', '') or data.pop('token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization required'}, 401)
+                return
+            # Rate limit
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'transfer_host', max_calls=3, window=600):
+                self._send_rate_limit_error()
+                return
+            result = shiva_mgr.initiate_host_transfer(support_id, token, data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+                self._send_host_transfer_email(result)
+            status_code = 200 if result['status'] == 'success' else 400
+            # Don't expose transfer_token to client
+            safe_result = {'status': result['status'], 'message': result.get('message', '')}
+            if result.get('transfer_id'):
+                safe_result['transfer_id'] = result['transfer_id']
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_accept_host_transfer(self):
+        """Accept a host transfer via token link."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('token', [''])[0]
+        if not token:
+            self._serve_access_result_page('Error', 'Invalid transfer link.')
+            return
+        result = shiva_mgr.accept_host_transfer(token)
+        if result['status'] == 'success':
+            shiva_mgr._trigger_backup()
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['new_magic_token']}"
+            self._serve_access_result_page(
+                'You Are Now the Host',
+                f'You are now the primary organizer for the <strong>{html_mod.escape(result["family_name"])}</strong> shiva page. '
+                f'{html_mod.escape(result["old_organizer_name"])} has been moved to co-organizer and still has view access.<br><br>'
+                f'<a href="{html_mod.escape(dashboard_url)}" style="color:#D2691E;">Go to your dashboard &rarr;</a>'
+            )
+        else:
+            self._serve_access_result_page('Error', html_mod.escape(result.get('message', 'Something went wrong.')))
+
+    def handle_cancel_transfer(self, support_id, body):
+        """Cancel a pending host transfer."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.pop('magic_token', '') or data.pop('token', '')
+            transfer_id = data.get('transfer_id')
+            if not token or not transfer_id:
+                self.send_json_response({'status': 'error', 'message': 'Authorization and transfer ID required'}, 401)
+                return
+            result = shiva_mgr.cancel_host_transfer(support_id, token, transfer_id)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _send_host_transfer_email(self, result):
+        """Send transfer invitation email to new host."""
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        if not sendgrid_key:
+            logging.info(f"[Transfer] Would send transfer invite to {result['to_email']}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+            accept_url = f"{base_url}/api/shiva/accept-transfer?token={result['transfer_token']}"
+
+            html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Host Transfer Request</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">{html_mod.escape(result['family_name'])} shiva</p>
+    </div>
+    <p style="font-size:1rem;line-height:1.6;">
+        {html_mod.escape(result['from_name'])} would like to transfer primary organizer authority
+        for the <strong>{html_mod.escape(result['family_name'])}</strong> shiva support page to you.
+    </p>
+    <p style="font-size:0.95rem;color:#5c534a;line-height:1.6;">
+        As the new host, you will be able to manage all meal signups, invite co-organizers,
+        send thank-you notes, and edit page details. {html_mod.escape(result['from_name'])} will
+        remain as a co-organizer with view access.
+    </p>
+    <div style="text-align:center;margin:2rem 0;">
+        <a href="{html_mod.escape(accept_url)}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">Accept &amp; Become Host</a>
+    </div>
+    <p style="font-size:0.85rem;color:#8a9a8d;text-align:center;">
+        This link expires in 72 hours. If you did not expect this, you can safely ignore it.
+    </p>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(result['to_email'], result['to_name']),
+                subject=f"Host transfer request — {result['family_name']} shiva",
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            response = sg.send(message)
+            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
+            logging.info(f"[Transfer] Invite sent to {result['to_email']}")
+
+            if EMAIL_QUEUE_AVAILABLE:
+                try:
+                    log_immediate_email(DB_PATH, result['shiva_id'], 'host_transfer',
+                                        result['to_email'], result['to_name'],
+                                        sendgrid_message_id=msg_id)
+                except Exception:
+                    logging.exception("[Transfer] Failed to log email")
+        except Exception:
+            logging.exception("[Transfer] Email error")
+
+    # ── API: V4 — Volunteer Self-Edit / Cancel ────────────────
+
+    def handle_edit_signup(self, support_id, signup_id, body):
+        """Handle volunteer editing their own signup."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.edit_signup(support_id, signup_id, data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_cancel_own_signup(self, support_id, body):
+        """Handle volunteer cancelling their own signup."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.cancel_own_signup(support_id, data)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+                # Send cancellation notification to organizer
+                self._send_cancellation_notification(result, support_id)
+            status_code = 200 if result['status'] == 'success' else 400
+            # Don't expose organizer_email
+            safe_result = {'status': result['status'], 'message': result.get('message', '')}
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _send_cancellation_notification(self, result, support_id):
+        """Send email to organizer about a volunteer cancellation."""
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        org_email = result.get('organizer_email', '')
+        if not sendgrid_key or not org_email:
+            logging.info(f"[Cancel] Would notify {org_email}: {result.get('volunteer_name')} cancelled")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+
+            vol_name = result.get('volunteer_name', 'A volunteer')
+            meal_date = result.get('meal_date', '')
+            meal_type = result.get('meal_type', '')
+            family_name = result.get('family_name', 'your shiva page')
+
+            try:
+                d = datetime.strptime(meal_date, '%Y-%m-%d')
+                formatted_date = d.strftime('%A, %B %d')
+            except Exception:
+                formatted_date = meal_date
+
+            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
+
+            html_content = f"""
+<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Meal Cancellation</h1>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">{html_mod.escape(family_name)} shiva</p>
+    </div>
+    <p style="font-size:1rem;line-height:1.6;">
+        <strong>{html_mod.escape(vol_name)}</strong> has cancelled their <strong>{html_mod.escape(meal_type)}</strong>
+        signup for <strong>{formatted_date}</strong>.
+    </p>
+    <p style="font-size:0.95rem;color:#5c534a;">
+        This meal slot is now open. You may want to share the page to find a replacement.
+    </p>
+    <div style="text-align:center;margin:2rem 0;">
+        <a href="{base_url}/shiva/{html_mod.escape(support_id)}" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">View Meal Schedule</a>
+    </div>
+    <hr style="border:none;border-top:1px solid #D4C5B9;margin:2rem 0 1rem;">
+    <p style="text-align:center;font-size:0.8rem;color:#8a9a8d;">
+        Neshama &middot; Community support when it matters most<br>
+        <a href="https://neshama.ca" style="color:#D2691E;text-decoration:none;">neshama.ca</a>
+    </p>
+</div>"""
+
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(org_email),
+                subject=f'Meal cancellation — {vol_name} for {formatted_date}',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(sendgrid_key)
+            sg.send(message)
+            logging.info(f"[Cancel] Notification sent to {org_email}")
+        except Exception:
+            logging.exception("[Cancel] Notification email error")
+
+    # ── API: V4 — Donation Prompt ────────────────────────────
+
+    def handle_donation_prompt(self, support_id, body):
+        """Record that a donation prompt was shown."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            email = data.get('email', '')
+            trigger_type = data.get('trigger_type', 'shiva_thankyou')
+            if not email:
+                self.send_json_response({'status': 'error', 'message': 'Email required'}, 400)
+                return
+            result = shiva_mgr.record_donation_prompt(email, support_id, trigger_type)
+            self.send_json_response(result, 200)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_donation(self, support_id, body):
+        """Record a donation conversion."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            email = data.get('email', '')
+            if not email:
+                self.send_json_response({'status': 'error', 'message': 'Email required'}, 400)
+                return
+            result = shiva_mgr.record_donation(email, support_id)
+            self.send_json_response(result, 200)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:

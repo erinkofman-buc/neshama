@@ -19,4 +19,8 @@
   <url><loc>https://neshama.ca/yahrzeit</loc><lastmod>2026-03-03</lastmod><priority>0.6</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://neshama.ca/faq</loc><lastmod>2026-02-27</lastmod><priority>0.5</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://neshama.ca/privacy</loc><lastmod>2026-02-27</lastmod><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://neshama.ca/help</loc><lastmod>2026-03-05</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://neshama.ca/help/food</loc><lastmod>2026-03-05</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://neshama.ca/help/gifts</loc><lastmod>2026-03-05</lastmod><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://neshama.ca/help/supplies</loc><lastmod>2026-03-05</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>
 </urlset>

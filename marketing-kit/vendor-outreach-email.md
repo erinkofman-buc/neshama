@@ -7,7 +7,7 @@ Personalize for each vendor. Replace variables before sending.
 - `{{vendor_name}}` — Business name (e.g., "Tov Li Catering")
 - `{{category}}` — Their category (e.g., "Kosher Caterers", "Gift Baskets")
 - `{{city}}` — Toronto or Montreal
-- `{{listing_url}}` — Their listing page (e.g., neshama.ca/directory/tov-li-catering)
+- `{{listing_url}}` — Their listing page (e.g., neshama.ca/help/food/tov-li-catering)
 
 ---
 

@@ -28,7 +28,7 @@ It's called Neshama (neshama.ca) — a free resource for Jewish families in Toro
 Three things it does:
 1. Obituary feed — Steeles, Benjamin's, and Paperman's all in one place. No more checking three websites.
 2. Meal coordination — sign up to bring food on specific days. No more duplicate kugels on Tuesday and nothing on Thursday.
-3. Caterer directory — over 100 local food vendors who do shiva meals. Browse, compare, and order.
+3. "How Can I Help?" — over 100 local food partners who do shiva meals. Browse, compare, and order.
 
 It's completely free. No accounts, no fees, no ads.
 
@@ -69,7 +69,7 @@ Yes. No accounts, no fees, no ads. Erin built it as a community resource.
 Erin Kofman — she's a pharmacist in Toronto. She built it because she saw how hard it is for families to coordinate everything when someone passes.
 
 **"Is it only Orthodox / only kosher?"**
-No — it serves the entire Jewish community. All denominations. The caterer directory has all types of food — kosher is a filter, not the category.
+No — it serves the entire Jewish community. All denominations. The "How Can I Help?" hub has all types of food — kosher is a filter, not the category.
 
 **"Why Toronto and Montreal?"**
 Those are the two largest Jewish communities in Canada. She started with the funeral homes that serve them.

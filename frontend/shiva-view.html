@@ -508,6 +508,15 @@
             margin-right: 0.2rem;
         }
 
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .meal-day-card.day-empty .meal-slot.available .slot-action {
+            animation: subtlePulse 3s ease-in-out infinite;
+        }
+
         /* ── Taken Slot (grey) ──────────────────────────── */
 
         .meal-slot.taken {
@@ -983,6 +992,104 @@
         .footer-links a:hover { color: var(--terracotta); }
         .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
 
+        /* ── Coverage Strip (above-the-fold) ─────────────── */
+
+        .coverage-strip {
+            display: none;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin: 0.75rem 0;
+            box-shadow: 0 2px 8px var(--soft-shadow);
+            text-align: center;
+        }
+
+        .coverage-strip.active {
+            display: block;
+        }
+
+        .coverage-strip-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.4rem;
+        }
+
+        .coverage-strip-bar {
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .coverage-strip-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .coverage-strip-cta {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.88rem;
+            color: var(--terracotta);
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .coverage-strip-cta:hover {
+            opacity: 0.7;
+        }
+
+        /* ── Mobile: Above-the-fold optimizations ────────── */
+
+        @media (max-width: 480px) {
+            .shiva-hero {
+                padding: 1.5rem 0 1rem;
+            }
+            .shiva-hero h1 {
+                font-size: clamp(1.6rem, 5vw, 2.2rem);
+            }
+            .shiva-hero .organized-by {
+                font-size: 0.92rem;
+                margin-bottom: 0.2rem;
+            }
+            .shiva-hero .dates {
+                font-size: 0.95rem;
+            }
+            .hero-divider {
+                margin: 0.75rem auto 0;
+            }
+            /* Push organizer-only sections below calendar on mobile */
+            #mainContent {
+                display: flex;
+                flex-direction: column;
+            }
+            #calendarSection {
+                order: 1;
+            }
+            #organizerEditSection,
+            #dropOffSection,
+            #notifSection,
+            #coOrgSection,
+            #postUpdateSection,
+            #thankYouSection,
+            #donationPromptSection,
+            #passHostSection {
+                order: 10;
+            }
+            /* Tighten calendar section */
+            .calendar-section {
+                margin: 1rem 0;
+            }
+            .section-heading {
+                font-size: 1.4rem;
+                margin-bottom: 0.75rem;
+            }
+        }
+
         /* ── Responsive ──────────────────────────────────── */
 
         @media (max-width: 768px) {
@@ -1119,6 +1226,8 @@
             #coOrgSection,
             #postUpdateSection,
             #thankYouSection,
+            #donationPromptSection,
+            #passHostSection,
             #updatesFeed,
             #privateNotice,
             #heroShare,
@@ -1362,8 +1471,7 @@
             </div>
             <span class="nav-divider"></span>
             <div class="nav-group-secondary">
-                <a href="/shiva-essentials" class="nav-link nav-link-secondary">Essentials</a>
-                <a href="/gifts" class="nav-link nav-link-secondary">Gifts</a>
+                <a href="/help" class="nav-link nav-link-secondary">How Can I Help?</a>
                 <a href="/about" class="nav-link nav-link-secondary">About</a>
             </div>
         </div>
@@ -1410,8 +1518,15 @@
             </div>
         </section>
 
+        <!-- Coverage Strip (above-the-fold mobile summary) -->
+        <div class="coverage-strip" id="coverageStrip">
+            <div class="coverage-strip-text" id="coverageStripText"></div>
+            <div class="coverage-strip-bar"><div class="coverage-strip-fill" id="coverageStripFill"></div></div>
+            <a class="coverage-strip-cta" id="coverageStripCta" onclick="document.getElementById('calendarSection').scrollIntoView({behavior:'smooth'})">View meal calendar</a>
+        </div>
+
         <div class="essentials-banner" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin: 1rem 0; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
-            Preparing for shiva? See our <a href="/shiva-essentials" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
+            Preparing for shiva? See our <a href="/help/supplies" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
         </div>
 
         <!-- Private Page Notice (shown when page is private and visitor has no access) -->
@@ -1521,6 +1636,27 @@
             <div id="coOrgError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
         </div>
 
+        <!-- V4: Pass Host Section (primary organizer only) -->
+        <div id="passHostSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Transfer Host Authority</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem; line-height: 1.5;">Hand over primary organizer control to someone else. You will remain as a co-organizer with view access. This cannot be undone once accepted.</p>
+            <div id="passHostForm">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                    <input type="text" id="passHostName" placeholder="New host's name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                    <input type="email" id="passHostEmail" placeholder="New host's email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button id="passHostBtn" onclick="initiatePassHost()" style="background: var(--dark-brown); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Transfer Host</button>
+                </div>
+            </div>
+            <div id="passHostPending" style="display: none; background: rgba(210,105,30,0.06); border-radius: 0.5rem; padding: 0.75rem; margin-top: 0.5rem;">
+                <p style="font-size: 0.88rem; color: var(--dark-brown); margin-bottom: 0.4rem;">Transfer pending &mdash; waiting for <span id="passHostPendingEmail" style="font-weight: 600;"></span> to accept.</p>
+                <button id="cancelTransferBtn" onclick="cancelTransfer()" style="font-size: 0.8rem; color: var(--dark-brown); background: none; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 0.2rem 0.6rem; cursor: pointer; font-family: inherit;">Cancel Transfer</button>
+            </div>
+            <div id="passHostSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="passHostError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
         <!-- V3: Updates Feed (visible to all visitors) -->
         <div id="updatesFeed" style="display: none; margin: 1.5rem 0;">
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem; text-align: center;">Updates</h3>
@@ -1549,6 +1685,20 @@
             <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.75rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Send Thank-You Notes</button>
             <div id="thankYouSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.95rem; color: var(--green-text); font-weight: 500;"></div>
             <div id="thankYouAlready" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--sage-dark); font-style: italic;">Thank-you notes have already been sent.</div>
+        </div>
+
+        <!-- V4: Donation Prompt (organizer, after thank-yous sent) -->
+        <div id="donationPromptSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
+            <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;" id="donationPromptText">
+                Neshama helped coordinate meals for this family, and it always will be free.
+            </p>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">
+                If it made things a little easier, a $18 chai contribution helps us keep the lights on for the next family.
+            </p>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <a href="/sustain?ref=shiva_thankyou" target="_blank" style="display: inline-block; background: var(--gold); color: white; border: none; padding: 0.65rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer;">Give $18</a>
+                <button onclick="dismissDonationPrompt()" style="background: none; border: none; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.88rem; cursor: pointer; text-decoration: underline; padding: 0.5rem;">Not now</button>
+            </div>
         </div>
 
         <!-- Info Cards -->
@@ -1580,13 +1730,13 @@
         <div id="cantCookSection" style="margin-top: 2rem; padding: 1.25rem 1.5rem; background: white; border-radius: 1rem; box-shadow: 0 2px 12px rgba(62,39,35,0.06);">
             <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--sage-dark); text-align: center; margin-bottom: 0.75rem;">Can't cook or too far away?</p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;">
-                <a id="cantCookDirectoryLink" href="/directory" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
+                <a id="cantCookDirectoryLink" href="/help/food" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
                     <span style="font-size: 1.1rem;">&#127869;</span> Send a meal from a local vendor
                 </a>
-                <a href="/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
+                <a href="/help/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
                     <span style="font-size: 1.1rem;">&#127873;</span> Send a gift card
                 </a>
-                <a href="/gifts" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
+                <a href="/help/gifts" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
                     <span style="font-size: 1.1rem;">&#10084;&#65039;</span> Send a gift
                 </a>
             </div>
@@ -1600,32 +1750,32 @@
             <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 500; color: var(--terracotta); text-align: center; margin-bottom: 0.4rem;">Send Something Thoughtful</h2>
             <p style="text-align: center; color: var(--sage-dark); font-size: 1rem; margin-bottom: 1.5rem;">Can't be there in person? Send comfort to the family.</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem;">
-                <a href="/gifts?category=shiva-platters" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=shiva-platters" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127869;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Shiva Platters</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Ready-to-serve meals</div>
                 </a>
-                <a href="/gifts?category=baked-goods" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=baked-goods" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#129360;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Baked Goods</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Pastries, cakes &amp; rugelach</div>
                 </a>
-                <a href="/gifts?category=chocolate" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=chocolate" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127851;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Chocolate &amp; Sweets</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Sweet treats &amp; candy</div>
                 </a>
-                <a href="/gifts?category=fruit-nuts" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=fruit-nuts" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127822;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Fruit &amp; Nuts</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Baskets &amp; dried fruit trays</div>
                 </a>
-                <a href="/gifts?category=gift-baskets" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=gift-baskets" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127873;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Gift Baskets</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Curated comfort packages</div>
                 </a>
-                <a href="/gifts?category=kosher" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
+                <a href="/help/gifts?category=kosher" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
                     <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#10017;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Kosher Certified</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">COR &amp; certified options</div>
@@ -1674,7 +1824,7 @@
                 </div>
 
                 <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
-                    Need ideas? <a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse local kosher caterers</a> or explore our <a href="/directory" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">trusted food partners</a> for shiva meals.
+                    Need ideas? <a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse local kosher caterers</a> or explore our <a href="/help/food" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">trusted food partners</a> for shiva meals.
                 </div>
 
                 <div class="form-group">
@@ -1717,7 +1867,7 @@
                             <label style="font-size: 0.85rem;">Note <span class="optional">(optional)</span></label>
                             <input type="text" id="altNote" placeholder="e.g., Uber Eats gift card, $50">
                         </div>
-                        <a href="/gifts" target="_blank" style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">
+                        <a href="/help/gifts" target="_blank" style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">
                             Browse gift options &#8594;
                         </a>
                     </div>
@@ -1816,10 +1966,8 @@
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
-            <a href="/shiva-essentials">Shiva Essentials</a>
+            <a href="/help">How Can I Help?</a>
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
-            <a href="/gifts">Send a Gift</a>
-            <a href="/directory">Find Trusted Partners</a>
             <a href="/yahrzeit">Yahrzeit Reminders</a>
             <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
@@ -1904,6 +2052,16 @@
         function loadSupportPage() {
             supportId = getSupportIdFromUrl();
             organizerToken = getTokenFromUrl();
+
+            // Session token persistence: if no URL token, check sessionStorage
+            if (!organizerToken && supportId) {
+                organizerToken = sessionStorage.getItem('shiva_token_' + supportId) || null;
+            }
+            // If URL token found, persist it to sessionStorage for this tab
+            if (organizerToken && supportId) {
+                sessionStorage.setItem('shiva_token_' + supportId, organizerToken);
+            }
+
             isOrganizerMode = !!organizerToken;
 
             // Check for access token (for private pages)
@@ -1967,8 +2125,14 @@
             var main = document.getElementById('mainContent');
             main.innerHTML = '<section class="shiva-hero"><h1>' + escapeHtml(supportData.family_name) +
                 '</h1><div class="hero-divider"></div></section>' +
-                '<div class="archived-notice"><p>This shiva support page has been archived. ' +
-                'Thank you to everyone who helped coordinate meals.</p></div>';
+                '<div class="archived-notice">' +
+                '<p>This shiva support page has been archived. Thank you to everyone who helped coordinate meals.</p>' +
+                '<div style="margin-top: 2rem; padding: 1.5rem; background: rgba(210, 105, 30, 0.06); border-radius: 12px; text-align: center;">' +
+                '<p style="font-family: Cormorant Garamond, serif; font-size: 1.4rem; font-weight: 500; color: #3E2723; margin-bottom: 0.5rem;">Still thinking of the family?</p>' +
+                '<p style="color: #6b7c6e; margin-bottom: 1.25rem;">Even after shiva ends, a thoughtful gesture means the world.</p>' +
+                '<a href="/help/gifts" style="display: inline-block; background: #D2691E; color: white; padding: 0.7rem 1.75rem; border-radius: 2rem; text-decoration: none; font-weight: 500; font-size: 1rem; transition: background 0.2s;">Send Something to the Family</a>' +
+                '</div>' +
+                '</div>';
             show('mainContent');
         }
 
@@ -2126,6 +2290,11 @@
                 // V2: Co-organizer management
                 document.getElementById('coOrgSection').style.display = '';
                 loadCoOrganizers();
+
+                // V4: Pass Host section (only for primary organizer)
+                if (supportData.is_primary) {
+                    document.getElementById('passHostSection').style.display = '';
+                }
             }
 
             // Address for organizer
@@ -2159,6 +2328,27 @@
                     if (supportData.thank_you_sent) {
                         document.getElementById('sendThankYouBtn').style.display = 'none';
                         document.getElementById('thankYouAlready').style.display = '';
+                        // V4: Show donation prompt if not already dismissed
+                        var donationDismissed = sessionStorage.getItem('donation_dismissed_' + supportId);
+                        if (!donationDismissed) {
+                            var totalMeals = mealsData ? mealsData.length : 0;
+                            if (totalMeals > 0) {
+                                var promptText = document.getElementById('donationPromptText');
+                                if (promptText) {
+                                    promptText.textContent = 'Neshama helped coordinate ' + totalMeals + ' meal' + (totalMeals !== 1 ? 's' : '') + ' for this family, and it always will be free.';
+                                }
+                            }
+                            document.getElementById('donationPromptSection').style.display = '';
+                            // Record prompt shown
+                            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/donation-prompt', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    email: supportData.organizer_email || '',
+                                    trigger_type: 'shiva_thankyou'
+                                })
+                            }).catch(function() {});
+                        }
                     }
                 }
             }
@@ -2306,6 +2496,87 @@
             });
         }
 
+        // ── V4: Pass Host ───────────────────────────────
+
+        var pendingTransferId = null;
+
+        window.initiatePassHost = function() {
+            var name = document.getElementById('passHostName').value.trim();
+            var email = document.getElementById('passHostEmail').value.trim();
+            var successEl = document.getElementById('passHostSuccess');
+            var errorEl = document.getElementById('passHostError');
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            if (!name || !email) {
+                errorEl.textContent = 'Name and email of the new host are required';
+                errorEl.style.display = '';
+                return;
+            }
+
+            if (!confirm('Are you sure you want to transfer host authority to ' + name + '? You will become a co-organizer with view access.')) {
+                return;
+            }
+
+            var btn = document.getElementById('passHostBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/transfer-host', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: organizerToken, to_name: name, to_email: email })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Transfer Host';
+                if (result.status === 'success') {
+                    successEl.textContent = result.message;
+                    successEl.style.display = '';
+                    pendingTransferId = result.transfer_id;
+                    document.getElementById('passHostPendingEmail').textContent = email;
+                    document.getElementById('passHostPending').style.display = '';
+                    document.getElementById('passHostForm').style.display = 'none';
+                    setTimeout(function() { successEl.style.display = 'none'; }, 4000);
+                } else {
+                    errorEl.textContent = result.message || 'Something went wrong';
+                    errorEl.style.display = '';
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Transfer Host';
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = '';
+            });
+        };
+
+        window.cancelTransfer = function() {
+            if (!pendingTransferId) return;
+            if (!confirm('Cancel this transfer?')) return;
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/cancel-transfer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: organizerToken, transfer_id: pendingTransferId })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    pendingTransferId = null;
+                    document.getElementById('passHostPending').style.display = 'none';
+                    document.getElementById('passHostForm').style.display = '';
+                    document.getElementById('passHostName').value = '';
+                    document.getElementById('passHostEmail').value = '';
+                    var successEl = document.getElementById('passHostSuccess');
+                    successEl.textContent = 'Transfer cancelled';
+                    successEl.style.display = '';
+                    setTimeout(function() { successEl.style.display = 'none'; }, 3000);
+                }
+            });
+        };
+
         // ── Share Button ────────────────────────────────
 
         function setupShareButton() {
@@ -2412,7 +2683,7 @@
                 section.innerHTML =
                     '<h2 class="section-heading">Need Meal Ideas?</h2>' +
                     '<div class="caterer-fallback">' +
-                    '<a href="/directory">Browse kosher caterers in your area &#8594;</a>' +
+                    '<a href="/help/food">Browse kosher caterers in your area &#8594;</a>' +
                     '</div>';
                 section.style.display = '';
                 return;
@@ -2455,7 +2726,7 @@
                 });
 
                 html += '</div>';
-                html += '<div class="caterer-fallback"><a href="/directory">Browse all caterers &#8594;</a></div>';
+                html += '<div class="caterer-fallback"><a href="/help/food">Browse all caterers &#8594;</a></div>';
 
                 section.className = 'caterer-section';
                 section.innerHTML = html;
@@ -2470,6 +2741,7 @@
 
         function renderMealCalendar() {
             if (!supportData.shiva_start_date || !supportData.shiva_end_date) return;
+            _firstEmptySlotMarked = false;
 
             var start = new Date(supportData.shiva_start_date + 'T12:00:00');
             var end = new Date(supportData.shiva_end_date + 'T12:00:00');
@@ -2566,28 +2838,81 @@
                     summaryEl.innerHTML += '<p style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
                 }
             }
+
+            // Populate coverage strip (above-the-fold mobile summary)
+            var stripEl = document.getElementById('coverageStrip');
+            if (stripEl && totalSlots > 0) {
+                var stripPct = Math.round((filledSlots / totalSlots) * 100);
+                var stripColor = stripPct >= 80 ? 'var(--green-mid)' : (stripPct >= 40 ? 'var(--gold)' : 'var(--terracotta)');
+                document.getElementById('coverageStripText').textContent =
+                    filledSlots + '/' + totalSlots + ' meals covered';
+                var fillEl = document.getElementById('coverageStripFill');
+                fillEl.style.width = stripPct + '%';
+                fillEl.style.background = stripColor;
+                var ctaEl = document.getElementById('coverageStripCta');
+                if (filledSlots < totalSlots) {
+                    ctaEl.textContent = (totalSlots - filledSlots) + ' meals still needed \u2014 sign up below';
+                } else {
+                    ctaEl.textContent = 'All meals covered! View schedule';
+                }
+                stripEl.classList.add('active');
+            }
+        }
+
+        var _firstEmptySlotMarked = false;
+
+        function isMySignup(signupId) {
+            if (!supportId) return false;
+            var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+            return mySignups.some(function(s) { return s.signup_id == signupId; });
+        }
+
+        function getMySignupEmail(signupId) {
+            if (!supportId) return '';
+            var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+            var match = mySignups.find(function(s) { return s.signup_id == signupId; });
+            return match ? match.email : '';
         }
 
         function renderSlot(dateStr, mealType, signup) {
             if (signup) {
+                var isMine = isMySignup(signup.id);
                 var h = '<div class="meal-slot taken">';
                 h += '<div class="meal-slot-label">' + mealType + '</div>';
-                h += '<div class="vol-name">' + escapeHtml(signup.volunteer_name) + '</div>';
+                h += '<div class="vol-name">' + escapeHtml(signup.volunteer_name);
+                // Show meal description inline with servings count
                 if (signup.meal_description) {
-                    h += '<div class="vol-desc">' + escapeHtml(signup.meal_description) + '</div>';
+                    h += ' &mdash; ' + escapeHtml(signup.meal_description);
                 }
+                if (signup.num_servings && signup.num_servings > 0) {
+                    h += ' <span style="font-size:0.78rem;color:var(--sage-dark);font-weight:400;">(' + signup.num_servings + ' servings)</span>';
+                }
+                h += '</div>';
                 if (signup.will_serve) {
                     h += '<div class="vol-desc" style="color: var(--green-text); font-weight: 500;">will serve \u2713</div>';
                 }
                 if (isOrganizerMode && signup.id) {
                     h += '<button class="remove-btn" data-signup-id="' + signup.id + '">Remove</button>';
                 }
+                // V4: Volunteer self-edit / cancel buttons
+                if (!isOrganizerMode && isMine && signup.id) {
+                    h += '<div style="display:flex;gap:0.4rem;margin-top:0.3rem;">';
+                    h += '<button class="remove-btn vol-cancel-btn" data-signup-id="' + signup.id + '" style="font-size:0.7rem;">Cancel my signup</button>';
+                    h += '</div>';
+                }
                 h += '</div>';
                 return h;
             }
+            // Empty slot — check if this is the first empty/urgent slot
+            var urgentBadge = '';
+            if (!_firstEmptySlotMarked) {
+                urgentBadge = '<div style="font-size:0.65rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem;">Most needed</div>';
+                _firstEmptySlotMarked = true;
+            }
             return '<div class="meal-slot available" data-date="' + dateStr + '" data-meal="' + mealType + '" role="button" tabindex="0" aria-label="Sign up for ' + mealType + ' on ' + formatDateShort(dateStr) + '">' +
+                urgentBadge +
                 '<div class="meal-slot-label">' + mealType + '</div>' +
-                '<div class="slot-action"><span class="plus">+</span> Available</div>' +
+                '<div class="slot-action"><span class="plus">+</span> Help needed</div>' +
                 '</div>';
         }
 
@@ -2600,7 +2925,13 @@
                 openSignup(slot.getAttribute('data-date'), slot.getAttribute('data-meal'));
                 return;
             }
-            // Remove button click
+            // Volunteer self-cancel (check BEFORE organizer remove since it also has .remove-btn)
+            var volCancelBtn = e.target.closest('.vol-cancel-btn');
+            if (volCancelBtn) {
+                cancelMySignup(volCancelBtn.getAttribute('data-signup-id'));
+                return;
+            }
+            // Organizer remove button click
             var rmBtn = e.target.closest('.remove-btn');
             if (rmBtn) {
                 removeSignup(rmBtn.getAttribute('data-signup-id'));
@@ -2795,6 +3126,18 @@
             if (data.shiva_city) addrText += ', ' + data.shiva_city;
             lastSignupAddress = addrText;
 
+            // V4: Store signup in sessionStorage for self-edit
+            if (data.signup_id && supportId) {
+                var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+                mySignups.push({
+                    signup_id: data.signup_id,
+                    email: document.getElementById('volEmail').value.trim().toLowerCase(),
+                    date: selectedDate,
+                    meal_type: selectedMealType
+                });
+                sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
+            }
+
             // Update persistent address reveal
             document.getElementById('revealedAddress').textContent = addrText;
             document.getElementById('revealedInstructions').textContent = data.special_instructions || '';
@@ -2867,6 +3210,42 @@
             })
             .catch(function() {
                 alert('We weren\'t able to remove this signup. Please try again.');
+            });
+        }
+
+        // ── Volunteer: Cancel Own Signup ─────────────────
+
+        function cancelMySignup(signupId) {
+            if (!confirm('Cancel your meal signup? The organizer will be notified so they can find a replacement.')) return;
+
+            var volunteerEmail = getMySignupEmail(signupId);
+            if (!volunteerEmail) {
+                alert('We could not verify this signup belongs to you. Please contact the organizer directly.');
+                return;
+            }
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/cancel-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    signup_id: parseInt(signupId),
+                    volunteer_email: volunteerEmail
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    // Remove from sessionStorage
+                    var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+                    mySignups = mySignups.filter(function(s) { return s.signup_id != signupId; });
+                    sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
+                    refreshMeals();
+                } else {
+                    alert(data.message || 'We were not able to cancel this signup. Please try again.');
+                }
+            })
+            .catch(function() {
+                alert('Something went wrong. Please try again or contact the organizer directly.');
             });
         }
 
@@ -3084,6 +3463,26 @@
                     btn.style.display = 'none';
                     successEl.textContent = result.message;
                     successEl.style.display = '';
+                    // V4: Show donation prompt after thank-you send
+                    var donationDismissed = sessionStorage.getItem('donation_dismissed_' + supportId);
+                    if (!donationDismissed) {
+                        var totalMeals = mealsData ? mealsData.length : 0;
+                        if (totalMeals > 0) {
+                            var promptText = document.getElementById('donationPromptText');
+                            if (promptText) {
+                                promptText.textContent = 'Neshama helped coordinate ' + totalMeals + ' meal' + (totalMeals !== 1 ? 's' : '') + ' for this family, and it always will be free.';
+                            }
+                        }
+                        document.getElementById('donationPromptSection').style.display = '';
+                        fetch('/api/shiva/' + encodeURIComponent(supportId) + '/donation-prompt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: supportData.organizer_email || '',
+                                trigger_type: 'shiva_thankyou'
+                            })
+                        }).catch(function() {});
+                    }
                 } else {
                     btn.disabled = false;
                     btn.textContent = 'Send Thank-You Notes';
@@ -3094,6 +3493,15 @@
                 btn.disabled = false;
                 btn.textContent = 'Send Thank-You Notes';
             });
+        };
+
+        // ── V4: Dismiss Donation Prompt ─────────────────
+
+        window.dismissDonationPrompt = function() {
+            document.getElementById('donationPromptSection').style.display = 'none';
+            if (supportId) {
+                sessionStorage.setItem('donation_dismissed_' + supportId, '1');
+            }
         };
 
         // ── Keyboard: Escape closes modals ──────────────

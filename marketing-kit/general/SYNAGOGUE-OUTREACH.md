@@ -18,7 +18,7 @@ Neshama is a free website designed to support Jewish families in Toronto and Mon
 
 2. **A meal coordination tool** — When a family is sitting shiva, friends and community members can sign up to bring food on specific days. The page shows what's already covered and what's still needed — eliminating the back-and-forth of phone calls and WhatsApp messages.
 
-3. **A caterer directory** — Local food vendors who provide shiva meals, making it easy for families and supporters to find and order food.
+3. **A "How Can I Help?" hub** — Local food partners and gift vendors who provide shiva meals and sympathy gifts, making it easy for families and supporters to find and order what they need.
 
 **Everything is free.** No accounts, no fees, no advertisements. Neshama is a community resource, not a business.
 
@@ -76,4 +76,4 @@ contact@neshama.ca
 ## Newsletter Blurb (ready for synagogues to paste)
 
 **Neshama — A Free Resource for Our Community**
-When a family in our community experiences a loss, neshama.ca provides a free obituary feed, meal coordination tool, and caterer directory. No sign-up required. Visit neshama.ca or contact contact@neshama.ca to learn more.
+When a family in our community experiences a loss, neshama.ca provides a free obituary feed, meal coordination tool, and "How Can I Help?" hub with local food partners and gifts. No sign-up required. Visit neshama.ca or contact contact@neshama.ca to learn more.

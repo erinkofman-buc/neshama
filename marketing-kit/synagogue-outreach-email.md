@@ -34,7 +34,7 @@ Neshama brings the answers to these questions into one place.
 
 2. **Meal coordination** — When a family is sitting shiva, a coordination page lets community members sign up for specific days. Everyone can see what is covered and what is still needed. It replaces the chain of phone calls and group messages that often leave gaps or overlaps.
 
-3. **Vendor directory** — Over 110 local vendors who provide food, catering, and sympathy gifts for families in mourning. Supporters can browse by category and city to find what they need.
+3. **"How Can I Help?" hub** — Over 110 local food partners and gift vendors who provide meals, catering, and sympathy gifts for families in mourning. Supporters can browse by category and city to find what they need.
 
 4. **Yahrzeit reminders** — Community members can set up annual email reminders for a loved one's yahrzeit, based on the Hebrew calendar. The reminder arrives before the date so they have time to prepare.
 
@@ -66,13 +66,13 @@ contact@neshama.ca
 
 **Neshama — A Resource for Our Community**
 
-When a family in our community experiences a loss, neshama.ca brings together obituaries from local funeral homes, a meal coordination tool for shiva, a directory of over 110 food and gift vendors, and yahrzeit reminders based on the Hebrew calendar. No sign-up required. Visit neshama.ca or contact contact@neshama.ca to learn more.
+When a family in our community experiences a loss, neshama.ca brings together obituaries from local funeral homes, a meal coordination tool for shiva, a "How Can I Help?" hub with over 110 local food partners and gift vendors, and yahrzeit reminders based on the Hebrew calendar. No sign-up required. Visit neshama.ca or contact contact@neshama.ca to learn more.
 
 ---
 
 ## Shorter Blurb (for bulletins with limited space)
 
-**Neshama.ca** — Obituaries, shiva meal coordination, vendor directory, and yahrzeit reminders for Jewish families in Toronto and Montreal. A community resource at no cost. neshama.ca
+**Neshama.ca** — Obituaries, shiva meal coordination, "How Can I Help?" hub, and yahrzeit reminders for Jewish families in Toronto and Montreal. A community resource at no cost. neshama.ca
 
 ---
 
