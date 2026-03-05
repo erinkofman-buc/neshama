@@ -3088,7 +3088,8 @@
                 meal_description: isAlt ? '' : mealDescription,
                 num_servings: isAlt ? 0 : currentServings,
                 will_serve: isAlt ? false : document.getElementById('volWillServe').checked,
-                privacy_consent: true
+                privacy_consent: true,
+                access_token: accessToken || ''
             };
             if (isAlt) {
                 payload.alternative_type = document.getElementById('altType').value;
