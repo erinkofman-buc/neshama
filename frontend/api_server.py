@@ -4879,6 +4879,12 @@ def run_server(port=None):
             "DELETE FROM vendors WHERE name = 'Dave Young Fruit Market'",
             "DELETE FROM vendors WHERE name = 'SugarMommy Chocolates'",
             "DELETE FROM vendors WHERE name = 'Sweetsie''s Cookies'",
+            # Remove vendors with dead websites (403 - hosting expired/removed)
+            "DELETE FROM vendors WHERE name = 'Bagel World'",
+            "DELETE FROM vendors WHERE name = 'Rotisserie Laurier'",
+            "DELETE FROM vendors WHERE name = 'Pizza Cafe'",
+            "DELETE FROM vendors WHERE name = 'Slice N Bites'",
+            "DELETE FROM vendors WHERE name = 'Le Plezl'",
             # Move memorial candles from gifts to home/essentials category
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",

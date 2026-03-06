@@ -181,18 +181,6 @@ VENDORS = [
         'delivery_area': '',
     },
     {
-        'name': 'Bagel World',
-        'category': 'Bagel Shops & Bakeries',
-        'description': 'Popular North York bagel shop since 1963, offering fresh bagels, cream cheese spreads, lox platters, and catering trays. Jewish-owned, kosher-style cooking but not formally certified.',
-        'address': '336 Wilson Ave, Toronto, ON',
-        'neighborhood': 'North York',
-        'phone': '(416) 636-9011',
-        'website': 'https://bagelworld.ca',
-        'kosher_status': 'not_certified',
-        'delivery': 1,
-        'delivery_area': 'Toronto,North York',
-    },
-    {
         'name': 'Hermes Bakery',
         'category': 'Bagel Shops & Bakeries',
         'description': 'Full-service kosher bakery offering cakes, pastries, challah, and dessert platters. Perfect for shiva dessert trays and Shabbat baking.',
@@ -503,18 +491,6 @@ VENDORS = [
     # Pita Box — REMOVED (no longer exists, per Jordana Mar 2026)
     # ── New vendors added per Jordana feedback — Mar 2026 ──
     # My Zaidy's Pizza — removed Mar 2026 (permanently closed per Yelp Jan 2026)
-    {
-        'name': 'Pizza Cafe',
-        'category': 'Italian',
-        'description': 'COR-certified kosher pizza and Italian food. Pizza platters, pasta trays, and family-style meals. A reliable choice for casual shiva meals.',
-        'address': '3774 Bathurst St, Toronto, ON',
-        'neighborhood': 'Bathurst Manor',
-        'phone': '(416) 633-5678',
-        'website': 'https://www.pizzacafe.ca',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto',
-    },
     # More diverse options
     {
         'name': 'Sushi Inn',
@@ -841,18 +817,6 @@ VENDORS = [
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 862-2435',
         'website': 'https://www.bubbysbagels.com',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto,North York',
-    },
-    {
-        'name': 'Slice N Bites',
-        'category': 'Italian',
-        'description': 'COR-certified kosher pizza shop in North York. Pizza slices, pies, and Italian favourites. Affordable and convenient for feeding a crowd at shiva.',
-        'address': '3020 Bathurst St, Toronto, ON',
-        'neighborhood': 'Bathurst Manor',
-        'phone': '(416) 781-1326',
-        'website': 'https://slicenbites.com',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -1328,18 +1292,6 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Cote-Saint-Luc,Hampstead,Snowdon',
-    },
-    {
-        'name': 'Le Plezl',
-        'category': 'Cafes & Dairy',
-        'description': 'Family-owned kosher dairy cafe near McGill serving freshly made sandwiches, salads, soups, wraps, and Mediterranean specialties.',
-        'address': '3429 Rue Peel, Montreal, QC H3A 1W7',
-        'neighborhood': 'Downtown Montreal',
-        'phone': '(514) 400-5147',
-        'website': 'https://www.leplezl.com',
-        'kosher_status': 'MK',
-        'delivery': 0,
-        'delivery_area': '',
     },
     {
         'name': 'Chiyoko',

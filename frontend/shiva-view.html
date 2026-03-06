@@ -44,6 +44,9 @@
             --green-light: #f1f8e9;
             --green-mid: #a5d6a7;
             --green-text: #558b2f;
+            --red-light: #ffebee;
+            --red-mid: #ef9a9a;
+            --red-text: #c62828;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -352,8 +355,8 @@
         }
 
         .meal-day-card.day-full {
-            border-left-color: var(--green-mid);
-            background: linear-gradient(135deg, #f1f8e9 0%, white 40%);
+            border-left-color: var(--red-mid);
+            background: linear-gradient(135deg, var(--red-light) 0%, white 40%);
         }
 
         .meal-day-card.day-partial {
@@ -362,8 +365,8 @@
         }
 
         .meal-day-card.day-empty {
-            border-left-color: var(--light-taupe);
-            background: linear-gradient(135deg, #fce4ec 0%, white 40%);
+            border-left-color: var(--green-mid);
+            background: linear-gradient(135deg, var(--green-light) 0%, white 40%);
         }
 
         /* ── Coverage Summary ──────────────────────────── */
@@ -393,7 +396,7 @@
 
         .coverage-dot.green { background: var(--green-mid); }
         .coverage-dot.yellow { background: var(--gold); }
-        .coverage-dot.red { background: var(--light-taupe); }
+        .coverage-dot.red { background: var(--red-mid); }
 
         .coverage-bar {
             width: 100%;
@@ -426,7 +429,7 @@
         }
 
         .meal-day-card.day-full .meal-day-header {
-            background: rgba(178, 190, 181, 0.2);
+            background: var(--red-light);
         }
 
         .meal-day-card.day-partial .meal-day-header {
@@ -434,7 +437,7 @@
         }
 
         .meal-day-card.day-empty .meal-day-header {
-            background: #fce4ec;
+            background: var(--green-light);
         }
 
         .meal-day-card.shabbat .meal-day-header {
@@ -1330,6 +1333,15 @@
                 font-size: 9pt !important;
             }
 
+            .coverage-dot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .coverage-dot.green { background: #4caf50 !important; }
+            .coverage-dot.yellow { background: #ff9800 !important; }
+            .coverage-dot.red { background: #f44336 !important; }
+
             /* Day cards — table-like */
             .meal-calendar {
                 gap: 0.3rem !important;
@@ -1341,10 +1353,12 @@
                 border: 1px solid #ccc !important;
                 border-left: 3px solid #999 !important;
                 page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .meal-day-card.day-full {
-                border-left-color: #4caf50 !important;
+                border-left-color: #f44336 !important;
                 background: white !important;
             }
 
@@ -1354,7 +1368,7 @@
             }
 
             .meal-day-card.day-empty {
-                border-left-color: #f44336 !important;
+                border-left-color: #4caf50 !important;
                 background: white !important;
             }
 
@@ -1430,6 +1444,37 @@
                 display: none !important;
             }
 
+            /* Print color legend */
+            .print-legend {
+                display: flex !important;
+                gap: 1rem;
+                align-items: center;
+                margin-top: 0.75rem;
+                padding: 0.4rem 0.6rem;
+                border: 1px solid #ddd;
+                border-radius: 0.3rem;
+                font-size: 8pt;
+                color: #333;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-inside: avoid;
+            }
+
+            .print-legend-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .print-legend-swatch {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
             /* Print footer */
             .print-footer {
                 display: block !important;
@@ -1448,8 +1493,9 @@
             }
         }
 
-        /* Print footer hidden on screen */
-        .print-footer {
+        /* Print-only elements hidden on screen */
+        .print-footer,
+        .print-legend {
             display: none;
         }
     </style>
@@ -1787,6 +1833,14 @@
                 </a>
             </div>
         </section>
+
+        <!-- Print-only color legend -->
+        <div class="print-legend">
+            <strong>Legend:</strong>
+            <span class="print-legend-item"><span class="print-legend-swatch" style="background:#4caf50;"></span> Needs help (both meals open)</span>
+            <span class="print-legend-item"><span class="print-legend-swatch" style="background:#ff9800;"></span> Partial (one meal open)</span>
+            <span class="print-legend-item"><span class="print-legend-swatch" style="background:#f44336;"></span> Covered (both meals taken)</span>
+        </div>
 
         <!-- Print-only footer -->
         <div class="print-footer">
@@ -2790,11 +2844,11 @@
                     var lunchS = signupMap[dateStr + '_Lunch'] || [];
                     var dinnerS = signupMap[dateStr + '_Dinner'] || [];
                     if (lunchS.length > 0 && dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--red-text);font-weight:600;">Covered</span>';
                     } else if (lunchS.length > 0 || dinnerS.length > 0) {
                         statusBadge = '<span style="font-size:0.7rem;color:#F57F17;font-weight:600;">Needs help</span>';
                     } else {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--terracotta);font-weight:600;">Open</span>';
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Help needed</span>';
                     }
                 }
 
@@ -2829,9 +2883,9 @@
                 summaryEl.innerHTML =
                     '<div class="coverage-bar"><div class="coverage-bar-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
                     '<div class="coverage-summary">' +
-                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + fullDays + ' covered</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + emptyDays + ' need help</div>' +
                     '<div class="coverage-stat"><span class="coverage-dot yellow"></span>' + partialDays + ' partial</div>' +
-                    '<div class="coverage-stat"><span class="coverage-dot red"></span>' + emptyDays + ' open</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot red"></span>' + fullDays + ' covered</div>' +
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {
