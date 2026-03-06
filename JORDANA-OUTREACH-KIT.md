@@ -341,7 +341,7 @@ Would love for you to take a look. And if you see the right people to share it w
 | What Is Yahrzeit | www.neshama.ca/what-is-yahrzeit |
 | Kosher Shiva Food | www.neshama.ca/kosher-shiva-food |
 | Yahrzeit Reminders | www.neshama.ca/yahrzeit |
-| Send a Gift | www.neshama.ca/help/gifts |
+| Send Something Thoughtful | www.neshama.ca/help/gifts |
 | About | www.neshama.ca/about |
 | **Cofounder Dashboard** | **www.neshama.ca/dashboard** |
 

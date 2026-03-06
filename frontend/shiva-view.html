@@ -2694,7 +2694,7 @@
                 var params = [];
                 if (city) params.push('city=' + encodeURIComponent(city));
                 if (subArea) params.push('area=' + encodeURIComponent(subArea));
-                link.href = '/directory?' + params.join('&');
+                link.href = '/help/food?' + params.join('&');
             }
         }
 
@@ -2760,7 +2760,7 @@
                 html += '<div class="caterer-grid">';
 
                 matched.forEach(function(v) {
-                    var dest = v.website || ('/directory/' + encodeURIComponent(v.slug));
+                    var dest = v.website || ('/help/food/' + encodeURIComponent(v.slug));
                     var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
                         '&dest=' + encodeURIComponent(dest);
 
