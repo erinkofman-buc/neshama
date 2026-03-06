@@ -306,6 +306,19 @@ def _thank_you_html(vol_name, family_name, shiva_url):
         When community shows up, grief becomes a little more bearable.<br>
         Thank you for being part of that community.
     </p>
+    <div style="border-top:1px solid #e8e0d8;margin:2rem 0 1.5rem;padding-top:1.5rem;text-align:center;">
+        <p style="font-size:0.95rem;color:#5c534a;margin:0 0 0.75rem;">
+            Neshama is free for families. If this platform helped your community come together,
+            a <strong>$18 chai</strong> contribution keeps it running for the next family.
+        </p>
+        <a href="{shiva_url.split('?')[0].rsplit('/shiva/', 1)[0]}/sustain?ref=shiva_thankyou"
+           style="display:inline-block;background:#D2691E;color:white;padding:0.6rem 1.5rem;border-radius:2rem;text-decoration:none;font-size:0.95rem;">
+            Give $18
+        </a>
+        <p style="font-size:0.8rem;color:#a09890;margin-top:0.5rem;font-style:italic;">
+            No pressure, ever.
+        </p>
+    </div>
     <p style="text-align:center;font-size:0.95rem;color:#8a9a8d;font-style:italic;margin:1.5rem 0;">
         May their memory be a blessing.
     </p>""")

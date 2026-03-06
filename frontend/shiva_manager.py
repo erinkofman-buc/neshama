@@ -307,6 +307,39 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN thank_you_sent INTEGER DEFAULT 0')
 
+        # ── V4 Migrations ────────────────────────────────────────
+
+        # V4: shiva_host_transfers table (Pass Host feature)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS shiva_host_transfers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                shiva_id TEXT NOT NULL,
+                from_email TEXT NOT NULL,
+                to_email TEXT NOT NULL,
+                transfer_token TEXT UNIQUE NOT NULL,
+                accepted INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL,
+                accepted_at TEXT,
+                FOREIGN KEY (shiva_id) REFERENCES shiva_support(id)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_transfer_shiva ON shiva_host_transfers(shiva_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_transfer_token ON shiva_host_transfers(transfer_token)')
+
+        # V4: donation_prompts table (soft donation prompt after thank-you)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS donation_prompts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                shiva_id TEXT NOT NULL,
+                prompted_at TEXT NOT NULL,
+                donated INTEGER DEFAULT 0,
+                trigger_type TEXT,
+                FOREIGN KEY (shiva_id) REFERENCES shiva_support(id)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_donation_email ON donation_prompts(email)')
+
         conn.commit()
         conn.close()
 
@@ -450,9 +483,9 @@ class ShivaManager:
         if source not in ('web_claim', 'web_standalone', 'funeral_home', 'auto_created'):
             source = 'web_standalone'
 
-        # V2: Email verification — generate token, set status to 'pending'
+        # V2: Auto-verify on creation (organizer just entered their email)
         verification_token = secrets.token_urlsafe(32)
-        verification_status = 'pending'
+        verification_status = 'verified'
 
         try:
             cursor.execute('''
@@ -598,16 +631,21 @@ class ShivaManager:
 
     def get_support_for_organizer(self, support_id, magic_token):
         """Get full support data including address. Requires magic_token.
-        V2: Also accepts co-organizer tokens."""
+        V2: Also accepts co-organizer tokens.
+        V4: Returns is_primary flag."""
         conn = self._get_conn()
         cursor = conn.cursor()
         row = self._verify_organizer(cursor, support_id, magic_token)
-        conn.close()
 
         if row:
             data = dict(row)
+            # V4: Check if this token belongs to the primary organizer
+            is_primary = (data.get('magic_token') == magic_token)
             data.pop('magic_token', None)  # Never expose the token in responses
+            data['is_primary'] = is_primary
+            conn.close()
             return {'status': 'success', 'data': data}
+        conn.close()
         return {'status': 'error', 'message': 'Invalid support ID or token'}
 
     # ── Update Support (Organizer) ────────────────────────────
@@ -1243,7 +1281,7 @@ class ShivaManager:
 
         support = dict(support)
 
-        # Get existing signups
+        # Get existing signups (exclude cancelled)
         cursor.execute('''
             SELECT meal_date, meal_type FROM meal_signups
             WHERE shiva_support_id = ?
@@ -1404,7 +1442,8 @@ class ShivaManager:
 
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, volunteer_email,
-                   volunteer_phone, meal_description, num_servings, will_serve, created_at, status
+                   volunteer_phone, meal_description, num_servings, will_serve, created_at,
+                   status
             FROM meal_signups
             WHERE shiva_support_id = ?
               AND (status IS NULL OR status != 'cancelled')
@@ -1702,6 +1741,7 @@ class ShivaManager:
     BACKUP_TABLES = [
         'shiva_support', 'meal_signups', 'caterer_partners',
         'donation_links', 'shiva_reports',
+        'shiva_host_transfers', 'donation_prompts',
     ]
 
     def _get_backup_path(self):
@@ -2013,3 +2053,336 @@ class ShivaManager:
             'message': f'Thank-you notes queued for {queued} volunteer{"s" if queued != 1 else ""}',
             'count': queued
         }
+
+    # ── V4: Pass Host (Transfer Organizer) ──────────────────
+
+    def initiate_host_transfer(self, support_id, magic_token, data):
+        """Initiate transfer of primary organizer role.
+        Only the PRIMARY organizer can transfer (direct magic_token check)."""
+        to_email = self._validate_email(data.get('to_email', ''))
+        to_name = self._sanitize_text(data.get('to_name', ''), 200)
+
+        if not to_email or not to_name:
+            return {'status': 'error', 'message': 'Name and email of the new host are required'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Direct magic_token check — only primary organizer can transfer
+        cursor.execute('SELECT * FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        shiva = cursor.fetchone()
+        if not shiva:
+            conn.close()
+            return {'status': 'error', 'message': 'Only the primary organizer can transfer host authority'}
+
+        shiva = dict(shiva)
+
+        # Can't transfer to yourself
+        if to_email.lower() == shiva['organizer_email'].lower():
+            conn.close()
+            return {'status': 'error', 'message': 'You cannot transfer to yourself'}
+
+        # Check for pending transfer
+        cursor.execute('''
+            SELECT id FROM shiva_host_transfers
+            WHERE shiva_id = ? AND accepted = 0
+              AND created_at > datetime('now', '-72 hours')
+        ''', (support_id,))
+        if cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'A transfer is already pending. Cancel it first to start a new one.'}
+
+        transfer_token = secrets.token_urlsafe(32)
+        now = datetime.now().isoformat()
+
+        cursor.execute('''
+            INSERT INTO shiva_host_transfers
+                (shiva_id, from_email, to_email, transfer_token, accepted, created_at)
+            VALUES (?, ?, ?, ?, 0, ?)
+        ''', (support_id, shiva['organizer_email'], to_email, transfer_token, now))
+
+        conn.commit()
+        transfer_id = cursor.lastrowid
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'Transfer invitation sent to {to_name}',
+            'transfer_id': transfer_id,
+            'transfer_token': transfer_token,
+            'to_name': to_name,
+            'to_email': to_email,
+            'from_name': shiva['organizer_name'],
+            'from_email': shiva['organizer_email'],
+            'family_name': shiva['family_name'],
+            'shiva_id': support_id,
+        }
+
+    def accept_host_transfer(self, transfer_token):
+        """Accept a host transfer. Generates new magic_token for new host,
+        makes old organizer a co-organizer, keeps existing co-organizers."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT t.*, ss.family_name, ss.organizer_name, ss.organizer_email,
+                   ss.magic_token as old_magic_token
+            FROM shiva_host_transfers t
+            JOIN shiva_support ss ON t.shiva_id = ss.id
+            WHERE t.transfer_token = ?
+        ''', (transfer_token,))
+        transfer = cursor.fetchone()
+
+        if not transfer:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid transfer link'}
+
+        transfer = dict(transfer)
+
+        if transfer['accepted']:
+            conn.close()
+            return {'status': 'error', 'message': 'This transfer has already been completed'}
+
+        # Check 72-hour expiry
+        created = datetime.fromisoformat(transfer['created_at'])
+        if (datetime.now() - created).total_seconds() > 72 * 3600:
+            conn.close()
+            return {'status': 'error', 'message': 'This transfer link has expired (72-hour limit)'}
+
+        now = datetime.now().isoformat()
+        new_magic_token = secrets.token_urlsafe(32)
+        old_email = transfer['organizer_email']
+        old_name = transfer['organizer_name']
+
+        # 1. Update shiva_support: new organizer + new magic_token
+        cursor.execute('''
+            UPDATE shiva_support
+            SET organizer_email = ?, organizer_name = ?, magic_token = ?
+            WHERE id = ?
+        ''', (transfer['to_email'], transfer['to_email'].split('@')[0].title(), new_magic_token, transfer['shiva_id']))
+
+        # 2. Make old organizer a co-organizer (so they keep access)
+        co_token = secrets.token_urlsafe(32)
+        cursor.execute('''
+            INSERT INTO shiva_co_organizers
+                (shiva_support_id, name, email, magic_token, invited_by_email, status, created_at, accepted_at)
+            VALUES (?, ?, ?, ?, ?, 'accepted', ?, ?)
+        ''', (transfer['shiva_id'], old_name, old_email, co_token, transfer['to_email'], now, now))
+
+        # 3. Mark transfer as accepted
+        cursor.execute('''
+            UPDATE shiva_host_transfers SET accepted = 1, accepted_at = ?
+            WHERE transfer_token = ?
+        ''', (now, transfer_token))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': f'You are now the primary organizer for the {transfer["family_name"]} shiva',
+            'shiva_id': transfer['shiva_id'],
+            'family_name': transfer['family_name'],
+            'new_magic_token': new_magic_token,
+            'old_organizer_name': old_name,
+            'old_organizer_email': old_email,
+        }
+
+    def cancel_host_transfer(self, support_id, magic_token, transfer_id):
+        """Cancel a pending host transfer. Only primary organizer can cancel."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Direct magic_token check — only primary organizer
+        cursor.execute('SELECT id FROM shiva_support WHERE id = ? AND magic_token = ?',
+                        (support_id, magic_token))
+        if not cursor.fetchone():
+            conn.close()
+            return {'status': 'error', 'message': 'Unauthorized'}
+
+        cursor.execute('''
+            DELETE FROM shiva_host_transfers
+            WHERE id = ? AND shiva_id = ? AND accepted = 0
+        ''', (transfer_id, support_id))
+
+        if cursor.rowcount == 0:
+            conn.close()
+            return {'status': 'error', 'message': 'Transfer not found or already accepted'}
+
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Transfer cancelled'}
+
+    # ── V4: Volunteer Self-Edit ──────────────────────────────
+
+    def edit_signup(self, support_id, signup_id, data):
+        """Allow a volunteer to edit their own signup (by matching email)."""
+        vol_email = self._validate_email(data.get('volunteer_email', ''))
+        if not vol_email:
+            return {'status': 'error', 'message': 'Email required to verify identity'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify signup belongs to this email (and is not cancelled)
+        cursor.execute('''
+            SELECT id, volunteer_email FROM meal_signups
+            WHERE id = ? AND shiva_support_id = ? AND LOWER(volunteer_email) = ?
+              AND (status IS NULL OR status != 'cancelled')
+        ''', (int(signup_id), support_id, vol_email.lower()))
+        signup = cursor.fetchone()
+        if not signup:
+            conn.close()
+            return {'status': 'error', 'message': 'Signup not found or email does not match'}
+
+        # Build update
+        sets = []
+        vals = []
+        if 'meal_description' in data:
+            sets.append('meal_description = ?')
+            vals.append(self._sanitize_text(data['meal_description'], self.MAX_TEXT_LENGTH))
+        if 'num_servings' in data:
+            sets.append('num_servings = ?')
+            try:
+                vals.append(max(1, min(50, int(data['num_servings']))))
+            except (ValueError, TypeError):
+                vals.append(4)
+        if 'will_serve' in data:
+            sets.append('will_serve = ?')
+            vals.append(1 if data['will_serve'] else 0)
+        if 'volunteer_phone' in data:
+            sets.append('volunteer_phone = ?')
+            vals.append(self._sanitize_text(data['volunteer_phone'], 30))
+
+        if not sets:
+            conn.close()
+            return {'status': 'error', 'message': 'No fields to update'}
+
+        vals.append(int(signup_id))
+        vals.append(support_id)
+        cursor.execute(
+            f"UPDATE meal_signups SET {', '.join(sets)} WHERE id = ? AND shiva_support_id = ?",
+            vals
+        )
+        conn.commit()
+        conn.close()
+
+        return {'status': 'success', 'message': 'Your signup has been updated'}
+
+    def cancel_own_signup(self, support_id, data):
+        """Allow a volunteer to cancel their own signup (by matching email).
+        Sends notification to organizer via email_log."""
+        vol_email = self._validate_email(data.get('volunteer_email', ''))
+        signup_id = data.get('signup_id')
+        if not vol_email or not signup_id:
+            return {'status': 'error', 'message': 'Email and signup ID required'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify signup belongs to this email
+        cursor.execute('''
+            SELECT ms.id, ms.volunteer_name, ms.meal_date, ms.meal_type,
+                   ss.organizer_email, ss.family_name
+            FROM meal_signups ms
+            JOIN shiva_support ss ON ms.shiva_support_id = ss.id
+            WHERE ms.id = ? AND ms.shiva_support_id = ?
+              AND LOWER(ms.volunteer_email) = ?
+        ''', (int(signup_id), support_id, vol_email.lower()))
+        signup = cursor.fetchone()
+        if not signup:
+            conn.close()
+            return {'status': 'error', 'message': 'Signup not found or email does not match'}
+
+        signup = dict(signup)
+
+        # Soft-delete: set status to 'cancelled'
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            UPDATE meal_signups SET status = 'cancelled', cancelled_at = ?
+            WHERE id = ? AND shiva_support_id = ?
+        ''', (now, int(signup_id), support_id))
+
+        # Log notification for organizer
+        cursor.execute('''
+            INSERT INTO email_log (
+                shiva_support_id, email_type, recipient_email, recipient_name,
+                related_signup_id, status, created_at
+            ) VALUES (?, 'volunteer_cancellation', ?, ?, ?, 'pending', ?)
+        ''', (support_id, signup['organizer_email'], signup['volunteer_name'],
+              int(signup_id), now))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            'status': 'success',
+            'message': 'Your signup has been cancelled. The organizer has been notified.',
+            'volunteer_name': signup['volunteer_name'],
+            'meal_date': signup['meal_date'],
+            'meal_type': signup['meal_type'],
+            'organizer_email': signup['organizer_email'],
+            'family_name': signup['family_name'],
+        }
+
+    # ── V4: Donation Prompt ──────────────────────────────────
+
+    def record_donation_prompt(self, email, shiva_id, trigger_type='shiva_thankyou'):
+        """Record that a donation prompt was shown to this email for this shiva."""
+        clean_email = self._validate_email(email)
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Check if already prompted for this shiva
+        cursor.execute('''
+            SELECT id, donated FROM donation_prompts
+            WHERE LOWER(email) = ? AND shiva_id = ?
+        ''', (clean_email.lower(), shiva_id))
+        existing = cursor.fetchone()
+        if existing:
+            existing = dict(existing)
+            if existing['donated']:
+                conn.close()
+                return {'status': 'already_donated', 'message': 'Thank you for your support'}
+            conn.close()
+            return {'status': 'already_prompted', 'message': 'Already recorded'}
+
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            INSERT INTO donation_prompts (email, shiva_id, prompted_at, donated, trigger_type)
+            VALUES (?, ?, ?, 0, ?)
+        ''', (clean_email.lower(), shiva_id, now, trigger_type))
+        conn.commit()
+        conn.close()
+
+        return {'status': 'success', 'message': 'Prompt recorded'}
+
+    def record_donation(self, email, shiva_id):
+        """Record that a user donated (mark prompt as converted)."""
+        clean_email = self._validate_email(email)
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            UPDATE donation_prompts SET donated = 1
+            WHERE LOWER(email) = ? AND shiva_id = ?
+        ''', (clean_email.lower(), shiva_id))
+
+        if cursor.rowcount == 0:
+            # No existing prompt — create one marked as donated
+            now = datetime.now().isoformat()
+            cursor.execute('''
+                INSERT INTO donation_prompts (email, shiva_id, prompted_at, donated, trigger_type)
+                VALUES (?, ?, ?, 1, 'direct')
+            ''', (clean_email.lower(), shiva_id, now))
+
+        conn.commit()
+        conn.close()
+        return {'status': 'success', 'message': 'Thank you for your support'}
