@@ -186,6 +186,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-caterer-apply.html': ('shiva-caterer-apply.html', 'text/html'),
         '/shiva-essentials': ('shiva-essentials.html', 'text/html'),
         '/shiva-essentials.html': ('shiva-essentials.html', 'text/html'),
+        '/demo': ('demo.html', 'text/html'),
         '/help': ('help.html', 'text/html'),
         '/help/food': ('directory.html', 'text/html'),
         '/help/gifts': ('gifts.html', 'text/html'),
