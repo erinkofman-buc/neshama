@@ -75,6 +75,50 @@ class DailyDigestSender:
 
         return obituaries
     
+    def generate_quiet_day_html(self):
+        """Generate HTML email for days with no new obituaries"""
+        html = f'''<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+<tr><td align="center" style="padding: 40px 20px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%;">
+
+    <!-- Header -->
+    <tr><td style="padding-bottom: 24px; border-bottom: 1px solid #e8e0d8;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #3E2723; letter-spacing: 0.02em;">Neshama</span>
+    </td></tr>
+
+    <!-- Greeting -->
+    <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0 0 6px 0;">Good morning, {datetime.now().strftime('%B %d')}.</p>
+        <p style="margin: 0 0 16px 0;">No new obituary notices were posted in the last 24 hours.</p>
+        <p style="margin: 0;">We are here when the community needs us.</p>
+    </td></tr>
+
+    <!-- Footer links -->
+    <tr><td style="padding: 28px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; color: #5c534a; line-height: 1.7;">
+        <p style="margin: 0 0 4px 0;"><a href="https://neshama.ca" style="color: #3E2723; text-decoration: underline;">Visit Neshama</a></p>
+        <p style="margin: 0;"><a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color: #3E2723; text-decoration: underline;">Visiting a shiva? See what to bring</a></p>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding-top: 28px; margin-top: 12px; border-top: 1px solid #e8e0d8;">
+        <p style="margin: 0 0 6px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;"><a href="{{{{unsubscribe_url}}}}" style="color: #9e9488;">Unsubscribe</a> &middot; <a href="mailto:contact@neshama.ca" style="color: #9e9488;">Contact us</a></p>
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">Neshama &middot; Toronto, ON</p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>'''
+        return html
+
     def generate_email_html(self, obituaries):
         """Generate HTML email content"""
         if not obituaries:
@@ -222,20 +266,17 @@ class DailyDigestSender:
         # Get all new obituaries (unfiltered) to check if there's anything new
         all_obituaries = self.get_new_obituaries(hours=24)
 
-        if not all_obituaries:
-            logging.info(" No new obituaries in the last 24 hours. Skipping email send.")
-            logging.info(f"\n{'='*70}\n")
-            return {
-                'status': 'skipped',
-                'reason': 'no_new_content',
-                'subscribers_count': 0
-            }
+        quiet_day = not all_obituaries
 
-        logging.info(f" Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
+        if quiet_day:
+            logging.info(" No new obituaries in the last 24 hours. Sending quiet-day digest.")
+            quiet_html = self.generate_quiet_day_html()
+        else:
+            logging.info(f" Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
 
         # Pre-fetch location-filtered obituary lists
-        toronto_obits = self.get_new_obituaries(hours=24, location='toronto')
-        montreal_obits = self.get_new_obituaries(hours=24, location='montreal')
+        toronto_obits = self.get_new_obituaries(hours=24, location='toronto') if not quiet_day else []
+        montreal_obits = self.get_new_obituaries(hours=24, location='montreal') if not quiet_day else []
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
@@ -252,34 +293,40 @@ class DailyDigestSender:
             locations = locations or 'toronto,montreal'
             loc_list = [l.strip() for l in locations.split(',')]
 
-            # Build this subscriber's obituary list
-            subscriber_obits = []
-            if 'toronto' in loc_list:
-                subscriber_obits.extend(toronto_obits)
-            if 'montreal' in loc_list:
-                subscriber_obits.extend(montreal_obits)
+            if quiet_day:
+                html_content = quiet_html
+            else:
+                # Build this subscriber's obituary list
+                subscriber_obits = []
+                if 'toronto' in loc_list:
+                    subscriber_obits.extend(toronto_obits)
+                if 'montreal' in loc_list:
+                    subscriber_obits.extend(montreal_obits)
 
-            # Deduplicate by id and sort by last_updated desc
-            seen = set()
-            unique_obits = []
-            for o in subscriber_obits:
-                if o['id'] not in seen:
-                    seen.add(o['id'])
-                    unique_obits.append(o)
-            unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
+                # Deduplicate by id and sort by last_updated desc
+                seen = set()
+                unique_obits = []
+                for o in subscriber_obits:
+                    if o['id'] not in seen:
+                        seen.add(o['id'])
+                        unique_obits.append(o)
+                unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
 
-            if not unique_obits:
-                skipped_count += 1
-                logging.info(f" {email} — no obits for {locations}")
-                continue
+                if not unique_obits:
+                    skipped_count += 1
+                    logging.info(f" {email} — no obits for {locations}")
+                    continue
 
-            # Generate per-subscriber email HTML
-            html_content = self.generate_email_html(unique_obits)
+                # Generate per-subscriber email HTML
+                html_content = self.generate_email_html(unique_obits)
             result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations)
 
             if result.get('success'):
                 sent_count += 1
-                logging.info(f" {email} ({len(unique_obits)} obits)")
+                if quiet_day:
+                    logging.info(f" {email} (quiet day)")
+                else:
+                    logging.info(f" {email} ({len(unique_obits)} obits)")
                 cursor.execute('''
                     UPDATE subscribers
                     SET last_email_sent = ?
