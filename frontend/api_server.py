@@ -4894,6 +4894,49 @@ def run_server(port=None):
             cursor.execute(sql)
             total_changed += cursor.rowcount
 
+        # Migration 2026-03-09: Jordana vendor fixes round 2
+        mar9_updates = [
+            # Remove vendors that no longer exist or are not appropriate
+            "DELETE FROM vendors WHERE name = 'Miami Grill'",
+            "DELETE FROM vendors WHERE name = 'Village Pizza Kosher'",
+            "DELETE FROM vendors WHERE name = 'Citrus Traiteur'",
+            "DELETE FROM vendors WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",
+            "DELETE FROM vendors WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
+            "DELETE FROM vendors WHERE name = 'Bubby''s New York Bagels'",
+            # Rename Bubby's → Bubby's Bagels
+            "UPDATE vendors SET name = 'Bubby''s Bagels' WHERE name = 'Bubby''s'",
+            # Rename Il Paesano → Paisanos + add website
+            "UPDATE vendors SET name = 'Paisanos', website = 'https://thepaisanos.ca' WHERE name = 'Il Paesano'",
+            # Add websites to existing vendors
+            "UPDATE vendors SET website = 'https://www.gryfes.ca' WHERE name = 'Gryfe''s Bagel Bakery' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://kivasbagels.ca' WHERE name = 'Kiva''s Bagels' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://www.daiterskitchen.ca' WHERE name = 'Daiter''s Kitchen' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://cafesheli.com' WHERE name = 'Cafe Sheli' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://maineventmauzone.shop' WHERE name = 'Main Event Catering' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://chenoys-deli.goto-where.com' WHERE name = 'Chenoy''s Deli' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://goldenchopstick.ca' WHERE name = 'Golden Chopsticks' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://shalomindia.ca' WHERE name = 'Shalom India' AND (website IS NULL OR website = '')",
+        ]
+        for sql in mar9_updates:
+            cursor.execute(sql)
+            total_changed += cursor.rowcount
+
+        # Add new vendors (Mar 9) — only if they don't already exist
+        new_vendors_mar9 = [
+            ("Pizza Cafe", "Kosher Restaurants & Caterers", "COR-certified kosher pizza restaurant. Pizza, pasta, and Italian favourites. Affordable catering options for shiva meals.", "Toronto, ON", "Toronto", "", "https://www.pizzacafe.ca", "COR", 1, "Toronto", "food"),
+            ("Aroma Espresso Bar", "Kosher Restaurants & Caterers", "Israeli-born cafe chain with kosher-certified locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.", "Multiple locations, Toronto, ON", "GTA", "", "https://www.aromaespressobar.ca", "COR", 1, "Toronto,North York", "food"),
+            ("Chop Hop", "Kosher Restaurants & Caterers", "Kosher restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.", "Toronto, ON", "Toronto", "", "https://www.chophop.com", "COR", 1, "Toronto", "food"),
+        ]
+        for v in new_vendors_mar9:
+            cursor.execute("SELECT id FROM vendors WHERE name = ?", (v[0],))
+            if not cursor.fetchone():
+                import re as _re
+                slug = _re.sub(r'-+', '-', _re.sub(r'[\s]+', '-', _re.sub(r'[^a-z0-9\s-]', '', v[0].lower().strip())))
+                cursor.execute("""INSERT INTO vendors (name, slug, category, description, address, neighborhood, phone, website, kosher_status, delivery, delivery_area, vendor_type)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (v[0], slug, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]))
+                total_changed += 1
+
         conn.commit()
         conn.close()
         if total_changed > 0:

@@ -20,6 +20,11 @@ VENDORS_TO_REMOVE = [
     "Pizza Pita",             # No longer exists per Jordana Mar 2026
     "Shwarma Express",        # No longer exists per Jordana Mar 2026
     "Pita Box",               # No longer exists per Jordana Mar 2026
+    "Miami Grill",            # No longer exists per Jordana Mar 9
+    "Village Pizza Kosher",   # No longer exists per Jordana Mar 9
+    "Citrus Traiteur",        # Removed per Jordana Mar 9
+    "24-Hour Yahrzeit Memorial Candles (Multipack)",  # Removed per Jordana Mar 9
+    "Bubby's New York Bagels",  # Duplicate of Bubby's Bagels
 ]
 
 
@@ -163,7 +168,7 @@ VENDORS = [
         'address': '3421 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 783-1552',
-        'website': '',
+        'website': 'https://www.gryfes.ca',
         'kosher_status': 'Kosher Style',
         'delivery': 0,
         'delivery_area': '',
@@ -175,7 +180,7 @@ VENDORS = [
         'address': '1027 Steeles Ave W, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 663-9933',
-        'website': '',
+        'website': 'https://kivasbagels.ca',
         'kosher_status': 'Kosher Style',
         'delivery': 0,
         'delivery_area': '',
@@ -231,18 +236,8 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
     },
-    {
-        'name': 'Miami Grill',
-        'category': 'Kosher Restaurants & Caterers',
-        'description': 'Popular kosher restaurant known for grilled meats, shawarma, and generous portions. Offers catering platters and family meal packages.',
-        'address': '3450 Bathurst St, Toronto, ON',
-        'neighborhood': 'Bathurst Manor',
-        'phone': '(416) 792-4500',
-        'website': '',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto,North York',
-    },
+    # Miami Grill — REMOVED Mar 9 (no longer exists, per Jordana)
+
     {
         'name': 'Tov-Li Pizza & Falafel',
         'category': 'Kosher Restaurants & Caterers',
@@ -322,7 +317,7 @@ VENDORS = [
         'address': '3535 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 789-1280',
-        'website': '',
+        'website': 'https://www.daiterskitchen.ca',
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
@@ -346,7 +341,7 @@ VENDORS = [
         'address': '4750 Dufferin St, Toronto, ON',
         'neighborhood': 'North York',
         'phone': '(416) 663-5553',
-        'website': '',
+        'website': 'https://cafesheli.com',
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
@@ -359,7 +354,7 @@ VENDORS = [
         'address': 'Thornhill, ON',
         'neighborhood': 'GTA-wide',
         'phone': '(905) 881-2222',
-        'website': '',
+        'website': 'https://maineventmauzone.shop',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'GTA-wide',
@@ -377,27 +372,17 @@ VENDORS = [
         'delivery_area': 'Toronto,North York,Thornhill/Vaughan,Hamilton,GTA',
     },
     # Italian
-    {
-        'name': 'Village Pizza Kosher',
-        'category': 'Italian',
-        'description': 'Kosher pizza and Italian favourites. Offers pizza platters, pasta trays, and garlic bread that are crowd-pleasers at any gathering. Affordable catering options.',
-        'address': '3440 Bathurst St, Toronto, ON',
-        'neighborhood': 'Bathurst Manor',
-        'phone': '(416) 781-0081',
-        'website': '',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto,North York',
-    },
+    # Village Pizza Kosher — REMOVED Mar 9 (no longer exists, per Jordana)
+
     # Pizza Pita — REMOVED (no longer exists, per Jordana Mar 2026)
     {
-        'name': 'Il Paesano',
+        'name': 'Paisanos',
         'category': 'Italian',
-        'description': 'Authentic Italian restaurant with catering services. Pasta trays, chicken parmigiana, Caesar salads, and tiramisu. Generous portions for family-style meals.',
+        'description': 'Italian restaurant with catering services. Pasta trays, chicken parmigiana, Caesar salads, and tiramisu. Generous portions for family-style meals.',
         'address': '624 College St, Toronto, ON',
         'neighborhood': 'Little Italy',
         'phone': '(416) 534-2801',
-        'website': '',
+        'website': 'https://thepaisanos.ca',
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
@@ -772,6 +757,43 @@ VENDORS = [
         'delivery': 0,
         'delivery_area': '',
     },
+    # ── New vendors added Mar 9, 2026 (per Jordana) ──
+    {
+        'name': 'Pizza Cafe',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'COR-certified kosher pizza restaurant. Pizza, pasta, and Italian favourites. Affordable catering options for shiva meals.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': 'https://www.pizzacafe.ca',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'Toronto',
+    },
+    {
+        'name': 'Aroma Espresso Bar',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'Israeli-born cafe chain with kosher-certified locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.',
+        'address': 'Multiple locations, Toronto, ON',
+        'neighborhood': 'GTA',
+        'phone': '',
+        'website': 'https://www.aromaespressobar.ca',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'Toronto,North York',
+    },
+    {
+        'name': 'Chop Hop',
+        'category': 'Kosher Restaurants & Caterers',
+        'description': 'Kosher restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': 'https://www.chophop.com',
+        'kosher_status': 'COR',
+        'delivery': 1,
+        'delivery_area': 'Toronto',
+    },
     # ── New Toronto vendors from COR research — Mar 4, 2026 ──
     {
         'name': "Howie T's Burger Bar",
@@ -810,7 +832,7 @@ VENDORS = [
         'delivery_area': '',
     },
     {
-        'name': "Bubby's",
+        'name': "Bubby's Bagels",
         'category': 'Restaurants & Delis',
         'description': 'COR-certified deli with two locations. NY-style bagels and bialys on Bathurst, plus sandwiches, burgers, tacos, and onion rings at the larger Lawrence Ave diner.',
         'address': '3030 Bathurst St, Toronto, ON',
@@ -1214,24 +1236,14 @@ MONTREAL_VENDORS = [
         'address': '3616 Boulevard Saint-Jean, Dollard-des-Ormeaux, QC',
         'neighborhood': 'Dollard-des-Ormeaux',
         'phone': '(514) 620-2584',
-        'website': '',
+        'website': 'https://chenoys-deli.goto-where.com',
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
     },
     # ── New Montreal vendors from MK research — Mar 4, 2026 ──
-    {
-        'name': 'Citrus Traiteur',
-        'category': 'Caterers',
-        'description': 'MK-certified kosher catering for weddings, bar/bat mitzvahs, shiva meals, and corporate events. Custom menus with French-inspired kosher cuisine.',
-        'address': '5500A Ferrier, Montréal, QC',
-        'neighborhood': 'Côte-des-Neiges',
-        'phone': '(514) 381-9999',
-        'website': '',
-        'kosher_status': 'MK',
-        'delivery': 1,
-        'delivery_area': 'Montreal,Côte-Saint-Luc,Westmount',
-    },
+    # Citrus Traiteur — REMOVED Mar 9 (per Jordana)
+
     {
         'name': 'Mehadrin Meats',
         'category': 'Kosher Restaurants & Caterers',
@@ -1456,19 +1468,8 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA (free over $100)',
     },
-    # Candles & Ritual Items (Amazon affiliate)
-    {
-        'name': '24-Hour Yahrzeit Memorial Candles (Multipack)',
-        'category': 'Candles & Ritual Items',
-        'description': '24-hour yahrzeit memorial candles for the anniversary of a loved one\'s passing. Burns for a full day. Stock up for yearly observance — multipack for convenience.',
-        'address': 'Online — Amazon.ca',
-        'neighborhood': 'Online',
-        'phone': '',
-        'website': 'https://www.amazon.ca/s?k=yahrzeit+candle+24+hour+multipack&tag=neshama07-20',
-        'kosher_status': 'not_certified',
-        'delivery': 1,
-        'delivery_area': 'Canada-wide',
-    },
+    # 24-Hour Yahrzeit Memorial Candles — REMOVED Mar 9 (per Jordana)
+
     # Chocolate & Sweets
     {
         'name': 'Purdys Chocolatier',
@@ -1591,19 +1592,8 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'North America',
     },
-    {
-        'name': "Bubby's New York Bagels",
-        'category': 'Baked Goods',
-        'description': "Toronto's only kosher New York-style bagel shop. Fresh-baked daily with 25+ varieties, platters, and catering. A warm, comforting gift that feeds the whole shiva house.",
-        'address': '3035 Bathurst St, Toronto, ON M6B 3B5',
-        'neighborhood': 'Bathurst',
-        'phone': '(416) 862-2435',
-        'website': 'https://www.bubbysbagels.com',
-        'instagram': 'bubbysnybagels',
-        'kosher_status': 'not_certified',
-        'delivery': 1,
-        'delivery_area': 'GTA',
-    },
+    # Bubby's New York Bagels — REMOVED Mar 9 (duplicate of Bubby's Bagels in Restaurants & Delis)
+
     {
         'name': 'Good Person Biscotti',
         'category': 'Baked Goods',
