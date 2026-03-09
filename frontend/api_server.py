@@ -357,6 +357,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_scrape_status()
         elif path == '/admin/digest':
             self.handle_admin_digest()
+        elif path == '/admin/subscribers':
+            self.handle_admin_subscribers()
         # Redirects
         elif path == '/shiva-guide':
             self.send_response(301)
@@ -380,6 +382,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
         if path == '/admin/restore':
             self.handle_admin_restore(body)
+        elif path == '/admin/confirm-subscriber':
+            self.handle_admin_confirm_subscriber(body)
         elif path == '/api/yahrzeit/subscribe':
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
@@ -1423,6 +1427,83 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             'last_result': _scrape_status['last_result'],
             'last_error': _scrape_status['last_error'],
         })
+
+    def handle_admin_subscribers(self):
+        """List all subscribers with their status"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT email, confirmed, frequency, locations, subscribed_at,
+                       confirmed_at, last_email_sent, unsubscribed_at
+                FROM subscribers ORDER BY subscribed_at DESC
+            ''')
+            rows = cursor.fetchall()
+            conn.close()
+            subscribers = []
+            for r in rows:
+                subscribers.append({
+                    'email': r[0],
+                    'confirmed': bool(r[1]),
+                    'frequency': r[2],
+                    'locations': r[3],
+                    'subscribed_at': r[4],
+                    'confirmed_at': r[5],
+                    'last_email_sent': r[6],
+                    'unsubscribed': r[7] is not None
+                })
+            self.send_json_response({
+                'total': len(subscribers),
+                'confirmed': sum(1 for s in subscribers if s['confirmed']),
+                'unconfirmed': sum(1 for s in subscribers if not s['confirmed']),
+                'subscribers': subscribers
+            })
+        except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_confirm_subscriber(self, body):
+        """Manually confirm a subscriber by email"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        try:
+            data = json.loads(body.decode('utf-8'))
+            email = data.get('email', '').strip().lower()
+            if not email:
+                self.send_error_response('Email required', 400)
+                return
+
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
+                WHERE email = ? AND confirmed = FALSE
+            ''', (datetime.now().isoformat(), email))
+            updated = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            if updated:
+                self.send_json_response({'status': 'confirmed', 'email': email})
+            else:
+                self.send_json_response({'status': 'not_found_or_already_confirmed', 'email': email})
+        except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
 
     def handle_admin_digest(self):
         """Send daily email digest via admin endpoint"""
@@ -4936,6 +5017,18 @@ def run_server(port=None):
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (v[0], slug, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]))
                 total_changed += 1
+
+        # Migration 2026-03-09: Auto-confirm all existing unconfirmed subscribers
+        # At 15 subscribers, all are intentional signups. The double opt-in confirmation
+        # email was going to spam (SPF was broken until Mar 6), so many never confirmed.
+        cursor.execute("""
+            UPDATE subscribers SET confirmed = TRUE, confirmed_at = COALESCE(confirmed_at, datetime('now'))
+            WHERE confirmed = FALSE AND unsubscribed_at IS NULL
+        """)
+        confirmed_count = cursor.rowcount
+        if confirmed_count > 0:
+            logging.info(f" Migrations: auto-confirmed {confirmed_count} unconfirmed subscribers")
+        total_changed += confirmed_count
 
         conn.commit()
         conn.close()
