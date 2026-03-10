@@ -217,6 +217,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/dashboard': ('dashboard.html', 'text/html'),
         '/cofounder': ('dashboard.html', 'text/html'),
         '/dashboard.html': ('dashboard.html', 'text/html'),
+        '/partner': ('partner.html', 'text/html'),
+        '/partner.html': ('partner.html', 'text/html'),
         '/sitemap.xml': ('sitemap.xml', 'application/xml'),
         '/robots.txt': ('robots.txt', 'text/plain'),
     }

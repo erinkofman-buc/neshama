@@ -1,0 +1,256 @@
+#!/usr/bin/env python3
+"""
+Misaskim.ca Shiva Listings Scraper
+Scrapes shiva listings from misaskim.ca (Orthodox community, Toronto)
+Partnership via Eli Warner — he approved pulling from their listings.
+
+Data available: deceased names (English + Hebrew), listing URLs, donation status
+Data NOT available: shiva addresses, times, funeral details (minimal listings)
+
+Usage:
+    python misaskim_scraper.py                # scrape and display
+    python misaskim_scraper.py --save         # save to CSV
+    python misaskim_scraper.py --check-new    # only show new listings not in Neshama DB
+
+Requires: pip3 install requests beautifulsoup4
+"""
+
+import argparse
+import csv
+import os
+import re
+import sqlite3
+import sys
+from datetime import datetime
+
+try:
+    import requests
+    from bs4 import BeautifulSoup
+except ImportError:
+    print("Install dependencies: pip3 install requests beautifulsoup4")
+    sys.exit(1)
+
+
+BASE_URL = "https://misaskim.ca/shiva-listings/"
+HEADERS = {
+    'User-Agent': 'Neshama/1.0 (neshama.ca; partnership with Misaskim via Eli Warner)',
+}
+
+
+def scrape_listings_page(url):
+    """Scrape a single page of shiva listings."""
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=15)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"  ERROR fetching {url}: {e}")
+        return [], None
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    listings = []
+
+    # Find listing cards — links to individual shiva pages
+    # Cards are wrapped in <a> tags with full card content inside (name + donate + view text)
+    for link in soup.find_all('a', href=True):
+        href = link['href']
+        if '/shiva-listings/' in href and href != '/shiva-listings/' and href != BASE_URL:
+            # Skip pagination and generic links
+            if '?page=' in href or href.endswith('/shiva-listings'):
+                continue
+
+            # Extract name from heading inside the card, or from the slug
+            name_text = None
+
+            # Try headings first (h2, h3, h4)
+            heading = link.find(['h1', 'h2', 'h3', 'h4', 'h5'])
+            if heading:
+                name_text = heading.get_text(strip=True)
+
+            # If no heading, try extracting from the full text (remove action words)
+            if not name_text:
+                full_text = link.get_text(strip=True)
+                # Remove common action text that appears in cards
+                for remove in ['Donate in memory', 'View shiva information', 'Shiva Listings',
+                               'C$0', '0.0% of C$0 goal']:
+                    full_text = full_text.replace(remove, '')
+                name_text = full_text.strip()
+
+            # Clean residual fundraising text from name
+            if name_text:
+                name_text = re.sub(r'\d+\.?\d*%\s*of\s*goal', '', name_text).strip()
+                name_text = re.sub(r'C?\$\d+', '', name_text).strip()
+                name_text = re.sub(r'\s{2,}', ' ', name_text).strip()
+
+            # Last resort: build name from the URL slug
+            if not name_text or len(name_text) < 3:
+                slug = href.rstrip('/').split('/')[-1]
+                # Convert slug to name: "mrs-zeesal-klein-ah" → "Mrs Zeesal Klein Ah"
+                name_text = slug.replace('-', ' ').replace('_', ' ').title()
+                # Remove trailing numbers (like _1, _2)
+                name_text = re.sub(r'\s+\d+$', '', name_text)
+
+            full_url = href if href.startswith('http') else f"https://misaskim.ca{href}"
+            slug = href.rstrip('/').split('/')[-1]
+
+            listings.append({
+                'name': name_text,
+                'url': full_url,
+                'slug': slug,
+                'source': 'Misaskim',
+                'scraped_at': datetime.now().isoformat(),
+            })
+
+    # Deduplicate by slug (same listing appears in multiple links)
+    seen = set()
+    unique = []
+    for l in listings:
+        if l['slug'] not in seen:
+            seen.add(l['slug'])
+            unique.append(l)
+
+    # Check for next page
+    next_page = None
+    for a in soup.find_all('a', href=True):
+        text = a.get_text(strip=True)
+        if text == '2' or text == 'Next' or '?page=2' in a['href']:
+            next_url = a['href']
+            if not next_url.startswith('http'):
+                next_url = f"https://misaskim.ca{next_url}"
+            next_page = next_url
+            break
+
+    return unique, next_page
+
+
+def scrape_all_listings(max_pages=5):
+    """Scrape all pages of shiva listings."""
+    all_listings = []
+    url = BASE_URL
+    page = 1
+
+    while url and page <= max_pages:
+        print(f"  Scraping page {page}: {url}")
+        listings, next_page = scrape_listings_page(url)
+        all_listings.extend(listings)
+        print(f"    Found {len(listings)} listings")
+
+        url = next_page
+        page += 1
+
+    # Final dedup
+    seen = set()
+    unique = []
+    for l in all_listings:
+        if l['slug'] not in seen:
+            seen.add(l['slug'])
+            unique.append(l)
+
+    return unique
+
+
+def check_against_neshama(listings, db_path=None):
+    """Check which Misaskim listings are NOT already in Neshama's obituary database."""
+    if db_path is None:
+        db_path = os.path.expanduser('~/Desktop/Neshama/neshama.db')
+
+    if not os.path.exists(db_path):
+        print(f"  DB not found at {db_path} — can't check for duplicates")
+        return listings, []
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Get existing obituary names (normalize for comparison)
+    cursor.execute("SELECT deceased_name FROM obituaries")
+    existing = set()
+    for row in cursor.fetchall():
+        name = row[0].lower().strip()
+        # Remove common suffixes
+        name = re.sub(r'\s*(z"l|a"h|zt"l|ob"m)\s*$', '', name, flags=re.IGNORECASE)
+        existing.add(name)
+    conn.close()
+
+    new_listings = []
+    already_in_db = []
+
+    for l in listings:
+        name_clean = l['name'].lower().strip()
+        name_clean = re.sub(r'\s*(z"l|a"h|zt"l|ob"m)\s*$', '', name_clean, flags=re.IGNORECASE)
+
+        # Check for fuzzy match (first + last name)
+        parts = name_clean.split()
+        matched = False
+        for existing_name in existing:
+            if len(parts) >= 2:
+                # Check if last name matches
+                if parts[-1] in existing_name and parts[0] in existing_name:
+                    matched = True
+                    break
+            if name_clean in existing_name or existing_name in name_clean:
+                matched = True
+                break
+
+        if matched:
+            already_in_db.append(l)
+        else:
+            new_listings.append(l)
+
+    return new_listings, already_in_db
+
+
+def save_csv(listings, output_path):
+    """Save listings to CSV."""
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['name', 'url', 'slug', 'source', 'scraped_at'])
+        writer.writeheader()
+        writer.writerows(listings)
+    print(f"  Saved {len(listings)} listings to {output_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Misaskim.ca Shiva Listings Scraper')
+    parser.add_argument('--save', action='store_true', help='Save results to CSV')
+    parser.add_argument('--check-new', action='store_true',
+                        help='Only show listings not already in Neshama DB')
+    parser.add_argument('--db', type=str, default=None, help='Path to neshama.db')
+    parser.add_argument('--max-pages', type=int, default=5, help='Max pages to scrape')
+
+    args = parser.parse_args()
+
+    print(f"{'='*60}")
+    print(f"MISASKIM.CA SHIVA LISTINGS SCRAPER")
+    print(f"Partnership: Eli Warner (approved Mar 9, 2026)")
+    print(f"{'='*60}")
+
+    listings = scrape_all_listings(max_pages=args.max_pages)
+    print(f"\nTotal unique listings: {len(listings)}")
+
+    if args.check_new:
+        new_listings, already = check_against_neshama(listings, args.db)
+        print(f"Already in Neshama: {len(already)}")
+        print(f"NEW (not in Neshama): {len(new_listings)}")
+        if new_listings:
+            print(f"\nNew listings from Misaskim:")
+            for l in new_listings:
+                print(f"  {l['name']}")
+                print(f"    {l['url']}")
+        listings = new_listings
+
+    else:
+        print(f"\nAll Misaskim listings:")
+        for l in listings:
+            print(f"  {l['name']}")
+
+    if args.save:
+        date_str = datetime.now().strftime('%Y%m%d')
+        output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'outscraper_pipeline', 'data')
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, f'misaskim_listings_{date_str}.csv')
+        save_csv(listings, output_path)
+
+    print(f"\n{'='*60}")
+
+
+if __name__ == '__main__':
+    main()
