@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "last_updated": "2026-03-09",
+    "description": "Trusted community sources for vendor verification. Vendors found here get auto-promoted in the pipeline."
+  },
+  "misaskim": {
+    "source_name": "Misaskim / Eli Warner",
+    "trust_level": "HIGH",
+    "contact": "Eli Warner (via Jordana)",
+    "website": "missaskim.ca",
+    "notes": "Plans 500 funerals/year. Orthodox community. Loved yahrzeit feature. Said we can pull from his listings. Will recommend Neshama.",
+    "vendors": []
+  },
+  "jordana_network": {
+    "source_name": "Jordana Mednick (co-founder)",
+    "trust_level": "HIGH",
+    "notes": "Personal knowledge of caterers and vendors in the Orthodox community. Her recommendations carry the most weight.",
+    "vendors": [
+      {
+        "name": "Bubby's Bagels",
+        "category": "bakery",
+        "endorsed": true
+      },
+      {
+        "name": "Cafe Sheli",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Daiter's Kitchen",
+        "category": "deli",
+        "endorsed": true
+      },
+      {
+        "name": "Gryfe's Bagel Bakery",
+        "category": "bakery",
+        "endorsed": true
+      },
+      {
+        "name": "Kiva's Bagels",
+        "category": "bakery",
+        "endorsed": true
+      },
+      {
+        "name": "Main Event Catering",
+        "category": "caterer",
+        "endorsed": true
+      },
+      {
+        "name": "Paisanos",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Pizza Cafe",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Aroma Espresso Bar",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Chop Hop",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Golden Chopsticks",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "Shalom India",
+        "category": "restaurant",
+        "endorsed": true
+      },
+      {
+        "name": "AB Cookies",
+        "category": "bakery",
+        "endorsed": true
+      },
+      {
+        "name": "Good Person Biscotti",
+        "category": "bakery",
+        "endorsed": true
+      },
+      {
+        "name": "Miami Grill",
+        "category": "restaurant",
+        "endorsed": false,
+        "reason": "closed"
+      },
+      {
+        "name": "Village Pizza Kosher",
+        "category": "restaurant",
+        "endorsed": false,
+        "reason": "closed"
+      },
+      {
+        "name": "Citrus Traiteur",
+        "category": "caterer",
+        "endorsed": false,
+        "reason": "removed by Jordana"
+      }
+    ]
+  },
+  "cor": {
+    "source_name": "COR (Kashruth Council of Canada)",
+    "trust_level": "MEDIUM",
+    "website": "https://cor.ca",
+    "notes": "Official kosher certification for Toronto. Published directory at cor.ca. Being COR-certified means the business meets halachic standards.",
+    "vendors": []
+  },
+  "mk": {
+    "source_name": "MK (Montreal Kosher / Vaad Ha'ir)",
+    "trust_level": "MEDIUM",
+    "website": "https://mk.ca",
+    "notes": "Official kosher certification for Montreal.",
+    "vendors": []
+  },
+  "funeral_homes": {
+    "source_name": "Funeral Home Referral Lists",
+    "trust_level": "HIGH",
+    "notes": "Benjamin's, Steeles, and Paperman's give families vendor lists. Being on a funeral home list = highest community endorsement. Jordana to request lists when calling funeral homes.",
+    "vendors": []
+  },
+  "chesed_committees": {
+    "source_name": "Synagogue Chesed Committees",
+    "trust_level": "HIGH",
+    "notes": "Every shul has a chesed committee that coordinates meals for mourners. They maintain internal lists of reliable caterers. Target: Beth Emeth, Beth Torah, Shaarei Shomayim, Adath Israel, BAYT, Aish, Shaarei Tefillah.",
+    "vendors": []
+  },
+  "facebook_groups": {
+    "source_name": "Toronto Jewish Facebook Groups",
+    "trust_level": "LOW",
+    "notes": "Groups like 'Jewish Toronto', 'Kosher Food Toronto', etc. Search for vendor recommendations in posts. Low trust individually but high signal when multiple people recommend the same vendor.",
+    "vendors": []
+  }
+}

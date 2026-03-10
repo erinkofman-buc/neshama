@@ -5018,6 +5018,56 @@ def run_server(port=None):
                     (v[0], slug, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]))
                 total_changed += 1
 
+        # Migration 2026-03-09b: Outscraper pipeline — 12 verified vendors
+        outscraper_vendors = [
+            ("Beyond Delish Kosher Food Catering", "Caterers",
+             "COR-certified kosher caterer on Bathurst. Full-service catering from intimate gatherings to large events. Fresh ingredients, Lubavitch shechita available. A trusted choice for shiva meals and community events.",
+             "5987 Bathurst St, North York, ON M2R 1Z3", "North York", "", "https://www.beyonddelish.ca", "COR", 1, "Toronto,North York,Thornhill/Vaughan", "food"),
+            ("Apex Kosher Catering", "Caterers",
+             "Kosher caterer in North York offering full-service catering for lifecycle events. Professional team, flexible menus, and reliable service for families who need it most.",
+             "100 Elder St, North York, ON M3H 5G7", "North York", "", "https://www.apexkoshercatering.com", "COR", 1, "Toronto,North York,Thornhill/Vaughan", "food"),
+            ("Mitzuyan Kosher Catering", "Caterers",
+             "Toronto''s modern kosher catering company. Full-service catering with contemporary menus and professional execution. A fresh option for shiva meals and community gatherings.",
+             "18 Reiner Rd, Toronto, ON M3H 2K9", "North York", "", "https://mitzuyankoshercatering.com", "COR", 1, "Toronto,North York", "food"),
+            ("F + B Kosher Catering", "Caterers",
+             "COR-certified kosher caterer on Dufferin. The caterer of choice at many top venues throughout the GTA. Professional service for weddings, bar/bat mitzvahs, and community events.",
+             "5000 Dufferin St Unit P, North York, ON M3H 5T5", "North York", "", "https://fbkosher.com", "COR", 1, "Toronto,North York,GTA-wide", "food"),
+            ("Menchens Glatt Kosher Catering", "Caterers",
+             "Glatt kosher catering in North York. Gourmet menus for weddings, bar/bat mitzvahs, and milestone events. A long-standing name in Toronto''s kosher catering community.",
+             "470 Glencairn Ave, North York, ON M5N 1V8", "North York", "", "http://menchens.ca", "COR", 1, "Toronto,North York,Thornhill/Vaughan,GTA-wide", "food"),
+            ("Noah Kosher Sushi", "Kosher Restaurants & Caterers",
+             "COR-certified kosher sushi in the Bathurst corridor. A unique and crowd-pleasing option for shiva meals — sushi platters that everyone appreciates.",
+             "4119 Bathurst St, North York, ON M3H 3P4", "Bathurst Manor", "", "http://www.noahkoshersushi.ca", "COR", 0, "North York", "food"),
+            ("Royal Dairy Cafe & Catering", "Kosher Restaurants & Caterers",
+             "Kosher dairy cafe and catering in Thornhill. Light meals, salads, fish, and baked goods. A warm, welcoming option for dairy shiva meals and lighter gatherings.",
+             "10 Disera Dr Unit 100, Thornhill, ON L4J 0A7", "Thornhill", "", "https://royaldairycafe.com", "COR", 1, "Thornhill/Vaughan,North York", "food"),
+            ("Pancer''s Original Deli", "Restaurants & Delis",
+             "Legendary Toronto Jewish deli on Bathurst. Smoked meat, corned beef, and classic deli platters that have served the community for decades. A comforting, familiar choice for shiva catering.",
+             "3856 Bathurst St, North York, ON M3H 3N3", "Bathurst Manor", "", "http://www.pancersoriginaldeli.com", "Kosher Style", 1, "Toronto,North York", "food"),
+            ("Zelden''s Deli and Desserts", "Restaurants & Delis",
+             "Jewish-style deli and desserts on Yonge. Sandwiches, salads, baked goods, and catering platters. A dependable choice when you need food for the family.",
+             "1446 Yonge St, Toronto, ON M4T 1Y5", "Midtown", "", "http://www.zeldensdelianddesserts.com", "Kosher Style", 1, "Toronto", "food"),
+            ("Richmond Kosher Bakery", "Bagel Shops & Bakeries",
+             "COR-certified kosher bakery on Bathurst. Fresh breads, challahs, pastries, and cakes. A neighbourhood staple for Shabbat baking and shiva dessert trays.",
+             "4119 Bathurst St Unit 1, North York, ON M3H 3P4", "Bathurst Manor", "", "http://richmondkosherbakery.com", "COR", 0, "North York", "food"),
+            ("Aba''s Bagel Company", "Bagel Shops & Bakeries",
+             "Fresh bagels and baked goods on Eglinton West. Hand-rolled, kettle-boiled bagels with a loyal following. Platters available for gatherings.",
+             "884A Eglinton Ave W, Toronto, ON M6C 2B6", "Midtown", "", "https://abasbagel.com", "Kosher Style", 0, "Toronto", "food"),
+            ("Zuchter Berk Kosher Caterers", "Caterers",
+             "Established kosher caterer serving Toronto''s Jewish community. Full-service catering for lifecycle events, shiva meals, and community gatherings.",
+             "2301 Keele St, Toronto, ON M6M 3Z9", "Toronto", "", "http://www.zbcaterers.com", "COR", 1, "Toronto,North York,GTA-wide", "food"),
+        ]
+        for v in outscraper_vendors:
+            cursor.execute("SELECT id FROM vendors WHERE name = ?", (v[0].replace("''", "'"),))
+            if not cursor.fetchone():
+                import re as _re
+                clean_name = v[0].replace("''", "'")
+                slug = _re.sub(r'-+', '-', _re.sub(r'[\s]+', '-', _re.sub(r'[^a-z0-9\s-]', '', clean_name.lower().strip())))
+                cursor.execute("""INSERT INTO vendors (name, slug, category, description, address, neighborhood, phone, website, kosher_status, delivery, delivery_area, vendor_type)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (clean_name, slug, v[1], v[2].replace("''", "'"), v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]))
+                total_changed += 1
+
         # Migration 2026-03-09: Auto-confirm all existing unconfirmed subscribers
         # At 15 subscribers, all are intentional signups. The double opt-in confirmation
         # email was going to spam (SPF was broken until Mar 6), so many never confirmed.

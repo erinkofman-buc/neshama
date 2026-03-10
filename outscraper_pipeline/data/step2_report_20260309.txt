@@ -1,0 +1,34 @@
+Neshama Outscraper Pipeline — Step 2 Cleaning Report
+==================================================
+Date: 2026-03-09 18:51
+
+Total records processed: 156
+Clean records: 123
+Removed: 16
+Already in Neshama DB: 17
+Flagged for review: 5
+
+Removal reasons:
+  too_few_reviews: 10
+  not_a_vendor: 6
+
+Clean records by city:
+  Toronto: 52
+  North York: 26
+  CA: 22
+  Thornhill: 7
+  Etobicoke: 5
+  Vaughan: 3
+  Scarborough: 2
+  Mississauga: 2
+  York: 2
+  East York: 1
+  Old Toronto: 1
+
+Output files:
+  Cleaned: /Users/erinkofman/Desktop/Neshama/outscraper_pipeline/data/step2_cleaned_20260309.csv
+  Removed: /Users/erinkofman/Desktop/Neshama/outscraper_pipeline/data/step2_removed_20260309.csv
+  Already in DB: /Users/erinkofman/Desktop/Neshama/outscraper_pipeline/data/step2_already_in_db_20260309.csv
+
+NEXT STEP: Review cleaned CSV, then run step3_verify.py
+REVIEW: Check removed list — did anything get removed that shouldn't have?

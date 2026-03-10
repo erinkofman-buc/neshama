@@ -1,0 +1,15 @@
+Neshama Outscraper Pipeline — Step 1 Report
+==================================================
+Date: 2026-03-09 18:51
+Category: shiva
+City: toronto
+Keywords searched: 19
+Total raw results: 536
+After dedup: 156
+Already in Neshama: 17
+New vendors: 139
+
+Output: /Users/erinkofman/Desktop/Neshama/outscraper_pipeline/data/step1_raw_shiva_toronto_20260309.csv
+
+NEXT STEP: Run step2_clean.py to clean and filter results.
+REVIEW: Check the CSV before proceeding.
