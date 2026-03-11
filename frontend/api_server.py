@@ -16,7 +16,7 @@ import subprocess
 import threading
 from urllib.parse import urlparse, parse_qs, unquote
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import logging
 
@@ -386,6 +386,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_restore(body)
         elif path == '/admin/confirm-subscriber':
             self.handle_admin_confirm_subscriber(body)
+        elif path == '/admin/confirm-all-subscribers':
+            self.handle_admin_confirm_all_subscribers(body)
         elif path == '/api/yahrzeit/subscribe':
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
@@ -711,6 +713,12 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 result = subscription_mgr.subscribe(email, frequency, locations)
                 if result.get('status') == 'success' and SHIVA_AVAILABLE:
                     shiva_mgr._trigger_backup()
+                # Add spam folder reminder to success messages
+                if result.get('status') == 'success' and 'confirm' in result.get('message', '').lower():
+                    result['message'] = (
+                        'Please check your inbox (and spam folder) for a confirmation email '
+                        'from updates@neshama.ca. Click the link to complete your subscription.'
+                    )
                 self.send_json_response(result)
             else:
                 # Fallback: direct insert (no double opt-in)
@@ -1505,6 +1513,63 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             else:
                 self.send_json_response({'status': 'not_found_or_already_confirmed', 'email': email})
         except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_confirm_all_subscribers(self, body):
+        """Confirm ALL unconfirmed subscribers (bulk fix for SPF/spam issues)"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+
+            # Get list of unconfirmed subscribers before updating (for logging)
+            cursor.execute('''
+                SELECT email, subscribed_at FROM subscribers
+                WHERE confirmed = FALSE AND unsubscribed_at IS NULL
+            ''')
+            unconfirmed = cursor.fetchall()
+
+            if not unconfirmed:
+                self.send_json_response({
+                    'status': 'ok',
+                    'message': 'No unconfirmed subscribers found',
+                    'confirmed_count': 0
+                })
+                conn.close()
+                return
+
+            # Confirm all unconfirmed subscribers
+            cursor.execute('''
+                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
+                WHERE confirmed = FALSE AND unsubscribed_at IS NULL
+            ''', (now,))
+            confirmed_count = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            # Log each confirmed subscriber
+            for email, subscribed_at in unconfirmed:
+                logging.info(f"[Admin] Auto-confirmed subscriber: {email} (subscribed: {subscribed_at})")
+
+            logging.info(f"[Admin] Bulk confirmed {confirmed_count} subscribers")
+
+            self.send_json_response({
+                'status': 'success',
+                'message': f'Confirmed {confirmed_count} subscribers',
+                'confirmed_count': confirmed_count,
+                'emails': [row[0] for row in unconfirmed]
+            })
+        except Exception as e:
+            logging.error(f"[Admin] Error confirming all subscribers: {e}")
             self.send_error_response(f'Error: {str(e)}', 500)
 
     def handle_admin_digest(self):
@@ -4174,27 +4239,24 @@ button:hover{background:#c45a1a}</style></head>
             checks['database'] = {'ok': False, 'error': str(e)}
             all_ok = False
 
-        # 2. Email subsystem
+        # 2. Email subsystem (optional — doesn't fail health check)
         checks['email'] = {
             'ok': EMAIL_AVAILABLE,
-            'sendgrid_connected': EMAIL_AVAILABLE and subscription_mgr and bool(subscription_mgr.sendgrid_api_key)
+            'sendgrid_connected': EMAIL_AVAILABLE and subscription_mgr and bool(subscription_mgr.sendgrid_api_key),
+            'critical': False
         }
-        if not EMAIL_AVAILABLE:
-            all_ok = False
 
-        # 3. Shiva subsystem
-        checks['shiva'] = {'ok': SHIVA_AVAILABLE}
-        if not SHIVA_AVAILABLE:
-            all_ok = False
+        # 3. Shiva subsystem (optional — doesn't fail health check)
+        checks['shiva'] = {'ok': SHIVA_AVAILABLE, 'critical': False}
 
-        # 4. Yahrzeit subsystem
-        checks['yahrzeit'] = {'ok': YAHRZEIT_AVAILABLE}
+        # 4. Yahrzeit subsystem (optional)
+        checks['yahrzeit'] = {'ok': YAHRZEIT_AVAILABLE, 'critical': False}
 
-        # 5. Stripe subsystem
-        checks['stripe'] = {'ok': STRIPE_AVAILABLE}
+        # 5. Stripe subsystem (optional)
+        checks['stripe'] = {'ok': STRIPE_AVAILABLE, 'critical': False}
 
-        # 6. Vendors subsystem
-        checks['vendor_directory'] = {'ok': VENDORS_AVAILABLE}
+        # 6. Vendors subsystem (optional)
+        checks['vendor_directory'] = {'ok': VENDORS_AVAILABLE, 'critical': False}
 
         # 7. Static files spot check
         critical_pages = ['/', '/feed', '/directory', '/gifts', '/shiva/organize',
@@ -4407,10 +4469,43 @@ def run_server(port=None):
             # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
             try:
                 from daily_digest import DailyDigestSender
+                def _auto_confirm_stale_subscribers():
+                    """Auto-confirm subscribers who signed up 48+ hours ago but never confirmed.
+                    Safety net for when confirmation emails go to spam."""
+                    try:
+                        conn = sqlite3.connect(DB_PATH)
+                        cursor = conn.cursor()
+                        cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
+                        cursor.execute('''
+                            SELECT email, subscribed_at FROM subscribers
+                            WHERE confirmed = FALSE
+                            AND unsubscribed_at IS NULL
+                            AND subscribed_at <= ?
+                        ''', (cutoff,))
+                        stale = cursor.fetchall()
+                        if stale:
+                            now = datetime.now().isoformat()
+                            cursor.execute('''
+                                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
+                                WHERE confirmed = FALSE
+                                AND unsubscribed_at IS NULL
+                                AND subscribed_at <= ?
+                            ''', (now, cutoff))
+                            count = cursor.rowcount
+                            conn.commit()
+                            for email, subscribed_at in stale:
+                                logging.info(f"[AutoConfirm] Auto-confirmed {email} (subscribed {subscribed_at}, 48h+ unconfirmed)")
+                            logging.info(f"[AutoConfirm] Auto-confirmed {count} stale subscribers")
+                        conn.close()
+                    except Exception as e:
+                        logging.error(f"[AutoConfirm] Error: {e}")
+
                 def _run_daily_digest():
                     if is_shabbat():
                         logging.info("[DailyDigest] Shabbat — skipping digest")
                         return
+                    # Auto-confirm stale subscribers before sending digest
+                    _auto_confirm_stale_subscribers()
                     try:
                         sender = DailyDigestSender(db_path=DB_PATH)
                         sender.send_daily_digest()

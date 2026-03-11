@@ -42,7 +42,7 @@ class DailyDigestSender:
         
     # Map location values to funeral home source names
     LOCATION_SOURCES = {
-        'toronto': ["Steeles Memorial Chapel", "Benjamin's Park Memorial Chapel"],
+        'toronto': ["Steeles Memorial Chapel", "Benjamin's Park Memorial Chapel", "Misaskim"],
         'montreal': ["Paperman & Sons"],
     }
 
