@@ -17,6 +17,7 @@ Requires: pip3 install requests beautifulsoup4
 
 import argparse
 import csv
+import logging
 import os
 import re
 import sqlite3
@@ -250,6 +251,106 @@ def main():
         save_csv(listings, output_path)
 
     print(f"\n{'='*60}")
+
+
+class MisakimScraper:
+    """Wrapper class matching the interface expected by master_scraper.py.
+
+    Scrapes Misaskim.ca shiva listings and saves them to the Neshama obituaries
+    table via NeshamaDatabase.upsert_obituary().
+    """
+
+    def __init__(self):
+        self.source_name = "Misaskim"
+        self.db = None  # lazy import to avoid circular deps at module level
+
+    def _get_db(self):
+        if self.db is None:
+            from database_setup import NeshamaDatabase
+            self.db = NeshamaDatabase()
+        return self.db
+
+    def run(self):
+        """Execute full scraping process. Returns stats dict."""
+        import time as _time
+        start_time = _time.time()
+        stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
+
+        try:
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Starting Misaskim scraper")
+            logging.info(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logging.info(f"{'='*60}\n")
+
+            listings = scrape_all_listings(max_pages=5)
+            stats['found'] = len(listings)
+            logging.info(f"Found {stats['found']} Misaskim listings\n")
+
+            db = self._get_db()
+
+            for i, listing in enumerate(listings, 1):
+                try:
+                    logging.info(f"[{i}/{stats['found']}] Processing: {listing['name']}...")
+
+                    # Convert Misaskim listing to obituary_data format
+                    obit_data = {
+                        'source': self.source_name,
+                        'source_url': listing['url'],
+                        'condolence_url': listing['url'],
+                        'deceased_name': listing['name'],
+                        'city': 'Toronto',  # Misaskim is Toronto Orthodox community
+                    }
+
+                    obit_id, action = db.upsert_obituary(obit_data)
+
+                    if action == 'inserted':
+                        stats['new'] += 1
+                        logging.info(f"  New: {listing['name']}")
+                    elif action == 'updated':
+                        stats['updated'] += 1
+                        logging.info(f"  Updated: {listing['name']}")
+                    else:
+                        logging.info(f"  Unchanged: {listing['name']}")
+
+                    # Be polite — small delay between DB writes
+                    _time.sleep(0.2)
+
+                except Exception as e:
+                    logging.info(f"  Error processing {listing['name']}: {str(e)}")
+                    stats['errors'] += 1
+
+            duration = _time.time() - start_time
+            db.log_scraper_run(
+                source=self.source_name,
+                status='success',
+                stats=stats,
+                duration=duration
+            )
+
+            logging.info(f"\n{'='*60}")
+            logging.info(f"Misaskim scraping completed")
+            logging.info(f"Found: {stats['found']} | New: {stats['new']} | Updated: {stats['updated']} | Errors: {stats['errors']}")
+            logging.info(f"Duration: {duration:.1f} seconds")
+            logging.info(f"{'='*60}\n")
+
+            return stats
+
+        except Exception as e:
+            duration = _time.time() - start_time
+            error_msg = str(e)
+            try:
+                db = self._get_db()
+                db.log_scraper_run(
+                    source=self.source_name,
+                    status='failed',
+                    stats=stats,
+                    error=error_msg,
+                    duration=duration
+                )
+            except Exception:
+                pass
+            logging.info(f"\nMisaskim scraping failed: {error_msg}\n")
+            raise
 
 
 if __name__ == '__main__':
