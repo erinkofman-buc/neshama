@@ -4623,41 +4623,58 @@ def run_server(port=None):
         logging.warning(f"[Startup] database_setup: {e}")
 
     # Recovery: clear stale SQLite locks from crashed processes.
-    # On Render persistent disk, WAL/SHM files survive restarts and can hold phantom locks.
-    # Nuclear recovery: switch to DELETE journal mode (clears all WAL state), then back to WAL.
+    # On Render persistent disk, filesystem-level locks survive restarts.
+    # Nuclear fix: copy DB to break all lock associations, then replace original.
+    import shutil
+    db_backup = DB_PATH + '.recovery'
     try:
-        # Step 1: Remove stale lock files (safe — we're the only process after restart)
-        for suffix in ['-wal', '-shm']:
-            lock_file = DB_PATH + suffix
-            if os.path.exists(lock_file):
-                try:
-                    os.remove(lock_file)
-                    logging.info(f"[Startup] Removed stale lock file: {lock_file}")
-                except Exception as e:
-                    logging.warning(f"[Startup] Could not remove {lock_file}: {e}")
-
-        # Step 2: Open in DELETE mode to force-clear any WAL state
-        recovery_conn = sqlite3.connect(DB_PATH, timeout=10)
-        mode = recovery_conn.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
-        logging.info(f"[Startup] Journal mode switched to: {mode}")
-
-        # Step 3: Switch back to WAL mode (creates fresh WAL/SHM)
-        mode = recovery_conn.execute('PRAGMA journal_mode=WAL').fetchone()[0]
-        logging.info(f"[Startup] Journal mode switched to: {mode}")
-
-        # Step 4: Verify write works
-        recovery_conn.execute('PRAGMA busy_timeout=30000')
-        cursor = recovery_conn.cursor()
-        cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('startup_test', datetime('now'), 'ok')")
-        recovery_conn.commit()
-        recovery_conn.close()
-        logging.info("[Startup] DB lock recovery: write test PASSED")
-    except Exception as e:
-        logging.error(f"[Startup] DB lock recovery FAILED: {e}")
+        # Quick write test first
+        test_conn = sqlite3.connect(DB_PATH, timeout=3)
+        test_conn.execute('PRAGMA busy_timeout=3000')
+        test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('startup_test', datetime('now'), 'ok')")
+        test_conn.commit()
+        test_conn.close()
+        logging.info("[Startup] DB write test PASSED — no lock recovery needed")
+    except Exception as write_err:
+        logging.warning(f"[Startup] DB write test FAILED ({write_err}) — attempting lock recovery")
         try:
-            recovery_conn.close()
-        except Exception:
-            pass
+            try:
+                test_conn.close()
+            except Exception:
+                pass
+
+            # Remove stale WAL/SHM files
+            for suffix in ['-wal', '-shm']:
+                lock_file = DB_PATH + suffix
+                if os.path.exists(lock_file):
+                    try:
+                        os.remove(lock_file)
+                        logging.info(f"[Startup] Removed {lock_file}")
+                    except Exception as e:
+                        logging.warning(f"[Startup] Could not remove {lock_file}: {e}")
+
+            # Copy DB to new file (breaks all filesystem locks)
+            shutil.copy2(DB_PATH, db_backup)
+            os.remove(DB_PATH)
+            shutil.move(db_backup, DB_PATH)
+            logging.info("[Startup] DB copied to break filesystem locks")
+
+            # Verify write works on the fresh copy
+            verify_conn = sqlite3.connect(DB_PATH, timeout=5)
+            verify_conn.execute('PRAGMA journal_mode=WAL')
+            verify_conn.execute('PRAGMA busy_timeout=30000')
+            verify_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('lock_recovery', datetime('now'), 'ok')")
+            verify_conn.commit()
+            verify_conn.close()
+            logging.info("[Startup] DB lock recovery: write test PASSED after copy")
+        except Exception as recovery_err:
+            logging.error(f"[Startup] DB lock recovery FAILED: {recovery_err}")
+            # Clean up backup if it exists
+            if os.path.exists(db_backup):
+                try:
+                    os.remove(db_backup)
+                except Exception:
+                    pass
 
     # Auto-confirm stale subscribers on startup (48h+ unconfirmed)
     # This catches subscribers whose confirmation emails went to spam
