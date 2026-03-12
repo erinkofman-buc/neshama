@@ -288,6 +288,7 @@ class DailyDigestSender:
         sent_count = 0
         failed_count = 0
         skipped_count = 0
+        errors = []
 
         for email, unsubscribe_token, frequency, locations in daily_subscribers:
             locations = locations or 'toronto,montreal'
@@ -334,7 +335,9 @@ class DailyDigestSender:
                 ''', (datetime.now().isoformat(), email))
             else:
                 failed_count += 1
-                logging.error(f" {email} — {result.get('error', 'Unknown error')}")
+                error_msg = result.get('error', 'Unknown error')
+                errors.append(f"{email}: {error_msg}")
+                logging.error(f" {email} — {error_msg}")
 
         conn.commit()
         conn.close()
@@ -349,13 +352,16 @@ class DailyDigestSender:
         logging.info(f" Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"{'='*70}\n")
 
-        return {
+        result = {
             'status': 'success',
             'obituaries_count': len(all_obituaries),
             'subscribers_sent': sent_count,
             'subscribers_skipped': skipped_count,
             'subscribers_failed': failed_count
         }
+        if errors:
+            result['errors'] = errors
+        return result
 
 if __name__ == '__main__':
     sender = DailyDigestSender()
