@@ -4279,14 +4279,23 @@ button:hover{background:#c45a1a}</style></head>
                     checks[table] = {'ok': False, 'error': str(e)}
                     all_ok = False
 
-            # Test DB is writable (insert + rollback)
+            # Test DB is writable + diagnostics
+            journal_mode = 'unknown'
+            wal_exists = os.path.exists(db_path + '-wal')
+            shm_exists = os.path.exists(db_path + '-shm')
             try:
-                cursor.execute("BEGIN")
+                journal_mode = cursor.execute('PRAGMA journal_mode').fetchone()[0]
                 cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
-                conn.rollback()
-                checks['db_writable'] = {'ok': True}
+                conn.commit()
+                checks['db_writable'] = {'ok': True, 'journal_mode': journal_mode}
             except Exception as e:
-                checks['db_writable'] = {'ok': False, 'error': str(e)}
+                checks['db_writable'] = {
+                    'ok': False,
+                    'error': str(e),
+                    'journal_mode': journal_mode,
+                    'wal_file': wal_exists,
+                    'shm_file': shm_exists,
+                }
                 all_ok = False
 
             # Scraper freshness — flag if any source has no data in 3+ hours
