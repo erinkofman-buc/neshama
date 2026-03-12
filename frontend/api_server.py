@@ -5,7 +5,7 @@ Serves frontend, API endpoints, email subscriptions (SendGrid double opt-in), an
 Auto-scrapes on startup to handle Render free tier ephemeral storage
 """
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler, ThreadingHTTPServer
 import html as html_mod
 import json
 import sqlite3
@@ -1027,13 +1027,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
             data = json.loads(body)
-            import html as _html_mod
+            import re as _re_mod
             obit_id = data.get('obituary_id', '').strip()
-            author = _html_mod.escape(data.get('author_name', '').strip())
-            message = _html_mod.escape(data.get('message', '').strip())
-            relationship = _html_mod.escape(data.get('relationship', '').strip())
+            author = _re_mod.sub(r'<[^>]+>', '', data.get('author_name', '').strip())
+            message = _re_mod.sub(r'<[^>]+>', '', data.get('message', '').strip())
+            relationship = _re_mod.sub(r'<[^>]+>', '', data.get('relationship', '').strip())
             entry_type = data.get('entry_type', 'condolence').strip()
-            prayer_text = _html_mod.escape(data.get('prayer_text', '').strip())
+            prayer_text = _re_mod.sub(r'<[^>]+>', '', data.get('prayer_text', '').strip())
 
             # Validate entry type
             if entry_type not in self.VALID_ENTRY_TYPES:
@@ -1828,11 +1828,13 @@ button:hover{background:#c45a1a}</style></head>
     # ── API: Caterer Partners ─────────────────────────────
 
     def _check_admin_token(self):
-        """Verify admin token from query params."""
+        """Verify admin token from query params. Returns True if authorized."""
+        admin_token = os.environ.get('ADMIN_TOKEN', '')
+        if not admin_token:
+            return False
         parsed_path = urlparse(self.path)
         query_params = parse_qs(parsed_path.query)
         token = query_params.get('token', [''])[0]
-        admin_token = os.environ.get('ADMIN_TOKEN', 'neshama-admin-2026')
         return token == admin_token
 
     def get_caterers(self):
@@ -4817,7 +4819,7 @@ def run_server(port=None):
     # instead of bypassing consent. Use /admin/confirm-subscriber for manual cases.
 
     server_address = ('0.0.0.0', port)
-    httpd = HTTPServer(server_address, NeshamaAPIHandler)
+    httpd = ThreadingHTTPServer(server_address, NeshamaAPIHandler)
 
     # Launch auto-scrape in background thread (non-blocking)
     scrape_thread = threading.Thread(target=auto_scrape_on_startup, daemon=True)
