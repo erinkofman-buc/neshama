@@ -1779,18 +1779,7 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto',
     },
-    {
-        'name': 'Umami Sushi',
-        'category': 'Caterers',
-        'description': 'Kosher sushi and Japanese cuisine. Sushi platters and catering trays perfect for shiva meals when the family wants something different.',
-        'address': 'Toronto, ON',
-        'neighborhood': 'Toronto',
-        'phone': '',
-        'website': 'https://umamisushi.ca/',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'Toronto',
-    },
+    # Umami Sushi already exists above (line ~945) with full details — removed duplicate
     {
         'name': 'Pantry Foods',
         'category': 'Caterers',

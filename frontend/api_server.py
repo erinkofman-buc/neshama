@@ -5550,6 +5550,16 @@ def run_server(port=None):
             logging.info(f" Migrations: removed 'Kosher Style' label from {ks_count} vendors")
         total_changed += ks_count
 
+        # Migration 2026-03-12b: Fix 3 vendors missing website URLs (orange button fix)
+        vendor_url_fixes = [
+            "UPDATE vendors SET website = 'https://www.bubbysbagels.com', phone = '(416) 862-2435' WHERE name = 'Bubby''s Bagels' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://www.haymishebakery.com', phone = '(416) 781-4212' WHERE name = 'Haymishe Bakery' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://umamisushi.ca', phone = '(416) 782-3375' WHERE name = 'Umami Sushi' AND (website IS NULL OR website = '')",
+        ]
+        for sql in vendor_url_fixes:
+            cursor.execute(sql)
+            total_changed += cursor.rowcount
+
         # Migration 2026-03-09: Auto-confirm all existing unconfirmed subscribers
         # At 15 subscribers, all are intentional signups. The double opt-in confirmation
         # email was going to spam (SPF was broken until Mar 6), so many never confirmed.
