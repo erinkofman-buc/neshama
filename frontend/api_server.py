@@ -29,6 +29,7 @@ if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
+_SERVER_START_TIME = datetime.now()
 
 # ── Early Lock Recovery ─────────────────────────────────
 # MUST run before any module-level DB connections (managers, etc.)
@@ -564,10 +565,16 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def send_cors_headers(self):
-        """Send CORS headers"""
-        self.send_header('Access-Control-Allow-Origin', '*')
+        """Send CORS headers — restrict to neshama.ca for security"""
+        origin = self.headers.get('Origin', '')
+        allowed_origins = ['https://neshama.ca', 'https://www.neshama.ca', 'http://localhost:5000']
+        if origin in allowed_origins:
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            self.send_header('Access-Control-Allow-Origin', 'https://neshama.ca')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature, X-Admin-Key')
+        self.send_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
 
     def serve_static(self, path):
         """Serve static files from the frontend directory"""
@@ -1020,12 +1027,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
             data = json.loads(body)
+            import html as _html_mod
             obit_id = data.get('obituary_id', '').strip()
-            author = data.get('author_name', '').strip()
-            message = data.get('message', '').strip()
-            relationship = data.get('relationship', '').strip()
+            author = _html_mod.escape(data.get('author_name', '').strip())
+            message = _html_mod.escape(data.get('message', '').strip())
+            relationship = _html_mod.escape(data.get('relationship', '').strip())
             entry_type = data.get('entry_type', 'condolence').strip()
-            prayer_text = data.get('prayer_text', '').strip()
+            prayer_text = _html_mod.escape(data.get('prayer_text', '').strip())
 
             # Validate entry type
             if entry_type not in self.VALID_ENTRY_TYPES:
@@ -1078,7 +1086,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     def handle_delete_tribute(self, obit_id, entry_id):
         """Delete a guestbook entry by ID (admin only via X-Admin-Key header)"""
         try:
-            admin_key = os.environ.get('ADMIN_KEY', 'neshama-admin-2026')
+            admin_key = os.environ.get('ADMIN_KEY', '')
+            if not admin_key:
+                self.send_json_response({'status': 'error', 'message': 'Admin key not configured'}, 403)
+                return
             req_key = self.headers.get('X-Admin-Key', '')
             if req_key != admin_key:
                 self.send_json_response({'status': 'error', 'message': 'Unauthorized'}, 403)
@@ -1404,14 +1415,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     def handle_admin_scrape(self):
         """Run scrapers via admin endpoint (async - returns immediately)"""
         global _scrape_status
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         if _scrape_status['running']:
             self.send_json_response({
@@ -1468,14 +1473,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_scrape_status(self):
         """Check the status of the background scraper"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         self.send_json_response({
             'running': _scrape_status['running'],
@@ -1487,14 +1486,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_subscribers(self):
         """List all subscribers with their status"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         try:
             conn = _connect_db()
@@ -1529,14 +1522,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_confirm_subscriber(self, body):
         """Manually confirm a subscriber by email"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         try:
             data = json.loads(body.decode('utf-8'))
@@ -1564,14 +1551,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_confirm_all_subscribers(self, body):
         """Confirm ALL unconfirmed subscribers (bulk fix for SPF/spam issues)"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         try:
             conn = _connect_db()
@@ -1621,14 +1602,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_delete_subscribers(self, body):
         """Delete subscribers matching a pattern (e.g. smoketest addresses)"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         try:
             data = json.loads(body.decode('utf-8'))
@@ -1666,14 +1641,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     def handle_admin_unlock_db(self):
         """Force-clear SQLite locks by switching DELETE→WAL journal mode.
         GET /admin/unlock-db?key=ADMIN_SECRET"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         steps = []
         try:
@@ -1707,14 +1676,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_digest(self):
         """Send daily email digest via admin endpoint"""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         try:
             from daily_digest import DailyDigestSender
@@ -1731,14 +1694,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_backup(self):
         """Return full backup JSON of all critical tables."""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         if not SHIVA_AVAILABLE:
             self.send_error_response('Shiva manager not available', 503)
@@ -1749,14 +1706,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_admin_restore(self, body):
         """Restore from uploaded backup JSON."""
-        admin_secret = os.environ.get('ADMIN_SECRET', '')
-        if admin_secret:
-            parsed_path = urlparse(self.path)
-            query_params = parse_qs(parsed_path.query)
-            token = query_params.get('key', [''])[0]
-            if token != admin_secret:
-                self.send_error_response('Unauthorized', 403)
-                return
+        if not self._check_admin_auth():
+            return
 
         if not SHIVA_AVAILABLE:
             self.send_error_response('Shiva manager not available', 503)
@@ -4447,21 +4398,24 @@ button:hover{background:#c45a1a}</style></head>
             cursor = conn.cursor()
 
             # Scraper freshness — flag if any source has no data in 3+ hours
-            # Shabbat-aware: don't flag stale during Shabbat (scrapers are paused)
+            # Grace periods: don't flag stale during Shabbat or within 5 min of startup
             try:
                 cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
                 three_hours_ago = (datetime.now() - timedelta(hours=3)).isoformat()
                 shabbat_now = is_shabbat()
+                startup_grace = (datetime.now() - _SERVER_START_TIME).total_seconds() < 300
                 scraper_status = {}
                 for row in cursor.fetchall():
                     source = row[0]
                     latest = row[1]
                     is_fresh = latest and latest >= three_hours_ago
                     scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
-                    if not is_fresh and not shabbat_now:
+                    if not is_fresh and not shabbat_now and not startup_grace:
                         all_ok = False
                 if shabbat_now:
                     checks['scraper_freshness'] = {'ok': True, 'shabbat': True, 'sources': scraper_status}
+                elif startup_grace:
+                    checks['scraper_freshness'] = {'ok': True, 'startup_grace': True, 'sources': scraper_status}
                 else:
                     checks['scraper_freshness'] = {'ok': all(s['fresh'] for s in scraper_status.values()), 'sources': scraper_status}
             except Exception as e:
@@ -4537,6 +4491,22 @@ button:hover{background:#c45a1a}</style></head>
             'status': 'ok' if all_ok else 'degraded',
             'checks': checks
         }, status_code)
+
+    def _check_admin_auth(self):
+        """Check admin authentication via ?key= query param.
+        Returns True if authorized, False if not (and sends 403 response).
+        ALWAYS requires ADMIN_SECRET to be set — never allows unauthenticated access."""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if not admin_secret:
+            self.send_json_response({'status': 'error', 'message': 'Admin not configured'}, 403)
+            return False
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        token = query_params.get('key', [''])[0]
+        if token != admin_secret:
+            self.send_error_response('Unauthorized', 403)
+            return False
+        return True
 
     def _get_client_ip(self):
         """Get client IP from headers or socket."""
@@ -4728,11 +4698,14 @@ def periodic_scraper():
     import time as _time
     project_root = os.path.join(FRONTEND_DIR, '..')
     _periodic_scraper_status['alive'] = True
+    # Run first cycle after a short delay (60s) to let the server finish starting,
+    # then use full SCRAPE_INTERVAL for subsequent cycles.
+    _time.sleep(60)
     while True:
-        _time.sleep(SCRAPE_INTERVAL)
         _periodic_scraper_status['last_heartbeat'] = datetime.now().isoformat()
         if is_shabbat():
             logging.info(f"[Scraper] Shabbat — scraping paused")
+            _time.sleep(SCRAPE_INTERVAL)
             continue
         try:
             logging.info(f"[Scraper] Periodic scrape starting at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -4770,6 +4743,8 @@ def periodic_scraper():
         periodic_scraper._cycle = cycle_count
         if cycle_count % 6 == 0 or _scraper_fail_count >= 3:
             _run_health_watchdog()
+
+        _time.sleep(SCRAPE_INTERVAL)
 
 
 def run_server(port=None):
@@ -4837,35 +4812,9 @@ def run_server(port=None):
                 except Exception:
                     pass
 
-    # Auto-confirm stale subscribers on startup (48h+ unconfirmed)
-    # This catches subscribers whose confirmation emails went to spam
-    try:
-        conn = _connect_db()
-        cursor = conn.cursor()
-        cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
-        cursor.execute('''
-            SELECT email, subscribed_at FROM subscribers
-            WHERE confirmed = FALSE
-            AND unsubscribed_at IS NULL
-            AND subscribed_at <= ?
-        ''', (cutoff,))
-        stale = cursor.fetchall()
-        if stale:
-            now = datetime.now().isoformat()
-            cursor.execute('''
-                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
-                WHERE confirmed = FALSE
-                AND unsubscribed_at IS NULL
-                AND subscribed_at <= ?
-            ''', (now, cutoff))
-            count = cursor.rowcount
-            conn.commit()
-            for email, subscribed_at in stale:
-                logging.info(f"[Startup] Auto-confirmed subscriber: {email} (subscribed {subscribed_at})")
-            logging.info(f"[Startup] Auto-confirmed {count} stale subscribers")
-        conn.close()
-    except Exception as e:
-        logging.warning(f"[Startup] Auto-confirm subscribers: {e}")
+    # REMOVED: Auto-confirm stale subscribers — violates CASL double opt-in.
+    # If confirmation emails go to spam, fix deliverability (SPF/DKIM/DMARC)
+    # instead of bypassing consent. Use /admin/confirm-subscriber for manual cases.
 
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, NeshamaAPIHandler)
@@ -4921,43 +4870,11 @@ def run_server(port=None):
         # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
         try:
             from daily_digest import DailyDigestSender
-            def _auto_confirm_stale_subscribers():
-                """Auto-confirm subscribers who signed up 48+ hours ago but never confirmed.
-                Safety net for when confirmation emails go to spam."""
-                try:
-                    conn = _connect_db()
-                    cursor = conn.cursor()
-                    cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
-                    cursor.execute('''
-                        SELECT email, subscribed_at FROM subscribers
-                        WHERE confirmed = FALSE
-                        AND unsubscribed_at IS NULL
-                        AND subscribed_at <= ?
-                    ''', (cutoff,))
-                    stale = cursor.fetchall()
-                    if stale:
-                        now = datetime.now().isoformat()
-                        cursor.execute('''
-                            UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
-                            WHERE confirmed = FALSE
-                            AND unsubscribed_at IS NULL
-                            AND subscribed_at <= ?
-                        ''', (now, cutoff))
-                        count = cursor.rowcount
-                        conn.commit()
-                        for email, subscribed_at in stale:
-                            logging.info(f"[AutoConfirm] Auto-confirmed {email} (subscribed {subscribed_at}, 48h+ unconfirmed)")
-                        logging.info(f"[AutoConfirm] Auto-confirmed {count} stale subscribers")
-                    conn.close()
-                except Exception as e:
-                    logging.error(f"[AutoConfirm] Error: {e}")
 
             def _run_daily_digest():
                 if is_shabbat():
                     logging.info("[DailyDigest] Shabbat — skipping digest")
                     return
-                # Auto-confirm stale subscribers before sending digest
-                _auto_confirm_stale_subscribers()
                 try:
                     sg_key = os.environ.get('SENDGRID_API_KEY')
                     if not sg_key:
