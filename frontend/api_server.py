@@ -4303,7 +4303,7 @@ button:hover{background:#c45a1a}</style></head>
                          f"import sqlite3; c=sqlite3.connect('{db_path}',timeout=5,isolation_level=None); c.execute('PRAGMA busy_timeout=5000'); c.execute(\"INSERT INTO scraper_log (source,run_time,status) VALUES ('subprocess_test',datetime('now'),'ok')\"); c.close(); print('WRITE_OK')"],
                         capture_output=True, text=True, timeout=15
                     )
-                    subprocess_write = (result.stdout.strip() + ' ' + result.stderr.strip())[:200]
+                    subprocess_write = (result.stdout.strip() + ' ' + result.stderr.strip())[:500]
                 except Exception as se:
                     subprocess_write = str(se)[:200]
 
@@ -4317,6 +4317,21 @@ button:hover{background:#c45a1a}</style></head>
                     disk_writable = True
                 except Exception:
                     disk_writable = False
+
+                # Count open file descriptors to DB (shows leaked connections)
+                open_fds = 0
+                try:
+                    import glob as _glob
+                    pid = os.getpid()
+                    for fd_path in _glob.glob(f'/proc/{pid}/fd/*'):
+                        try:
+                            target = os.readlink(fd_path)
+                            if db_path in target:
+                                open_fds += 1
+                        except Exception:
+                            pass
+                except Exception:
+                    open_fds = -1  # /proc not available
 
                 # Check file permissions
                 import stat
@@ -4340,6 +4355,7 @@ button:hover{background:#c45a1a}</style></head>
                     'shm_file': shm_exists,
                     'disk_writable': disk_writable,
                     'db_file': db_stat,
+                    'open_fds_to_db': open_fds,
                     'subprocess_write': subprocess_write,
                 }
                 all_ok = False
