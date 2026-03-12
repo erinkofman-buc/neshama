@@ -32,7 +32,8 @@ SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes def
 
 # ── Early Lock Recovery ─────────────────────────────────
 # MUST run before any module-level DB connections (managers, etc.)
-# Stale SHM files from dead processes contain lock bits that block writes.
+# WAL mode's SHM-based locking breaks on Render persistent disk.
+# Switch to DELETE journal mode which uses simpler file-based locking.
 if os.path.exists(DB_PATH):
     for _suffix in ['-wal', '-shm']:
         _lock_file = DB_PATH + _suffix
@@ -42,14 +43,15 @@ if os.path.exists(DB_PATH):
                 logging.info(f"[EarlyRecovery] Removed stale {_suffix} file")
             except Exception as _e:
                 logging.warning(f"[EarlyRecovery] Could not remove {_suffix}: {_e}")
-    # Set WAL mode on fresh connection (recreates clean WAL/SHM)
+    # Switch to DELETE journal mode (no SHM file needed)
     try:
         _rc = sqlite3.connect(DB_PATH, timeout=5, isolation_level=None)
-        _rc.execute('PRAGMA journal_mode=WAL')
-        _rc.execute('PRAGMA busy_timeout=5000')
+        _mode = _rc.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
+        _rc.execute('PRAGMA busy_timeout=30000')
+        logging.info(f"[EarlyRecovery] Journal mode: {_mode}")
         _rc.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('early_recovery', datetime('now'), 'ok')")
         _rc.close()
-        logging.info("[EarlyRecovery] DB write test PASSED")
+        logging.info("[EarlyRecovery] DB write test PASSED (DELETE mode)")
     except Exception as _e:
         logging.warning(f"[EarlyRecovery] DB write test: {_e}")
         try:
@@ -59,10 +61,9 @@ if os.path.exists(DB_PATH):
 
 
 def _connect_db(db_path=None):
-    """Create a SQLite connection with busy timeout and WAL mode.
-    Prevents 'database is locked' errors from concurrent scraper/API writes."""
+    """Create a SQLite connection with busy timeout.
+    Uses DELETE journal mode (WAL's SHM locking breaks on Render persistent disk)."""
     conn = sqlite3.connect(db_path or DB_PATH, timeout=30)
-    conn.execute('PRAGMA journal_mode=WAL')
     conn.execute('PRAGMA busy_timeout=30000')
     return conn
 
@@ -1635,11 +1636,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 else:
                     steps.append(f'No {suffix} file')
 
-            # Step 2: Open fresh, switch to DELETE then WAL
+            # Step 2: Open fresh in DELETE mode
             conn = sqlite3.connect(db_path, timeout=5)
             mode = conn.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
-            steps.append(f'Switched to {mode}')
-            mode = conn.execute('PRAGMA journal_mode=WAL').fetchone()[0]
             steps.append(f'Switched to {mode}')
 
             # Step 3: Write test
@@ -4735,7 +4734,6 @@ def run_server(port=None):
 
             # Verify write works on the fresh copy (autocommit)
             verify_conn = sqlite3.connect(DB_PATH, timeout=5, isolation_level=None)
-            verify_conn.execute('PRAGMA journal_mode=WAL')
             verify_conn.execute('PRAGMA busy_timeout=30000')
             verify_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('lock_recovery', datetime('now'), 'ok')")
             verify_conn.close()

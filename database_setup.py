@@ -18,9 +18,8 @@ class NeshamaDatabase:
         self.cursor = None
 
     def connect(self):
-        """Establish database connection with busy timeout and WAL mode"""
+        """Establish database connection with busy timeout"""
         self.conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
-        self.conn.execute('PRAGMA journal_mode=WAL')
         self.conn.execute('PRAGMA busy_timeout=30000')
         self.cursor = self.conn.cursor()
 
@@ -437,15 +436,6 @@ def initialize_database():
 
     db = NeshamaDatabase(db_path)
     db.create_tables()
-
-    # Enable WAL mode at the database level (persists across connections)
-    try:
-        conn = sqlite3.connect(db_path, timeout=30)
-        result = conn.execute('PRAGMA journal_mode=WAL').fetchone()
-        conn.close()
-        logging.info(f"   Journal mode: {result[0]}")
-    except Exception as e:
-        logging.warning(f"   WAL mode setup: {e}")
 
     logging.info("✅ Database initialized successfully")
     logging.info(f"   Location: {os.path.abspath(db.db_path)}")
