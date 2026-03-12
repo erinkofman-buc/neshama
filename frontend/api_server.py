@@ -5398,7 +5398,7 @@ def run_server(port=None):
         )
         total_changed += cursor.rowcount
 
-        # Migration 2026-03-04: Fix vendor kosher labels per Jordana feedback
+        # Migration 2026-03-04: Fix vendor kosher labels per Jordana feedback (SUPERSEDED by 2026-03-12 below)
         mar4_updates = [
             "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'What A Bagel' AND kosher_status = 'COR'",
             "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Gryfe''s Bagel Bakery' AND kosher_status = 'COR'",
@@ -5517,16 +5517,16 @@ def run_server(port=None):
              "10 Disera Dr Unit 100, Thornhill, ON L4J 0A7", "Thornhill", "", "https://royaldairycafe.com", "COR", 1, "Thornhill/Vaughan,North York", "food"),
             ("Pancer''s Original Deli", "Restaurants & Delis",
              "Legendary Toronto Jewish deli on Bathurst. Smoked meat, corned beef, and classic deli platters that have served the community for decades. A comforting, familiar choice for shiva catering.",
-             "3856 Bathurst St, North York, ON M3H 3N3", "Bathurst Manor", "", "http://www.pancersoriginaldeli.com", "Kosher Style", 1, "Toronto,North York", "food"),
+             "3856 Bathurst St, North York, ON M3H 3N3", "Bathurst Manor", "", "http://www.pancersoriginaldeli.com", "not_certified", 1, "Toronto,North York", "food"),
             ("Zelden''s Deli and Desserts", "Restaurants & Delis",
              "Jewish-style deli and desserts on Yonge. Sandwiches, salads, baked goods, and catering platters. A dependable choice when you need food for the family.",
-             "1446 Yonge St, Toronto, ON M4T 1Y5", "Midtown", "", "http://www.zeldensdelianddesserts.com", "Kosher Style", 1, "Toronto", "food"),
+             "1446 Yonge St, Toronto, ON M4T 1Y5", "Midtown", "", "http://www.zeldensdelianddesserts.com", "not_certified", 1, "Toronto", "food"),
             ("Richmond Kosher Bakery", "Bagel Shops & Bakeries",
              "COR-certified kosher bakery on Bathurst. Fresh breads, challahs, pastries, and cakes. A neighbourhood staple for Shabbat baking and shiva dessert trays.",
              "4119 Bathurst St Unit 1, North York, ON M3H 3P4", "Bathurst Manor", "", "http://richmondkosherbakery.com", "COR", 0, "North York", "food"),
             ("Aba''s Bagel Company", "Bagel Shops & Bakeries",
              "Fresh bagels and baked goods on Eglinton West. Hand-rolled, kettle-boiled bagels with a loyal following. Platters available for gatherings.",
-             "884A Eglinton Ave W, Toronto, ON M6C 2B6", "Midtown", "", "https://abasbagel.com", "Kosher Style", 0, "Toronto", "food"),
+             "884A Eglinton Ave W, Toronto, ON M6C 2B6", "Midtown", "", "https://abasbagel.com", "not_certified", 0, "Toronto", "food"),
             ("Zuchter Berk Kosher Caterers", "Caterers",
              "Established kosher caterer serving Toronto''s Jewish community. Full-service catering for lifecycle events, shiva meals, and community gatherings.",
              "2301 Keele St, Toronto, ON M6M 3Z9", "Toronto", "", "http://www.zbcaterers.com", "COR", 1, "Toronto,North York,GTA-wide", "food"),
@@ -5541,6 +5541,14 @@ def run_server(port=None):
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (clean_name, slug, v[1], v[2].replace("''", "'"), v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10]))
                 total_changed += 1
+
+        # Migration 2026-03-12: Remove "not_certified" label — confusing, implies certification
+        # These vendors are not certified; better to show no kosher badge at all
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
+        ks_count = cursor.rowcount
+        if ks_count > 0:
+            logging.info(f" Migrations: removed 'Kosher Style' label from {ks_count} vendors")
+        total_changed += ks_count
 
         # Migration 2026-03-09: Auto-confirm all existing unconfirmed subscribers
         # At 15 subscribers, all are intentional signups. The double opt-in confirmation
