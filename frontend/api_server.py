@@ -4283,20 +4283,42 @@ button:hover{background:#c45a1a}</style></head>
             journal_mode = 'unknown'
             wal_exists = os.path.exists(db_path + '-wal')
             shm_exists = os.path.exists(db_path + '-shm')
+            subprocess_write = 'not_tested'
             try:
                 journal_mode = cursor.execute('PRAGMA journal_mode').fetchone()[0]
-                cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
-                conn.commit()
+                conn.close()  # Close first to avoid self-locking
+
+                # Test write with fresh connection and short timeout
+                test_conn = sqlite3.connect(db_path, timeout=5)
+                test_conn.execute('PRAGMA busy_timeout=5000')
+                test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
+                test_conn.commit()
+                test_conn.close()
                 checks['db_writable'] = {'ok': True, 'journal_mode': journal_mode}
             except Exception as e:
+                # Try subprocess write as diagnostic
+                try:
+                    result = subprocess.run(
+                        ['python3', '-c', f"import sqlite3; c=sqlite3.connect('{db_path}',timeout=3); c.execute('INSERT INTO scraper_log (source,run_time,status) VALUES (\"subprocess_test\",datetime(\"now\"),\"ok\")'); c.commit(); c.close(); print('OK')"],
+                        capture_output=True, text=True, timeout=10
+                    )
+                    subprocess_write = result.stdout.strip() or result.stderr.strip()[:100]
+                except Exception as se:
+                    subprocess_write = str(se)[:100]
+
                 checks['db_writable'] = {
                     'ok': False,
                     'error': str(e),
                     'journal_mode': journal_mode,
                     'wal_file': wal_exists,
                     'shm_file': shm_exists,
+                    'subprocess_write': subprocess_write,
                 }
                 all_ok = False
+
+            # Re-open connection for remaining checks
+            conn = _connect_db(db_path)
+            cursor = conn.cursor()
 
             # Scraper freshness — flag if any source has no data in 3+ hours
             try:
