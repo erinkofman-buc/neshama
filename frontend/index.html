@@ -2174,35 +2174,27 @@
             if (el) {
                 el.classList.remove('active');
                 document.body.style.overflow = '';
-                localStorage.setItem('neshama_popup_dismissed', Date.now().toString());
+                sessionStorage.setItem('neshama_popup_dismissed', Date.now().toString());
             }
         }
 
-        // Show popup after 45s of idle time for non-subscribers (once per session)
+        // Show popup after scrolling past ~3 obituary cards (once per session)
         (function() {
             if (localStorage.getItem('neshama_subscribed')) return;
             if (sessionStorage.getItem('neshama_popup_shown')) return;
 
-            var idleTimer = null;
-            var idleDelay = 45000; // 45 seconds
-
-            function startIdleTimer() {
-                clearTimeout(idleTimer);
-                idleTimer = setTimeout(function() {
-                    if (!sessionStorage.getItem('neshama_popup_shown')) {
-                        sessionStorage.setItem('neshama_popup_shown', '1');
-                        showEmailPopup();
-                    }
-                }, idleDelay);
+            var triggered = false;
+            function onScroll() {
+                if (triggered) return;
+                // Trigger after scrolling 800px (roughly 3 cards)
+                if (window.scrollY > 800) {
+                    triggered = true;
+                    sessionStorage.setItem('neshama_popup_shown', '1');
+                    showEmailPopup();
+                    window.removeEventListener('scroll', onScroll);
+                }
             }
-
-            // Reset timer on user interaction
-            ['scroll', 'click', 'keydown', 'mousemove', 'touchstart'].forEach(function(evt) {
-                document.addEventListener(evt, startIdleTimer, { passive: true });
-            });
-
-            // Start the first timer
-            startIdleTimer();
+            window.addEventListener('scroll', onScroll, { passive: true });
         })();
 
         // Form submission
