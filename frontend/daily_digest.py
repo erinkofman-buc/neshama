@@ -216,8 +216,8 @@ class DailyDigestSender:
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send digest email to a single subscriber"""
         if not self.sendgrid_api_key:
-            logging.info(f" Would send digest to {email}")
-            return {'success': True, 'test_mode': True}
+            logging.error(f"[DailyDigest] CANNOT send to {email} — no SendGrid API key (TEST MODE)")
+            return {'success': False, 'error': 'No SendGrid API key', 'test_mode': True}
 
         # Replace unsubscribe URL
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"

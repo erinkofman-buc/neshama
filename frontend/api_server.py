@@ -4607,11 +4607,14 @@ def run_server(port=None):
     periodic_thread.start()
     logging.info(f"[Scraper] Periodic scraper started (every {SCRAPE_INTERVAL // 60} minutes)")
 
-    # Launch email queue processor via APScheduler (every 15 min)
-    if EMAIL_QUEUE_AVAILABLE:
-        try:
-            from apscheduler.schedulers.background import BackgroundScheduler
-            scheduler = BackgroundScheduler(daemon=True)
+    # Launch APScheduler for all background jobs (email queue, digests, yahrzeit, reports)
+    # Scheduler must start even if email_queue import fails — digests don't depend on it
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        scheduler = BackgroundScheduler(daemon=True)
+
+        # Email queue processor (every 15 min) — only if available
+        if EMAIL_QUEUE_AVAILABLE:
             scheduler.add_job(
                 process_email_queue,
                 'interval',
@@ -4621,166 +4624,169 @@ def run_server(port=None):
                 name='Process shiva email queue',
                 max_instances=1,
             )
-            # Add yahrzeit daily processor (9 AM Toronto time)
-            if YAHRZEIT_AVAILABLE:
-                try:
-                    from yahrzeit_processor import process_yahrzeit_reminders
-                    scheduler.add_job(
-                        process_yahrzeit_reminders,
-                        'cron',
-                        hour=9,
-                        minute=0,
-                        timezone='America/Toronto',
-                        args=[DB_PATH],
-                        id='yahrzeit_reminders',
-                        name='Process yahrzeit reminders',
-                        max_instances=1,
-                    )
-                    logging.info(f"[Yahrzeit] Scheduler added (daily at 9 AM Toronto)")
-                except Exception as e:
-                    logging.error(f"[Yahrzeit] Failed to add scheduler job: {e}")
+        else:
+            logging.info("[Scheduler] Email queue not available — skipping email queue job")
 
-            # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
+        # Add yahrzeit daily processor (9 AM Toronto time)
+        if YAHRZEIT_AVAILABLE:
             try:
-                from daily_digest import DailyDigestSender
-                def _auto_confirm_stale_subscribers():
-                    """Auto-confirm subscribers who signed up 48+ hours ago but never confirmed.
-                    Safety net for when confirmation emails go to spam."""
-                    try:
-                        conn = _connect_db()
-                        cursor = conn.cursor()
-                        cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
+                from yahrzeit_processor import process_yahrzeit_reminders
+                scheduler.add_job(
+                    process_yahrzeit_reminders,
+                    'cron',
+                    hour=9,
+                    minute=0,
+                    timezone='America/Toronto',
+                    args=[DB_PATH],
+                    id='yahrzeit_reminders',
+                    name='Process yahrzeit reminders',
+                    max_instances=1,
+                )
+                logging.info(f"[Yahrzeit] Scheduler added (daily at 9 AM Toronto)")
+            except Exception as e:
+                logging.error(f"[Yahrzeit] Failed to add scheduler job: {e}")
+
+        # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
+        try:
+            from daily_digest import DailyDigestSender
+            def _auto_confirm_stale_subscribers():
+                """Auto-confirm subscribers who signed up 48+ hours ago but never confirmed.
+                Safety net for when confirmation emails go to spam."""
+                try:
+                    conn = _connect_db()
+                    cursor = conn.cursor()
+                    cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
+                    cursor.execute('''
+                        SELECT email, subscribed_at FROM subscribers
+                        WHERE confirmed = FALSE
+                        AND unsubscribed_at IS NULL
+                        AND subscribed_at <= ?
+                    ''', (cutoff,))
+                    stale = cursor.fetchall()
+                    if stale:
+                        now = datetime.now().isoformat()
                         cursor.execute('''
-                            SELECT email, subscribed_at FROM subscribers
+                            UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
                             WHERE confirmed = FALSE
                             AND unsubscribed_at IS NULL
                             AND subscribed_at <= ?
-                        ''', (cutoff,))
-                        stale = cursor.fetchall()
-                        if stale:
-                            now = datetime.now().isoformat()
-                            cursor.execute('''
-                                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
-                                WHERE confirmed = FALSE
-                                AND unsubscribed_at IS NULL
-                                AND subscribed_at <= ?
-                            ''', (now, cutoff))
-                            count = cursor.rowcount
-                            conn.commit()
-                            for email, subscribed_at in stale:
-                                logging.info(f"[AutoConfirm] Auto-confirmed {email} (subscribed {subscribed_at}, 48h+ unconfirmed)")
-                            logging.info(f"[AutoConfirm] Auto-confirmed {count} stale subscribers")
-                        conn.close()
-                    except Exception as e:
-                        logging.error(f"[AutoConfirm] Error: {e}")
+                        ''', (now, cutoff))
+                        count = cursor.rowcount
+                        conn.commit()
+                        for email, subscribed_at in stale:
+                            logging.info(f"[AutoConfirm] Auto-confirmed {email} (subscribed {subscribed_at}, 48h+ unconfirmed)")
+                        logging.info(f"[AutoConfirm] Auto-confirmed {count} stale subscribers")
+                    conn.close()
+                except Exception as e:
+                    logging.error(f"[AutoConfirm] Error: {e}")
 
-                def _run_daily_digest():
-                    if is_shabbat():
-                        logging.info("[DailyDigest] Shabbat — skipping digest")
+            def _run_daily_digest():
+                if is_shabbat():
+                    logging.info("[DailyDigest] Shabbat — skipping digest")
+                    return
+                # Auto-confirm stale subscribers before sending digest
+                _auto_confirm_stale_subscribers()
+                try:
+                    sg_key = os.environ.get('SENDGRID_API_KEY')
+                    if not sg_key:
+                        logging.error("[DailyDigest] SENDGRID_API_KEY not set — digest will run in TEST MODE (no emails sent)")
+                    sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
+                    sender.send_daily_digest()
+                except Exception as e:
+                    logging.error(f"[DailyDigest] Error: {e}")
+            scheduler.add_job(
+                _run_daily_digest,
+                'cron',
+                hour=7,
+                minute=0,
+                day_of_week='mon-sat',
+                timezone='America/Toronto',
+                id='daily_digest',
+                name='Send daily obituary digest',
+                max_instances=1,
+            )
+            logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Mon-Sat)")
+        except Exception as e:
+            logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
+
+        # Add weekly digest (Sunday 9 AM ET)
+        try:
+            from weekly_digest import WeeklyDigestSender
+            def _run_weekly_digest():
+                try:
+                    sg_key = os.environ.get('SENDGRID_API_KEY')
+                    if not sg_key:
+                        logging.error("[WeeklyDigest] SENDGRID_API_KEY not set — running in TEST MODE")
+                    sender = WeeklyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
+                    sender.send_weekly_digest()
+                except Exception as e:
+                    logging.error(f"[WeeklyDigest] Error: {e}")
+            scheduler.add_job(
+                _run_weekly_digest,
+                'cron',
+                hour=9,
+                minute=0,
+                day_of_week='sun',
+                timezone='America/Toronto',
+                id='weekly_digest',
+                name='Send weekly obituary digest',
+                max_instances=1,
+            )
+            logging.info(f"[WeeklyDigest] Scheduler added (Sunday at 9 AM ET)")
+        except Exception as e:
+            logging.error(f"[WeeklyDigest] Failed to add scheduler job: {e}")
+
+        # Add monthly vendor report (1st of month, 9 AM ET)
+        try:
+            from vendor_report import run_monthly_reports
+            def _run_vendor_report():
+                try:
+                    run_monthly_reports(db_path=DB_PATH)
+                except Exception as e:
+                    logging.error(f"[VendorReport] Error: {e}")
+            scheduler.add_job(
+                _run_vendor_report,
+                'cron',
+                day=1,
+                hour=9,
+                minute=0,
+                timezone='America/Toronto',
+                id='vendor_report',
+                name='Send monthly vendor reports',
+                max_instances=1,
+            )
+            logging.info(f"[VendorReport] Scheduler added (1st of month at 9 AM ET)")
+        except Exception as e:
+            logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
+
+        # Add weekly offsite backup (Sunday 3 AM ET — emails backup JSON)
+        try:
+            def _run_offsite_backup():
+                try:
+                    sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+                    admin_email = os.environ.get('ADMIN_EMAIL', 'contact@neshama.ca')
+                    if not sendgrid_key:
+                        logging.info("[OffsiteBackup] No SendGrid key — skipping email backup")
                         return
-                    # Auto-confirm stale subscribers before sending digest
-                    _auto_confirm_stale_subscribers()
-                    try:
-                        sg_key = os.environ.get('SENDGRID_API_KEY')
-                        if not sg_key:
-                            logging.error("[DailyDigest] SENDGRID_API_KEY not set — digest will run in TEST MODE (no emails sent)")
-                        sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
-                        sender.send_daily_digest()
-                    except Exception as e:
-                        logging.error(f"[DailyDigest] Error: {e}")
-                scheduler.add_job(
-                    _run_daily_digest,
-                    'cron',
-                    hour=7,
-                    minute=0,
-                    day_of_week='mon-sat',
-                    timezone='America/Toronto',
-                    id='daily_digest',
-                    name='Send daily obituary digest',
-                    max_instances=1,
-                )
-                logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Mon-Sat)")
-            except Exception as e:
-                logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
+                    if not SHIVA_AVAILABLE:
+                        logging.error("[OffsiteBackup] Shiva manager unavailable — cannot backup")
+                        return
 
-            # Add weekly digest (Sunday 9 AM ET)
-            try:
-                from weekly_digest import WeeklyDigestSender
-                def _run_weekly_digest():
-                    try:
-                        sg_key = os.environ.get('SENDGRID_API_KEY')
-                        if not sg_key:
-                            logging.error("[WeeklyDigest] SENDGRID_API_KEY not set — running in TEST MODE")
-                        sender = WeeklyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
-                        sender.send_weekly_digest()
-                    except Exception as e:
-                        logging.error(f"[WeeklyDigest] Error: {e}")
-                scheduler.add_job(
-                    _run_weekly_digest,
-                    'cron',
-                    hour=9,
-                    minute=0,
-                    day_of_week='sun',
-                    timezone='America/Toronto',
-                    id='weekly_digest',
-                    name='Send weekly obituary digest',
-                    max_instances=1,
-                )
-                logging.info(f"[WeeklyDigest] Scheduler added (Sunday at 9 AM ET)")
-            except Exception as e:
-                logging.error(f"[WeeklyDigest] Failed to add scheduler job: {e}")
+                    import base64 as b64
+                    backup_data = shiva_mgr.get_backup_data()
+                    backup_json = json.dumps(backup_data, ensure_ascii=False, indent=2)
+                    row_count = sum(len(rows) for rows in backup_data.get('tables', {}).values())
+                    table_count = len([t for t in backup_data.get('tables', {}) if backup_data['tables'][t]])
+                    timestamp = datetime.now().strftime('%Y-%m-%d')
+                    filename = f"neshama-backup-{timestamp}.json"
 
-            # Add monthly vendor report (1st of month, 9 AM ET)
-            try:
-                from vendor_report import run_monthly_reports
-                def _run_vendor_report():
-                    try:
-                        run_monthly_reports(db_path=DB_PATH)
-                    except Exception as e:
-                        logging.error(f"[VendorReport] Error: {e}")
-                scheduler.add_job(
-                    _run_vendor_report,
-                    'cron',
-                    day=1,
-                    hour=9,
-                    minute=0,
-                    timezone='America/Toronto',
-                    id='vendor_report',
-                    name='Send monthly vendor reports',
-                    max_instances=1,
-                )
-                logging.info(f"[VendorReport] Scheduler added (1st of month at 9 AM ET)")
-            except Exception as e:
-                logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
+                    # Build summary for email body
+                    table_summary = ""
+                    for tname, rows in backup_data.get('tables', {}).items():
+                        if rows:
+                            table_summary += f"<li>{tname}: {len(rows)} rows</li>"
 
-            # Add weekly offsite backup (Sunday 3 AM ET — emails backup JSON)
-            try:
-                def _run_offsite_backup():
-                    try:
-                        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
-                        admin_email = os.environ.get('ADMIN_EMAIL', 'contact@neshama.ca')
-                        if not sendgrid_key:
-                            logging.info("[OffsiteBackup] No SendGrid key — skipping email backup")
-                            return
-                        if not SHIVA_AVAILABLE:
-                            logging.error("[OffsiteBackup] Shiva manager unavailable — cannot backup")
-                            return
-
-                        import base64 as b64
-                        backup_data = shiva_mgr.get_backup_data()
-                        backup_json = json.dumps(backup_data, ensure_ascii=False, indent=2)
-                        row_count = sum(len(rows) for rows in backup_data.get('tables', {}).values())
-                        table_count = len([t for t in backup_data.get('tables', {}) if backup_data['tables'][t]])
-                        timestamp = datetime.now().strftime('%Y-%m-%d')
-                        filename = f"neshama-backup-{timestamp}.json"
-
-                        # Build summary for email body
-                        table_summary = ""
-                        for tname, rows in backup_data.get('tables', {}).items():
-                            if rows:
-                                table_summary += f"<li>{tname}: {len(rows)} rows</li>"
-
-                        html_body = f"""
+                    html_body = f"""
 <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
     <h2 style="font-size:1.4rem;font-weight:400;margin-bottom:1rem;">Weekly Database Backup</h2>
     <p style="font-size:1rem;color:#555;">Automated backup from <strong>neshama.ca</strong></p>
@@ -4796,54 +4802,54 @@ def run_server(port=None):
     <p style="font-size:0.9rem;color:#8a9a8d;">The full backup JSON is attached. Save this email or download the attachment to Google Drive.</p>
 </div>"""
 
-                        encoded_attachment = b64.b64encode(backup_json.encode('utf-8')).decode('utf-8')
-                        sg_data = {
-                            "personalizations": [{"to": [{"email": admin_email}]}],
-                            "from": {"email": "reminders@neshama.ca", "name": "Neshama Backup"},
-                            "subject": f"Neshama Weekly Backup — {timestamp} ({row_count} rows)",
-                            "content": [{"type": "text/html", "value": html_body}],
-                            "attachments": [{
-                                "content": encoded_attachment,
-                                "type": "application/json",
-                                "filename": filename,
-                                "disposition": "attachment",
-                            }]
-                        }
+                    encoded_attachment = b64.b64encode(backup_json.encode('utf-8')).decode('utf-8')
+                    sg_data = {
+                        "personalizations": [{"to": [{"email": admin_email}]}],
+                        "from": {"email": "reminders@neshama.ca", "name": "Neshama Backup"},
+                        "subject": f"Neshama Weekly Backup — {timestamp} ({row_count} rows)",
+                        "content": [{"type": "text/html", "value": html_body}],
+                        "attachments": [{
+                            "content": encoded_attachment,
+                            "type": "application/json",
+                            "filename": filename,
+                            "disposition": "attachment",
+                        }]
+                    }
 
-                        req = urllib.request.Request(
-                            'https://api.sendgrid.com/v3/mail/send',
-                            data=json.dumps(sg_data).encode('utf-8'),
-                            headers={
-                                'Authorization': f'Bearer {sendgrid_key}',
-                                'Content-Type': 'application/json',
-                            },
-                            method='POST'
-                        )
-                        response = urllib.request.urlopen(req, timeout=30)
-                        logging.info(f"[OffsiteBackup] Emailed backup to {admin_email} ({row_count} rows, {len(backup_json)} bytes)")
-                    except Exception as e:
-                        logging.error(f"[OffsiteBackup] Error: {e}")
+                    req = urllib.request.Request(
+                        'https://api.sendgrid.com/v3/mail/send',
+                        data=json.dumps(sg_data).encode('utf-8'),
+                        headers={
+                            'Authorization': f'Bearer {sendgrid_key}',
+                            'Content-Type': 'application/json',
+                        },
+                        method='POST'
+                    )
+                    response = urllib.request.urlopen(req, timeout=30)
+                    logging.info(f"[OffsiteBackup] Emailed backup to {admin_email} ({row_count} rows, {len(backup_json)} bytes)")
+                except Exception as e:
+                    logging.error(f"[OffsiteBackup] Error: {e}")
 
-                scheduler.add_job(
-                    _run_offsite_backup,
-                    'cron',
-                    hour=3,
-                    minute=0,
-                    day_of_week='sun',
-                    timezone='America/Toronto',
-                    id='offsite_backup',
-                    name='Email weekly backup',
-                    max_instances=1,
-                )
-                logging.info(f"[OffsiteBackup] Scheduler added (Sunday at 3 AM ET)")
-            except Exception as e:
-                logging.error(f"[OffsiteBackup] Failed to add scheduler job: {e}")
-
-            scheduler.start()
-            logging.info(f"[EmailQueue] Scheduler started (every 15 minutes)")
+            scheduler.add_job(
+                _run_offsite_backup,
+                'cron',
+                hour=3,
+                minute=0,
+                day_of_week='sun',
+                timezone='America/Toronto',
+                id='offsite_backup',
+                name='Email weekly backup',
+                max_instances=1,
+            )
+            logging.info(f"[OffsiteBackup] Scheduler added (Sunday at 3 AM ET)")
         except Exception as e:
-            logging.error(f"[EmailQueue] Scheduler failed to start: {e}")
-            logging.info(f" Install with: pip install apscheduler")
+            logging.error(f"[OffsiteBackup] Failed to add scheduler job: {e}")
+
+        scheduler.start()
+        logging.info(f"[Scheduler] APScheduler started — all background jobs active")
+    except Exception as e:
+        logging.error(f"[Scheduler] APScheduler failed to start: {e}")
+        logging.info(f" Install with: pip install apscheduler")
 
     logging.info(f"\n{'='*60}")
     logging.info(f" NESHAMA API SERVER v2.0")

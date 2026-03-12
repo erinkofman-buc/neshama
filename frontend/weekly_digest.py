@@ -186,8 +186,8 @@ class WeeklyDigestSender:
     def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
         """Send weekly digest email to a single subscriber"""
         if not self.sendgrid_api_key:
-            logging.info(f" \u26a0\ufe0f Would send weekly digest to {email}")
-            return {'success': True, 'test_mode': True}
+            logging.error(f"[WeeklyDigest] CANNOT send to {email} — no SendGrid API key (TEST MODE)")
+            return {'success': False, 'error': 'No SendGrid API key', 'test_mode': True}
 
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"
         html_with_unsubscribe = html_content.replace('{{unsubscribe_url}}', unsubscribe_url)
