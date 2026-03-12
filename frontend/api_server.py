@@ -4413,7 +4413,9 @@ button:hover{background:#c45a1a}</style></head>
             conn = _connect_db(db_path)
             cursor = conn.cursor()
 
-            # Scraper freshness — flag if any source has no data in 3+ hours
+            # Scraper freshness — check both DB timestamps AND scraper thread heartbeat
+            # The scraper may be running fine but find no new obituaries (common evenings/overnight)
+            # So: if scraper thread heartbeat is recent (<40 min), data freshness is informational only
             # Grace periods: don't flag stale during Shabbat or within 5 min of startup
             try:
                 cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
@@ -4426,14 +4428,37 @@ button:hover{background:#c45a1a}</style></head>
                     latest = row[1]
                     is_fresh = latest and latest >= three_hours_ago
                     scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
-                    if not is_fresh and not shabbat_now and not startup_grace:
-                        all_ok = False
+
+                # If scraper thread has a recent heartbeat, it's running — stale data just means
+                # no new obituaries were posted, which is normal. Don't fail health check for this.
+                scraper_heartbeat = _periodic_scraper_status.get('last_heartbeat')
+                scraper_thread_active = False
+                if scraper_heartbeat:
+                    try:
+                        hb_time = datetime.fromisoformat(scraper_heartbeat)
+                        minutes_since_hb = (datetime.now(tz=_tz.utc) - hb_time).total_seconds() / 60
+                        scraper_thread_active = minutes_since_hb < 40
+                    except Exception:
+                        pass
+
                 if shabbat_now:
                     checks['scraper_freshness'] = {'ok': True, 'shabbat': True, 'sources': scraper_status}
                 elif startup_grace:
                     checks['scraper_freshness'] = {'ok': True, 'startup_grace': True, 'sources': scraper_status}
+                elif scraper_thread_active:
+                    # Thread is running — stale data is informational, not a failure
+                    checks['scraper_freshness'] = {
+                        'ok': True,
+                        'thread_active': True,
+                        'note': 'Scraper running but no new obituaries found recently',
+                        'sources': scraper_status
+                    }
                 else:
-                    checks['scraper_freshness'] = {'ok': all(s['fresh'] for s in scraper_status.values()), 'sources': scraper_status}
+                    # Thread is dead AND data is stale — real problem
+                    stale_sources = [s for s, v in scraper_status.items() if not v['fresh']]
+                    if stale_sources:
+                        all_ok = False
+                    checks['scraper_freshness'] = {'ok': not stale_sources, 'sources': scraper_status}
             except Exception as e:
                 checks['scraper_freshness'] = {'ok': False, 'error': str(e)}
 
@@ -4638,8 +4663,20 @@ def _run_health_watchdog():
         except Exception as e:
             issues.append(f"DB WRITE FAILED: {e}")
 
-        # Check 2: Scraper freshness — any source with no data in 6+ hours
+        # Check 2: Scraper freshness — only alert if scraper thread is ALSO dead
+        # Stale data + active thread = no new obituaries posted (normal evenings/overnight)
+        # Stale data + dead thread = real problem
         try:
+            scraper_heartbeat = _periodic_scraper_status.get('last_heartbeat')
+            scraper_thread_active = False
+            if scraper_heartbeat:
+                try:
+                    hb_time = datetime.fromisoformat(scraper_heartbeat)
+                    minutes_since_hb = (datetime.now(tz=_tz.utc) - hb_time).total_seconds() / 60
+                    scraper_thread_active = minutes_since_hb < 40
+                except Exception:
+                    pass
+
             cursor.execute('''
                 SELECT source, MAX(scraped_at) as latest
                 FROM obituaries GROUP BY source
@@ -4648,7 +4685,10 @@ def _run_health_watchdog():
             for row in cursor.fetchall():
                 if row['latest'] and row['latest'] < six_hours_ago:
                     hours_stale = round((datetime.now(tz=_tz.utc) - datetime.fromisoformat(row['latest']).replace(tzinfo=_tz.utc)).total_seconds() / 3600, 1)
-                    issues.append(f"STALE DATA: {row['source']} — last scraped {hours_stale}h ago")
+                    if scraper_thread_active:
+                        logging.info(f"[Watchdog] {row['source']} data is {hours_stale}h old but scraper thread is active — no new obituaries posted")
+                    else:
+                        issues.append(f"STALE DATA: {row['source']} — last scraped {hours_stale}h ago (scraper thread not responding)")
         except Exception as e:
             issues.append(f"Freshness check failed: {e}")
 

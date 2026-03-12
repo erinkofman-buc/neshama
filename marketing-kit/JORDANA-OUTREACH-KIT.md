@@ -7,7 +7,7 @@ Jordana — this is everything. How the product works, how it makes money, what 
 
 ## Why Your Outreach Matters — Read This First
 
-The product is built. 24 pages, 100+ obituaries, 110 vendors, 18 caterers, meal coordination, yahrzeit reminders, guestbooks — all live, all working. The tech is done.
+The product is built. 24 pages, 200+ obituaries, 129 vendors, 18 caterers, meal coordination, yahrzeit reminders, guestbooks — all live, all working. The tech is done.
 
 But none of it matters without people.
 
@@ -41,7 +41,7 @@ Thirty years of friendship and one shared conviction: a lost soul should never b
 Neshama (neshama.ca) is a free community platform for Jewish families in Toronto and Montreal. When someone passes away, the people around them want to help — but the logistics are a mess. We bring everything together in one place.
 
 **What's live right now:**
-- **Obituary feed** — Aggregated automatically from 3 funeral homes (Steeles, Benjamin's, Paperman's). 100+ real listings. Updated daily.
+- **Obituary feed** — Aggregated automatically from 4 funeral homes (Steeles, Benjamin's, Paperman's, Misaskim). 200+ real listings. Updated daily.
 - **Shiva meal coordination** — A friend or family member creates a shiva page. Community members sign up for specific meal slots (breakfast/lunch/dinner) on each day. Everyone sees what's covered and what's still needed. Supports co-organizers.
 - **"How Can I Help?" hub** — 110 verified vendors: 86 local food partners (caterers, bakeries, delis) + 24 gift options (baskets, comfort items, memorial trees). Browsable by category.
 - **Caterer directory** — 18 caterers with detailed profiles (kosher level, delivery area, price range, descriptions).
@@ -51,7 +51,7 @@ Neshama (neshama.ca) is a free community platform for Jewish families in Toronto
 - **"What to Bring to a Shiva" guide** — Educational content that ranks in search.
 - **Prepare the Home page** — Products and guidance for setting up the shiva home.
 
-**Scale:** 27 pages, 100+ obituaries, 110 local food partners and gift vendors, 18 caterers. This is not a prototype.
+**Scale:** 27 pages, 200+ obituaries, 129 local food partners and gift vendors, 18 caterers. This is not a prototype.
 
 ---
 
@@ -90,7 +90,7 @@ Three revenue streams. The first is the main one.
 This is B2B, not family-facing.
 
 **How it works:**
-- All 110 vendors have a free listing. That never changes. Nobody gets removed.
+- All 129 vendors have a free listing. That never changes. Nobody gets removed.
 - Behind the scenes, we track every click and view on every vendor listing (more on this below).
 - **Month 1-2:** We email each vendor: "Hey, you're listed on Neshama. Families are finding you. Here's your free listing."
 - **Month 2-3:** We start sending automated monthly performance reports: "Your listing got X views and Y clicks this month."
@@ -192,8 +192,8 @@ Auto-refreshes every 60 seconds. Works on mobile.
 
 ### Done ✅
 - Full product live on neshama.ca (24 pages, all features working)
-- 100+ obituaries from 3 funeral homes (auto-scraped daily)
-- 110 vendors, 18 caterers in directory
+- 200+ obituaries from 4 funeral homes (auto-scraped daily)
+- 129 vendors, 18 caterers in directory
 - Stripe payments live (tested with real payment + refund)
 - Email subscription with daily/weekly digests via SendGrid
 - Yahrzeit reminder system (Hebrew calendar, daily 9AM cron)
@@ -217,7 +217,7 @@ Auto-refreshes every 60 seconds. Works on mobile.
 - [ ] Test a referral link yourself — visit `neshama.ca/?ref=jordana-whatsapp` and check the dashboard to see it tracked
 
 **Week 2 (Mar 8-14) — Vendor + Synagogue Push:**
-- [ ] Vendor outreach emails sent — "You're listed on Neshama" (110 vendors)
+- [ ] Vendor outreach emails sent — "You're listed on Neshama" (129 vendors)
 - [ ] Call 5 kosher caterers — pitch Featured Vendor ($49/mo founding rate)
 - [ ] Synagogue outreach emails (12+ synagogues)
 - [ ] Press pitch: Canadian Jewish News
@@ -241,19 +241,19 @@ All copy-paste ready. Organized by channel.
 
 ### WhatsApp Groups — Quick Drop (keep it SHORT — 4 lines max for groups)
 
-Hey — some of you know my mom used to read obituaries. After losing her, I started doing the same. Erin Kofman and I built neshama.ca — one place for Toronto/Montreal Jewish obituaries, shiva meal coordination, and 110+ caterers and vendors. Free, no sign-up. Worth bookmarking: www.neshama.ca
+Hey — some of you know my mom used to read obituaries. After losing her, I started doing the same. Erin Kofman and I built neshama.ca — one place for Toronto/Montreal Jewish obituaries, shiva meal coordination, and 129+ caterers and vendors. Free, no sign-up. Worth bookmarking: www.neshama.ca
 
 ### WhatsApp — Longer Version (for personal messages, not groups)
 
 Hey — I wanted to share something close to my heart. You know my mom read obituaries to find former patients. After losing her, I started doing both — reading obituaries and feeding people. Through Jem Salads I saw the same problem every week: meals overlapping, days uncovered, families checking three different funeral home websites.
 
-So Erin and I built Neshama (www.neshama.ca). Obituaries from Toronto and Montreal in one feed, a meal coordination tool so nothing overlaps, and 110+ caterers and vendors. Free, respectful, no ads. Worth a look.
+So Erin and I built Neshama (www.neshama.ca). Obituaries from Toronto and Montreal in one feed, a meal coordination tool so nothing overlaps, and 129+ caterers and vendors. Free, respectful, no ads. Worth a look.
 
 ### Orthodox Community Circles
 
 Hi [Name] — quick one. Erin Kofman and I built a community resource called Neshama (www.neshama.ca). You know how it is — three people bring chicken Monday, nobody brings anything Wednesday.
 
-Neshama has obituaries from local funeral homes in one place, a meal coordination tool for shiva, and a full "How Can I Help?" hub with local food partners and gifts. Free, already live with 100+ listings. If you know anyone on a chesed committee, I'd love for them to see it.
+Neshama has obituaries from local funeral homes in one place, a meal coordination tool for shiva, and a full "How Can I Help?" hub with local food partners and gifts. Free, already live with 200+ listings. If you know anyone on a chesed committee, I'd love for them to see it.
 
 ### Synagogue Contacts / Chesed Committees
 
@@ -261,7 +261,7 @@ Hi [Name],
 
 I wanted to share a community resource that I think would be valuable for [Synagogue Name]'s congregation.
 
-I've been working with Erin Kofman on a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a "How Can I Help?" hub with 110+ local food partners and gift vendors.
+I've been working with Erin Kofman on a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a "How Can I Help?" hub with 129+ local food partners and gift vendors.
 
 As someone who runs a catering business that serves shiva families, I see how fragmented and stressful the logistics can be. Neshama gives the community a simple way to find information, coordinate meals, and connect with vendors, all in one place. Free for families. No sign-up, no fees.
 
@@ -310,7 +310,7 @@ Would love for you to take a look. And if you see the right people to share it w
 ## FAQ — When People Ask Questions
 
 **"What is this exactly?"**
-> A free website for Jewish families when someone passes away. Pulls together obituaries from funeral homes, has a meal coordination tool so friends don't overlap, and a "How Can I Help?" hub with 110+ local food partners and gift vendors. Everything the community needs during shiva, in one place.
+> A free website for Jewish families when someone passes away. Pulls together obituaries from funeral homes, has a meal coordination tool so friends don't overlap, and a "How Can I Help?" hub with 129+ local food partners and gift vendors. Everything the community needs during shiva, in one place.
 
 **"Why not just call a caterer?"**
 > You absolutely should — the site even has a directory to help you find one. But the coordination piece is different. When 12 people want to bring food, you end up with three kugels Monday and nothing Wednesday. The meal tool lets everyone sign up for specific days. It works alongside caterers, not instead of them.

@@ -23,6 +23,42 @@
 - PWA support
 - Analytics tracking
 
+## Repository Structure (updated Mar 12, 2026)
+```
+~/Desktop/Neshama/
+├── frontend/           ← ALL HTML pages, api_server.py, backend .py, static assets, sitemap.xml
+├── marketing-kit/      ← Outreach kits, email drafts, contact lists, graphics
+│   ├── jordana/        ← Jordana's share kit + WhatsApp card
+│   ├── montreal/       ← Montreal share kit
+│   ├── general/        ← One-pager, profile photo, synagogue outreach
+│   ├── instagram-stories/ ← Story graphics (1080x1920)
+│   ├── whatsapp/       ← WhatsApp share cards
+│   ├── vendor-drafts/  ← Individual vendor email drafts
+│   ├── synagogue-drafts/ ← Individual synagogue email drafts
+│   ├── JORDANA-OUTREACH-KIT.md + .pdf  ← Master outreach kit
+│   ├── synagogue-contacts.md  ← 17 synagogue contacts
+│   └── vendor-emails-collected.md  ← 40 vendor emails
+├── instagram-posts/    ← All IG feed graphics (1080x1080) + carousel subfolders
+├── outscraper_pipeline/ ← Vendor data sourcing scripts + CSVs
+├── docs/               ← Reference docs (UX review, deploy guide, ops manual, reliability)
+├── archive/            ← Old/one-time scripts (generators, migrations, utilities)
+├── fonts/              ← Brand fonts (gitignored)
+├── tests/              ← Playwright e2e tests
+├── *_scraper.py        ← Active scrapers (steeles, benjamins, paperman, misaskim)
+├── master_scraper.py   ← Scraper orchestrator
+├── database_setup.py   ← SQLite schema
+├── seed_vendors.py     ← Vendor seed data (imported by api_server.py — do NOT move)
+└── render.yaml         ← Render deploy config
+```
+
+**Where to find things:**
+- Code & pages → `frontend/`
+- Marketing anything → `marketing-kit/`
+- Instagram graphics → `instagram-posts/`
+- Old scripts → `archive/`
+- Strategy & plans → Obsidian `01-Projects/Neshama/`
+- Agent config → `~/agents/neshama/`
+
 ## Key Rules
 - Always test before committing
 - Always commit and push when done
