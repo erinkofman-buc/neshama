@@ -433,6 +433,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_confirm_subscriber(body)
         elif path == '/admin/confirm-all-subscribers':
             self.handle_admin_confirm_all_subscribers(body)
+        elif path == '/admin/delete-subscribers':
+            self.handle_admin_delete_subscribers(body)
         elif path == '/api/yahrzeit/subscribe':
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
@@ -1615,6 +1617,50 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             })
         except Exception as e:
             logging.error(f"[Admin] Error confirming all subscribers: {e}")
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_delete_subscribers(self, body):
+        """Delete subscribers matching a pattern (e.g. smoketest addresses)"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        try:
+            data = json.loads(body.decode('utf-8'))
+            pattern = data.get('pattern', '').strip()
+            if not pattern:
+                self.send_error_response('Pattern required (e.g. "smoketest%@neshama.ca")', 400)
+                return
+
+            conn = _connect_db()
+            cursor = conn.cursor()
+            cursor.execute('SELECT email FROM subscribers WHERE email LIKE ?', (pattern,))
+            matches = [row[0] for row in cursor.fetchall()]
+
+            if not matches:
+                conn.close()
+                self.send_json_response({'status': 'ok', 'message': 'No matches', 'deleted': 0})
+                return
+
+            cursor.execute('DELETE FROM subscribers WHERE email LIKE ?', (pattern,))
+            deleted = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            for email in matches:
+                logging.info(f"[Admin] Deleted subscriber: {email}")
+
+            self.send_json_response({
+                'status': 'success',
+                'deleted': deleted,
+                'emails': matches
+            })
+        except Exception as e:
             self.send_error_response(f'Error: {str(e)}', 500)
 
     def handle_admin_unlock_db(self):
