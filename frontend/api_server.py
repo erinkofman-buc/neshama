@@ -4307,12 +4307,39 @@ button:hover{background:#c45a1a}</style></head>
                 except Exception as se:
                     subprocess_write = str(se)[:200]
 
+                # Check if disk itself is writable
+                disk_writable = False
+                try:
+                    test_file = db_path + '.writetest'
+                    with open(test_file, 'w') as f:
+                        f.write('test')
+                    os.remove(test_file)
+                    disk_writable = True
+                except Exception:
+                    disk_writable = False
+
+                # Check file permissions
+                import stat
+                db_stat = {}
+                try:
+                    s = os.stat(db_path)
+                    db_stat = {
+                        'mode': oct(s.st_mode),
+                        'size': s.st_size,
+                        'uid': s.st_uid,
+                        'writable': os.access(db_path, os.W_OK),
+                    }
+                except Exception as se:
+                    db_stat = {'error': str(se)}
+
                 checks['db_writable'] = {
                     'ok': False,
                     'error': str(e),
                     'journal_mode': journal_mode,
                     'wal_file': wal_exists,
                     'shm_file': shm_exists,
+                    'disk_writable': disk_writable,
+                    'db_file': db_stat,
                     'subprocess_write': subprocess_write,
                 }
                 all_ok = False
