@@ -5563,13 +5563,24 @@ def run_server(port=None):
         total_changed += ks_count
 
         # Migration 2026-03-12b: Fix 3 vendors missing website URLs (orange button fix)
+        # Update ALL rows for these vendors (not just empty ones) to ensure consistency
         vendor_url_fixes = [
-            "UPDATE vendors SET website = 'https://www.bubbysbagels.com', phone = '(416) 862-2435' WHERE name = 'Bubby''s Bagels' AND (website IS NULL OR website = '')",
-            "UPDATE vendors SET website = 'https://www.haymishebakery.com', phone = '(416) 781-4212' WHERE name = 'Haymishe Bakery' AND (website IS NULL OR website = '')",
-            "UPDATE vendors SET website = 'https://umamisushi.ca', phone = '(416) 782-3375' WHERE name = 'Umami Sushi' AND (website IS NULL OR website = '')",
+            "UPDATE vendors SET website = 'https://www.bubbysbagels.com', phone = '(416) 862-2435' WHERE name = 'Bubby''s Bagels'",
+            "UPDATE vendors SET website = 'https://www.haymishebakery.com', phone = '(416) 781-4212' WHERE name = 'Haymishe Bakery'",
+            "UPDATE vendors SET website = 'https://umamisushi.ca', phone = '(416) 782-3375' WHERE name = 'Umami Sushi'",
         ]
         for sql in vendor_url_fixes:
             cursor.execute(sql)
+
+        # Migration 2026-03-12c: Remove duplicate vendor rows (keep lowest ID)
+        cursor.execute("""
+            DELETE FROM vendors WHERE id NOT IN (
+                SELECT MIN(id) FROM vendors GROUP BY name
+            )
+        """)
+        dedup_count = cursor.rowcount
+        if dedup_count > 0:
+            logging.info(f" Migrations: removed {dedup_count} duplicate vendor rows")
             total_changed += cursor.rowcount
 
         # Migration 2026-03-09: Auto-confirm all existing unconfirmed subscribers
