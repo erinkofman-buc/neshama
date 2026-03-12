@@ -4547,31 +4547,36 @@ def run_server(port=None):
 
     # Recovery: clear stale SQLite locks from crashed processes.
     # On Render persistent disk, WAL/SHM files survive restarts and can hold phantom locks.
-    # Strategy: delete stale lock files FIRST (no other process exists after restart),
-    # then open fresh with WAL mode.
-    for suffix in ['-wal', '-shm']:
-        lock_file = DB_PATH + suffix
-        if os.path.exists(lock_file):
-            try:
-                os.remove(lock_file)
-                logging.info(f"[Startup] Removed stale lock file: {lock_file}")
-            except Exception as e:
-                logging.warning(f"[Startup] Could not remove {lock_file}: {e}")
-
-    # Now open with WAL mode — this creates fresh WAL/SHM files
+    # Nuclear recovery: switch to DELETE journal mode (clears all WAL state), then back to WAL.
     try:
+        # Step 1: Remove stale lock files (safe — we're the only process after restart)
+        for suffix in ['-wal', '-shm']:
+            lock_file = DB_PATH + suffix
+            if os.path.exists(lock_file):
+                try:
+                    os.remove(lock_file)
+                    logging.info(f"[Startup] Removed stale lock file: {lock_file}")
+                except Exception as e:
+                    logging.warning(f"[Startup] Could not remove {lock_file}: {e}")
+
+        # Step 2: Open in DELETE mode to force-clear any WAL state
         recovery_conn = sqlite3.connect(DB_PATH, timeout=10)
-        recovery_conn.execute('PRAGMA journal_mode=WAL')
+        mode = recovery_conn.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
+        logging.info(f"[Startup] Journal mode switched to: {mode}")
+
+        # Step 3: Switch back to WAL mode (creates fresh WAL/SHM)
+        mode = recovery_conn.execute('PRAGMA journal_mode=WAL').fetchone()[0]
+        logging.info(f"[Startup] Journal mode switched to: {mode}")
+
+        # Step 4: Verify write works
         recovery_conn.execute('PRAGMA busy_timeout=30000')
-        # Verify we can write
         cursor = recovery_conn.cursor()
-        cursor.execute("BEGIN IMMEDIATE")
         cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('startup_test', datetime('now'), 'ok')")
         recovery_conn.commit()
         recovery_conn.close()
         logging.info("[Startup] DB lock recovery: write test PASSED")
     except Exception as e:
-        logging.error(f"[Startup] DB lock recovery FAILED — writes may not work: {e}")
+        logging.error(f"[Startup] DB lock recovery FAILED: {e}")
         try:
             recovery_conn.close()
         except Exception:
