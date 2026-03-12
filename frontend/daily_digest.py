@@ -244,8 +244,9 @@ class DailyDigestSender:
             )
 
             # Add unsubscribe headers for email clients (RFC 8058)
-            message.add_header('List-Unsubscribe', f'<{unsubscribe_url}>')
-            message.add_header('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click')
+            from sendgrid.helpers.mail import Header
+            message.header = Header('List-Unsubscribe', f'<{unsubscribe_url}>')
+            message.header = Header('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click')
 
             sg = SendGridAPIClient(self.sendgrid_api_key)
             response = sg.send(message)
