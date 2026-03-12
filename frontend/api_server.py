@@ -4545,6 +4545,36 @@ def run_server(port=None):
     except Exception as e:
         logging.warning(f"[Startup] database_setup: {e}")
 
+    # Auto-confirm stale subscribers on startup (48h+ unconfirmed)
+    # This catches subscribers whose confirmation emails went to spam
+    try:
+        conn = _connect_db()
+        cursor = conn.cursor()
+        cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
+        cursor.execute('''
+            SELECT email, subscribed_at FROM subscribers
+            WHERE confirmed = FALSE
+            AND unsubscribed_at IS NULL
+            AND subscribed_at <= ?
+        ''', (cutoff,))
+        stale = cursor.fetchall()
+        if stale:
+            now = datetime.now().isoformat()
+            cursor.execute('''
+                UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
+                WHERE confirmed = FALSE
+                AND unsubscribed_at IS NULL
+                AND subscribed_at <= ?
+            ''', (now, cutoff))
+            count = cursor.rowcount
+            conn.commit()
+            for email, subscribed_at in stale:
+                logging.info(f"[Startup] Auto-confirmed subscriber: {email} (subscribed {subscribed_at})")
+            logging.info(f"[Startup] Auto-confirmed {count} stale subscribers")
+        conn.close()
+    except Exception as e:
+        logging.warning(f"[Startup] Auto-confirm subscribers: {e}")
+
     server_address = ('0.0.0.0', port)
     httpd = HTTPServer(server_address, NeshamaAPIHandler)
 
