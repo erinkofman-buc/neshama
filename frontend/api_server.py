@@ -247,6 +247,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/help/supplies': ('shiva-essentials.html', 'text/html'),
         '/what-to-bring-to-a-shiva': ('what-to-bring-to-a-shiva.html', 'text/html'),
         '/what-to-bring-to-a-shiva.html': ('what-to-bring-to-a-shiva.html', 'text/html'),
+        '/first-passover-after-loss': ('first-passover-after-loss.html', 'text/html'),
+        '/first-passover-after-loss.html': ('first-passover-after-loss.html', 'text/html'),
         '/how-to-sit-shiva': ('how-to-sit-shiva.html', 'text/html'),
         '/how-to-sit-shiva.html': ('how-to-sit-shiva.html', 'text/html'),
         '/what-is-yahrzeit': ('what-is-yahrzeit.html', 'text/html'),
