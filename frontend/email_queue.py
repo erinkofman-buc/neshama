@@ -78,7 +78,7 @@ def _send_via_sendgrid(sendgrid_key, to_email, to_name, subject, html_content):
 
     if not sendgrid_key:
         logger.info(f"[EmailQueue] TEST MODE — would send to {to_email}: {subject}")
-        return True, 'test-mode', None
+        return False, 'test-mode', 'No SendGrid API key'
 
     try:
         from sendgrid import SendGridAPIClient

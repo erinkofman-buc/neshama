@@ -362,7 +362,81 @@ class DailyDigestSender:
         }
         if errors:
             result['errors'] = errors
+
+        # Send health summary to contact@neshama.ca
+        self._send_health_summary(result)
+
         return result
+
+    def _send_health_summary(self, digest_result):
+        """Send daily health report to contact@neshama.ca after digest completes."""
+        if not self.sendgrid_api_key:
+            logging.info("[DailyDigest] Skipping health summary — no SendGrid key")
+            return
+
+        try:
+            # Gather stats
+            stats = self.subscription_manager.get_stats()
+            obit_count = digest_result.get('obituaries_count', 0)
+            sent = digest_result.get('subscribers_sent', 0)
+            failed = digest_result.get('subscribers_failed', 0)
+            skipped = digest_result.get('subscribers_skipped', 0)
+            errors = digest_result.get('errors', [])
+
+            # Check scraper freshness
+            conn = sqlite3.connect(self.db_path, timeout=30)
+            cursor = conn.cursor()
+            cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
+            scraper_lines = []
+            for row in cursor.fetchall():
+                source, latest = row
+                if latest:
+                    try:
+                        hours_ago = round((datetime.now() - datetime.fromisoformat(latest)).total_seconds() / 3600, 1)
+                        status = 'OK' if hours_ago < 6 else 'STALE'
+                        scraper_lines.append(f"  {source}: {hours_ago}h ago ({status})")
+                    except Exception:
+                        scraper_lines.append(f"  {source}: {latest}")
+                else:
+                    scraper_lines.append(f"  {source}: no data")
+            conn.close()
+
+            scraper_summary = '\n'.join(scraper_lines) if scraper_lines else '  No scraper data'
+            error_summary = '\n'.join(f'  - {e}' for e in errors) if errors else '  None'
+
+            plain_text = f"""Neshama Daily Health Report — {datetime.now().strftime('%B %d, %Y')}
+
+DIGEST RESULTS
+  Obituaries: {obit_count}
+  Sent: {sent}
+  Skipped: {skipped}
+  Failed: {failed}
+
+SUBSCRIBERS
+  Active: {stats['active']}
+  Pending: {stats['pending']}
+  Unsubscribed: {stats['unsubscribed']}
+
+SCRAPER FRESHNESS
+{scraper_summary}
+
+ERRORS
+{error_summary}
+"""
+
+            message = Mail(
+                from_email=Email(self.from_email, self.from_name),
+                to_emails=To('contact@neshama.ca'),
+                subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                plain_text_content=Content(MimeType.text, plain_text)
+            )
+
+            sg = SendGridAPIClient(self.sendgrid_api_key)
+            sg.send(message)
+            logging.info("[DailyDigest] Health summary sent to contact@neshama.ca")
+
+        except Exception as e:
+            logging.error(f"[DailyDigest] Failed to send health summary: {e}")
 
 if __name__ == '__main__':
     sender = DailyDigestSender()

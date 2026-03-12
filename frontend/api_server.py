@@ -4447,24 +4447,51 @@ button:hover{background:#c45a1a}</style></head>
             cursor = conn.cursor()
 
             # Scraper freshness — flag if any source has no data in 3+ hours
+            # Shabbat-aware: don't flag stale during Shabbat (scrapers are paused)
             try:
                 cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
                 three_hours_ago = (datetime.now() - timedelta(hours=3)).isoformat()
+                shabbat_now = is_shabbat()
                 scraper_status = {}
                 for row in cursor.fetchall():
                     source = row[0]
                     latest = row[1]
                     is_fresh = latest and latest >= three_hours_ago
                     scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
-                    if not is_fresh:
+                    if not is_fresh and not shabbat_now:
                         all_ok = False
-                checks['scraper_freshness'] = {'ok': all(s['fresh'] for s in scraper_status.values()), 'sources': scraper_status}
+                if shabbat_now:
+                    checks['scraper_freshness'] = {'ok': True, 'shabbat': True, 'sources': scraper_status}
+                else:
+                    checks['scraper_freshness'] = {'ok': all(s['fresh'] for s in scraper_status.values()), 'sources': scraper_status}
             except Exception as e:
                 checks['scraper_freshness'] = {'ok': False, 'error': str(e)}
 
             conn.close()
         except Exception as e:
             checks['database'] = {'ok': False, 'error': str(e)}
+            all_ok = False
+
+        # Scraper thread watchdog — if last heartbeat > 40min, mark unhealthy
+        try:
+            last_hb = _periodic_scraper_status.get('last_heartbeat')
+            if last_hb:
+                hb_time = datetime.fromisoformat(last_hb)
+                minutes_since = (datetime.now() - hb_time).total_seconds() / 60
+                scraper_thread_ok = minutes_since < 40 or is_shabbat()
+            else:
+                # No heartbeat yet — server just started, give grace period
+                scraper_thread_ok = True
+            checks['scraper_thread'] = {
+                'ok': scraper_thread_ok,
+                'last_heartbeat': last_hb,
+                'cycle_count': _periodic_scraper_status.get('cycle_count', 0),
+                'consecutive_failures': _periodic_scraper_status.get('consecutive_failures', 0),
+            }
+            if not scraper_thread_ok:
+                all_ok = False
+        except Exception as e:
+            checks['scraper_thread'] = {'ok': False, 'error': str(e)}
             all_ok = False
 
         # 2. Email subsystem (optional — doesn't fail health check)
