@@ -4320,14 +4320,17 @@ button:hover{background:#c45a1a}</style></head>
 
                 # Count open file descriptors to DB (shows leaked connections)
                 open_fds = 0
+                fd_details = []
                 try:
                     import glob as _glob
                     pid = os.getpid()
-                    for fd_path in _glob.glob(f'/proc/{pid}/fd/*'):
+                    for fd_path in sorted(_glob.glob(f'/proc/{pid}/fd/*')):
                         try:
                             target = os.readlink(fd_path)
-                            if db_path in target:
+                            if db_path in target or 'neshama' in target:
+                                fd_num = os.path.basename(fd_path)
                                 open_fds += 1
+                                fd_details.append(f'fd{fd_num}={os.path.basename(target)}')
                         except Exception:
                             pass
                 except Exception:
@@ -4356,6 +4359,7 @@ button:hover{background:#c45a1a}</style></head>
                     'disk_writable': disk_writable,
                     'db_file': db_stat,
                     'open_fds_to_db': open_fds,
+                    'fd_details': fd_details[:10],
                     'subprocess_write': subprocess_write,
                 }
                 all_ok = False
