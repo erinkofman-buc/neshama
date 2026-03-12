@@ -370,6 +370,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_digest()
         elif path == '/admin/subscribers':
             self.handle_admin_subscribers()
+        elif path == '/admin/unlock-db':
+            self.handle_admin_unlock_db()
         # Redirects
         elif path == '/shiva-guide':
             self.send_response(301)
@@ -1580,6 +1582,50 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             logging.error(f"[Admin] Error confirming all subscribers: {e}")
             self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_unlock_db(self):
+        """Force-clear SQLite locks by switching DELETE→WAL journal mode.
+        GET /admin/unlock-db?key=ADMIN_SECRET"""
+        admin_secret = os.environ.get('ADMIN_SECRET', '')
+        if admin_secret:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+            if token != admin_secret:
+                self.send_error_response('Unauthorized', 403)
+                return
+
+        steps = []
+        try:
+            db_path = self.get_db_path()
+
+            # Step 1: Remove lock files
+            for suffix in ['-wal', '-shm']:
+                lock_file = db_path + suffix
+                if os.path.exists(lock_file):
+                    os.remove(lock_file)
+                    steps.append(f'Removed {suffix}')
+                else:
+                    steps.append(f'No {suffix} file')
+
+            # Step 2: Open fresh, switch to DELETE then WAL
+            conn = sqlite3.connect(db_path, timeout=5)
+            mode = conn.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
+            steps.append(f'Switched to {mode}')
+            mode = conn.execute('PRAGMA journal_mode=WAL').fetchone()[0]
+            steps.append(f'Switched to {mode}')
+
+            # Step 3: Write test
+            conn.execute('PRAGMA busy_timeout=5000')
+            conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('unlock_test', datetime('now'), 'ok')")
+            conn.commit()
+            conn.close()
+            steps.append('Write test PASSED')
+
+            self.send_json_response({'status': 'success', 'steps': steps})
+        except Exception as e:
+            steps.append(f'ERROR: {str(e)}')
+            self.send_json_response({'status': 'error', 'steps': steps, 'error': str(e)}, 500)
 
     def handle_admin_digest(self):
         """Send daily email digest via admin endpoint"""
