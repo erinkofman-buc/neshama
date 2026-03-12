@@ -922,7 +922,7 @@ def process_email_queue(db_path):
         logger.info("[EmailQueue] Shabbat — email processing paused")
         return {'paused': 'shabbat'}
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -979,7 +979,7 @@ def log_immediate_email(db_path, shiva_support_id, email_type, recipient_email,
     """Log an immediately-sent email (signup confirmations, access requests, etc.)
     to email_log for audit trail. Called after synchronous sends."""
     now = datetime.now(TORONTO_TZ).strftime('%Y-%m-%dT%H:%M:%S')
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO email_log

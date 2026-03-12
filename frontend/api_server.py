@@ -30,6 +30,15 @@ if FRONTEND_DIR not in sys.path:
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 
+
+def _connect_db(db_path=None):
+    """Create a SQLite connection with busy timeout and WAL mode.
+    Prevents 'database is locked' errors from concurrent scraper/API writes."""
+    conn = sqlite3.connect(db_path or DB_PATH, timeout=30)
+    conn.execute('PRAGMA journal_mode=WAL')
+    conn.execute('PRAGMA busy_timeout=30000')
+    return conn
+
 # ── Rate Limiter ─────────────────────────────────────────
 # Simple in-memory rate limiter for email-sending endpoints.
 # Keyed by (client_ip, endpoint). Allows max N calls per window.
@@ -552,7 +561,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get all obituaries from database, optionally filtered by city"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -590,7 +599,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Search obituaries by name"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -619,7 +628,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get database statistics"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             cursor.execute('SELECT COUNT(*) FROM obituaries')
@@ -656,7 +665,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get last scraper run time for freshness indicator"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             last_run = None
@@ -736,7 +745,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 locations = ','.join(sorted(loc_list))
 
                 db_path = self.get_db_path()
-                conn = sqlite3.connect(db_path)
+                conn = _connect_db(db_path)
                 cursor = conn.cursor()
                 now = datetime.now().isoformat()
                 cursor.execute('''
@@ -844,7 +853,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             # Store in database
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             # Create feedback table if needed
@@ -874,7 +883,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get subscriber count"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             cursor.execute('SELECT COUNT(*) FROM subscribers WHERE confirmed = TRUE')
             count = cursor.fetchone()[0]
@@ -889,7 +898,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get a single obituary by ID"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM obituaries WHERE id = ?', (obit_id,))
@@ -928,7 +937,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             entry_type = params.get('type', [None])[0]
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -950,7 +959,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get tribute counts for all obituaries"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             cursor.execute(
                 'SELECT obituary_id, COUNT(*) as count FROM tributes GROUP BY obituary_id'
@@ -1002,7 +1011,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             is_candle = 1 if entry_type == 'candle' else 0
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             now = datetime.now().isoformat()
             cursor.execute(
@@ -1038,7 +1047,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             cursor.execute(
                 'DELETE FROM tributes WHERE obituary_id = ? AND id = ?',
@@ -1069,7 +1078,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             try:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
@@ -1127,7 +1136,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get community-wide statistics"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             cursor.execute('SELECT COUNT(*) FROM obituaries')
@@ -1167,7 +1176,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Get platform activity stats for caterer directory social proof"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             cursor.execute('SELECT COUNT(*) FROM obituaries')
@@ -1217,7 +1226,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         """Consolidated stats endpoint for the cofounder dashboard"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -1450,7 +1459,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = _connect_db()
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT email, confirmed, frequency, locations, subscribed_at,
@@ -1498,7 +1507,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_error_response('Email required', 400)
                 return
 
-            conn = sqlite3.connect(DB_PATH)
+            conn = _connect_db()
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE subscribers SET confirmed = TRUE, confirmed_at = ?
@@ -1527,7 +1536,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 return
 
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = _connect_db()
             cursor = conn.cursor()
             now = datetime.now().isoformat()
 
@@ -1862,7 +1871,7 @@ button:hover{background:#c45a1a}</style></head>
         """Get food vendors, optionally filtered by city"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             try:
@@ -1901,7 +1910,7 @@ button:hover{background:#c45a1a}</style></head>
         """Get gift vendors"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM vendors WHERE vendor_type = 'gift' ORDER BY featured DESC, name ASC")
@@ -1915,7 +1924,7 @@ button:hover{background:#c45a1a}</style></head>
         """Get a single vendor by slug"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM vendors WHERE slug = ?', (slug,))
@@ -1964,7 +1973,7 @@ button:hover{background:#c45a1a}</style></head>
                 return
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             now = datetime.now().isoformat()
 
@@ -2147,7 +2156,7 @@ button:hover{background:#c45a1a}</style></head>
         # Log click to database
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS vendor_clicks (
@@ -2189,7 +2198,7 @@ button:hover{background:#c45a1a}</style></head>
             referrer_page = data.get('referrer_page', '')
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             cursor.execute('''
@@ -2244,7 +2253,7 @@ button:hover{background:#c45a1a}</style></head>
 
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -2401,7 +2410,7 @@ button:hover{background:#c45a1a}</style></head>
                 return
 
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             cursor.execute('''
@@ -2435,7 +2444,7 @@ button:hover{background:#c45a1a}</style></head>
         """Get referral tracking stats (GET /api/referral-stats)"""
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -2516,7 +2525,7 @@ button:hover{background:#c45a1a}</style></head>
         found_pages = []
 
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = _connect_db()
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -3072,7 +3081,7 @@ button:hover{background:#c45a1a}</style></head>
             if not EMAIL_AVAILABLE or not subscription_mgr or not subscription_mgr.sendgrid_api_key:
                 return
 
-            conn = sqlite3.connect(DB_PATH)
+            conn = _connect_db()
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
@@ -4210,7 +4219,7 @@ button:hover{background:#c45a1a}</style></head>
         # 1. Database connection + table counts
         try:
             db_path = self.get_db_path()
-            conn = sqlite3.connect(db_path)
+            conn = _connect_db(db_path)
             cursor = conn.cursor()
 
             for table, min_expected in [('obituaries', 50), ('vendors', 80), ('subscribers', 0)]:
@@ -4233,6 +4242,22 @@ button:hover{background:#c45a1a}</style></head>
             except Exception as e:
                 checks['db_writable'] = {'ok': False, 'error': str(e)}
                 all_ok = False
+
+            # Scraper freshness — flag if any source has no data in 3+ hours
+            try:
+                cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
+                three_hours_ago = (datetime.now() - timedelta(hours=3)).isoformat()
+                scraper_status = {}
+                for row in cursor.fetchall():
+                    source = row[0]
+                    latest = row[1]
+                    is_fresh = latest and latest >= three_hours_ago
+                    scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
+                    if not is_fresh:
+                        all_ok = False
+                checks['scraper_freshness'] = {'ok': all(s['fresh'] for s in scraper_status.values()), 'sources': scraper_status}
+            except Exception as e:
+                checks['scraper_freshness'] = {'ok': False, 'error': str(e)}
 
             conn.close()
         except Exception as e:
@@ -4336,7 +4361,7 @@ def auto_scrape_on_startup():
         needs_scrape = True
         if os.path.exists(db_path_to_check):
             try:
-                conn = sqlite3.connect(db_path_to_check)
+                conn = _connect_db(db_path_to_check)
                 cursor = conn.cursor()
                 cursor.execute('SELECT COUNT(*) FROM obituaries')
                 count = cursor.fetchone()[0]
@@ -4377,10 +4402,99 @@ def is_shabbat():
     return False
 
 
+def _run_health_watchdog():
+    """Check system health after each scraper run.
+    Logs warnings for: stale data, DB lock, low obituary counts, SendGrid issues.
+    Sends alert email to contact@neshama.ca if critical issues detected."""
+    issues = []
+    try:
+        conn = _connect_db()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Check 1: Database writable
+        try:
+            cursor.execute("CREATE TABLE IF NOT EXISTS _health_check (ts TEXT)")
+            cursor.execute("INSERT INTO _health_check VALUES (?)", (datetime.now().isoformat(),))
+            conn.commit()
+            cursor.execute("DELETE FROM _health_check")
+            conn.commit()
+        except Exception as e:
+            issues.append(f"DB WRITE FAILED: {e}")
+
+        # Check 2: Scraper freshness — any source with no data in 6+ hours
+        try:
+            cursor.execute('''
+                SELECT source, MAX(scraped_at) as latest
+                FROM obituaries GROUP BY source
+            ''')
+            six_hours_ago = (datetime.now() - timedelta(hours=6)).isoformat()
+            for row in cursor.fetchall():
+                if row['latest'] and row['latest'] < six_hours_ago:
+                    hours_stale = round((datetime.now() - datetime.fromisoformat(row['latest'])).total_seconds() / 3600, 1)
+                    issues.append(f"STALE DATA: {row['source']} — last scraped {hours_stale}h ago")
+        except Exception as e:
+            issues.append(f"Freshness check failed: {e}")
+
+        # Check 3: Subscriber count
+        try:
+            cursor.execute("SELECT COUNT(*) as total, COUNT(CASE WHEN confirmed THEN 1 END) as confirmed FROM subscribers")
+            row = cursor.fetchone()
+            if row:
+                logging.info(f"[Watchdog] Subscribers: {row['total']} total, {row['confirmed']} confirmed")
+        except Exception:
+            pass
+
+        # Check 4: SendGrid API key present
+        if not os.environ.get('SENDGRID_API_KEY'):
+            issues.append("SENDGRID_API_KEY not set — digest emails running in TEST MODE")
+
+        conn.close()
+
+    except Exception as e:
+        issues.append(f"Watchdog DB connection failed: {e}")
+
+    if issues:
+        for issue in issues:
+            logging.error(f"[Watchdog] {issue}")
+        # Try to send alert email
+        _send_health_alert(issues)
+    else:
+        logging.info("[Watchdog] All systems healthy")
+
+
+def _send_health_alert(issues):
+    """Send health alert email to contact@neshama.ca via SendGrid"""
+    sg_key = os.environ.get('SENDGRID_API_KEY')
+    if not sg_key:
+        logging.error("[Watchdog] Cannot send alert — no SendGrid key")
+        return
+    try:
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        issue_list = '\n'.join(f'- {i}' for i in issues)
+        msg = Mail(
+            from_email='updates@neshama.ca',
+            to_emails='contact@neshama.ca',
+            subject=f'[Neshama Alert] {len(issues)} system issue(s) detected',
+            plain_text_content=f'Health watchdog found issues at {datetime.now().isoformat()}:\n\n{issue_list}\n\nCheck Render logs for details.'
+        )
+        sg = SendGridAPIClient(sg_key)
+        sg.send(msg)
+        logging.info(f"[Watchdog] Alert email sent to contact@neshama.ca")
+    except Exception as e:
+        logging.error(f"[Watchdog] Failed to send alert: {e}")
+
+
+# Track consecutive scraper failures to avoid alert spam
+_scraper_fail_count = 0
+
 def periodic_scraper():
     """Run scrapers every SCRAPE_INTERVAL seconds in background thread.
     Keeps obituary data fresh between server restarts.
-    Pauses during Shabbat (Friday evening – Saturday night)."""
+    Pauses during Shabbat (Friday evening – Saturday night).
+    Runs health watchdog after each cycle."""
+    global _scraper_fail_count
     import time as _time
     project_root = os.path.join(FRONTEND_DIR, '..')
     while True:
@@ -4399,12 +4513,22 @@ def periodic_scraper():
             )
             if result.returncode == 0:
                 logging.info(f"[Scraper] Periodic scrape completed successfully")
+                _scraper_fail_count = 0
             else:
-                logging.info(f"[Scraper] Scrape had issues: {result.stderr[:200]}")
+                _scraper_fail_count += 1
+                logging.warning(f"[Scraper] Scrape had issues (fail #{_scraper_fail_count}): {result.stderr[:200]}")
         except subprocess.TimeoutExpired:
-            logging.info("[Scraper] Periodic scrape timed out after 300s (non-fatal)")
+            _scraper_fail_count += 1
+            logging.warning(f"[Scraper] Periodic scrape timed out after 300s (fail #{_scraper_fail_count})")
         except Exception as e:
-            logging.error(f"[Scraper] Periodic scrape error (non-fatal): {e}")
+            _scraper_fail_count += 1
+            logging.error(f"[Scraper] Periodic scrape error (fail #{_scraper_fail_count}): {e}")
+
+        # Run health watchdog every 6th cycle (~2 hours) or on failures
+        cycle_count = getattr(periodic_scraper, '_cycle', 0) + 1
+        periodic_scraper._cycle = cycle_count
+        if cycle_count % 6 == 0 or _scraper_fail_count >= 3:
+            _run_health_watchdog()
 
 
 def run_server(port=None):
@@ -4473,7 +4597,7 @@ def run_server(port=None):
                     """Auto-confirm subscribers who signed up 48+ hours ago but never confirmed.
                     Safety net for when confirmation emails go to spam."""
                     try:
-                        conn = sqlite3.connect(DB_PATH)
+                        conn = _connect_db()
                         cursor = conn.cursor()
                         cutoff = (datetime.now() - timedelta(hours=48)).isoformat()
                         cursor.execute('''
@@ -4507,7 +4631,10 @@ def run_server(port=None):
                     # Auto-confirm stale subscribers before sending digest
                     _auto_confirm_stale_subscribers()
                     try:
-                        sender = DailyDigestSender(db_path=DB_PATH)
+                        sg_key = os.environ.get('SENDGRID_API_KEY')
+                        if not sg_key:
+                            logging.error("[DailyDigest] SENDGRID_API_KEY not set — digest will run in TEST MODE (no emails sent)")
+                        sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
                         sender.send_daily_digest()
                     except Exception as e:
                         logging.error(f"[DailyDigest] Error: {e}")
@@ -4531,7 +4658,10 @@ def run_server(port=None):
                 from weekly_digest import WeeklyDigestSender
                 def _run_weekly_digest():
                     try:
-                        sender = WeeklyDigestSender(db_path=DB_PATH)
+                        sg_key = os.environ.get('SENDGRID_API_KEY')
+                        if not sg_key:
+                            logging.error("[WeeklyDigest] SENDGRID_API_KEY not set — running in TEST MODE")
+                        sender = WeeklyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
                         sender.send_weekly_digest()
                     except Exception as e:
                         logging.error(f"[WeeklyDigest] Error: {e}")
@@ -4984,7 +5114,7 @@ def run_server(port=None):
 
     # ── Run data migrations ──────────────────────────────────
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = _connect_db()
         cursor = conn.cursor()
 
         # Migration 2026-02-28: Fix vendor miscategorizations

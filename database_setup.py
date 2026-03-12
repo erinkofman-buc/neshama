@@ -18,8 +18,10 @@ class NeshamaDatabase:
         self.cursor = None
 
     def connect(self):
-        """Establish database connection"""
-        self.conn = sqlite3.connect(self.db_path)
+        """Establish database connection with busy timeout and WAL mode"""
+        self.conn = sqlite3.connect(self.db_path, timeout=30)
+        self.conn.execute('PRAGMA journal_mode=WAL')
+        self.conn.execute('PRAGMA busy_timeout=30000')
         self.cursor = self.conn.cursor()
 
     def close(self):
@@ -422,7 +424,8 @@ class NeshamaDatabase:
         return results
 
 def initialize_database():
-    """Create database and tables if they don't exist"""
+    """Create database and tables if they don't exist.
+    Enables WAL mode for better concurrent read/write performance."""
     db_path = os.environ.get('DATABASE_PATH', 'neshama.db')
 
     # Skip if the database directory doesn't exist (e.g., Render build step
@@ -434,6 +437,16 @@ def initialize_database():
 
     db = NeshamaDatabase(db_path)
     db.create_tables()
+
+    # Enable WAL mode at the database level (persists across connections)
+    try:
+        conn = sqlite3.connect(db_path, timeout=30)
+        result = conn.execute('PRAGMA journal_mode=WAL').fetchone()
+        conn.close()
+        logging.info(f"   Journal mode: {result[0]}")
+    except Exception as e:
+        logging.warning(f"   WAL mode setup: {e}")
+
     logging.info("✅ Database initialized successfully")
     logging.info(f"   Location: {os.path.abspath(db.db_path)}")
 

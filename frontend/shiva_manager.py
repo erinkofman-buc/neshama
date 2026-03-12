@@ -25,7 +25,7 @@ class ShivaManager:
 
     def setup_database(self):
         """Create shiva support tables idempotently."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -346,7 +346,7 @@ class ShivaManager:
     # ── Helpers ───────────────────────────────────────────────
 
     def _get_conn(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -1419,7 +1419,7 @@ class ShivaManager:
     def track_event(self, event_type, obituary_id=None):
         """Record an analytics event. Fire-and-forget, never raises."""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=30)
             cursor = conn.cursor()
             cursor.execute(
                 'INSERT INTO shiva_analytics (event_type, obituary_id, created_at) VALUES (?, ?, ?)',

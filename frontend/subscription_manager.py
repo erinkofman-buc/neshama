@@ -53,7 +53,7 @@ class EmailSubscriptionManager:
     
     def create_subscribers_table(self):
         """Create subscribers table if it doesn't exist"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -137,7 +137,7 @@ class EmailSubscriptionManager:
             loc_list = ['toronto', 'montreal']
         locations = ','.join(sorted(loc_list))
 
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         try:
@@ -220,7 +220,7 @@ class EmailSubscriptionManager:
         Confirm subscription via token from email
         Returns: {'status': 'success'/'error', 'message': '...'}
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         try:
@@ -299,7 +299,7 @@ class EmailSubscriptionManager:
         Unsubscribe via token from email
         Returns: {'status': 'success'/'error', 'message': '...', 'email': '...'}
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
         
         try:
@@ -444,7 +444,7 @@ class EmailSubscriptionManager:
     
     def get_confirmed_subscribers(self):
         """Get list of all confirmed subscribers"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -465,7 +465,7 @@ class EmailSubscriptionManager:
         Get confirmed subscribers filtered by frequency and/or location.
         Returns: list of (email, unsubscribe_token, frequency, locations) tuples
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         query = '''
@@ -494,7 +494,7 @@ class EmailSubscriptionManager:
     
     def get_stats(self):
         """Get subscription statistics"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
         
         cursor.execute('SELECT COUNT(*) FROM subscribers WHERE confirmed = TRUE AND unsubscribed_at IS NULL')

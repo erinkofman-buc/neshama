@@ -48,7 +48,7 @@ class DailyDigestSender:
 
     def get_new_obituaries(self, hours=24, location=None):
         """Get obituaries posted in the last N hours, optionally filtered by location"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -282,7 +282,7 @@ class DailyDigestSender:
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
         logging.info(f" Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
 
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         sent_count = 0

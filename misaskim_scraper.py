@@ -158,7 +158,7 @@ def check_against_neshama(listings, db_path=None):
         print(f"  DB not found at {db_path} — can't check for duplicates")
         return listings, []
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30)
     cursor = conn.cursor()
 
     # Get existing obituary names (normalize for comparison)

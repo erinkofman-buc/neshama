@@ -50,7 +50,7 @@ class WeeklyDigestSender:
 
     def get_weekly_obituaries(self, location=None):
         """Get obituaries posted in the last 7 days, optionally filtered by location"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -258,7 +258,7 @@ class WeeklyDigestSender:
         weekly_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='weekly')
         logging.info(f" Sending to {len(weekly_subscribers)} weekly subscriber{'s' if len(weekly_subscribers) != 1 else ''}\n")
 
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
         cursor = conn.cursor()
 
         sent_count = 0
