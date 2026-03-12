@@ -4546,24 +4546,36 @@ def run_server(port=None):
         logging.warning(f"[Startup] database_setup: {e}")
 
     # Recovery: clear stale SQLite locks from crashed processes.
-    # On Render persistent disk, lock files survive restarts. WAL checkpoint forces cleanup.
+    # On Render persistent disk, WAL/SHM files survive restarts and can hold phantom locks.
+    # Strategy: delete stale lock files FIRST (no other process exists after restart),
+    # then open fresh with WAL mode.
+    for suffix in ['-wal', '-shm']:
+        lock_file = DB_PATH + suffix
+        if os.path.exists(lock_file):
+            try:
+                os.remove(lock_file)
+                logging.info(f"[Startup] Removed stale lock file: {lock_file}")
+            except Exception as e:
+                logging.warning(f"[Startup] Could not remove {lock_file}: {e}")
+
+    # Now open with WAL mode — this creates fresh WAL/SHM files
     try:
-        recovery_conn = sqlite3.connect(DB_PATH, timeout=5)
+        recovery_conn = sqlite3.connect(DB_PATH, timeout=10)
         recovery_conn.execute('PRAGMA journal_mode=WAL')
-        recovery_conn.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        recovery_conn.execute('PRAGMA busy_timeout=30000')
+        # Verify we can write
+        cursor = recovery_conn.cursor()
+        cursor.execute("BEGIN IMMEDIATE")
+        cursor.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('startup_test', datetime('now'), 'ok')")
+        recovery_conn.commit()
         recovery_conn.close()
-        logging.info("[Startup] DB lock recovery: WAL checkpoint completed")
+        logging.info("[Startup] DB lock recovery: write test PASSED")
     except Exception as e:
-        # If even this fails, try deleting stale lock files
-        logging.warning(f"[Startup] DB lock recovery failed: {e}")
-        for suffix in ['-wal', '-shm']:
-            lock_file = DB_PATH + suffix
-            if os.path.exists(lock_file):
-                try:
-                    os.remove(lock_file)
-                    logging.info(f"[Startup] Removed stale lock file: {lock_file}")
-                except Exception as e2:
-                    logging.error(f"[Startup] Could not remove {lock_file}: {e2}")
+        logging.error(f"[Startup] DB lock recovery FAILED — writes may not work: {e}")
+        try:
+            recovery_conn.close()
+        except Exception:
+            pass
 
     # Auto-confirm stale subscribers on startup (48h+ unconfirmed)
     # This catches subscribers whose confirmation emails went to spam
