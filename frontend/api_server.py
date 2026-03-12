@@ -32,32 +32,26 @@ SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes def
 
 # ── Early Lock Recovery ─────────────────────────────────
 # MUST run before any module-level DB connections (managers, etc.)
-# WAL mode's SHM-based locking breaks on Render persistent disk.
-# Switch to DELETE journal mode which uses simpler file-based locking.
+# Remove ALL lock/journal files so the DB opens clean.
 if os.path.exists(DB_PATH):
-    for _suffix in ['-wal', '-shm']:
+    for _suffix in ['-wal', '-shm', '-journal']:
         _lock_file = DB_PATH + _suffix
         if os.path.exists(_lock_file):
             try:
                 os.remove(_lock_file)
-                logging.info(f"[EarlyRecovery] Removed stale {_suffix} file")
+                logging.info(f"[EarlyRecovery] Removed {_suffix}")
             except Exception as _e:
                 logging.warning(f"[EarlyRecovery] Could not remove {_suffix}: {_e}")
-    # Switch to DELETE journal mode (no SHM file needed)
+    # Open and immediately close to verify DB is accessible
     try:
         _rc = sqlite3.connect(DB_PATH, timeout=5, isolation_level=None)
-        _mode = _rc.execute('PRAGMA journal_mode=DELETE').fetchone()[0]
+        _rc.execute('PRAGMA journal_mode=DELETE')
         _rc.execute('PRAGMA busy_timeout=30000')
-        logging.info(f"[EarlyRecovery] Journal mode: {_mode}")
-        _rc.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('early_recovery', datetime('now'), 'ok')")
         _rc.close()
-        logging.info("[EarlyRecovery] DB write test PASSED (DELETE mode)")
+        del _rc
+        logging.info("[EarlyRecovery] DB opened clean in DELETE mode")
     except Exception as _e:
-        logging.warning(f"[EarlyRecovery] DB write test: {_e}")
-        try:
-            _rc.close()
-        except Exception:
-            pass
+        logging.warning(f"[EarlyRecovery] {_e}")
 
 
 def _connect_db(db_path=None):
