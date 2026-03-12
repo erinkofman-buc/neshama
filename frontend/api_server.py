@@ -30,6 +30,33 @@ if FRONTEND_DIR not in sys.path:
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 
+# ── Early Lock Recovery ─────────────────────────────────
+# MUST run before any module-level DB connections (managers, etc.)
+# Stale SHM files from dead processes contain lock bits that block writes.
+if os.path.exists(DB_PATH):
+    for _suffix in ['-wal', '-shm']:
+        _lock_file = DB_PATH + _suffix
+        if os.path.exists(_lock_file):
+            try:
+                os.remove(_lock_file)
+                logging.info(f"[EarlyRecovery] Removed stale {_suffix} file")
+            except Exception as _e:
+                logging.warning(f"[EarlyRecovery] Could not remove {_suffix}: {_e}")
+    # Set WAL mode on fresh connection (recreates clean WAL/SHM)
+    try:
+        _rc = sqlite3.connect(DB_PATH, timeout=5, isolation_level=None)
+        _rc.execute('PRAGMA journal_mode=WAL')
+        _rc.execute('PRAGMA busy_timeout=5000')
+        _rc.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('early_recovery', datetime('now'), 'ok')")
+        _rc.close()
+        logging.info("[EarlyRecovery] DB write test PASSED")
+    except Exception as _e:
+        logging.warning(f"[EarlyRecovery] DB write test: {_e}")
+        try:
+            _rc.close()
+        except Exception:
+            pass
+
 
 def _connect_db(db_path=None):
     """Create a SQLite connection with busy timeout and WAL mode.
