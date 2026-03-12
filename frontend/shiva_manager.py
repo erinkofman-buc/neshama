@@ -25,7 +25,8 @@ class ShivaManager:
 
     def setup_database(self):
         """Create shiva support tables idempotently."""
-        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
 
         cursor.execute('''

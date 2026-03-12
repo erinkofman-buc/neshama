@@ -53,7 +53,8 @@ class EmailSubscriptionManager:
     
     def create_subscribers_table(self):
         """Create subscribers table if it doesn't exist"""
-        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('''

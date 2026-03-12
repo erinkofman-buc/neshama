@@ -69,7 +69,8 @@ class YahrzeitManager:
 
     def setup_database(self):
         """Create yahrzeit_reminders table idempotently."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
 
         cursor.execute('''

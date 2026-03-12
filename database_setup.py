@@ -19,7 +19,7 @@ class NeshamaDatabase:
 
     def connect(self):
         """Establish database connection with busy timeout and WAL mode"""
-        self.conn = sqlite3.connect(self.db_path, timeout=30)
+        self.conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
         self.conn.execute('PRAGMA journal_mode=WAL')
         self.conn.execute('PRAGMA busy_timeout=30000')
         self.cursor = self.conn.cursor()

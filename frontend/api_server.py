@@ -4286,25 +4286,26 @@ button:hover{background:#c45a1a}</style></head>
             subprocess_write = 'not_tested'
             try:
                 journal_mode = cursor.execute('PRAGMA journal_mode').fetchone()[0]
-                conn.close()  # Close first to avoid self-locking
+                conn.close()  # Close read connection first
 
-                # Test write with fresh connection and short timeout
-                test_conn = sqlite3.connect(db_path, timeout=5)
+                # Test write with autocommit connection (isolation_level=None)
+                # This bypasses Python's implicit transaction management
+                test_conn = sqlite3.connect(db_path, timeout=5, isolation_level=None)
                 test_conn.execute('PRAGMA busy_timeout=5000')
                 test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
-                test_conn.commit()
                 test_conn.close()
                 checks['db_writable'] = {'ok': True, 'journal_mode': journal_mode}
             except Exception as e:
-                # Try subprocess write as diagnostic
+                # Try subprocess write as diagnostic (use 'python' not 'python3' for Render)
                 try:
                     result = subprocess.run(
-                        ['python3', '-c', f"import sqlite3; c=sqlite3.connect('{db_path}',timeout=3); c.execute('INSERT INTO scraper_log (source,run_time,status) VALUES (\"subprocess_test\",datetime(\"now\"),\"ok\")'); c.commit(); c.close(); print('OK')"],
-                        capture_output=True, text=True, timeout=10
+                        ['python', '-c',
+                         f"import sqlite3; c=sqlite3.connect('{db_path}',timeout=5,isolation_level=None); c.execute('PRAGMA busy_timeout=5000'); c.execute(\"INSERT INTO scraper_log (source,run_time,status) VALUES ('subprocess_test',datetime('now'),'ok')\"); c.close(); print('WRITE_OK')"],
+                        capture_output=True, text=True, timeout=15
                     )
-                    subprocess_write = result.stdout.strip() or result.stderr.strip()[:100]
+                    subprocess_write = (result.stdout.strip() + ' ' + result.stderr.strip())[:200]
                 except Exception as se:
-                    subprocess_write = str(se)[:100]
+                    subprocess_write = str(se)[:200]
 
                 checks['db_writable'] = {
                     'ok': False,
@@ -4628,11 +4629,10 @@ def run_server(port=None):
     import shutil
     db_backup = DB_PATH + '.recovery'
     try:
-        # Quick write test first
-        test_conn = sqlite3.connect(DB_PATH, timeout=3)
+        # Quick write test first (autocommit to avoid Python's implicit transactions)
+        test_conn = sqlite3.connect(DB_PATH, timeout=3, isolation_level=None)
         test_conn.execute('PRAGMA busy_timeout=3000')
         test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('startup_test', datetime('now'), 'ok')")
-        test_conn.commit()
         test_conn.close()
         logging.info("[Startup] DB write test PASSED — no lock recovery needed")
     except Exception as write_err:
@@ -4659,12 +4659,11 @@ def run_server(port=None):
             shutil.move(db_backup, DB_PATH)
             logging.info("[Startup] DB copied to break filesystem locks")
 
-            # Verify write works on the fresh copy
-            verify_conn = sqlite3.connect(DB_PATH, timeout=5)
+            # Verify write works on the fresh copy (autocommit)
+            verify_conn = sqlite3.connect(DB_PATH, timeout=5, isolation_level=None)
             verify_conn.execute('PRAGMA journal_mode=WAL')
             verify_conn.execute('PRAGMA busy_timeout=30000')
             verify_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('lock_recovery', datetime('now'), 'ok')")
-            verify_conn.commit()
             verify_conn.close()
             logging.info("[Startup] DB lock recovery: write test PASSED after copy")
         except Exception as recovery_err:

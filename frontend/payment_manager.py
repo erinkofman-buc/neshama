@@ -34,7 +34,8 @@ class PaymentManager:
     
     def setup_database(self):
         """Add premium columns to subscribers table"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         # Add premium tracking columns if they don't exist
