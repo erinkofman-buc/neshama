@@ -16,7 +16,7 @@ import subprocess
 import threading
 from urllib.parse import urlparse, parse_qs, unquote
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as _tz
 import pytz
 import logging
 
@@ -29,7 +29,7 @@ if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
-_SERVER_START_TIME = datetime.now()
+_SERVER_START_TIME = datetime.now(tz=_tz.utc)
 
 # ── Early Lock Recovery ─────────────────────────────────
 # MUST run before any module-level DB connections (managers, etc.)
@@ -68,14 +68,26 @@ def _connect_db(db_path=None):
 _rate_limit_store = {}  # key -> list of timestamps
 _RATE_LIMIT_WINDOW = 300   # 5 minutes
 _RATE_LIMIT_MAX_CALLS = 3  # max 3 email-sends per 5 min per IP
+_rate_limit_last_cleanup = 0  # epoch time of last full cleanup
+_RATE_LIMIT_CLEANUP_INTERVAL = 600  # full cleanup every 10 minutes
 
 
 def _check_rate_limit(client_ip, endpoint, max_calls=_RATE_LIMIT_MAX_CALLS, window=_RATE_LIMIT_WINDOW):
     """Return True if the request is within rate limits, False if exceeded."""
+    global _rate_limit_last_cleanup
     key = (client_ip, endpoint)
     now = _time_module.time()
+
+    # Periodic full cleanup to prevent unbounded growth
+    if now - _rate_limit_last_cleanup > _RATE_LIMIT_CLEANUP_INTERVAL:
+        _rate_limit_last_cleanup = now
+        stale_keys = [k for k, ts in _rate_limit_store.items()
+                      if not ts or now - max(ts) > _RATE_LIMIT_WINDOW]
+        for k in stale_keys:
+            del _rate_limit_store[k]
+
     timestamps = _rate_limit_store.get(key, [])
-    # Prune old entries
+    # Prune old entries for this key
     timestamps = [t for t in timestamps if now - t < window]
     if len(timestamps) >= max_calls:
         _rate_limit_store[key] = timestamps
@@ -4403,9 +4415,9 @@ button:hover{background:#c45a1a}</style></head>
             # Grace periods: don't flag stale during Shabbat or within 5 min of startup
             try:
                 cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
-                three_hours_ago = (datetime.now() - timedelta(hours=3)).isoformat()
+                three_hours_ago = (datetime.now(tz=_tz.utc) - timedelta(hours=3)).isoformat()
                 shabbat_now = is_shabbat()
-                startup_grace = (datetime.now() - _SERVER_START_TIME).total_seconds() < 300
+                startup_grace = (datetime.now(tz=_tz.utc) - _SERVER_START_TIME).total_seconds() < 300
                 scraper_status = {}
                 for row in cursor.fetchall():
                     source = row[0]
@@ -4432,8 +4444,8 @@ button:hover{background:#c45a1a}</style></head>
         try:
             last_hb = _periodic_scraper_status.get('last_heartbeat')
             if last_hb:
-                hb_time = datetime.fromisoformat(last_hb)
-                minutes_since = (datetime.now() - hb_time).total_seconds() / 60
+                hb_time = datetime.fromisoformat(last_hb).replace(tzinfo=_tz.utc)
+                minutes_since = (datetime.now(tz=_tz.utc) - hb_time).total_seconds() / 60
                 scraper_thread_ok = minutes_since < 40 or is_shabbat()
             else:
                 # No heartbeat yet — server just started, give grace period
@@ -4617,7 +4629,7 @@ def _run_health_watchdog():
         # Check 1: Database writable
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS _health_check (ts TEXT)")
-            cursor.execute("INSERT INTO _health_check VALUES (?)", (datetime.now().isoformat(),))
+            cursor.execute("INSERT INTO _health_check VALUES (?)", (datetime.now(tz=_tz.utc).isoformat(),))
             conn.commit()
             cursor.execute("DELETE FROM _health_check")
             conn.commit()
@@ -4630,10 +4642,10 @@ def _run_health_watchdog():
                 SELECT source, MAX(scraped_at) as latest
                 FROM obituaries GROUP BY source
             ''')
-            six_hours_ago = (datetime.now() - timedelta(hours=6)).isoformat()
+            six_hours_ago = (datetime.now(tz=_tz.utc) - timedelta(hours=6)).isoformat()
             for row in cursor.fetchall():
                 if row['latest'] and row['latest'] < six_hours_ago:
-                    hours_stale = round((datetime.now() - datetime.fromisoformat(row['latest'])).total_seconds() / 3600, 1)
+                    hours_stale = round((datetime.now(tz=_tz.utc) - datetime.fromisoformat(row['latest']).replace(tzinfo=_tz.utc)).total_seconds() / 3600, 1)
                     issues.append(f"STALE DATA: {row['source']} — last scraped {hours_stale}h ago")
         except Exception as e:
             issues.append(f"Freshness check failed: {e}")
@@ -4679,7 +4691,7 @@ def _send_health_alert(issues):
             from_email='updates@neshama.ca',
             to_emails='contact@neshama.ca',
             subject=f'[Neshama Alert] {len(issues)} system issue(s) detected',
-            plain_text_content=f'Health watchdog found issues at {datetime.now().isoformat()}:\n\n{issue_list}\n\nCheck Render logs for details.'
+            plain_text_content=f'Health watchdog found issues at {datetime.now(tz=_tz.utc).isoformat()}:\n\n{issue_list}\n\nCheck Render logs for details.'
         )
         sg = SendGridAPIClient(sg_key)
         sg.send(msg)
@@ -4704,7 +4716,7 @@ def periodic_scraper():
     # then use full SCRAPE_INTERVAL for subsequent cycles.
     _time.sleep(60)
     while True:
-        _periodic_scraper_status['last_heartbeat'] = datetime.now().isoformat()
+        _periodic_scraper_status['last_heartbeat'] = datetime.now(tz=_tz.utc).isoformat()
         if is_shabbat():
             logging.info(f"[Scraper] Shabbat — scraping paused")
             _time.sleep(SCRAPE_INTERVAL)

@@ -506,8 +506,74 @@ class EmailSubscriptionManager:
     
     def send_already_subscribed_email(self, email):
         """Send reminder email if already subscribed"""
-        # Implementation for reminder email
-        logging.info(f" Already-subscribed email would be sent to {email}")
+        if not self.sendgrid_api_key:
+            logging.warning("No SendGrid API key — skipping already-subscribed email")
+            return
+
+        html_content = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+<tr><td align="center" style="padding: 40px 20px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%;">
+
+    <!-- Header -->
+    <tr><td style="padding-bottom: 32px; border-bottom: 1px solid #e8e0d8;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #3E2723; letter-spacing: 0.02em;">Neshama</span>
+    </td></tr>
+
+    <!-- Body -->
+    <tr><td style="padding: 32px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
+        <p style="margin: 0 0 20px 0;">You're already subscribed to Neshama daily updates.</p>
+
+        <p style="margin: 0 0 20px 0;">We wanted to let you know that your subscription is active and you're all set. You'll continue to receive updates when new obituaries are posted from Toronto and Montreal funeral homes.</p>
+
+        <p style="margin: 0 0 20px 0;">No action is needed on your part.</p>
+
+        <!-- Button -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 28px 0;">
+        <tr><td style="background-color: #3E2723; border-radius: 4px;">
+            <a href="https://neshama.ca/feed" style="display: inline-block; padding: 13px 32px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #ffffff; text-decoration: none; letter-spacing: 0.02em;">View latest obituaries</a>
+        </td></tr>
+        </table>
+
+        <p style="margin: 0 0 20px 0;">You can unsubscribe at any time with one click from any email we send.</p>
+
+        <p style="margin: 0; font-size: 14px; color: #5c534a; line-height: 1.6;">If you have questions or feedback, reach us at <a href="mailto:contact@neshama.ca" style="color: #3E2723;">contact@neshama.ca</a>.</p>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding-top: 28px; border-top: 1px solid #e8e0d8;">
+        <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #9e9488; line-height: 1.6;">Neshama &middot; Toronto, ON &middot; <a href="mailto:contact@neshama.ca" style="color: #9e9488;">contact@neshama.ca</a></p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+        try:
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=Email(self.from_email, self.from_name),
+                to_emails=To(email),
+                subject="You're already subscribed to Neshama",
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+
+            sg = SendGridAPIClient(self.sendgrid_api_key)
+            sg.send(message)
+
+            logging.info(f" Already-subscribed email sent to {email}")
+
+        except Exception as e:
+            logging.error(f" Failed to send already-subscribed email: {str(e)}")
     
     def get_confirmed_subscribers(self):
         """Get list of all confirmed subscribers"""
