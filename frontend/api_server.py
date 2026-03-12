@@ -142,6 +142,16 @@ _scrape_status = {
     'last_error': None,
 }
 
+# Periodic scraper thread health
+_periodic_scraper_status = {
+    'alive': False,
+    'last_heartbeat': None,
+    'cycle_count': 0,
+    'consecutive_failures': 0,
+    'last_stdout': None,
+    'last_stderr': None,
+}
+
 # Optional Shiva Support import
 try:
     from shiva_manager import ShivaManager
@@ -279,6 +289,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_status()
         elif path == '/api/scraper-status':
             self.get_scraper_status()
+        elif path == '/api/scraper-thread':
+            self.send_json_response({'status': 'success', 'data': _periodic_scraper_status})
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
         elif path == '/api/community-stats':
@@ -4639,11 +4651,13 @@ def periodic_scraper():
     Keeps obituary data fresh between server restarts.
     Pauses during Shabbat (Friday evening – Saturday night).
     Runs health watchdog after each cycle."""
-    global _scraper_fail_count
+    global _scraper_fail_count, _periodic_scraper_status
     import time as _time
     project_root = os.path.join(FRONTEND_DIR, '..')
+    _periodic_scraper_status['alive'] = True
     while True:
         _time.sleep(SCRAPE_INTERVAL)
+        _periodic_scraper_status['last_heartbeat'] = datetime.now().isoformat()
         if is_shabbat():
             logging.info(f"[Scraper] Shabbat — scraping paused")
             continue
@@ -4656,17 +4670,26 @@ def periodic_scraper():
                 cwd=project_root,
                 timeout=300
             )
+            _periodic_scraper_status['cycle_count'] += 1
+            _periodic_scraper_status['last_stdout'] = (result.stdout or '')[-500:]
+            _periodic_scraper_status['last_stderr'] = (result.stderr or '')[-500:]
             if result.returncode == 0:
                 logging.info(f"[Scraper] Periodic scrape completed successfully")
                 _scraper_fail_count = 0
+                _periodic_scraper_status['consecutive_failures'] = 0
             else:
                 _scraper_fail_count += 1
+                _periodic_scraper_status['consecutive_failures'] += 1
                 logging.warning(f"[Scraper] Scrape had issues (fail #{_scraper_fail_count}): {result.stderr[:200]}")
         except subprocess.TimeoutExpired:
             _scraper_fail_count += 1
+            _periodic_scraper_status['consecutive_failures'] += 1
+            _periodic_scraper_status['last_stderr'] = 'TIMEOUT after 300s'
             logging.warning(f"[Scraper] Periodic scrape timed out after 300s (fail #{_scraper_fail_count})")
         except Exception as e:
             _scraper_fail_count += 1
+            _periodic_scraper_status['consecutive_failures'] += 1
+            _periodic_scraper_status['last_stderr'] = str(e)
             logging.error(f"[Scraper] Periodic scrape error (fail #{_scraper_fail_count}): {e}")
 
         # Run health watchdog every 6th cycle (~2 hours) or on failures
