@@ -4545,6 +4545,26 @@ def run_server(port=None):
     except Exception as e:
         logging.warning(f"[Startup] database_setup: {e}")
 
+    # Recovery: clear stale SQLite locks from crashed processes.
+    # On Render persistent disk, lock files survive restarts. WAL checkpoint forces cleanup.
+    try:
+        recovery_conn = sqlite3.connect(DB_PATH, timeout=5)
+        recovery_conn.execute('PRAGMA journal_mode=WAL')
+        recovery_conn.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        recovery_conn.close()
+        logging.info("[Startup] DB lock recovery: WAL checkpoint completed")
+    except Exception as e:
+        # If even this fails, try deleting stale lock files
+        logging.warning(f"[Startup] DB lock recovery failed: {e}")
+        for suffix in ['-wal', '-shm']:
+            lock_file = DB_PATH + suffix
+            if os.path.exists(lock_file):
+                try:
+                    os.remove(lock_file)
+                    logging.info(f"[Startup] Removed stale lock file: {lock_file}")
+                except Exception as e2:
+                    logging.error(f"[Startup] Could not remove {lock_file}: {e2}")
+
     # Auto-confirm stale subscribers on startup (48h+ unconfirmed)
     # This catches subscribers whose confirmation emails went to spam
     try:
