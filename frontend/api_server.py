@@ -55,9 +55,9 @@ if os.path.exists(DB_PATH):
 
 
 def _connect_db(db_path=None):
-    """Create a SQLite connection with busy timeout.
-    Uses DELETE journal mode (WAL's SHM locking breaks on Render persistent disk)."""
-    conn = sqlite3.connect(db_path or DB_PATH, timeout=30)
+    """Create a SQLite connection with busy timeout and autocommit.
+    Autocommit prevents Python's implicit transactions from holding write locks."""
+    conn = sqlite3.connect(db_path or DB_PATH, timeout=30, isolation_level=None)
     conn.execute('PRAGMA busy_timeout=30000')
     return conn
 
