@@ -6,6 +6,7 @@ class NeshamaApp {
         this.apiBase = '/api';
         this.currentTab = 'week';
         this.currentCity = localStorage.getItem('neshama_city') || 'all';
+        this.currentSource = localStorage.getItem('neshama_source') || 'all';
         this.searchQuery = '';
         this.allObituaries = [];
         this.displayedCount = 5;
@@ -32,6 +33,12 @@ class NeshamaApp {
         });
         // Set active city on load
         this.setCityActive(this.currentCity);
+
+        // Source (funeral home) filter buttons
+        document.querySelectorAll('.source-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleSourceChange(e));
+        });
+        this.setSourceActive(this.currentSource);
 
         this.setupScrollObserver();
         this.loadData();
@@ -111,6 +118,20 @@ class NeshamaApp {
         });
     }
 
+    handleSourceChange(e) {
+        this.currentSource = e.target.dataset.source;
+        localStorage.setItem('neshama_source', this.currentSource);
+        this.setSourceActive(this.currentSource);
+        this.displayedCount = 5;
+        this.render();
+    }
+
+    setSourceActive(source) {
+        document.querySelectorAll('.source-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.source === source);
+        });
+    }
+
     handleTabChange(e) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
@@ -151,6 +172,11 @@ class NeshamaApp {
             filtered = filtered.filter(function(obit) { return (obit.city || 'Toronto') === this.currentCity; }.bind(this));
         }
 
+        // Source (funeral home) filter
+        if (this.currentSource && this.currentSource !== 'all') {
+            filtered = filtered.filter(function(obit) { return obit.source === this.currentSource; }.bind(this));
+        }
+
         if (this.searchQuery) {
             var query = this.searchQuery;
             filtered = filtered.filter(function(obit) {
@@ -166,7 +192,7 @@ class NeshamaApp {
         // Auto-fallback only on initial load (not explicit user tab clicks)
         if (periodFiltered.length === 0 && filtered.length > 0 && !this.searchQuery && !this.userClickedTab) {
             var periods = ['today', 'week', 'month'];
-            var periodLabels = { today: 'today', week: 'this week', month: 'this month' };
+            var periodLabels = { today: 'in the last 24 hours', week: 'this week', month: 'this month' };
             var originalTab = this.currentTab;
             var currentIdx = periods.indexOf(this.currentTab);
             if (currentIdx >= 0) {
@@ -290,7 +316,7 @@ class NeshamaApp {
     }
 
     renderCard(obit) {
-        const timeAgo = this.getTimeAgo(obit.last_updated);
+        const timeAgo = this.getTimeAgo(obit.first_seen || obit.last_updated);
         const tributeCount = this.tributeCounts[obit.id] || 0;
         const memorialUrl = this.getMemorialUrl(obit.id);
 
@@ -339,7 +365,6 @@ class NeshamaApp {
                 imageArea +
                 '<div class="card-body">' +
                     '<div class="card-source">' + this.escapeHtml(obit.source) + ' \u00b7 ' + timeAgo + '</div>' +
-                    '<div class="card-updated">Updated ' + this.formatTimestamp(obit.last_updated) + '</div>' +
                     '<h2 class="deceased-name">' + name + '</h2>' +
                     (hebrewName ? '<div class="hebrew-name">' + hebrewName + '</div>' : '') +
                     funeralLine +

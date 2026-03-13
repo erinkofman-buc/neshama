@@ -408,6 +408,38 @@
             font-weight: 500;
         }
 
+        .source-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .source-btn {
+            font-family: 'Source Serif 4', serif;
+            background: transparent;
+            border: 1px solid var(--light-taupe);
+            color: var(--sage-dark);
+            padding: 0.5rem 1rem;
+            min-height: 44px;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+        }
+
+        .source-btn:hover {
+            border-color: var(--gold);
+            color: var(--dark-brown);
+        }
+
+        .source-btn.active {
+            background: var(--dark-brown);
+            color: white;
+            border-color: var(--dark-brown);
+            font-weight: 500;
+        }
+
         /* ── Filter Tabs ─────────────────────────────────── */
 
         .tabs {
@@ -1949,11 +1981,22 @@
             </div>
             <div class="filter-divider"></div>
             <div class="filter-group">
+                <span class="filter-label">Funeral Home</span>
+                <div class="source-filter" id="sourceFilter">
+                    <button class="source-btn active" data-source="all">All</button>
+                    <button class="source-btn" data-source="Benjamin's Park Memorial Chapel">Benjamin's</button>
+                    <button class="source-btn" data-source="Steeles Memorial Chapel">Steeles</button>
+                    <button class="source-btn" data-source="Paperman & Sons">Paperman</button>
+                    <button class="source-btn" data-source="Misaskim">Misaskim</button>
+                </div>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
                 <span class="filter-label">Period</span>
                 <div class="tabs">
-                    <button class="tab" data-tab="today">Today</button>
-                    <button class="tab active" data-tab="week">Week</button>
-                    <button class="tab" data-tab="month">Month</button>
+                    <button class="tab" data-tab="today">New</button>
+                    <button class="tab active" data-tab="week">This Week</button>
+                    <button class="tab" data-tab="month">This Month</button>
                 </div>
             </div>
         </div>

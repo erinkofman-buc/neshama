@@ -5678,6 +5678,37 @@ def run_server(port=None):
             logging.info(f" Migrations: auto-confirmed {confirmed_count} unconfirmed subscribers")
         total_changed += confirmed_count
 
+        # Migration 2026-03-13: Add Jordana's Mar 12 vendors that weren't in production
+        new_vendors = [
+            ('Me Va Mi Kitchen Express', 'me-va-mi-kitchen-express', 'Caterers', 'food',
+             'Kosher kitchen offering fresh prepared meals, catering trays, and family-style platters. Convenient pickup and delivery for shiva homes and community events.',
+             'Toronto, ON', 'Toronto', '', 'https://mevamekitchenexpress.ca/', None, 'COR', 1, 'Toronto'),
+            ('Pantry Foods', 'pantry-foods', 'Caterers', 'food',
+             'Kosher grocery and prepared foods. Ready-made meals, platters, and pantry staples delivered to shiva homes.',
+             'Toronto, ON', 'Toronto', '', 'https://pantryfoods.ca/', None, 'COR', 1, 'Toronto'),
+            ('AB Cookies', 'ab-cookies', 'Baked Goods', 'food',
+             'Beautiful custom cookies and sweet treats. Gift boxes perfect for bringing something special to a shiva home.',
+             'Toronto, ON', 'Toronto', '', 'https://abcookies.co', '@abcookies.co', 'not_certified', 0, ''),
+            ('Skye Dough Cookies', 'skye-dough-cookies', 'Baked Goods', 'food',
+             'Beautiful custom cookies and cookie gift boxes. A sweet, thoughtful gift to bring to a shiva home.',
+             'Toronto, ON', 'Toronto', '', '', 'skyedoughcookies', 'not_certified', 0, ''),
+        ]
+        for v in new_vendors:
+            cursor.execute("""
+                INSERT OR IGNORE INTO vendors (name, slug, category, vendor_type, description,
+                    address, neighborhood, phone, website, instagram, kosher_status, delivery, delivery_area, featured, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, datetime('now'))
+            """, v)
+            if cursor.rowcount:
+                logging.info(f" Migrations: added vendor '{v[0]}'")
+                total_changed += 1
+
+        # Migration 2026-03-13b: Fix Orly's Kitchen category to 'Caterers'
+        cursor.execute("UPDATE vendors SET category = 'Caterers' WHERE slug = 'orlys-kitchen' AND category != 'Caterers'")
+        if cursor.rowcount:
+            logging.info(f" Migrations: fixed Orly's Kitchen category to Caterers")
+            total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
