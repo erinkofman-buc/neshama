@@ -5717,18 +5717,29 @@ def run_server(port=None):
                 logging.info(f" Migrations: moved {slug} from gift to food vendors")
                 total_changed += cursor.rowcount
 
-        # Migration 2026-03-13d: Remove vendors that don't belong
+        conn.commit()
+    except Exception as e:
+        logging.info(f" Migrations phase 1: {e}")
+
+    # Phase 2: Vendor cleanup (separate try/except so one failure doesn't block others)
+    try:
+        conn = _connect_db()
+        cursor = conn.cursor()
+        total_changed = 0
+
+        # Remove vendors that don't belong
         for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza', 'longos', 'scaramouche-restaurant', 'whole-foods-market-yorkville']:
             cursor.execute("DELETE FROM vendors WHERE slug = ?", (slug,))
             if cursor.rowcount:
                 logging.info(f" Migrations: removed vendor {slug}")
                 total_changed += cursor.rowcount
 
-        # Remove duplicate Paisanos (keep first one)
-        cursor.execute("DELETE FROM vendors WHERE name LIKE '%Paisano%' AND rowid NOT IN (SELECT MIN(rowid) FROM vendors WHERE name LIKE '%Paisano%')")
-        if cursor.rowcount:
-            logging.info(f" Migrations: removed duplicate Paisanos")
-            total_changed += cursor.rowcount
+        # Remove duplicate Paisanos and Bubby's (keep first of each)
+        for name_pattern in ['%Paisano%', '%Bubby%']:
+            cursor.execute(f"DELETE FROM vendors WHERE name LIKE ? AND rowid NOT IN (SELECT MIN(rowid) FROM vendors WHERE name LIKE ?)", (name_pattern, name_pattern))
+            if cursor.rowcount:
+                logging.info(f" Migrations: removed duplicates matching {name_pattern}")
+                total_changed += cursor.rowcount
 
         # Fix kosher_status: Chop Hop and Me Va Mi are NOT COR
         cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'chop-hop' AND kosher_status = 'COR'")
@@ -5736,7 +5747,7 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'me-va-mi-kitchen-express' AND kosher_status = 'COR'")
         total_changed += cursor.rowcount
 
-        # Migration 2026-03-13e: Add Candy Catchers gift vendor
+        # Add Candy Catchers gift vendor
         cursor.execute("""
             INSERT OR IGNORE INTO vendors (name, slug, category, vendor_type, description,
                 address, neighborhood, phone, website, kosher_status, delivery, delivery_area, featured, created_at)
@@ -5779,7 +5790,7 @@ def run_server(port=None):
                 params.append(instagram)
             if parts:
                 params.append(slug)
-                cursor.execute(f"UPDATE vendors SET {', '.join(parts)} WHERE slug = ? AND (website IS NULL OR website = '')", params)
+                cursor.execute(f"UPDATE vendors SET {', '.join(parts)} WHERE slug = ?", params)
                 if cursor.rowcount:
                     logging.info(f" Migrations: added website/instagram for {slug}")
                     total_changed += cursor.rowcount
@@ -5791,7 +5802,7 @@ def run_server(port=None):
         else:
             logging.info(f" Migrations: already up to date")
     except Exception as e:
-        logging.info(f" Migrations: {e}")
+        logging.info(f" Migrations phase 2: {e}")
 
     if SHIVA_AVAILABLE:
         # Auto-restore from backup if critical tables are empty
