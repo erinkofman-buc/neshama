@@ -5717,14 +5717,38 @@ def run_server(port=None):
                 logging.info(f" Migrations: moved {slug} from gift to food vendors")
                 total_changed += cursor.rowcount
 
-        # Migration 2026-03-13d: Remove untrackable vendors (no website, no social)
-        for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza', 'longos']:
+        # Migration 2026-03-13d: Remove vendors that don't belong
+        for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza', 'longos', 'scaramouche-restaurant', 'whole-foods-market-yorkville']:
             cursor.execute("DELETE FROM vendors WHERE slug = ?", (slug,))
             if cursor.rowcount:
-                logging.info(f" Migrations: removed untrackable vendor {slug}")
+                logging.info(f" Migrations: removed vendor {slug}")
                 total_changed += cursor.rowcount
 
-        # Migration 2026-03-13e: Add missing websites for all vendors
+        # Remove duplicate Paisanos (keep first one)
+        cursor.execute("DELETE FROM vendors WHERE name LIKE '%Paisano%' AND rowid NOT IN (SELECT MIN(rowid) FROM vendors WHERE name LIKE '%Paisano%')")
+        if cursor.rowcount:
+            logging.info(f" Migrations: removed duplicate Paisanos")
+            total_changed += cursor.rowcount
+
+        # Fix kosher_status: Chop Hop and Me Va Mi are NOT COR
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'chop-hop' AND kosher_status = 'COR'")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'me-va-mi-kitchen-express' AND kosher_status = 'COR'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-13e: Add Candy Catchers gift vendor
+        cursor.execute("""
+            INSERT OR IGNORE INTO vendors (name, slug, category, vendor_type, description,
+                address, neighborhood, phone, website, kosher_status, delivery, delivery_area, featured, created_at)
+            VALUES ('Candy Catchers', 'candy-catchers', 'Gift Baskets', 'gift',
+                'Creative kosher candy and treat gift boxes. Colourful, fun gift options perfect for bringing to a shiva home or sending condolences.',
+                'Toronto, ON', 'Toronto', '', 'https://candycatchers.com/', 'Kosher', 1, 'Toronto,GTA', 0, datetime('now'))
+        """)
+        if cursor.rowcount:
+            logging.info(f" Migrations: added Candy Catchers gift vendor")
+            total_changed += cursor.rowcount
+
+        # Migration 2026-03-13f: Add missing websites for all vendors
         website_updates = [
             ('beautys-luncheonette', 'https://www.beautys.ca/', None),
             ('bistro-grande', 'https://bistrogrande.com/', None),
