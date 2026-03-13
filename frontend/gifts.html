@@ -205,11 +205,10 @@
 
 <div class="category-pills" id="categoryPills">
     <a class="pill active" data-cat="all" onclick="filterCategory('all', this)">All</a>
-    <a class="pill" data-cat="shiva-platters" onclick="filterCategory('shiva-platters', this)">Shiva Platters</a>
+    <a class="pill" data-cat="gift-baskets" onclick="filterCategory('gift-baskets', this)">Gift Baskets</a>
     <a class="pill" data-cat="baked-goods" onclick="filterCategory('baked-goods', this)">Baked Goods</a>
     <a class="pill" data-cat="chocolate" onclick="filterCategory('chocolate', this)">Chocolate &amp; Sweets</a>
     <a class="pill" data-cat="fruit-nuts" onclick="filterCategory('fruit-nuts', this)">Fruit &amp; Nuts</a>
-    <a class="pill" data-cat="gift-baskets" onclick="filterCategory('gift-baskets', this)">Gift Baskets</a>
     <a class="pill" data-cat="kosher" onclick="filterCategory('kosher', this)">Kosher Certified</a>
 </div>
 
@@ -416,7 +415,7 @@
         {
             name: 'Gifting Kosher',
             category: 'Gift Baskets, Shiva Platters',
-            categories: ['gift-baskets', 'shiva-platters', 'kosher'],
+            categories: ['gift-baskets', 'gift-baskets', 'kosher'],
             kosher_status: 'Kosher certified',
             description: 'Curated kosher shiva gift baskets. A thoughtful way to show you care. Delivered across Canada and the US.',
             delivery_area: 'Canada + US',
@@ -487,11 +486,10 @@
 
     // Category mapping for local vendors
     var categoryMap = {
-        'shiva-platters': ['Shiva Platters', 'shiva platters'],
         'baked-goods': ['Baked Goods', 'baked goods'],
         'chocolate': ['Chocolate', 'chocolate', 'Sweets', 'sweets'],
         'fruit-nuts': ['Fruit', 'fruit', 'Nuts', 'nuts'],
-        'gift-baskets': ['Gift Baskets', 'gift baskets', 'Gourmet', 'gourmet'],
+        'gift-baskets': ['Gift Baskets', 'gift baskets', 'Gourmet', 'gourmet', 'Shiva Platters', 'shiva platters'],
         'kosher': [] // special: filter by kosher_status
     };
 
@@ -518,7 +516,7 @@
 
     // Section definitions with display order
     var sections = [
-        { key: 'gift-baskets', title: 'Gift Baskets & Platters', subtitle: 'Curated kosher gift baskets, shiva platters, and gourmet packages delivered to the family.' },
+        { key: 'gift-baskets', title: 'Gift Baskets', subtitle: 'Curated kosher gift baskets and gourmet packages delivered to the family.' },
         { key: 'chocolate', title: 'Chocolate & Sweets', subtitle: 'Comforting treats and premium chocolate gift boxes.' },
         { key: 'fruit-nuts', title: 'Fruit & Nuts', subtitle: 'Fresh fruit arrangements and dried fruit trays — healthy, universally appreciated.' },
         { key: 'baked-goods', title: 'Baked Goods', subtitle: 'Artisan cookies, pastries, and baked goods gift boxes.' },
@@ -530,7 +528,7 @@
         var cat = (v.category || '').toLowerCase();
         if (v.type === 'affiliate' && v.categories) {
             // Use primary category from affiliate
-            if (v.categories.indexOf('gift-baskets') >= 0 || v.categories.indexOf('shiva-platters') >= 0) return 'gift-baskets';
+            if (v.categories.indexOf('gift-baskets') >= 0 || v.categories.indexOf('gift-baskets') >= 0) return 'gift-baskets';
             if (v.categories.indexOf('chocolate') >= 0) return 'chocolate';
             if (v.categories.indexOf('fruit-nuts') >= 0) return 'fruit-nuts';
             if (v.categories.indexOf('baked-goods') >= 0) return 'baked-goods';
