@@ -34,3 +34,7 @@ package.json
 *.log
 fonts/
 neshama-code.tar.gz
+
+# Claude Code config (contains auth tokens)
+.mcp.json
+.claude/
