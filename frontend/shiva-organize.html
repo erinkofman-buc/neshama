@@ -314,6 +314,17 @@
             margin-bottom: 1.25rem;
         }
 
+        .caterer-card-link {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .caterer-card-link:hover {
+            text-decoration: underline;
+        }
+
         /* ── Meal Blocking Grid ─────────────────────────── */
 
         .meal-block-row {
@@ -1813,7 +1824,13 @@
                 var isSelected = selectedVendors.indexOf(v.slug) !== -1;
                 html += '<div class="caterer-card' + (isSelected ? ' selected' : '') + '" data-slug="' + escapeHtml(v.slug) + '">';
                 html += '<div class="caterer-card-check">' + (isSelected ? '&#x2611;' : '&#x2610;') + '</div>';
-                html += '<div><div class="caterer-card-name">' + escapeHtml(v.name) + '</div>';
+                html += '<div>';
+                if (v.website) {
+                    var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website);
+                    html += '<a href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener noreferrer" class="caterer-card-link" onclick="event.stopPropagation()">' + escapeHtml(v.name) + ' <span style="font-size:0.7rem;opacity:0.5;">&#x2197;</span></a>';
+                } else {
+                    html += '<div class="caterer-card-name">' + escapeHtml(v.name) + '</div>';
+                }
                 if (v.neighborhood) html += '<div class="caterer-card-detail">' + escapeHtml(v.neighborhood) + '</div>';
                 if (v.kosher_status && v.kosher_status !== 'not_certified') html += '<div class="caterer-card-detail">' + escapeHtml(v.kosher_status) + '</div>';
                 html += '</div></div>';
@@ -1821,8 +1838,9 @@
             grid.innerHTML = html;
         }
 
-        // Event delegation for caterer card clicks
+        // Event delegation for caterer card clicks (skip if clicking the vendor link)
         document.addEventListener('click', function(e) {
+            if (e.target.closest('.caterer-card-link')) return;
             var card = e.target.closest('.caterer-card');
             if (!card) return;
             var slug = card.getAttribute('data-slug');
