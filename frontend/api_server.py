@@ -5747,6 +5747,17 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'me-va-mi-kitchen-express' AND kosher_status = 'COR'")
         total_changed += cursor.rowcount
 
+        # Me Va Mi and Pantry should be caterers (food), NOT gift vendors
+        for slug in ['me-va-mi-kitchen-express', 'pantry-foods']:
+            cursor.execute("UPDATE vendors SET vendor_type = 'food' WHERE slug = ? AND vendor_type = 'gift'", (slug,))
+            if cursor.rowcount:
+                logging.info(f" Migrations: moved {slug} from gift to food vendors")
+                total_changed += cursor.rowcount
+
+        # Fix Orly's Kitchen category
+        cursor.execute("UPDATE vendors SET category = 'Caterers' WHERE slug = 'orlys-kitchen' AND category != 'Caterers'")
+        total_changed += cursor.rowcount
+
         # Add Candy Catchers gift vendor
         cursor.execute("""
             INSERT OR IGNORE INTO vendors (name, slug, category, vendor_type, description,
