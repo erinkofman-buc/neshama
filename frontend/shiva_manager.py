@@ -551,6 +551,8 @@ class ShivaManager:
                 'verification_token': verification_token,
                 'organizer_email': clean_email,
                 'family_name': self._sanitize_text(data['family_name'], 200),
+                'share_token': share_token,
+                'privacy': privacy,
             }
         except Exception as e:
             return {'status': 'error', 'message': str(e)}

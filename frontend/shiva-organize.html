@@ -1009,6 +1009,8 @@
         var obituaryId = null;
         var createdId = null;
         var createdToken = null;
+        var createdShareToken = null;
+        var createdPrivacy = null;
         var forceCreate = false;
 
         // ── Location Hierarchy ────────────────────────────
@@ -1466,6 +1468,8 @@
                 if (data.status === 'success') {
                     createdId = data.id;
                     createdToken = data.magic_token;
+                    createdShareToken = data.share_token || null;
+                    createdPrivacy = data.privacy || 'public';
                     showSuccess();
                 } else if (data.status === 'duplicate') {
                     btn.disabled = false;
@@ -1562,21 +1566,33 @@
             });
         };
 
-        window.shareWhatsApp = function() {
+        function getShareUrl() {
             var pageUrl = document.getElementById('viewPageLink').href;
+            if (createdPrivacy === 'private' && createdShareToken) {
+                pageUrl += '?access=' + encodeURIComponent(createdShareToken);
+            }
+            return pageUrl;
+        }
+
+        window.shareWhatsApp = function() {
+            var pageUrl = getShareUrl();
             var text = 'A shiva support page has been set up to coordinate meals. You can sign up to help here: ' + pageUrl;
             window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
         };
 
         window.shareEmail = function() {
-            var pageUrl = document.getElementById('viewPageLink').href;
+            var pageUrl = getShareUrl();
             var subject = 'Shiva Support Page - Help Coordinate Meals';
             var body = 'A shiva support page has been set up to help coordinate meals for the family.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
-            window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+            var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+            var w = window.open(mailtoUrl, '_blank');
+            if (!w) {
+                window.location.href = mailtoUrl;
+            }
         };
 
         window.shareSMS = function() {
-            var pageUrl = document.getElementById('viewPageLink').href;
+            var pageUrl = getShareUrl();
             var text = 'A shiva support page has been set up to coordinate meals. Sign up to help: ' + pageUrl;
             var ua = navigator.userAgent;
             var separator = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?';

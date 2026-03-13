@@ -5709,6 +5709,14 @@ def run_server(port=None):
             logging.info(f" Migrations: fixed Orly's Kitchen category to Caterers")
             total_changed += cursor.rowcount
 
+        # Migration 2026-03-13c: Me Va Mi and Pantry should be caterers (food), NOT gift vendors
+        # seed_vendors.py added them as vendor_type='gift' but Jordana says caterers only
+        for slug in ['me-va-mi-kitchen-express', 'pantry-foods']:
+            cursor.execute("UPDATE vendors SET vendor_type = 'food' WHERE slug = ? AND vendor_type = 'gift'", (slug,))
+            if cursor.rowcount:
+                logging.info(f" Migrations: moved {slug} from gift to food vendors")
+                total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
