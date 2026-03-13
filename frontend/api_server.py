@@ -448,6 +448,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_confirm_subscriber(body)
         elif path == '/admin/confirm-all-subscribers':
             self.handle_admin_confirm_all_subscribers(body)
+        elif path == '/admin/add-subscriber':
+            self.handle_admin_add_subscriber(body)
         elif path == '/admin/delete-subscribers':
             self.handle_admin_delete_subscribers(body)
         elif path == '/api/yahrzeit/subscribe':
@@ -1612,6 +1614,45 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             })
         except Exception as e:
             logging.error(f"[Admin] Error confirming all subscribers: {e}")
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_add_subscriber(self, body):
+        """Add a pre-confirmed subscriber (admin bypass, no double opt-in)"""
+        if not self._check_admin_auth():
+            return
+
+        try:
+            data = json.loads(body.decode('utf-8'))
+            email = data.get('email', '').strip().lower()
+            frequency = data.get('frequency', 'daily')
+            locations = data.get('locations', 'toronto,montreal')
+
+            if not email:
+                self.send_error_response('Email required', 400)
+                return
+
+            conn = _connect_db()
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+            import secrets
+            unsubscribe_token = secrets.token_urlsafe(32)
+
+            cursor.execute('''
+                INSERT OR IGNORE INTO subscribers
+                (email, confirmed, confirmation_token, subscribed_at, confirmed_at,
+                 unsubscribe_token, frequency, locations)
+                VALUES (?, TRUE, ?, ?, ?, ?, ?, ?)
+            ''', (email, secrets.token_urlsafe(32), now, now, unsubscribe_token, frequency, locations))
+
+            if cursor.rowcount:
+                conn.commit()
+                logging.info(f"[Admin] Added pre-confirmed subscriber: {email}")
+                self.send_json_response({'status': 'added', 'email': email})
+            else:
+                self.send_json_response({'status': 'already_exists', 'email': email})
+            conn.close()
+        except Exception as e:
+            logging.error(f"[Admin] Error adding subscriber: {e}")
             self.send_error_response(f'Error: {str(e)}', 500)
 
     def handle_admin_delete_subscribers(self, body):
