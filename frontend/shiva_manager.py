@@ -341,6 +341,17 @@ class ShivaManager:
         ''')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_donation_email ON donation_prompts(email)')
 
+        # Migration: add share_token column for private shiva link sharing
+        try:
+            cursor.execute('SELECT share_token FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN share_token TEXT')
+        # Backfill any shivas missing a share_token
+        cursor.execute("""
+            UPDATE shiva_support SET share_token = hex(randomblob(16))
+            WHERE share_token IS NULL
+        """)
+
         conn.commit()
         conn.close()
 
@@ -460,6 +471,7 @@ class ShivaManager:
 
         support_id = str(uuid.uuid4())
         magic_token = secrets.token_urlsafe(32)
+        share_token = secrets.token_urlsafe(16)
         now = datetime.now().isoformat()
 
         conn = self._get_conn()
@@ -497,8 +509,9 @@ class ShivaManager:
                     dietary_notes, special_instructions, donation_url, donation_label,
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
-                    drop_off_instructions, source, verification_status, verification_token
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    drop_off_instructions, source, verification_status, verification_token,
+                    share_token
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -528,6 +541,7 @@ class ShivaManager:
                 source,
                 verification_status,
                 verification_token,
+                share_token,
             ))
             conn.commit()
             return {
@@ -579,7 +593,7 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at
+                   organizer_update, family_notes, created_at, share_token
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -595,11 +609,16 @@ class ShivaManager:
         if data.get('privacy') == 'private':
             has_access = False
             if access_token:
-                cursor.execute('''
-                    SELECT id FROM shiva_access_requests
-                    WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
-                ''', (support_id, access_token))
-                has_access = cursor.fetchone() is not None
+                # Check if it's the share_token (host-shared link)
+                if access_token == data.get('share_token'):
+                    has_access = True
+                else:
+                    # Check individual approved access requests
+                    cursor.execute('''
+                        SELECT id FROM shiva_access_requests
+                        WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
+                    ''', (support_id, access_token))
+                    has_access = cursor.fetchone() is not None
 
             if not has_access:
                 # Return limited data for private pages
@@ -625,6 +644,8 @@ class ShivaManager:
             else:
                 data['access'] = 'granted'
 
+        # Never expose share_token to non-organizer visitors
+        data.pop('share_token', None)
         conn.close()
         return {'status': 'success', 'data': data}
 

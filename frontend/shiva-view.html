@@ -2640,6 +2640,10 @@
 
             shareDiv.style.display = '';
             var pageUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
+            // For private shivas, include share_token so recipients get direct access
+            if (supportData.privacy === 'private' && supportData.share_token) {
+                pageUrl += '?access=' + encodeURIComponent(supportData.share_token);
+            }
             var familyName = supportData.family_name || 'the family';
             var shareMessage = isOrganizerMode
                 ? 'Help coordinate meals for ' + familyName + '\'s shiva: ' + pageUrl
