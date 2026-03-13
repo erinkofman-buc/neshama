@@ -5718,7 +5718,7 @@ def run_server(port=None):
                 total_changed += cursor.rowcount
 
         # Migration 2026-03-13d: Remove untrackable vendors (no website, no social)
-        for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza']:
+        for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza', 'longos']:
             cursor.execute("DELETE FROM vendors WHERE slug = ?", (slug,))
             if cursor.rowcount:
                 logging.info(f" Migrations: removed untrackable vendor {slug}")
@@ -5742,7 +5742,7 @@ def run_server(port=None):
             ('umami-sushi', 'https://www.umamisushi.ca/', None),
             ('wilenskys-light-lunch', 'http://www.wilenskys.com/', None),
             ('boulangerie-cheskie', None, 'cheskiebakery'),
-            ('lefalafel-plus', None, 'lefalafelmontreal'),
+            ('lefalafel-plus', None, 'lefalafel_+'),
         ]
         for slug, website, instagram in website_updates:
             parts = []
