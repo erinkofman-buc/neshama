@@ -5717,6 +5717,49 @@ def run_server(port=None):
                 logging.info(f" Migrations: moved {slug} from gift to food vendors")
                 total_changed += cursor.rowcount
 
+        # Migration 2026-03-13d: Remove untrackable vendors (no website, no social)
+        for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza']:
+            cursor.execute("DELETE FROM vendors WHERE slug = ?", (slug,))
+            if cursor.rowcount:
+                logging.info(f" Migrations: removed untrackable vendor {slug}")
+                total_changed += cursor.rowcount
+
+        # Migration 2026-03-13e: Add missing websites for all vendors
+        website_updates = [
+            ('beautys-luncheonette', 'https://www.beautys.ca/', None),
+            ('bistro-grande', 'https://bistrogrande.com/', None),
+            ('bubbys', 'https://www.bubbysbagels.com/', None),
+            ('dr-laffa', 'https://drlaffa.com/', None),
+            ('harbord-bakery', 'https://www.harbordbakery.ca/', None),
+            ('haymishe-bakery', 'https://www.haymishebakery.com/', 'haymishebakeryto'),
+            ('hermes-bakery', 'http://hermesbakery.com/', None),
+            ('me-va-me', 'https://www.mevame.com/', None),
+            ('oinegs-kosher', 'https://www.oinegshabbes.com/', 'oinegskosher'),
+            ('orlys-kitchen', 'https://orly-grill.com/', None),
+            ('pizza-pita-prime', 'https://pizzapitaprime.order-online.ai/', None),
+            ('sushi-inn', 'https://www.sushiinn.net/', None),
+            ('tov-li-pizza-falafel', 'https://tov-li.com/', None),
+            ('umami-sushi', 'https://www.umamisushi.ca/', None),
+            ('wilenskys-light-lunch', 'http://www.wilenskys.com/', None),
+            ('boulangerie-cheskie', None, 'cheskiebakery'),
+            ('lefalafel-plus', None, 'lefalafelmontreal'),
+        ]
+        for slug, website, instagram in website_updates:
+            parts = []
+            params = []
+            if website:
+                parts.append("website = ?")
+                params.append(website)
+            if instagram:
+                parts.append("instagram = ?")
+                params.append(instagram)
+            if parts:
+                params.append(slug)
+                cursor.execute(f"UPDATE vendors SET {', '.join(parts)} WHERE slug = ? AND (website IS NULL OR website = '')", params)
+                if cursor.rowcount:
+                    logging.info(f" Migrations: added website/instagram for {slug}")
+                    total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:

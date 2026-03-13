@@ -192,7 +192,7 @@ VENDORS = [
         'address': '3489 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 781-1156',
-        'website': '',
+        'website': 'http://hermesbakery.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -231,7 +231,7 @@ VENDORS = [
         'address': '1000 Eglinton Ave W, Toronto, ON',
         'neighborhood': 'Forest Hill',
         'phone': '(416) 782-3302',
-        'website': '',
+        'website': 'https://bistrogrande.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -245,7 +245,7 @@ VENDORS = [
         'address': '3457 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 782-2522',
-        'website': '',
+        'website': 'https://tov-li.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -257,7 +257,7 @@ VENDORS = [
         'address': '3006 Bathurst St, Toronto, ON',
         'neighborhood': 'Lawrence Heights',
         'phone': '(416) 792-0606',
-        'website': '',
+        'website': 'https://bistrogrande.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -329,7 +329,7 @@ VENDORS = [
         'address': '3413 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 792-0052',
-        'website': '',
+        'website': 'http://hermesbakery.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -431,7 +431,7 @@ VENDORS = [
         'address': '3027 Bathurst St, Toronto, ON',
         'neighborhood': 'Lawrence Heights',
         'phone': '(416) 792-8989',
-        'website': '',
+        'website': 'https://drlaffa.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -468,7 +468,7 @@ VENDORS = [
         'address': '7241 Bathurst St, Thornhill, ON',
         'neighborhood': 'Thornhill',
         'phone': '(905) 889-5559',
-        'website': '',
+        'website': 'https://www.mevame.com/',
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York',
@@ -484,7 +484,7 @@ VENDORS = [
         'address': '3461 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 792-0004',
-        'website': '',
+        'website': 'https://www.sushiinn.net/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -520,7 +520,7 @@ VENDORS = [
         'address': '115 Harbord St, Toronto, ON',
         'neighborhood': 'Harbord Village',
         'phone': '(416) 922-5767',
-        'website': '',
+        'website': 'https://www.harbordbakery.ca/',
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
@@ -948,7 +948,7 @@ VENDORS = [
         'address': '3459 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 782-3375',
-        'website': 'https://www.umamisushi.ca',
+        'website': 'https://www.umamisushi.ca/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -960,7 +960,8 @@ VENDORS = [
         'address': '3031 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 781-4212',
-        'website': 'https://www.haymishebakery.com',
+        'website': 'https://www.haymishebakery.com/',
+        'instagram': 'haymishebakeryto',
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
@@ -972,7 +973,7 @@ VENDORS = [
         'address': '3030 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 862-2435',
-        'website': 'https://www.bubbysbagels.com',
+        'website': 'https://www.bubbysbagels.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
@@ -1065,7 +1066,7 @@ MONTREAL_VENDORS = [
         'address': '5855 Avenue Victoria, Montréal, QC',
         'neighborhood': 'Snowdon',
         'phone': '(514) 731-7883',
-        'website': '',
+        'website': 'https://www.bubbysbagels.com/',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Snowdon,Côte-Saint-Luc',
@@ -1128,6 +1129,7 @@ MONTREAL_VENDORS = [
         'neighborhood': 'Outremont',
         'phone': '(514) 271-2253',
         'website': '',
+        'instagram': 'cheskiebakery',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont,Mile End',
@@ -1225,7 +1227,7 @@ MONTREAL_VENDORS = [
         'address': '93 Avenue du Mont-Royal Ouest, Montréal, QC',
         'neighborhood': 'Plateau Mont-Royal',
         'phone': '(514) 849-8883',
-        'website': '',
+        'website': 'https://www.beautys.ca/',
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
@@ -1237,7 +1239,7 @@ MONTREAL_VENDORS = [
         'address': '34 Avenue Fairmount Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
         'phone': '(514) 271-0247',
-        'website': '',
+        'website': 'http://www.wilenskys.com/',
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
@@ -1334,7 +1336,7 @@ MONTREAL_VENDORS = [
         'address': '355 Rue Bernard Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
         'phone': '(514) 975-2770',
-        'website': '',
+        'website': 'https://www.umamisushi.ca/',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mile End,Outremont',
@@ -1358,7 +1360,8 @@ MONTREAL_VENDORS = [
         'address': '360 Rue Saint-Viateur Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
         'phone': '(514) 277-3600',
-        'website': '',
+        'website': 'https://www.oinegshabbes.com/',
+        'instagram': 'oinegskosher',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mile End,Outremont',
@@ -1458,7 +1461,8 @@ MONTREAL_VENDORS = [
         'address': '6245 Decarie Blvd, Montreal, QC H3W 3E1',
         'neighborhood': 'Snowdon',
         'phone': '(514) 731-1221',
-        'website': '',
+        'website': 'http://www.wilenskys.com/',
+        'instagram': 'lefalafelmontreal',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc,Hampstead',
@@ -1482,7 +1486,7 @@ MONTREAL_VENDORS = [
         'address': '5345 Vezina, Montreal, QC H3X 4A8',
         'neighborhood': 'Snowdon',
         'phone': '(514) 731-7482',
-        'website': '',
+        'website': 'https://pizzapitaprime.order-online.ai/',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc,Hampstead',
@@ -1551,7 +1555,7 @@ GIFT_VENDORS = [
         'address': '6237 Bathurst St, North York, ON',
         'neighborhood': 'North York',
         'phone': '(416) 250-9116',
-        'website': '',
+        'website': 'https://orly-grill.com/',
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'GTA',
@@ -1823,6 +1827,12 @@ def seed_vendors(db_path=None):
     # Seed food vendors (Toronto + Montreal)
     all_food_vendors = VENDORS + MONTREAL_VENDORS
     for v in all_food_vendors:
+        # RULE: Every vendor must have a website or instagram for tracking
+        if not v.get('website', '').strip() and not v.get('instagram', '').strip():
+            print(f"  SKIPPED (no website or instagram): {v['name']}")
+            skipped += 1
+            continue
+
         slug = slugify(v['name'])
         # Check if already exists
         cursor.execute('SELECT id FROM vendors WHERE slug = ?', (slug,))
@@ -1858,6 +1868,12 @@ def seed_vendors(db_path=None):
     # Seed gift vendors
     gift_inserted = 0
     for v in GIFT_VENDORS:
+        # RULE: Every vendor must have a website or instagram for tracking
+        if not v.get('website', '').strip() and not v.get('instagram', '').strip():
+            print(f"  SKIPPED (no website or instagram): {v['name']}")
+            skipped += 1
+            continue
+
         slug = slugify(v['name'])
         cursor.execute('SELECT id FROM vendors WHERE slug = ?', (slug,))
         if cursor.fetchone():
