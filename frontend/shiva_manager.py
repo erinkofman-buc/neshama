@@ -170,6 +170,9 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute("ALTER TABLE shiva_support ADD COLUMN privacy TEXT DEFAULT 'public'")
 
+        # Backfill: ensure no NULL privacy values
+        cursor.execute("UPDATE shiva_support SET privacy = 'public' WHERE privacy IS NULL")
+
         # Migration: add recommended_vendors column if missing
         try:
             cursor.execute('SELECT recommended_vendors FROM shiva_support LIMIT 1')
@@ -352,6 +355,20 @@ class ShivaManager:
             WHERE share_token IS NULL
         """)
 
+        # ── V5 Migrations ────────────────────────────────────────
+
+        # V5: blocked_meals column (JSON array of {date, meal_type})
+        try:
+            cursor.execute('SELECT blocked_meals FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN blocked_meals TEXT')
+
+        # V5: additional_contributors on meal_signups (JSON array of {name, email})
+        try:
+            cursor.execute('SELECT additional_contributors FROM meal_signups LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE meal_signups ADD COLUMN additional_contributors TEXT')
+
         conn.commit()
         conn.close()
 
@@ -490,6 +507,21 @@ class ShivaManager:
             if clean_slugs:
                 recommended_vendors = json.dumps(clean_slugs)
 
+        # V5: Validate blocked_meals (JSON array of {date, meal_type})
+        blocked_meals = None
+        raw_blocked = data.get('blocked_meals')
+        if raw_blocked and isinstance(raw_blocked, list):
+            clean_blocked = []
+            for item in raw_blocked[:100]:  # max 100 blocked slots
+                if isinstance(item, dict) and item.get('date') and item.get('meal_type'):
+                    if item['meal_type'] in ('Lunch', 'Dinner'):
+                        clean_blocked.append({
+                            'date': str(item['date']).strip()[:10],
+                            'meal_type': item['meal_type']
+                        })
+            if clean_blocked:
+                blocked_meals = json.dumps(clean_blocked)
+
         # V2 fields
         drop_off = self._sanitize_text(data.get('drop_off_instructions', ''), self.MAX_TEXT_LENGTH) or None
         source = data.get('source', 'web_standalone')
@@ -510,8 +542,8 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -542,6 +574,7 @@ class ShivaManager:
                 verification_status,
                 verification_token,
                 share_token,
+                blocked_meals,
             ))
             conn.commit()
             return {
@@ -690,7 +723,7 @@ class ShivaManager:
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
             'recommended_vendors', 'organizer_update', 'family_notes',
-            'drop_off_instructions', 'notification_prefs',
+            'drop_off_instructions', 'notification_prefs', 'blocked_meals',
         ]
 
         sets = []
@@ -729,6 +762,15 @@ class ShivaManager:
                         })
                     except Exception:
                         val = '{"instant":true,"daily_summary":true,"uncovered_alert":true}'
+                elif field == 'blocked_meals':
+                    if isinstance(val, list):
+                        clean = []
+                        for item in val[:100]:
+                            if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
+                                clean.append({'date': str(item['date']).strip()[:10], 'meal_type': item['meal_type']})
+                        val = json.dumps(clean) if clean else None
+                    else:
+                        val = None
                 else:
                     val = self._sanitize_text(val)
                 vals.append(val)
@@ -1129,6 +1171,18 @@ class ShivaManager:
             conn.close()
             return {'status': 'error', 'message': 'This date falls on Shabbat and is not available for meal coordination'}
 
+        # Check blocked meals
+        blocked_meals_json = support.get('blocked_meals')
+        if blocked_meals_json:
+            try:
+                blocked_list = json.loads(blocked_meals_json)
+                for bm in blocked_list:
+                    if bm.get('date') == meal_date and bm.get('meal_type') == data['meal_type']:
+                        conn.close()
+                        return {'status': 'error', 'message': 'This meal slot has been blocked by the organizer'}
+            except (json.JSONDecodeError, TypeError):
+                pass
+
         # Alternative contributions skip the duplicate check
         is_alternative = bool(data.get('alternative_type'))
 
@@ -1158,13 +1212,29 @@ class ShivaManager:
             alt_note = self._sanitize_text(data.get('alternative_note', ''), self.MAX_TEXT_LENGTH) or None
             signup_status = 'alternative' if is_alternative else 'confirmed'
 
+            # V5: additional contributors (multiple families per meal)
+            additional_contributors = None
+            raw_contributors = data.get('additional_contributors')
+            if raw_contributors and isinstance(raw_contributors, list):
+                clean_contributors = []
+                for c in raw_contributors[:10]:  # max 10 additional families
+                    if isinstance(c, dict) and c.get('name', '').strip():
+                        contributor = {
+                            'name': self._sanitize_text(c['name'], 200),
+                        }
+                        if c.get('email', '').strip():
+                            contributor['email'] = self._validate_email(c['email']) or ''
+                        clean_contributors.append(contributor)
+                if clean_contributors:
+                    additional_contributors = json.dumps(clean_contributors)
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
                     will_serve, privacy_consent, created_at, signup_group_id,
-                    status, alternative_type, alternative_note
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    status, alternative_type, alternative_note, additional_contributors
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -1181,6 +1251,7 @@ class ShivaManager:
                 signup_status,
                 alt_type,
                 alt_note,
+                additional_contributors,
             ))
             conn.commit()
 

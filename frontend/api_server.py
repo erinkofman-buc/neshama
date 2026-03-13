@@ -5806,6 +5806,10 @@ def run_server(port=None):
                     logging.info(f" Migrations: added website/instagram for {slug}")
                     total_changed += cursor.rowcount
 
+        # Update Bubby's Bagels website to menu page
+        cursor.execute("UPDATE vendors SET website = 'https://www.bubbysbagels.com/menu' WHERE slug LIKE 'bubby%' AND website = 'https://www.bubbysbagels.com/'")
+        total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:

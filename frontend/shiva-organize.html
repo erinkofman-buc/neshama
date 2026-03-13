@@ -314,6 +314,46 @@
             margin-bottom: 1.25rem;
         }
 
+        /* ── Meal Blocking Grid ─────────────────────────── */
+
+        .meal-block-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-taupe);
+        }
+        .meal-block-row.shabbat {
+            opacity: 0.5;
+        }
+        .meal-block-day {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            min-width: 100px;
+        }
+        .meal-block-btn {
+            padding: 0.35rem 0.75rem;
+            border: 1.5px solid var(--sage);
+            border-radius: 2rem;
+            background: white;
+            color: var(--sage-dark);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .meal-block-btn:hover {
+            background: var(--cream);
+        }
+        .meal-block-btn.blocked {
+            background: #f0e0d6;
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+            text-decoration: line-through;
+        }
+
         /* ── Consent Checkbox ────────────────────────────── */
 
         .consent-group {
@@ -889,6 +929,13 @@
             </div>
             <p class="toggle-hint">Meal coordination will pause from Friday sunset to Saturday sunset</p>
 
+            <!-- V5: Meal Blocking Grid -->
+            <div class="form-group" id="mealBlockingSection" style="display: none;">
+                <label>Block Off Meals <span class="optional">(optional)</span></label>
+                <div class="form-hint" style="margin-bottom: 0.75rem;">Click any meal slot the family doesn't need covered. Blocked meals won't appear for volunteers.</div>
+                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
+            </div>
+
             <div class="form-group">
                 <label for="guestsPerMeal">Number of People to Feed per Meal</label>
                 <input type="number" id="guestsPerMeal" value="20" min="1" max="200">
@@ -1297,6 +1344,95 @@
             document.getElementById('shivaEndDate').value = end.toISOString().split('T')[0];
         }
 
+        // ── Meal Blocking ──────────────────────────────
+        var blockedMeals = [];
+
+        function buildMealBlockingGrid() {
+            var startVal = document.getElementById('shivaStartDate').value;
+            var endVal = document.getElementById('shivaEndDate').value;
+            var section = document.getElementById('mealBlockingSection');
+            var grid = document.getElementById('mealBlockingGrid');
+
+            if (!startVal || !endVal) {
+                section.style.display = 'none';
+                return;
+            }
+
+            var start = new Date(startVal + 'T12:00:00');
+            var end = new Date(endVal + 'T12:00:00');
+            if (isNaN(start) || isNaN(end) || end < start) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = '';
+            grid.innerHTML = '';
+            var pauseShabbat = document.getElementById('pauseShabbat').checked;
+            var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            var current = new Date(start);
+            while (current <= end) {
+                var dateStr = current.toISOString().split('T')[0];
+                var dayName = days[current.getDay()];
+                var label = dayName + ', ' + months[current.getMonth()] + ' ' + current.getDate();
+                var isShabbat = pauseShabbat && (current.getDay() === 5 || current.getDay() === 6);
+
+                var row = document.createElement('div');
+                row.className = 'meal-block-row' + (isShabbat ? ' shabbat' : '');
+
+                var dayLabel = document.createElement('div');
+                dayLabel.className = 'meal-block-day';
+                dayLabel.textContent = label;
+                row.appendChild(dayLabel);
+
+                if (isShabbat) {
+                    var note = document.createElement('span');
+                    note.style.cssText = 'font-size: 0.8rem; color: var(--sage-dark); font-style: italic;';
+                    note.textContent = 'Shabbat — paused';
+                    row.appendChild(note);
+                } else {
+                    ['Lunch', 'Dinner'].forEach(function(mealType) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'meal-block-btn';
+                        btn.textContent = mealType;
+                        btn.dataset.date = dateStr;
+                        btn.dataset.meal = mealType;
+
+                        // Check if already blocked
+                        var isBlocked = blockedMeals.some(function(bm) {
+                            return bm.date === dateStr && bm.meal_type === mealType;
+                        });
+                        if (isBlocked) btn.classList.add('blocked');
+
+                        btn.addEventListener('click', function() {
+                            var d = this.dataset.date;
+                            var m = this.dataset.meal;
+                            var idx = blockedMeals.findIndex(function(bm) {
+                                return bm.date === d && bm.meal_type === m;
+                            });
+                            if (idx >= 0) {
+                                blockedMeals.splice(idx, 1);
+                                this.classList.remove('blocked');
+                            } else {
+                                blockedMeals.push({ date: d, meal_type: m });
+                                this.classList.add('blocked');
+                            }
+                        });
+                        row.appendChild(btn);
+                    });
+                }
+
+                grid.appendChild(row);
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        document.getElementById('shivaStartDate').addEventListener('change', buildMealBlockingGrid);
+        document.getElementById('shivaEndDate').addEventListener('change', buildMealBlockingGrid);
+        document.getElementById('pauseShabbat').addEventListener('change', buildMealBlockingGrid);
+
         // ── Step Navigation ─────────────────────────────
         window.goToStep = function(step) {
             // Validate current step before advancing
@@ -1448,7 +1584,8 @@
                 family_notes: document.getElementById('familyNotes').value.trim(),
                 privacy: document.getElementById('privacyToggle').checked ? 'private' : 'public',
                 privacy_consent: true,
-                recommended_vendors: selectedVendors.length ? selectedVendors : undefined
+                recommended_vendors: selectedVendors.length ? selectedVendors : undefined,
+                blocked_meals: blockedMeals.length ? blockedMeals : undefined
             };
 
             if (forceCreate) {
@@ -1704,6 +1841,7 @@
         // ── Initialize ──────────────────────────────────
         loadObituaryContext();
         setDefaultDates();
+        buildMealBlockingGrid();
 
     })();
     </script>
