@@ -10,40 +10,40 @@
 
 Dear Rabbi Fryer Bodzin,
 
-My name is Erin Kofman. I am writing to share a resource I built for Jewish families in Toronto called Neshama (neshama.ca).
+My name is Erin Kofman. I built a resource for Jewish families in Toronto called Neshama (neshama.ca), and I wanted to share it with you.
 
-When someone in our community passes away, the people who want to help often struggle with the same questions: Where do I find the obituary? Has anyone organised meals for the family? What day should I bring food? Who can I call to send something?
+When someone in our community passes away, the people who want to help always have the same questions. Where's the obituary? Has anyone organized meals? What day should I bring food? Who can I call?
 
-Neshama brings the answers to these questions into one place.
+Neshama puts all of that in one place.
 
-**What Neshama provides:**
+**What it does:**
 
-1. **Obituary feed** — Listings from Steeles Memorial Chapel and Benjamin's Park Memorial Chapel, updated regularly and searchable. Families and community members no longer need to check multiple funeral home websites. We currently feature 242 obituaries across Toronto and Montreal.
+1. **Obituary feed** — Pulls directly from the public funeral home websites (Steeles Memorial Chapel, Benjamin's Park Memorial Chapel) so families don't have to check multiple sites.
 
-2. **Meal coordination** — When a family is sitting shiva, a coordination page lets community members sign up for specific days. Everyone can see what is covered and what is still needed. It replaces the chain of phone calls and group messages that often leave gaps or overlaps.
+2. **Meal coordination** — A family sets up a shiva page. Volunteers sign up for specific days. Everyone sees what's covered and what's still needed. No more group chat chaos.
 
-3. **"How Can I Help?" hub** — Over 129 local food partners and gift vendors who provide meals, catering, and sympathy gifts for families in mourning. Supporters can browse by category and city to find what they need.
+3. **"How Can I Help?" hub** — 120+ local food partners and gift vendors. Browse by category, city, kosher status. Find what you need in a minute.
 
-4. **Yahrzeit reminders** — Community members can set up annual email reminders for a loved one's yahrzeit, based on the Hebrew calendar. The reminder arrives before the date so they have time to prepare.
+4. **Yahrzeit reminders** — Annual email reminders based on the Hebrew calendar. Arrives before the date so there's time to prepare.
 
-5. **Digital condolence guestbook** — Each memorial page includes a place for community members to leave messages of comfort for the family.
+5. **Condolence guestbook** — Each memorial page has a place for community members to leave messages for the family.
 
-**Everything is provided at no cost.** No accounts required. No advertisements. Neshama exists to serve the community.
+**Free. No accounts. No ads.** Neshama exists to serve the community.
 
-**Why I am writing to you:**
+**Why I'm writing:**
 
-I believe the families at Beth Tzedec would find Neshama helpful — both when they experience a loss themselves and when they want to support someone else who is grieving. It is the kind of resource that is most useful when people know about it before they need it.
+I think families at Beth Tzedec would find this useful — both when they experience a loss and when they want to support someone who is grieving. It's the kind of resource that's most helpful when people know about it before they need it.
 
-If you think it would be valuable, I would be grateful if you would consider any of the following:
+If you think it's valuable, any of these would make a real difference:
 
-- Sharing the link (neshama.ca) in your weekly email or newsletter
-- Mentioning it to your chesed or bikur cholim committee
-- Including it in your list of community resources
-- Sharing the newsletter blurb below
+- Share the link (neshama.ca) in your weekly email or newsletter
+- Mention it to your chesed or bikur cholim committee
+- Add it to your list of community resources
+- Use the blurb below — it's ready to copy-paste
 
-I welcome any feedback or questions. I built Neshama because I saw how much families struggle to coordinate support during a loss, and I want it to be as useful as possible for communities like yours.
+Happy to answer any questions. I built this because I saw how much families struggle to coordinate during a loss, and I want it to be as useful as possible.
 
-With warm regards,
+Warm regards,
 Erin Kofman
 neshama.ca
 contact@neshama.ca
@@ -54,10 +54,10 @@ contact@neshama.ca
 
 **Neshama — A Resource for Our Community**
 
-When a family in our community experiences a loss, neshama.ca brings together obituaries from local funeral homes, a meal coordination tool for shiva, a "How Can I Help?" hub with over 129 local food partners and gift vendors, and yahrzeit reminders based on the Hebrew calendar. No sign-up required. Visit neshama.ca or contact contact@neshama.ca to learn more.
+When a family in our community experiences a loss, neshama.ca brings together obituaries from local funeral homes, a meal coordination tool for shiva, 120+ local food and gift vendors, and yahrzeit reminders based on the Hebrew calendar. Free — no sign-up required. Visit neshama.ca to learn more.
 
 ---
 
 ## Shorter Blurb (for bulletins with limited space)
 
-**Neshama.ca** — Obituaries, shiva meal coordination, "How Can I Help?" hub, and yahrzeit reminders for Jewish families in Toronto and Montreal. A community resource at no cost. neshama.ca
+**Neshama.ca** — Obituaries from local funeral homes, shiva meal coordination, 120+ food and gift vendors, yahrzeit reminders. Free community resource for Jewish families in Toronto and Montreal. neshama.ca

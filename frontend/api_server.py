@@ -2285,6 +2285,13 @@ button:hover{background:#c45a1a}</style></head>
         # Decode the URL
         dest_url = unquote(dest_url)
 
+        # Validate destination URL — prevent open redirect attacks
+        parsed_dest = urlparse(dest_url)
+        if parsed_dest.scheme not in ('http', 'https') or not parsed_dest.netloc:
+            logging.warning(f"[Click] Blocked redirect to invalid URL: {dest_url}")
+            self.send_404()
+            return
+
         # Log click to database
         try:
             db_path = self.get_db_path()
@@ -5801,7 +5808,7 @@ def run_server(port=None):
                 params.append(instagram)
             if parts:
                 params.append(slug)
-                cursor.execute(f"UPDATE vendors SET {', '.join(parts)} WHERE slug = ?", params)
+                cursor.execute(f"UPDATE vendors SET {', '.join(parts)} WHERE slug = ? AND (website IS NULL OR website = '')", params)
                 if cursor.rowcount:
                     logging.info(f" Migrations: added website/instagram for {slug}")
                     total_changed += cursor.rowcount

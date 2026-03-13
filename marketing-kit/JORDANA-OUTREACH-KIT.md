@@ -239,58 +239,65 @@ Auto-refreshes every 60 seconds. Works on mobile.
 
 All copy-paste ready. Organized by channel.
 
-### WhatsApp Groups — Quick Drop (keep it SHORT — 4 lines max for groups)
+### WhatsApp Groups — Casual Drop
 
-Hey — some of you know my mom used to read obituaries. After losing her, I started doing the same. Erin Kofman and I built neshama.ca — one place for Toronto/Montreal Jewish obituaries, shiva meal coordination, and 129+ caterers and vendors. Free, no sign-up. Worth bookmarking: www.neshama.ca
+Hey everyone, wanted to share something. My friend Erin built neshama.ca — it pulls together all the Jewish obituaries from the funeral home sites (Steeles, Benjamin's, Paperman's) so you're not checking three different places. There's also a tool to sign up to bring meals during shiva so you don't end up with 6 people on Monday and nobody on Thursday. Free, no sign-up. Worth bookmarking before you need it. neshama.ca
 
-### WhatsApp — Longer Version (for personal messages, not groups)
+### WhatsApp — The Personal One (for groups where people know the story)
 
-Hey — I wanted to share something close to my heart. You know my mom read obituaries to find former patients. After losing her, I started doing both — reading obituaries and feeding people. Through Jem Salads I saw the same problem every week: meals overlapping, days uncovered, families checking three different funeral home websites.
+You guys know my mom used to read every obituary. After we lost her I started doing the same thing. Between that and catering shivas every week with Jem, I kept seeing the same problem — everyone wants to help but nobody knows what's covered.
 
-So Erin and I built Neshama (www.neshama.ca). Obituaries from Toronto and Montreal in one feed, a meal coordination tool so nothing overlaps, and 129+ caterers and vendors. Free, respectful, no ads. Worth a look.
+Erin and I built neshama.ca. All the local obituaries in one place, a way to coordinate who's bringing what, and a directory of food and gift options if you want to send something. Free, no accounts, nothing to sign up for.
 
-### Orthodox Community Circles
+Take a look when you get a sec. neshama.ca
 
-Hi [Name] — quick one. Erin Kofman and I built a community resource called Neshama (www.neshama.ca). You know how it is — three people bring chicken Monday, nobody brings anything Wednesday.
+### Orthodox Community / Chesed Circles
 
-Neshama has obituaries from local funeral homes in one place, a meal coordination tool for shiva, and a full "How Can I Help?" hub with local food partners and gifts. Free, already live with 200+ listings. If you know anyone on a chesed committee, I'd love for them to see it.
+Hey [Name] — I wanted to tell you about something Erin Kofman and I have been working on. It's called Neshama — neshama.ca.
+
+You know what it's like. Three people bring chicken on Monday, nobody shows up Wednesday. Families are checking three funeral home websites trying to find a listing. People want to help and don't know where to start.
+
+Neshama puts it all in one place. Obituaries from the local funeral homes, a meal coordination tool for shiva, and a directory of food and gift vendors. Free, no sign-up.
+
+If you know anyone on a chesed committee or shul board, I'd love for them to see it. It's the kind of thing that works best when people know about it before they need it.
 
 ### Synagogue Contacts / Chesed Committees
 
 Hi [Name],
 
-I wanted to share a community resource that I think would be valuable for [Synagogue Name]'s congregation.
+I've been working with Erin Kofman on something I wanted to share with you — a free community resource called Neshama (neshama.ca).
 
-I've been working with Erin Kofman on a site called Neshama (www.neshama.ca) that brings together obituaries from Toronto and Montreal's Jewish funeral homes in one place, along with a meal coordination tool for shiva and a "How Can I Help?" hub with 129+ local food partners and gift vendors.
+Through catering shivas every week, I see how stressful the logistics are for families. Who's bringing food when. Which funeral home has the listing. Where to find a caterer. It's all scattered.
 
-As someone who runs a catering business that serves shiva families, I see how fragmented and stressful the logistics can be. Neshama gives the community a simple way to find information, coordinate meals, and connect with vendors, all in one place. Free for families. No sign-up, no fees.
+Neshama pulls obituaries from the local funeral home websites into one search, has a meal coordination tool so volunteers can sign up for specific days, and a directory of food and gift vendors. Free for families, no sign-up.
 
-Would you be open to mentioning it in your next newsletter or sharing it with your chesed committee? Here's a blurb you can use:
+I think [Synagogue Name]'s congregation would find it really useful. Would you be open to sharing it in your newsletter or passing it to your chesed committee? Here's a blurb ready to go:
 
-> **Community Resource: Neshama** — A new resource for Jewish families in Toronto and Montreal. Search obituaries from local funeral homes, coordinate shiva meals with friends and neighbours, and browse a directory of verified caterers and vendors. Free to use, no sign-up required. Visit www.neshama.ca
+> **Neshama** — When a family in our community experiences a loss, neshama.ca brings together obituaries from local funeral homes, a meal coordination tool for shiva, and a directory of food and gift vendors. Free, no sign-up required. neshama.ca
 
 Warmly,
 Jordana Mednick
 
 ### Vendor Peers (Caterer-to-Caterer)
 
-Hey [Name] — hope business is good! I wanted to let you know about something Erin and I have been building. It's called Neshama (www.neshama.ca) — a community hub for Jewish families dealing with a loss. Obituary feed, meal coordination for shiva, and a "How Can I Help?" hub with local food partners and gifts.
+Hey [Name] — hope things are good. Wanted to tell you about something Erin and I built. It's called Neshama — neshama.ca. Basically a community hub for families dealing with a loss. Obituaries from the funeral homes, meal coordination for shiva, and a directory of caterers and vendors.
 
-You're actually already listed on it — Erin compiled a directory of caterers and vendors across Toronto and Montreal who serve shiva families. You can see your listing at [listing URL].
+You're actually already listed on it. Erin put together a directory of everyone in Toronto and Montreal who serves shiva families. Your listing: [listing URL]
 
-If any details need updating (phone, website, menu info), just let me know. There's also an option for a featured listing if you want more visibility, but your current listing stays free either way.
+If anything needs updating — phone, website, whatever — just let me know. There's also a featured listing option if you want more visibility, but your current one stays free no matter what.
 
-Worth checking out: www.neshama.ca/shiva/caterers
+Check it out: neshama.ca/shiva/caterers
 
 ### Funeral Home Contacts
 
-Hi [Name] — I'm reaching out because I wanted to make you aware of a community resource called Neshama (www.neshama.ca). It aggregates obituaries from Jewish funeral homes across Toronto and Montreal — including [Funeral Home Name] — along with shiva meal coordination tools and a "How Can I Help?" hub.
+Hi [Name] — I wanted to make you aware of something my friend Erin Kofman and I have been working on. It's called Neshama — neshama.ca.
 
-I've been working on this with Erin Kofman, and I wanted to make sure you knew about it. We'd genuinely appreciate any feedback. Is this useful from your perspective? Is there anything about how your listings appear that you'd want adjusted?
+It pulls obituaries from Jewish funeral homes across Toronto and Montreal, including [Funeral Home Name], and puts them in one searchable feed alongside meal coordination tools and a vendor directory.
+
+All the listings link back to your site. We'd genuinely appreciate your feedback — is this useful from your perspective? Anything about how your listings appear that you'd want changed?
 
 Happy to chat anytime.
 
-Best,
 Jordana Mednick
 
 ### Dana Cohen Ezer / Hartsman Institute
