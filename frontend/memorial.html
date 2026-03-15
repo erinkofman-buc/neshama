@@ -1884,7 +1884,9 @@
                         }
                         html += '</div>';
                         html += '<a class="support-cta-btn" href="/shiva/' + encodeURIComponent(s.id) + '">Help coordinate meals</a>';
-                        html += '<p style="text-align:center;margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p>';
+                        html += '<p style="text-align:center;margin-top:1rem;font-size:0.95rem;color:var(--sage-dark);">' +
+                            'Want to help? <a href="/help/food">Send a meal</a> · <a href="/help/gifts">Send a gift</a></p>';
+                        html += '<p style="text-align:center;margin-top:0.5rem;font-size:0.95rem;color:var(--sage-dark);">Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p>';
                         if (s.donation_url) {
                             html += '<br><a class="support-donation-link" href="' + escapeHtml(s.donation_url) +
                                     '" target="_blank" rel="noopener noreferrer">' +
@@ -1915,7 +1917,9 @@
                             '<div style="text-align:center;">' +
                             '<a class="support-cta-btn" href="' + escapeHtml(organizeUrl) +
                             '">Set up support for this family</a>' +
-                            '<p style="margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">' +
+                            '<p style="margin-top:1rem;font-size:0.95rem;color:var(--sage-dark);">' +
+                            'Want to help? <a href="/help/food">Send a meal</a> · <a href="/help/gifts">Send a gift</a></p>' +
+                            '<p style="margin-top:0.5rem;font-size:0.95rem;color:var(--sage-dark);">' +
                             'Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p></div>';
                         show('supportSection');
                     }
