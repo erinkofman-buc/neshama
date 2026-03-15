@@ -899,6 +899,132 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
     return None, None
 
 
+# ── Welcome drip emails ──────────────────────────────────────
+
+def _welcome_drip_day3_html():
+    """Day 3: Feature highlights — city filter, WhatsApp sharing, guestbook."""
+    return _email_wrapper("""
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Did you know?</h1>
+        <p style="color:#8a9a8d;font-size:1rem;margin-top:0.5rem;">Neshama covers Toronto and Montreal</p>
+    </div>
+
+    <p style="font-size:1rem;line-height:1.7;">Here are a few things you might not have discovered yet:</p>
+
+    <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 12px 0;"><strong style="color:#D2691E;">City filter</strong> &mdash; Toggle between Toronto, Montreal, or both at the top of the feed.</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 12px 0;"><strong style="color:#D2691E;">Share via WhatsApp</strong> &mdash; Every obituary and shiva page has a share button. One tap sends the details to your community groups.</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0;"><strong style="color:#D2691E;">Condolence guestbook</strong> &mdash; Leave a tribute on any memorial page. Families can export the messages as a keepsake.</p>
+    </div>
+
+    <div style="text-align:center;margin:1.5rem 0;">
+        <a href="https://neshama.ca/feed" style="display:inline-block;background:#3E2723;color:white;padding:0.7rem 2rem;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Browse the feed</a>
+    </div>
+
+    <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">You're receiving this because you subscribed to Neshama updates. <a href="https://neshama.ca/unsubscribe?email={{email}}" style="color:#3E2723;">Unsubscribe</a></p>
+    """)
+
+
+def _welcome_drip_day7_html():
+    """Day 7: Shiva meal coordinator walkthrough."""
+    return _email_wrapper("""
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Organize shiva meals in 5 minutes</h1>
+    </div>
+
+    <p style="font-size:1rem;line-height:1.7;">When a family is sitting shiva, coordinating meals can be overwhelming. Neshama makes it simple.</p>
+
+    <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1rem 0;">
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 1:</strong> A friend or family member creates a shiva meal page</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 2:</strong> Share the link in your WhatsApp groups</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 3:</strong> Volunteers sign up for specific days and meals</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0;"><strong>Step 4:</strong> Everyone sees what's covered and what's still needed</p>
+    </div>
+
+    <p style="font-size:1rem;line-height:1.7;">No more overlapping casseroles on Monday and nothing on Wednesday. No more phone trees.</p>
+
+    <div style="text-align:center;margin:1.5rem 0;">
+        <a href="https://neshama.ca/shiva/organize" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">See how it works</a>
+    </div>
+
+    <p style="font-size:1rem;line-height:1.7;">And when someone needs to send food but can't cook? Our <a href="https://neshama.ca/help" style="color:#D2691E;">vendor directory</a> lists 120+ kosher caterers, bakeries, and gift options across Toronto and Montreal.</p>
+
+    <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">You're receiving this because you subscribed to Neshama updates. <a href="https://neshama.ca/unsubscribe?email={{email}}" style="color:#3E2723;">Unsubscribe</a></p>
+    """)
+
+
+def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
+    """Send Day 3 and Day 7 welcome drip emails to confirmed subscribers."""
+    sent = 0
+    today_str = now_toronto.strftime('%Y-%m-%d')
+    hour = now_toronto.hour
+
+    # Only send drips at 10 AM
+    if hour != 10:
+        return 0
+
+    # Day 3 drip
+    day3_target = (now_toronto - timedelta(days=3)).strftime('%Y-%m-%d')
+    cursor.execute('''
+        SELECT email FROM subscribers
+        WHERE confirmed = TRUE
+          AND unsubscribed_at IS NULL
+          AND DATE(confirmed_at) = ?
+    ''', (day3_target,))
+    day3_subs = cursor.fetchall()
+
+    for row in day3_subs:
+        email = row[0]
+        # Dedup: check if we already sent this drip
+        cursor.execute('''
+            SELECT COUNT(*) FROM email_log
+            WHERE email_type = 'welcome_drip_day3' AND recipient_email = ? AND status = 'sent'
+        ''', (email,))
+        if cursor.fetchone()[0] > 0:
+            continue
+
+        html = _welcome_drip_day3_html().replace('{{email}}', email)
+        subject = 'Did you know? Neshama covers Toronto and Montreal'
+        email_id = _log_email(cursor, None, 'welcome_drip_day3', email, None)
+        ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
+        if ok:
+            _mark_sent(cursor, email_id, msg_id)
+            sent += 1
+        else:
+            _mark_failed(cursor, email_id, err)
+
+    # Day 7 drip
+    day7_target = (now_toronto - timedelta(days=7)).strftime('%Y-%m-%d')
+    cursor.execute('''
+        SELECT email FROM subscribers
+        WHERE confirmed = TRUE
+          AND unsubscribed_at IS NULL
+          AND DATE(confirmed_at) = ?
+    ''', (day7_target,))
+    day7_subs = cursor.fetchall()
+
+    for row in day7_subs:
+        email = row[0]
+        cursor.execute('''
+            SELECT COUNT(*) FROM email_log
+            WHERE email_type = 'welcome_drip_day7' AND recipient_email = ? AND status = 'sent'
+        ''', (email,))
+        if cursor.fetchone()[0] > 0:
+            continue
+
+        html = _welcome_drip_day7_html().replace('{{email}}', email)
+        subject = 'How to organize shiva meals in 5 minutes'
+        email_id = _log_email(cursor, None, 'welcome_drip_day7', email, None)
+        ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
+        if ok:
+            _mark_sent(cursor, email_id, msg_id)
+            sent += 1
+        else:
+            _mark_failed(cursor, email_id, err)
+
+    return sent
+
+
 # ── Main entry point ──────────────────────────────────────────
 
 def process_email_queue(db_path):
@@ -957,6 +1083,9 @@ def process_email_queue(db_path):
         conn.commit()
 
         results['thank_yous'] = _process_thank_yous(cursor, sendgrid_key, now_toronto)
+        conn.commit()
+
+        results['welcome_drips'] = _process_welcome_drips(cursor, sendgrid_key, now_toronto)
         conn.commit()
 
         results['retries'] = _process_retries(cursor, sendgrid_key)
