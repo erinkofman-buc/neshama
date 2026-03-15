@@ -382,6 +382,12 @@ class NeshamaApp {
                         '</div>' +
                         '<a href="' + memorialUrl + '" class="card-link" onclick="event.stopPropagation()">View Memorial \u2192</a>' +
                     '</div>' +
+                    '<div class="card-support-nudge">' +
+                        'Want to help? ' +
+                        '<a href="/help/food' + (obit.city ? '?city=' + encodeURIComponent(obit.city) : '') + '" onclick="event.stopPropagation()">Send a meal</a>' +
+                        ' · ' +
+                        '<a href="/help/gifts" onclick="event.stopPropagation()">Send a gift</a>' +
+                    '</div>' +
                 '</div>' +
             '</div>';
     }

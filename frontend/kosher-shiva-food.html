@@ -81,6 +81,17 @@
         .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
         .nav-link-secondary:hover { opacity: 1; }
         .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+
+        .nav-link-help {
+            font-size: 0.95rem;
+            color: var(--terracotta);
+            font-weight: 500;
+            opacity: 1;
+        }
+
+        .nav-link-help:hover {
+            color: #c45a1a;
+        }
         .nav-group-secondary { gap: 1.25rem; }
         .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
         .nav-premium-btn { position: relative; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
@@ -243,6 +254,49 @@
             text-decoration: none;
         }
 
+        .vendor-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .vendor-card-cta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: white;
+            border: 1px solid rgba(212, 197, 185, 0.4);
+            border-radius: 0.75rem;
+            text-decoration: none;
+            color: var(--dark-brown);
+            transition: all 0.2s ease;
+        }
+
+        .vendor-card-cta:hover {
+            border-color: var(--terracotta);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .vendor-card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vendor-card-cta strong {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .vendor-card-cta span:last-child {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+        }
+
         .affiliate-disclaimer {
             text-align: center;
             font-size: 0.85rem;
@@ -309,7 +363,7 @@
         </div>
         <span class="nav-divider"></span>
         <div class="nav-group-secondary">
-            <a href="/help" class="nav-link nav-link-secondary">How Can I Help?</a>
+            <a href="/help" class="nav-link nav-link-help">How Can I Help?</a>
             <a href="/about" class="nav-link nav-link-secondary">About</a>
         </div>
     </div>
@@ -465,11 +519,27 @@
         </div>
 
         <div class="section cta-section" data-animate>
-            <h2>Find Kosher Caterers Near You</h2>
+            <h2>Trusted Partners in Your Community</h2>
             <p>
-                Browse kosher caterers in Toronto and Montreal who offer shiva meal packages, with delivery and certified kosher options.
+                Families in Toronto and Montreal turn to these local resources for shiva meals, gifts, and support.
             </p>
-            <a href="/shiva/caterers" class="cta-btn">Find Trusted Caterers</a>
+            <div class="vendor-cards-grid">
+                <a href="/help/food" class="vendor-card-cta">
+                    <span class="vendor-card-icon">🍽️</span>
+                    <strong>Shiva Caterers</strong>
+                    <span>Meal packages with kosher and non-kosher options</span>
+                </a>
+                <a href="/help/gifts" class="vendor-card-cta">
+                    <span class="vendor-card-icon">🕯️</span>
+                    <strong>Sympathy Gifts</strong>
+                    <span>Comfort baskets, candles, and keepsakes</span>
+                </a>
+                <a href="/shiva/organize" class="vendor-card-cta">
+                    <span class="vendor-card-icon">🤝</span>
+                    <strong>Coordinate Meals</strong>
+                    <span>Set up a meal calendar for the family</span>
+                </a>
+            </div>
         </div>
 
         <p class="affiliate-disclaimer">
