@@ -4971,7 +4971,7 @@ def run_server(port=None):
             except Exception as e:
                 logging.error(f"[Yahrzeit] Failed to add scheduler job: {e}")
 
-        # Add daily digest (7 AM ET, Mon-Sat, skip Shabbat)
+        # Add daily digest (7 AM ET, Sun-Fri, skip Shabbat)
         try:
             from daily_digest import DailyDigestSender
 
@@ -4992,13 +4992,13 @@ def run_server(port=None):
                 'cron',
                 hour=7,
                 minute=0,
-                day_of_week='mon-sat',
+                day_of_week='sun-fri',
                 timezone='America/Toronto',
                 id='daily_digest',
                 name='Send daily obituary digest',
                 max_instances=1,
             )
-            logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Mon-Sat)")
+            logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Sun-Fri)")
         except Exception as e:
             logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
 
