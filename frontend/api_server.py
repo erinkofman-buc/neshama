@@ -305,6 +305,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path == '/api/scraper-status':
             self.get_scraper_status()
         elif path == '/api/scraper-thread':
+            if not self._check_admin_auth():
+                return
             self.send_json_response({'status': 'success', 'data': _periodic_scraper_status})
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
