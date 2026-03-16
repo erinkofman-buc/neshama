@@ -1762,8 +1762,41 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_error_response(f'Digest error: {str(e)}', 500)
 
     def handle_digest_status(self):
-        """Public endpoint showing last digest run status + recent history from DB."""
+        """Public endpoint showing last digest run status + recent history from DB.
+        Add ?run=1 to manually trigger the digest."""
         import json as _json
+
+        # Manual trigger: /api/digest-status?run=1
+        parsed = urlparse(self.path)
+        if parse_qs(parsed.query).get('run', [''])[0] == '1':
+            try:
+                from daily_digest import DailyDigestSender
+                sg_key = os.environ.get('SENDGRID_API_KEY')
+                sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
+                result = sender.send_daily_digest()
+                global _last_digest_run
+                ran_at = datetime.now(tz=_tz.utc).isoformat()
+                _last_digest_run['ran_at'] = ran_at
+                _last_digest_run['result'] = result
+                _last_digest_run['error'] = None
+                try:
+                    dconn = sqlite3.connect(DB_PATH, timeout=30)
+                    dc = dconn.cursor()
+                    dc.execute('''CREATE TABLE IF NOT EXISTS digest_runs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ran_at TEXT NOT NULL, result TEXT, error TEXT)''')
+                    dc.execute('INSERT INTO digest_runs (ran_at, result, error) VALUES (?, ?, ?)',
+                               (ran_at, _json.dumps(result), None))
+                    dconn.commit()
+                    dconn.close()
+                except Exception:
+                    pass
+                self.send_json_response({'status': 'triggered', 'result': result})
+                return
+            except Exception as e:
+                self.send_json_response({'status': 'trigger_error', 'error': str(e)}, 500)
+                return
+
         response = dict(_last_digest_run)
         try:
             conn = sqlite3.connect(DB_PATH, timeout=10)
