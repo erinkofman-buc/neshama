@@ -5116,17 +5116,23 @@ def run_server(port=None):
             )
             logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Sun-Fri)")
 
-            # Missed digest recovery: if server restarts after 7 AM, catch up
+            # Missed digest recovery: use a thread instead of APScheduler date trigger
+            # (APScheduler date jobs can miss if run_date passes before scheduler.start())
+            import threading
             def _check_missed_digest():
                 """Run 2 min after startup — if today's digest was missed, send it now."""
-                import json as _json
+                import time
+                time.sleep(120)  # Wait 2 min for server to fully stabilize
+                logging.info("[DailyDigest] Recovery check starting...")
                 try:
                     if is_shabbat():
+                        logging.info("[DailyDigest] Recovery: Shabbat, skipping")
                         return
                     tz = pytz.timezone('America/Toronto')
                     now = datetime.now(tz)
-                    # Only recover if it's after 7 AM and before 10 PM (don't send at 3 AM)
+                    # Only recover if it's after 7 AM and before 10 PM
                     if now.hour < 7 or now.hour >= 22:
+                        logging.info(f"[DailyDigest] Recovery: outside window (hour={now.hour}), skipping")
                         return
                     # Check if digest already ran today
                     today_str = now.strftime('%Y-%m-%d')
@@ -5137,23 +5143,19 @@ def run_server(port=None):
                         row = dc.fetchone()
                         dconn.close()
                         if row and row[0] and today_str in row[0]:
-                            logging.info(f"[DailyDigest] Recovery check: already ran today at {row[0]}")
+                            logging.info(f"[DailyDigest] Recovery: already ran today at {row[0]}")
                             return
-                    except Exception:
-                        pass  # Table may not exist yet, that's fine — run the digest
+                    except Exception as db_err:
+                        logging.info(f"[DailyDigest] Recovery: no digest_runs table yet ({db_err}), proceeding")
 
                     logging.info(f"[DailyDigest] Recovery: missed today's digest, sending now")
                     _run_daily_digest()
                 except Exception as e:
-                    logging.error(f"[DailyDigest] Recovery check error: {e}")
+                    logging.error(f"[DailyDigest] Recovery check error: {e}", exc_info=True)
 
-            scheduler.add_job(
-                _check_missed_digest,
-                'date',
-                run_date=datetime.now(tz=_tz.utc) + timedelta(minutes=2),
-                id='digest_recovery',
-                name='Check for missed daily digest',
-            )
+            recovery_thread = threading.Thread(target=_check_missed_digest, daemon=True, name='digest-recovery')
+            recovery_thread.start()
+            logging.info("[DailyDigest] Recovery thread started (will check in 2 min)")
         except Exception as e:
             logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
 
