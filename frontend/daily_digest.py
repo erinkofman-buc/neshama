@@ -315,12 +315,13 @@ class DailyDigestSender:
                 unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
 
                 if not unique_obits:
-                    skipped_count += 1
-                    logging.info(f" {email} — no obits for {locations}")
-                    continue
-
-                # Generate per-subscriber email HTML
-                html_content = self.generate_email_html(unique_obits)
+                    # No obits for this subscriber's location, but other locations have obits.
+                    # Send quiet-day digest instead of skipping entirely.
+                    logging.info(f" {email} — no obits for {locations}, sending quiet-day digest")
+                    html_content = self.generate_quiet_day_html()
+                else:
+                    # Generate per-subscriber email HTML
+                    html_content = self.generate_email_html(unique_obits)
             result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations)
 
             if result.get('success'):

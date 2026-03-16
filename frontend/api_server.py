@@ -156,6 +156,12 @@ _scrape_status = {
 }
 
 # Periodic scraper thread health
+_last_digest_run = {
+    'ran_at': None,
+    'result': None,
+    'error': None,
+}
+
 _periodic_scraper_status = {
     'alive': False,
     'last_heartbeat': None,
@@ -308,6 +314,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             if not self._check_admin_auth():
                 return
             self.send_json_response({'status': 'success', 'data': _periodic_scraper_status})
+        elif path == '/api/digest-status':
+            self.handle_digest_status()
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
         elif path == '/api/community-stats':
@@ -1746,6 +1754,29 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             })
         except Exception as e:
             self.send_error_response(f'Digest error: {str(e)}', 500)
+
+    def handle_digest_status(self):
+        """Public endpoint showing last digest run status + recent history from DB."""
+        import json as _json
+        response = dict(_last_digest_run)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute('''SELECT ran_at, result, error FROM digest_runs
+                             ORDER BY id DESC LIMIT 5''')
+            history = []
+            for row in cursor.fetchall():
+                ran_at, result_str, error = row
+                try:
+                    result = _json.loads(result_str) if result_str else None
+                except Exception:
+                    result = result_str
+                history.append({'ran_at': ran_at, 'result': result, 'error': error})
+            conn.close()
+            response['history'] = history
+        except Exception:
+            response['history'] = []
+        self.send_json_response(response)
 
     # ── Admin: Backup / Restore ─────────────────────────────
 
@@ -4546,6 +4577,13 @@ button:hover{background:#c45a1a}</style></head>
             'critical': False
         }
 
+        # 2b. Daily digest last run status
+        checks['daily_digest'] = {
+            'last_ran_at': _last_digest_run.get('ran_at'),
+            'result': _last_digest_run.get('result'),
+            'error': _last_digest_run.get('error'),
+        }
+
         # 3. Shiva subsystem (optional — doesn't fail health check)
         checks['shiva'] = {'ok': SHIVA_AVAILABLE, 'critical': False}
 
@@ -4977,18 +5015,52 @@ def run_server(port=None):
         try:
             from daily_digest import DailyDigestSender
 
+            def _save_digest_run(ran_at, result, error):
+                """Persist digest run to DB for history across restarts."""
+                try:
+                    import json
+                    dconn = sqlite3.connect(DB_PATH, timeout=30)
+                    dc = dconn.cursor()
+                    dc.execute('''CREATE TABLE IF NOT EXISTS digest_runs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ran_at TEXT NOT NULL,
+                        result TEXT,
+                        error TEXT
+                    )''')
+                    dc.execute('INSERT INTO digest_runs (ran_at, result, error) VALUES (?, ?, ?)',
+                               (ran_at, json.dumps(result) if result else None, error))
+                    # Keep only last 30 runs
+                    dc.execute('DELETE FROM digest_runs WHERE id NOT IN (SELECT id FROM digest_runs ORDER BY id DESC LIMIT 30)')
+                    dconn.commit()
+                    dconn.close()
+                except Exception as e:
+                    logging.error(f"[DailyDigest] Failed to save run to DB: {e}")
+
             def _run_daily_digest():
+                global _last_digest_run
+                ran_at = datetime.now(tz=_tz.utc).isoformat()
+                _last_digest_run['ran_at'] = ran_at
+                _last_digest_run['error'] = None
+                _last_digest_run['result'] = None
+
                 if is_shabbat():
                     logging.info("[DailyDigest] Shabbat — skipping digest")
+                    _last_digest_run['result'] = 'skipped_shabbat'
+                    _save_digest_run(ran_at, 'skipped_shabbat', None)
                     return
                 try:
                     sg_key = os.environ.get('SENDGRID_API_KEY')
                     if not sg_key:
                         logging.error("[DailyDigest] SENDGRID_API_KEY not set — digest will run in TEST MODE (no emails sent)")
                     sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
-                    sender.send_daily_digest()
+                    result = sender.send_daily_digest()
+                    _last_digest_run['result'] = result
+                    _save_digest_run(ran_at, result, None)
+                    logging.info(f"[DailyDigest] Completed: {result}")
                 except Exception as e:
-                    logging.error(f"[DailyDigest] Error: {e}")
+                    _last_digest_run['error'] = str(e)
+                    _save_digest_run(ran_at, None, str(e))
+                    logging.error(f"[DailyDigest] Error: {e}", exc_info=True)
             scheduler.add_job(
                 _run_daily_digest,
                 'cron',
