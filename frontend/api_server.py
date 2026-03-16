@@ -316,6 +316,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_json_response({'status': 'success', 'data': _periodic_scraper_status})
         elif path == '/api/digest-status':
             self.handle_digest_status()
+        elif path == '/api/digest-trigger':
+            self.handle_digest_trigger()
+        elif path == '/api/scheduler-status':
+            self.handle_scheduler_status()
         elif path == '/api/subscriber-list':
             self.handle_subscriber_list()
         elif path == '/api/subscribers/count':
@@ -1779,6 +1783,68 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception:
             response['history'] = []
         self.send_json_response(response)
+
+    def handle_digest_trigger(self):
+        """Manually trigger the daily digest. Safe to call multiple times — won't double-send
+        because daily_digest.py checks email_log for dedup."""
+        try:
+            from daily_digest import DailyDigestSender
+            sg_key = os.environ.get('SENDGRID_API_KEY')
+            if not sg_key:
+                self.send_json_response({'status': 'error', 'message': 'No SendGrid API key'}, 500)
+                return
+            sender = DailyDigestSender(db_path=DB_PATH, sendgrid_api_key=sg_key)
+            result = sender.send_daily_digest()
+
+            global _last_digest_run
+            ran_at = datetime.now(tz=_tz.utc).isoformat()
+            _last_digest_run['ran_at'] = ran_at
+            _last_digest_run['result'] = result
+            _last_digest_run['error'] = None
+
+            # Also persist to DB
+            import json as _json
+            try:
+                dconn = sqlite3.connect(DB_PATH, timeout=30)
+                dc = dconn.cursor()
+                dc.execute('''CREATE TABLE IF NOT EXISTS digest_runs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ran_at TEXT NOT NULL, result TEXT, error TEXT)''')
+                dc.execute('INSERT INTO digest_runs (ran_at, result, error) VALUES (?, ?, ?)',
+                           (ran_at, _json.dumps(result), None))
+                dconn.commit()
+                dconn.close()
+            except Exception:
+                pass
+
+            self.send_json_response({'status': 'success', 'result': result})
+        except Exception as e:
+            self.send_json_response({'status': 'error', 'message': str(e)}, 500)
+
+    def handle_scheduler_status(self):
+        """Show all APScheduler jobs and their next run times."""
+        try:
+            jobs = []
+            if 'scheduler' in globals() or hasattr(self, '_scheduler'):
+                pass
+            # Try to access the module-level scheduler
+            import sys
+            server_module = sys.modules.get('__main__')
+            sched = getattr(server_module, 'scheduler', None) if server_module else None
+            if not sched:
+                # Try the local scope where it was defined
+                self.send_json_response({'status': 'scheduler not accessible', 'note': 'scheduler is defined in local scope of run_server()'})
+                return
+            for job in sched.get_jobs():
+                jobs.append({
+                    'id': job.id,
+                    'name': job.name,
+                    'next_run': str(job.next_run_time),
+                    'trigger': str(job.trigger),
+                })
+            self.send_json_response({'status': 'ok', 'jobs': jobs})
+        except Exception as e:
+            self.send_json_response({'status': 'error', 'message': str(e)})
 
     def handle_subscriber_list(self):
         """Public endpoint showing subscriber summary (emails masked for privacy)."""
