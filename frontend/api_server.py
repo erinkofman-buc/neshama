@@ -316,6 +316,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_json_response({'status': 'success', 'data': _periodic_scraper_status})
         elif path == '/api/digest-status':
             self.handle_digest_status()
+        elif path == '/api/subscriber-list':
+            self.handle_subscriber_list()
         elif path == '/api/subscribers/count':
             self.get_subscriber_count()
         elif path == '/api/community-stats':
@@ -1777,6 +1779,46 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception:
             response['history'] = []
         self.send_json_response(response)
+
+    def handle_subscriber_list(self):
+        """Public endpoint showing subscriber summary (emails masked for privacy)."""
+        try:
+            conn = _connect_db()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT email, confirmed, frequency, locations, subscribed_at,
+                       confirmed_at, last_email_sent, unsubscribed_at
+                FROM subscribers ORDER BY subscribed_at DESC
+            ''')
+            rows = cursor.fetchall()
+            conn.close()
+
+            def _mask(email):
+                local, domain = email.split('@', 1)
+                return local[0] + '***@' + domain if len(local) > 1 else '***@' + domain
+
+            subscribers = []
+            for r in rows:
+                subscribers.append({
+                    'email': _mask(r[0]),
+                    'confirmed': bool(r[1]),
+                    'frequency': r[2],
+                    'locations': r[3],
+                    'subscribed_at': r[4],
+                    'confirmed_at': r[5],
+                    'last_email_sent': r[6],
+                    'active': bool(r[1]) and r[7] is None,
+                })
+            active = [s for s in subscribers if s['active']]
+            self.send_json_response({
+                'total': len(subscribers),
+                'active': len(active),
+                'daily': sum(1 for s in active if s.get('frequency') == 'daily'),
+                'weekly': sum(1 for s in active if s.get('frequency') == 'weekly'),
+                'subscribers': subscribers,
+            })
+        except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
 
     # ── Admin: Backup / Restore ─────────────────────────────
 
@@ -5073,6 +5115,45 @@ def run_server(port=None):
                 max_instances=1,
             )
             logging.info(f"[DailyDigest] Scheduler added (daily at 7 AM ET, Sun-Fri)")
+
+            # Missed digest recovery: if server restarts after 7 AM, catch up
+            def _check_missed_digest():
+                """Run 2 min after startup — if today's digest was missed, send it now."""
+                import json as _json
+                try:
+                    if is_shabbat():
+                        return
+                    tz = pytz.timezone('America/Toronto')
+                    now = datetime.now(tz)
+                    # Only recover if it's after 7 AM and before 10 PM (don't send at 3 AM)
+                    if now.hour < 7 or now.hour >= 22:
+                        return
+                    # Check if digest already ran today
+                    today_str = now.strftime('%Y-%m-%d')
+                    try:
+                        dconn = sqlite3.connect(DB_PATH, timeout=10)
+                        dc = dconn.cursor()
+                        dc.execute('SELECT ran_at, result FROM digest_runs ORDER BY id DESC LIMIT 1')
+                        row = dc.fetchone()
+                        dconn.close()
+                        if row and row[0] and today_str in row[0]:
+                            logging.info(f"[DailyDigest] Recovery check: already ran today at {row[0]}")
+                            return
+                    except Exception:
+                        pass  # Table may not exist yet, that's fine — run the digest
+
+                    logging.info(f"[DailyDigest] Recovery: missed today's digest, sending now")
+                    _run_daily_digest()
+                except Exception as e:
+                    logging.error(f"[DailyDigest] Recovery check error: {e}")
+
+            scheduler.add_job(
+                _check_missed_digest,
+                'date',
+                run_date=datetime.now(tz=_tz.utc) + timedelta(minutes=2),
+                id='digest_recovery',
+                name='Check for missed daily digest',
+            )
         except Exception as e:
             logging.error(f"[DailyDigest] Failed to add scheduler job: {e}")
 
