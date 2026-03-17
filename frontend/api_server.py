@@ -5207,7 +5207,7 @@ def run_server(port=None):
                 'cron',
                 hour=7,
                 minute=0,
-                day_of_week='sun-fri',
+                day_of_week='mon-fri,sun',
                 timezone='America/Toronto',
                 id='daily_digest',
                 name='Send daily obituary digest',
