@@ -5217,7 +5217,6 @@ def run_server(port=None):
 
             # Missed digest recovery: use a thread instead of APScheduler date trigger
             # (APScheduler date jobs can miss if run_date passes before scheduler.start())
-            import threading
             def _check_missed_digest():
                 """Run 2 min after startup — if today's digest was missed, send it now."""
                 import time
