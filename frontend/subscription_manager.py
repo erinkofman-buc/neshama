@@ -158,52 +158,53 @@ class EmailSubscriptionManager:
                         'message': 'Check your email to confirm'
                     }
                 elif unsubscribed_at:
-                    # Previously unsubscribed — allow resubscription
-                    confirmation_token = self.generate_token()
+                    # Previously unsubscribed — allow resubscription, auto-confirm
                     cursor.execute('''
                         UPDATE subscribers SET
-                            confirmed = FALSE,
-                            confirmation_token = ?,
+                            confirmed = TRUE,
+                            confirmed_at = ?,
                             subscribed_at = ?,
                             unsubscribed_at = NULL,
                             bounce_count = 0,
                             frequency = ?,
                             locations = ?
                         WHERE email = ?
-                    ''', (confirmation_token, now.isoformat(), frequency, locations, email))
+                    ''', (now.isoformat(), now.isoformat(), frequency, locations, email))
                 else:
-                    # Exists but not confirmed — resend confirmation
-                    confirmation_token = self.generate_token()
+                    # Exists but not confirmed — auto-confirm now
                     cursor.execute('''
                         UPDATE subscribers SET
-                            confirmation_token = ?,
+                            confirmed = TRUE,
+                            confirmed_at = ?,
                             subscribed_at = ?,
                             frequency = ?,
                             locations = ?
                         WHERE email = ?
-                    ''', (confirmation_token, now.isoformat(), frequency, locations, email))
+                    ''', (now.isoformat(), now.isoformat(), frequency, locations, email))
             else:
-                # New subscriber
-                confirmation_token = self.generate_token()
+                # New subscriber — auto-confirm (double opt-in disabled)
                 unsubscribe_token = self.generate_token()
 
                 cursor.execute('''
                     INSERT INTO subscribers (
-                        email, confirmed, confirmation_token,
-                        subscribed_at, unsubscribe_token,
+                        email, confirmed,
+                        subscribed_at, confirmed_at, unsubscribe_token,
                         frequency, locations
-                    ) VALUES (?, FALSE, ?, ?, ?, ?, ?)
-                ''', (email, confirmation_token, now.isoformat(),
+                    ) VALUES (?, TRUE, ?, ?, ?, ?, ?)
+                ''', (email, now.isoformat(), now.isoformat(),
                       unsubscribe_token, frequency, locations))
 
             conn.commit()
 
-            # Send confirmation email
-            self.send_confirmation_email(email, confirmation_token, frequency, locations)
+            # Send welcome email instead of confirmation
+            try:
+                self.send_welcome_email(email)
+            except Exception as e:
+                logging.warning(f"Welcome email failed for {email}: {e}")
 
             return {
                 'status': 'success',
-                'message': 'Check your email to confirm your subscription'
+                'message': 'You are subscribed! Check your inbox for a welcome email.'
             }
 
         except Exception as e:
