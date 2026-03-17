@@ -198,7 +198,7 @@ def test_health_subsystems(base_url):
                 "test": f"  ↳ {system}",
                 "ok": is_ok,
                 "status": "OK" if is_ok else "FAIL",
-                "detail": ", ".join(detail_parts) if detail_parts else "",
+                "detail": ", ".join(str(p) for p in detail_parts if p is not None) if detail_parts else "",
             })
 
     except json.JSONDecodeError:

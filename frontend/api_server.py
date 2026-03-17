@@ -776,6 +776,12 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     def handle_subscribe(self, body):
         """Handle email subscription with double opt-in and preferences"""
         try:
+            # Rate limit: 5 subscribes per 5 minutes per IP
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'subscribe', max_calls=5, window=300):
+                self._send_rate_limit_error()
+                return
+
             data = json.loads(body)
             email = data.get('email', '').strip().lower()
             frequency = data.get('frequency', 'daily')
