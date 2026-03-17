@@ -819,8 +819,9 @@
             You can still set up a meal coordination page. Just enter the family name and shiva details below.
         </div>
 
-        <div id="foodDirectoryTip" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
-            Looking for food options? <a href="/help/food" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Find trusted local partners</a> for local caterers, bakeries, and restaurants.
+        <div id="foodDirectoryTip" style="background: var(--cream); border: 2px solid var(--sage); border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+            <p style="font-size: 1rem; color: var(--dark-brown); margin: 0 0 0.75rem 0; font-family: 'Cormorant Garamond', serif; font-weight: 500;">Looking for food options?</p>
+            <a href="/help/food" style="display: inline-block; background: var(--terracotta); color: white; text-decoration: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;">Browse Local Caterers &rarr;</a>
         </div>
 
         <!-- Progress Stepper -->
@@ -976,7 +977,7 @@
 
             <div class="form-group">
                 <label for="dropOffInstructions">Drop-off Instructions for Meals <span class="optional">(optional)</span></label>
-                <textarea id="dropOffInstructions" placeholder="e.g., Leave food on the porch, buzzer #204, call when arriving..." rows="2"></textarea>
+                <textarea id="dropOffInstructions" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204, call when arriving..." rows="2"></textarea>
                 <div class="form-hint">Shown to confirmed meal volunteers only — not visible publicly</div>
             </div>
 
@@ -1745,10 +1746,7 @@
             var subject = 'Shiva Support Page - Help Coordinate Meals';
             var body = 'A shiva support page has been set up to help coordinate meals for the family.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
             var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-            var w = window.open(mailtoUrl, '_blank');
-            if (!w) {
-                window.location.href = mailtoUrl;
-            }
+            window.location.href = mailtoUrl;
         };
 
         window.shareSMS = function() {
