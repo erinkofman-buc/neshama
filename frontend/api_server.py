@@ -468,6 +468,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_add_subscriber(body)
         elif path == '/admin/delete-subscribers':
             self.handle_admin_delete_subscribers(body)
+        elif path == '/admin/delete-obituary':
+            self.handle_admin_delete_obituary(body)
         elif path == '/api/yahrzeit/subscribe':
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
@@ -1711,6 +1713,46 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 'status': 'success',
                 'deleted': deleted,
                 'emails': matches
+            })
+        except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_delete_obituary(self, body):
+        """Delete obituaries by ID. POST /admin/delete-obituary?key=ADMIN_SECRET
+        Body: {"ids": ["id1", "id2", ...]}"""
+        if not self._check_admin_auth():
+            return
+
+        try:
+            data = json.loads(body.decode('utf-8'))
+            ids = data.get('ids', [])
+            if not ids or not isinstance(ids, list):
+                self.send_error_response('ids array required', 400)
+                return
+
+            conn = _connect_db()
+            cursor = conn.cursor()
+            placeholders = ','.join(['?' for _ in ids])
+            cursor.execute(f'SELECT id, deceased_name FROM obituaries WHERE id IN ({placeholders})', ids)
+            found = cursor.fetchall()
+
+            if not found:
+                conn.close()
+                self.send_json_response({'status': 'ok', 'message': 'No matching obituaries', 'deleted': 0})
+                return
+
+            cursor.execute(f'DELETE FROM obituaries WHERE id IN ({placeholders})', ids)
+            deleted = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            for obit_id, name in found:
+                logging.info(f"[Admin] Deleted obituary: {name} (id={obit_id})")
+
+            self.send_json_response({
+                'status': 'success',
+                'deleted': deleted,
+                'removed': [{'id': r[0], 'name': r[1]} for r in found]
             })
         except Exception as e:
             self.send_error_response(f'Error: {str(e)}', 500)
