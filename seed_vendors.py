@@ -742,7 +742,7 @@ VENDORS = [
         'neighborhood': 'GTA',
         'phone': '',
         'website': 'https://www.aromaespressobar.ca',
-        'kosher_status': 'COR',
+        'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
     },
