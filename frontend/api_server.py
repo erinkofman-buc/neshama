@@ -6194,6 +6194,16 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET category = 'Baked Goods' WHERE slug = 'skye-dough-cookies' AND category = 'Gift Baskets'")
         total_changed += cursor.rowcount
 
+        # Ensure Becked Goods exists (seed may not insert if deploy cached old code)
+        cursor.execute("SELECT id FROM vendors WHERE slug = 'becked-goods'")
+        if not cursor.fetchone():
+            cursor.execute("""INSERT INTO vendors (name, slug, category, vendor_type, description, address, neighborhood,
+                phone, website, instagram, kosher_status, delivery, delivery_area, image_url, featured, created_at)
+                VALUES ('Becked Goods', 'becked-goods', 'Baked Goods', 'gift',
+                'Homemade baked goods and cookie gifts. A warm, personal option for bringing something sweet to a shiva home.',
+                'Toronto, ON', 'Toronto', '', 'https://beckedgoods.com', '', 'not_certified', 1, 'Toronto', '', 0, datetime('now'))""")
+            total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
