@@ -1142,15 +1142,16 @@ class ShivaManager:
 
         support = dict(support)
 
-        # Check privacy: private shivas require a valid access token
+        # Check privacy: private shivas require a valid access token OR share token
         if support.get('privacy') == 'private':
-            if not access_token:
-                conn.close()
-                return {'status': 'error', 'message': 'This shiva page is private. Please request access from the organizer.'}
-            cursor.execute(
-                'SELECT id FROM shiva_access_requests WHERE shiva_id = ? AND access_token = ? AND status = ?',
-                (support_id, access_token, 'approved'))
-            if not cursor.fetchone():
+            share_token_valid = (access_token and access_token == support.get('share_token'))
+            access_request_valid = False
+            if access_token and not share_token_valid:
+                cursor.execute(
+                    'SELECT id FROM shiva_access_requests WHERE shiva_id = ? AND access_token = ? AND status = ?',
+                    (support_id, access_token, 'approved'))
+                access_request_valid = cursor.fetchone() is not None
+            if not share_token_valid and not access_request_valid:
                 conn.close()
                 return {'status': 'error', 'message': 'This shiva page is private. Please request access from the organizer.'}
 

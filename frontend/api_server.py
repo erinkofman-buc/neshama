@@ -6186,6 +6186,14 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET kosher_status = 'Kosher Style' WHERE slug = 'abas-bagel-company' AND kosher_status = 'not_certified'")
         total_changed += cursor.rowcount
 
+        # Migration 2026-03-18b: Remove duplicate Beyond Delish, fix Aroma description, fix Skye Dough category
+        cursor.execute("DELETE FROM vendors WHERE slug = 'beyond-delish-kosher-food-catering'")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET description = 'Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.' WHERE slug = 'aroma-espresso-bar'")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET category = 'Baked Goods' WHERE slug = 'skye-dough-cookies' AND category = 'Gift Baskets'")
+        total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
