@@ -973,7 +973,7 @@
             <div class="form-group">
                 <label for="dropOffInstructions">Drop-off Instructions for Meals <span class="optional">(optional)</span></label>
                 <textarea id="dropOffInstructions" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204, call when arriving..." rows="2"></textarea>
-                <div class="form-hint">Shown to confirmed meal volunteers only — not visible publicly</div>
+                <div class="form-hint">Specify meal times, entry instructions, or anything meal volunteers should know. Shown to confirmed volunteers only — not visible publicly.</div>
             </div>
 
             <div class="form-group">
@@ -992,6 +992,7 @@
                         <p style="color:var(--sage-dark);text-align:center;padding:1rem;">Loading caterers...</p>
                     </div>
                 </div>
+                <a href="/help/food" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">View full vendor directory &rarr;</a>
             </div>
 
             <div class="form-error" id="step2Error"></div>
@@ -1036,7 +1037,7 @@
                 <button class="copy-link-btn" onclick="copyMagicLink()">Copy Link</button>
             </div>
             <a id="viewPageLink" href="#" class="btn-primary" style="display:inline-block;text-decoration:none;margin-top:1rem;">View Support Page</a>
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(212, 197, 185, 0.3);">
+            <div class="share-buttons" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(212, 197, 185, 0.3);">
                 <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1rem;">Share this page with family and friends:</p>
                 <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
                     <button onclick="shareWhatsApp()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; border-radius: 2rem; border: 1px solid var(--light-taupe); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#25D366';this.style.color='#25D366'" onmouseout="this.style.borderColor='';this.style.color=''">
@@ -1052,6 +1053,10 @@
                         Text
                     </button>
                 </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(212, 197, 185, 0.3); text-align: center;">
+                <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Need help with meals?</p>
+                <a href="/help/food" style="display: inline-block; background: var(--terracotta); color: white; text-decoration: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;">Browse Local Caterers &rarr;</a>
             </div>
         </div>
     </div>
@@ -1746,7 +1751,28 @@
             var subject = 'Shiva Support Page - Help Coordinate Meals';
             var body = 'A shiva support page has been set up to help coordinate meals for the family.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
             var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-            window.location.href = mailtoUrl;
+            var w = window.open(mailtoUrl, '_self');
+            // If browser blocks mailto, show fallback with copyable link
+            setTimeout(function() {
+                var shareSection = document.querySelector('.share-buttons');
+                if (shareSection && !document.getElementById('emailFallback')) {
+                    var fallback = document.createElement('div');
+                    fallback.id = 'emailFallback';
+                    fallback.style.cssText = 'margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--cream); border-radius: 0.5rem; font-size: 0.9rem; color: var(--dark-brown); text-align: center;';
+                    var label = document.createElement('span');
+                    label.textContent = 'If your email app didn\'t open, copy this link to share:';
+                    fallback.appendChild(label);
+                    fallback.appendChild(document.createElement('br'));
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = pageUrl;
+                    input.readOnly = true;
+                    input.onclick = function() { this.select(); };
+                    input.style.cssText = 'width: 100%; margin-top: 0.5rem; padding: 0.5rem; border: 1px solid var(--light-taupe); border-radius: 0.25rem; font-size: 0.85rem; text-align: center;';
+                    fallback.appendChild(input);
+                    shareSection.appendChild(fallback);
+                }
+            }, 1500);
         };
 
         window.shareSMS = function() {

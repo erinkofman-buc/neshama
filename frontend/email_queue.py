@@ -947,7 +947,7 @@ def _welcome_drip_day7_html():
         <a href="https://neshama.ca/shiva/organize" style="display:inline-block;background:#D2691E;color:white;padding:0.7rem 2rem;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">See how it works</a>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">And when someone needs to send food but can't cook? Our <a href="https://neshama.ca/help" style="color:#D2691E;">vendor directory</a> lists 120+ kosher caterers, bakeries, and gift options across Toronto and Montreal.</p>
+    <p style="font-size:1rem;line-height:1.7;">And when someone needs to send food but can't cook? Our <a href="https://neshama.ca/help" style="color:#D2691E;">vendor directory</a> lists 120+ caterers, bakeries, and gift options across Toronto and Montreal.</p>
 
     <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">You're receiving this because you subscribed to Neshama updates. <a href="https://neshama.ca/unsubscribe?email={{email}}" style="color:#3E2723;">Unsubscribe</a></p>
     """)

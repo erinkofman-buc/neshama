@@ -71,7 +71,7 @@
 - Mobile-first: test at 375px before committing
 - Grief context: never place commercial elements (caterer links, pricing, upsells) on obituary or memorial pages — only in meal coordination flows
 - Tone check: every user-facing string should pass "would this feel okay to read the week your parent died?"
-- Caterer integration: always framed as "helpful resource" not "sponsored listing" — use language like "Browse kosher caterers in your area" not "Our partners"
+- Caterer integration: always framed as "helpful resource" not "sponsored listing" — use language like "Browse caterers in your area" not "Our partners". Avoid defaulting to "kosher" in general caterer labels (not all vendors are kosher).
 - Accessibility: sufficient color contrast, readable font sizes (min 16px body), tappable targets (min 44px)
 - No orphaned pages: every page must have clear navigation back to home and feed
 - Shabbat awareness: meal coordination UI should respect Friday sunset to Saturday sunset
