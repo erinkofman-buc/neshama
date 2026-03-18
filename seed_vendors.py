@@ -876,7 +876,7 @@ VENDORS = [
         'neighborhood': 'Midtown',
         'phone': '',
         'website': 'https://abasbagel.com',
-        'kosher_status': 'not_certified',
+        'kosher_status': 'Kosher Style',
         'delivery': 0,
         'delivery_area': 'Toronto',
     },

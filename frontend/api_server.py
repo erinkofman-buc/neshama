@@ -6180,6 +6180,12 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET website = 'https://www.bubbysbagels.com/menu' WHERE slug LIKE 'bubby%' AND website = 'https://www.bubbysbagels.com/'")
         total_changed += cursor.rowcount
 
+        # Migration 2026-03-18: Aroma is NOT COR certified; Aba's is Kosher Style
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'aroma-espresso-bar' AND kosher_status = 'COR'")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET kosher_status = 'Kosher Style' WHERE slug = 'abas-bagel-company' AND kosher_status = 'not_certified'")
+        total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
