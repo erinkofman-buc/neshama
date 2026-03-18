@@ -61,12 +61,14 @@ class DailyDigestSender:
                 SELECT * FROM obituaries
                 WHERE last_updated >= ?
                 AND source IN ({placeholders})
+                AND COALESCE(hidden, 0) = 0
                 ORDER BY last_updated DESC
             ''', [cutoff_time] + sources)
         else:
             cursor.execute('''
                 SELECT * FROM obituaries
                 WHERE last_updated >= ?
+                AND COALESCE(hidden, 0) = 0
                 ORDER BY last_updated DESC
             ''', (cutoff_time,))
 

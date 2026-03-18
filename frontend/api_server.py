@@ -470,6 +470,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_delete_subscribers(body)
         elif path == '/admin/delete-obituary':
             self.handle_admin_delete_obituary(body)
+        elif path == '/admin/hide-obituary':
+            self.handle_admin_hide_obituary(body)
         elif path == '/api/yahrzeit/subscribe':
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
@@ -644,23 +646,29 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
+            # Filter out hidden obituaries (junk/test entries flagged via admin)
+            hidden_filter = "AND COALESCE(o.hidden, 0) = 0"
+
             if city:
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT o.*,
                            CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
                     WHERE o.city = ?
+                    {hidden_filter}
                     ORDER BY o.last_updated DESC
                 ''', (city,))
             else:
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT o.*,
                            CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
+                    WHERE 1=1
+                    {hidden_filter}
                     ORDER BY o.last_updated DESC
                 ''')
             obituaries = [dict(row) for row in cursor.fetchall()]
@@ -688,7 +696,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 FROM obituaries o
                 LEFT JOIN shiva_support s
                   ON s.obituary_id = o.id AND s.status = 'active'
-                WHERE o.deceased_name LIKE ? OR o.hebrew_name LIKE ?
+                WHERE (o.deceased_name LIKE ? OR o.hebrew_name LIKE ?)
+                AND COALESCE(o.hidden, 0) = 0
                 ORDER BY o.last_updated DESC
             ''', (f'%{query}%', f'%{query}%'))
 
@@ -1753,6 +1762,57 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 'status': 'success',
                 'deleted': deleted,
                 'removed': [{'id': r[0], 'name': r[1]} for r in found]
+            })
+        except Exception as e:
+            self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_admin_hide_obituary(self, body):
+        """Hide/unhide obituaries by ID. POST /admin/hide-obituary?key=ADMIN_SECRET
+        Body: {"ids": ["id1", "id2", ...], "hidden": true}
+        Set hidden=false to unhide."""
+        if not self._check_admin_auth():
+            return
+
+        try:
+            data = json.loads(body.decode('utf-8'))
+            ids = data.get('ids', [])
+            hidden = 1 if data.get('hidden', True) else 0
+            if not ids or not isinstance(ids, list):
+                self.send_error_response('ids array required', 400)
+                return
+
+            conn = _connect_db()
+            cursor = conn.cursor()
+
+            # Ensure hidden column exists
+            try:
+                cursor.execute('ALTER TABLE obituaries ADD COLUMN hidden INTEGER DEFAULT 0')
+            except sqlite3.OperationalError:
+                pass
+
+            placeholders = ','.join(['?' for _ in ids])
+            cursor.execute(f'SELECT id, deceased_name FROM obituaries WHERE id IN ({placeholders})', ids)
+            found = cursor.fetchall()
+
+            if not found:
+                conn.close()
+                self.send_json_response({'status': 'ok', 'message': 'No matching obituaries', 'updated': 0})
+                return
+
+            cursor.execute(f'UPDATE obituaries SET hidden = ? WHERE id IN ({placeholders})', [hidden] + ids)
+            updated = cursor.rowcount
+            conn.commit()
+            conn.close()
+
+            action = 'Hidden' if hidden else 'Unhidden'
+            for obit_id, name in found:
+                logging.info(f"[Admin] {action} obituary: {name} (id={obit_id})")
+
+            self.send_json_response({
+                'status': 'success',
+                'action': action.lower(),
+                'updated': updated,
+                'entries': [{'id': r[0], 'name': r[1]} for r in found]
             })
         except Exception as e:
             self.send_error_response(f'Error: {str(e)}', 500)

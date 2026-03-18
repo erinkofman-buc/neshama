@@ -72,6 +72,7 @@ class NeshamaDatabase:
             ('shiva_concludes', 'TEXT'),
             ('shiva_raw', 'TEXT'),
             ('shiva_private', 'INTEGER DEFAULT 0'),
+            ('hidden', 'INTEGER DEFAULT 0'),
         ]:
             try:
                 self.cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')

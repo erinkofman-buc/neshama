@@ -101,6 +101,23 @@ def scrape_listings_page(url):
                 'scraped_at': datetime.now().isoformat(),
             })
 
+    # Filter out test/junk entries from Misaskim
+    TEST_PATTERNS = [
+        r'^test\b', r'\btest\b.*\btest\b', r'^test$',
+        r'\bblabla\b', r'\bblablabla\b', r'^test max$',
+        r'^test for\b', r'^testing\b', r'^sample\b',
+        r'^dummy\b', r'^fake\b', r'^example\b',
+    ]
+    filtered = []
+    for l in listings:
+        name_lower = l['name'].lower().strip()
+        is_test = any(re.search(pat, name_lower) for pat in TEST_PATTERNS)
+        if is_test:
+            logging.info(f"  Skipping test entry: {l['name']}")
+        else:
+            filtered.append(l)
+    listings = filtered
+
     # Deduplicate by slug (same listing appears in multiple links)
     seen = set()
     unique = []
