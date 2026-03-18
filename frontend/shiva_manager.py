@@ -628,7 +628,7 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at, share_token
+                   organizer_update, family_notes, created_at, share_token, blocked_meals
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
