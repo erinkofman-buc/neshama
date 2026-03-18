@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Neshama API Server v1.3
+Neshama API Server v1.4
 Serves frontend, API endpoints, email subscriptions (SendGrid double opt-in), and payment integration
 Auto-scrapes on startup to handle Render free tier ephemeral storage
 """
