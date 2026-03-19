@@ -736,7 +736,7 @@ VENDORS = [
     },
     {
         'name': 'Aroma Espresso Bar',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Restaurants & Delis',
         'description': 'Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.',
         'address': 'Multiple locations, Toronto, ON',
         'neighborhood': 'GTA',
@@ -1647,6 +1647,19 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'Canada-wide',
     },
+    {
+        'name': 'Boards by Dani',
+        'category': 'Chocolate & Sweets',
+        'description': 'Beautiful custom charcuterie and dessert boards. Perfect for bringing to a shiva home — artfully arranged platters that show you care. Toronto-based with local delivery.',
+        'address': 'Toronto, ON',
+        'neighborhood': 'Toronto',
+        'phone': '',
+        'website': 'https://boardsbydani.com',
+        'instagram': 'boards_by_dani',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Toronto,GTA',
+    },
     # ── New gift basket vendors (Sprint 5 follow-up) ──
     {
         'name': 'Baskets Galore',
@@ -1766,7 +1779,7 @@ GIFT_VENDORS = [
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
         'phone': '',
-        'website': 'https://abcookies.co',
+        'website': '',
         'instagram': 'abcookies.co',
         'kosher_status': 'not_certified',
         'delivery': 0,

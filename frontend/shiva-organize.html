@@ -751,7 +751,7 @@
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
                 <a href="/feed" class="nav-link">Listings</a>
-                <a href="/help/supplies" class="nav-link">Prepare the Shiva Home</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
                 <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
             </div>
             <span class="nav-divider"></span>
@@ -1741,14 +1741,16 @@
 
         window.shareWhatsApp = function() {
             var pageUrl = getShareUrl();
-            var text = 'A shiva support page has been set up to coordinate meals. You can sign up to help here: ' + pageUrl;
+            var familyVal = (document.getElementById('familyName') || {}).value || '';
+            var text = 'A shiva support page has been set up to coordinate meals' + (familyVal ? ' for ' + familyVal : '') + '. You can sign up to help here: ' + pageUrl;
             window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
         };
 
         window.shareEmail = function() {
             var pageUrl = getShareUrl();
-            var subject = 'Shiva Support Page - Help Coordinate Meals';
-            var body = 'A shiva support page has been set up to help coordinate meals for the family.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
+            var familyVal = (document.getElementById('familyName') || {}).value || '';
+            var subject = familyVal ? familyVal + ' — Shiva Meal Coordination' : 'Shiva Support Page - Help Coordinate Meals';
+            var body = 'A shiva support page has been set up to help coordinate meals' + (familyVal ? ' for ' + familyVal : ' for the family') + '.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
             var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
             var w = window.open(mailtoUrl, '_self');
             // If browser blocks mailto, show fallback with copyable link

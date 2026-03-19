@@ -5936,6 +5936,8 @@ def run_server(port=None):
             "UPDATE vendors SET website = 'https://chenoys-deli.goto-where.com' WHERE name = 'Chenoy''s Deli' AND (website IS NULL OR website = '')",
             "UPDATE vendors SET website = 'https://goldenchopstick.ca' WHERE name = 'Golden Chopsticks' AND (website IS NULL OR website = '')",
             "UPDATE vendors SET website = 'https://shalomindia.ca' WHERE name = 'Shalom India' AND (website IS NULL OR website = '')",
+            # AB Cookies website is dead (DNS doesn't resolve) — clear it
+            "UPDATE vendors SET website = '' WHERE slug = 'ab-cookies' AND website = 'https://abcookies.co'",
         ]
         for sql in mar9_updates:
             cursor.execute(sql)
@@ -5944,7 +5946,7 @@ def run_server(port=None):
         # Add new vendors (Mar 9) — only if they don't already exist
         new_vendors_mar9 = [
             ("Pizza Cafe", "Kosher Restaurants & Caterers", "COR-certified kosher pizza restaurant. Pizza, pasta, and Italian favourites. Affordable catering options for shiva meals.", "Toronto, ON", "Toronto", "", "https://www.pizzacafe.ca", "COR", 1, "Toronto", "food"),
-            ("Aroma Espresso Bar", "Kosher Restaurants & Caterers", "Israeli-born cafe chain with kosher-certified locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.", "Multiple locations, Toronto, ON", "GTA", "", "https://www.aromaespressobar.ca", "COR", 1, "Toronto,North York", "food"),
+            ("Aroma Espresso Bar", "Restaurants & Delis", "Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.", "Multiple locations, Toronto, ON", "GTA", "", "https://www.aromaespressobar.ca", "not_certified", 1, "Toronto,North York", "food"),
             ("Chop Hop", "Kosher Restaurants & Caterers", "Kosher restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.", "Toronto, ON", "Toronto", "", "https://www.chophop.com", "COR", 1, "Toronto", "food"),
         ]
         for v in new_vendors_mar9:
@@ -6058,7 +6060,7 @@ def run_server(port=None):
              'Toronto, ON', 'Toronto', '', 'https://pantryfoods.ca/', None, 'COR', 1, 'Toronto'),
             ('AB Cookies', 'ab-cookies', 'Baked Goods', 'food',
              'Beautiful custom cookies and sweet treats. Gift boxes perfect for bringing something special to a shiva home.',
-             'Toronto, ON', 'Toronto', '', 'https://abcookies.co', '@abcookies.co', 'not_certified', 0, ''),
+             'Toronto, ON', 'Toronto', '', '', '@abcookies.co', 'not_certified', 0, ''),
             ('Skye Dough Cookies', 'skye-dough-cookies', 'Baked Goods', 'food',
              'Beautiful custom cookies and cookie gift boxes. A sweet, thoughtful gift to bring to a shiva home.',
              'Toronto, ON', 'Toronto', '', '', 'skyedoughcookies', 'not_certified', 0, ''),
@@ -6140,6 +6142,19 @@ def run_server(port=None):
             logging.info(f" Migrations: added Candy Catchers gift vendor")
             total_changed += cursor.rowcount
 
+        # Add Boards by Dani gift vendor (Jordana Mar 19)
+        cursor.execute("""
+            INSERT OR IGNORE INTO vendors (name, slug, category, vendor_type, description,
+                address, neighborhood, phone, website, kosher_status, delivery, delivery_area, featured, created_at)
+            VALUES ('Boards by Dani', 'boards-by-dani', 'Chocolate & Sweets', 'gift',
+                'Beautiful custom charcuterie and dessert boards. Perfect for bringing to a shiva home — artfully arranged platters that show you care. Toronto-based with local delivery.',
+                'Toronto, ON', 'Toronto', '', 'https://boardsbydani.com', 'not_certified', 1, 'Toronto,GTA', 0, datetime('now'))
+        """)
+        if cursor.rowcount:
+            logging.info(f" Migrations: added Boards by Dani gift vendor")
+            total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET instagram = 'boards_by_dani' WHERE slug = 'boards-by-dani' AND (instagram IS NULL OR instagram = '')")
+
         # Migration 2026-03-13f: Add missing websites for all vendors
         website_updates = [
             ('beautys-luncheonette', 'https://www.beautys.ca/', None),
@@ -6190,6 +6205,8 @@ def run_server(port=None):
         cursor.execute("DELETE FROM vendors WHERE slug = 'beyond-delish-kosher-food-catering'")
         total_changed += cursor.rowcount
         cursor.execute("UPDATE vendors SET description = 'Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.' WHERE slug = 'aroma-espresso-bar'")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET category = 'Restaurants & Delis' WHERE slug = 'aroma-espresso-bar' AND category = 'Kosher Restaurants & Caterers'")
         total_changed += cursor.rowcount
         cursor.execute("UPDATE vendors SET category = 'Baked Goods' WHERE slug = 'skye-dough-cookies' AND category = 'Gift Baskets'")
         total_changed += cursor.rowcount

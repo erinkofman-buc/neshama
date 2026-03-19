@@ -343,7 +343,7 @@ Would love for you to take a look. And if you see the right people to share it w
 | Caterer Directory | www.neshama.ca/shiva/caterers |
 | How Can I Help? (Food) | www.neshama.ca/help/food |
 | What to Bring | www.neshama.ca/what-to-bring-to-a-shiva |
-| Prepare the Home | www.neshama.ca/help/supplies |
+| Shiva Essentials | www.neshama.ca/help/supplies |
 | How to Sit Shiva | www.neshama.ca/how-to-sit-shiva |
 | What Is Yahrzeit | www.neshama.ca/what-is-yahrzeit |
 | Kosher Shiva Food | www.neshama.ca/kosher-shiva-food |
