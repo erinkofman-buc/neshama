@@ -38,6 +38,15 @@ HEADERS = {
 }
 
 
+def clean_text(text):
+    """Clean and normalize text, escaping HTML to prevent stored XSS."""
+    if not text:
+        return None
+    text = re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r'\S+@\S+\.\S+', '[email]', text)
+    return text if text else None
+
+
 def scrape_listings_page(url):
     """Scrape a single page of shiva listings."""
     try:
@@ -94,7 +103,7 @@ def scrape_listings_page(url):
             slug = href.rstrip('/').split('/')[-1]
 
             listings.append({
-                'name': name_text,
+                'name': clean_text(name_text) or name_text,
                 'url': full_url,
                 'slug': slug,
                 'source': 'Misaskim',

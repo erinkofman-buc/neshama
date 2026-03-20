@@ -21,6 +21,7 @@ import pytz
 import logging
 
 import time as _time_module
+import hmac
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
@@ -53,6 +54,20 @@ if os.path.exists(DB_PATH):
         logging.info("[EarlyRecovery] DB opened clean in DELETE mode")
     except Exception as _e:
         logging.warning(f"[EarlyRecovery] {_e}")
+
+
+def ensure_wal_mode(db_path=None):
+    """Force WAL journal mode on startup to prevent database locking under concurrent access.
+    Must be called AFTER lock recovery and BEFORE the server accepts requests."""
+    path = db_path or DB_PATH
+    conn = sqlite3.connect(path, timeout=30)
+    current = conn.execute('PRAGMA journal_mode').fetchone()[0]
+    if current.lower() != 'wal':
+        result = conn.execute('PRAGMA journal_mode=WAL').fetchone()[0]
+        logging.info(f"[Startup] SQLite journal mode changed from {current} to {result}")
+    else:
+        logging.info("[Startup] SQLite journal mode already WAL")
+    conn.close()
 
 
 def _connect_db(db_path=None):
@@ -204,6 +219,12 @@ except Exception as e:
 
 class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
+    def end_headers(self):
+        """Override to inject security headers on ALL responses."""
+        self.send_header('X-Frame-Options', 'DENY')
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        super().end_headers()
+
     STATIC_FILES = {
         '/': ('landing.html', 'text/html'),
         '/landing.html': ('landing.html', 'text/html'),
@@ -216,6 +237,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/faq.html': ('faq.html', 'text/html'),
         '/privacy': ('privacy.html', 'text/html'),
         '/privacy.html': ('privacy.html', 'text/html'),
+        '/terms': ('terms.html', 'text/html'),
+        '/terms.html': ('terms.html', 'text/html'),
         '/premium-modal': ('premium_modal.html', 'text/html'),
         '/premium_modal.html': ('premium_modal.html', 'text/html'),
         '/premium-success': ('premium_success.html', 'text/html'),
@@ -456,6 +479,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
         # Read request body
         content_length = int(self.headers.get('Content-Length', 0))
+        if content_length > 1048576:  # 1 MB max body size
+            self.send_error_response('Payload Too Large', 413)
+            return
         body = self.rfile.read(content_length) if content_length > 0 else b''
 
         if path == '/admin/restore':
@@ -562,6 +588,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         path = parsed_path.path
         content_length = int(self.headers.get('Content-Length', 0))
+        if content_length > 1048576:  # 1 MB max body size
+            self.send_error_response('Payload Too Large', 413)
+            return
         body = self.rfile.read(content_length) if content_length > 0 else b''
 
         # V4: Volunteer edit own signup — PUT /api/shiva/{id}/signup/{signupId}
@@ -603,13 +632,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     def send_cors_headers(self):
         """Send CORS headers — restrict to neshama.ca for security"""
         origin = self.headers.get('Origin', '')
-        allowed_origins = ['https://neshama.ca', 'https://www.neshama.ca', 'http://localhost:5000']
+        allowed_origins = ['https://neshama.ca', 'https://www.neshama.ca']
+        if os.environ.get('DEV_MODE', '').lower() == 'true':
+            allowed_origins.append('http://localhost:5000')
         if origin in allowed_origins:
             self.send_header('Access-Control-Allow-Origin', origin)
         else:
             self.send_header('Access-Control-Allow-Origin', 'https://neshama.ca')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature, X-Admin-Key')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Stripe-Signature, X-Admin-Key, Authorization')
         self.send_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
 
     def serve_static(self, path):
@@ -1140,7 +1171,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_json_response({'status': 'error', 'message': 'Admin key not configured'}, 403)
                 return
             req_key = self.headers.get('X-Admin-Key', '')
-            if req_key != admin_key:
+            if not hmac.compare_digest(str(req_key), str(admin_key)):
                 self.send_json_response({'status': 'error', 'message': 'Unauthorized'}, 403)
                 return
 
@@ -1321,7 +1352,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
     # ── API: Dashboard Stats (Cofounder) ────────────────────────
 
     def get_dashboard_stats(self):
-        """Consolidated stats endpoint for the cofounder dashboard"""
+        """Consolidated stats endpoint for the cofounder dashboard.
+        Public (no PII) — only aggregate counts and vendor click data."""
         try:
             db_path = self.get_db_path()
             conn = _connect_db(db_path)
@@ -1871,12 +1903,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
     def handle_digest_status(self):
         """Public endpoint showing last digest run status + recent history from DB.
-        Add ?run=1 to manually trigger the digest."""
+        Add ?run=1 to manually trigger the digest (admin auth required)."""
         import json as _json
 
-        # Manual trigger: /api/digest-status?run=1
+        # Manual trigger: /api/digest-status?run=1 (requires admin auth)
         parsed = urlparse(self.path)
         if parse_qs(parsed.query).get('run', [''])[0] == '1':
+            if not self._check_admin_auth():
+                return
             try:
                 from daily_digest import DailyDigestSender
                 sg_key = os.environ.get('SENDGRID_API_KEY')
@@ -1926,8 +1960,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         self.send_json_response(response)
 
     def handle_digest_trigger(self):
-        """Manually trigger the daily digest. Safe to call multiple times — won't double-send
-        because daily_digest.py checks email_log for dedup."""
+        """Manually trigger the daily digest (admin auth required). Safe to call multiple times
+        — won't double-send because daily_digest.py checks email_log for dedup."""
+        if not self._check_admin_auth():
+            return
         try:
             from daily_digest import DailyDigestSender
             sg_key = os.environ.get('SENDGRID_API_KEY')
@@ -1988,7 +2024,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_json_response({'status': 'error', 'message': str(e)})
 
     def handle_subscriber_list(self):
-        """Public endpoint showing subscriber summary (emails masked for privacy)."""
+        """Subscriber summary endpoint (admin auth required, emails masked for privacy)."""
+        if not self._check_admin_auth():
+            return
         try:
             conn = _connect_db()
             cursor = conn.cursor()
@@ -2165,14 +2203,23 @@ button:hover{background:#c45a1a}</style></head>
     # ── API: Caterer Partners ─────────────────────────────
 
     def _check_admin_token(self):
-        """Verify admin token from query params. Returns True if authorized."""
+        """Verify admin token from Authorization header, X-Admin-Key header, or ?token= query param.
+        Returns True if authorized."""
         admin_token = os.environ.get('ADMIN_TOKEN', '')
         if not admin_token:
             return False
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        token = query_params.get('token', [''])[0]
-        return token == admin_token
+        # Check headers first, fall back to query param
+        token = ''
+        auth_header = self.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header[7:]
+        elif self.headers.get('X-Admin-Key', ''):
+            token = self.headers.get('X-Admin-Key', '')
+        else:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('token', [''])[0]
+        return hmac.compare_digest(str(token), str(admin_token))
 
     def get_caterers(self):
         """Get approved caterers with optional filters"""
@@ -2862,7 +2909,8 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': str(e)}, 500)
 
     def get_referral_stats(self):
-        """Get referral tracking stats (GET /api/referral-stats)"""
+        """Get referral tracking stats (GET /api/referral-stats).
+        Public (no PII) — only channel names and visit counts."""
         try:
             db_path = self.get_db_path()
             conn = _connect_db(db_path)
@@ -4871,17 +4919,25 @@ button:hover{background:#c45a1a}</style></head>
         }, status_code)
 
     def _check_admin_auth(self):
-        """Check admin authentication via ?key= query param.
+        """Check admin authentication via Authorization header, X-Admin-Key header, or ?key= query param.
         Returns True if authorized, False if not (and sends 403 response).
         ALWAYS requires ADMIN_SECRET to be set — never allows unauthenticated access."""
         admin_secret = os.environ.get('ADMIN_SECRET', '')
         if not admin_secret:
             self.send_json_response({'status': 'error', 'message': 'Admin not configured'}, 403)
             return False
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        token = query_params.get('key', [''])[0]
-        if token != admin_secret:
+        # Check headers first, fall back to query param
+        token = ''
+        auth_header = self.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header[7:]
+        elif self.headers.get('X-Admin-Key', ''):
+            token = self.headers.get('X-Admin-Key', '')
+        else:
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            token = query_params.get('key', [''])[0]
+        if not hmac.compare_digest(str(token), str(admin_secret)):
             self.send_error_response('Unauthorized', 403)
             return False
         return True
@@ -5208,6 +5264,11 @@ def run_server(port=None):
     # REMOVED: Auto-confirm stale subscribers — violates CASL double opt-in.
     # If confirmation emails go to spam, fix deliverability (SPF/DKIM/DMARC)
     # instead of bypassing consent. Use /admin/confirm-subscriber for manual cases.
+
+    # Force WAL mode after all lock recovery is complete.
+    # WAL prevents readers from blocking writers under concurrent access.
+    # This must run on every startup because DELETE mode or lock recovery can revert it.
+    ensure_wal_mode(DB_PATH)
 
     server_address = ('0.0.0.0', port)
     httpd = ThreadingHTTPServer(server_address, NeshamaAPIHandler)

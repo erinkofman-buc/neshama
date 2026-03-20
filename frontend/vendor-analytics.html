@@ -479,6 +479,7 @@
         <a href="/yahrzeit">Yahrzeit Reminders</a>
         <a href="/sustain">Sustain</a>
         <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
         <a href="mailto:contact@neshama.ca">Contact</a>
     </nav>
     <p class="footer-copy">Built with care for the Jewish community</p>
@@ -486,6 +487,13 @@
 
 <script>
 (function() {
+    function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     // Get vendor slug from URL path
     var pathParts = window.location.pathname.split('/');
     var slug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
@@ -599,7 +607,7 @@
             else if (page.indexOf('/kosher-shiva-food') >= 0) page = 'Kosher Food Guide';
             else if (page.indexOf('/shiva-essentials') >= 0) page = 'Shiva Essentials';
             else if (page === '' || page === 'Direct') page = 'Direct / Bookmarked';
-            html += '<tr><td>' + page + '</td><td>' + r.count + '</td></tr>';
+            html += '<tr><td>' + escapeHtml(page) + '</td><td>' + r.count + '</td></tr>';
         });
         tbody.innerHTML = html;
     }

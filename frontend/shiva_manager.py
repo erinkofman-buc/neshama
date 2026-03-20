@@ -396,11 +396,16 @@ class ShivaManager:
         return str(value)[:limit].strip()
 
     def _validate_url(self, url):
-        """Validate URL starts with http:// or https:// to prevent javascript: XSS."""
+        """Validate URL uses http:// or https://. Reject javascript:, data:, vbscript: schemes."""
         if not url:
             return url
         url = url.strip()
-        if url.lower().startswith(('http://', 'https://')):
+        url_lower = url.lower()
+        # Explicitly reject dangerous schemes
+        if url_lower.startswith(('javascript:', 'data:', 'vbscript:')):
+            return None
+        # Allow http:// and https:// URLs
+        if url_lower.startswith(('http://', 'https://')):
             return url
         return None
 

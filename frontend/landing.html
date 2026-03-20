@@ -470,6 +470,7 @@
             <a href="/yahrzeit">Yahrzeit Reminders</a>
             <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
         <p class="footer-copy">Built with care for the Jewish community</p>
@@ -606,6 +607,13 @@
             });
         }
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Load recent obituaries
         fetch('/api/obituaries')
             .then(function(r) { return r.json(); })
@@ -629,14 +637,14 @@
                         var slug = o.id || '';
                         html += '<a href="/memorial/' + encodeURIComponent(slug) + '" class="obit-card">';
                         if (o.photo_url) {
-                            html += '<img class="obit-image" src="' + o.photo_url.replace(/"/g, '&quot;') + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=obit-placeholder>&#x1F56F;&#xFE0F;</div>\'">';
+                            html += '<img class="obit-image" src="' + escapeHtml(o.photo_url) + '" alt="' + escapeHtml(o.deceased_name || '') + '" loading="lazy" onerror="this.outerHTML=\'<div class=obit-placeholder>&#x1F56F;&#xFE0F;</div>\'">';
                         } else {
                             html += '<div class="obit-placeholder">&#x1F56F;&#xFE0F;</div>';
                         }
                         html += '<div class="obit-info">';
-                        html += '<div class="obit-name">' + (o.deceased_name || '').replace(/</g, '&lt;') + '</div>';
+                        html += '<div class="obit-name">' + escapeHtml(o.deceased_name || '') + '</div>';
                         var meta = [];
-                        if (o.source) meta.push(o.source);
+                        if (o.source) meta.push(escapeHtml(o.source));
                         if (o.date_of_death) {
                             try { meta.push(new Date(o.date_of_death).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})); } catch(e) {}
                         }

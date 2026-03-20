@@ -224,9 +224,11 @@ class NeshamaApp {
 
     highlightText(text, query) {
         if (!query || !text) return text;
+        // HTML-escape text FIRST to prevent XSS, then apply highlight
+        const safeText = this.escapeHtml(text);
         const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp('(' + escaped + ')', 'gi');
-        return text.replace(regex, '<mark class="search-highlight">$1</mark>');
+        return safeText.replace(regex, '<mark class="search-highlight">$1</mark>');
     }
 
     getInitials(name) {

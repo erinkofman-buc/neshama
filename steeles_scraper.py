@@ -56,6 +56,7 @@ class SteelesScraper:
         if not text:
             return None
         text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r'\S+@\S+\.\S+', '[email]', text)
         return text if text else None
 
     def parse_obituary_page(self, url):

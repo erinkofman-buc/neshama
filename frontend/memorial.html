@@ -1314,6 +1314,7 @@
             <a href="/yahrzeit">Yahrzeit Reminders</a>
             <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
         </nav>
         <p class="footer-copy">Built with care for the Jewish community</p>
@@ -1887,7 +1888,7 @@
                         html += '<p style="text-align:center;margin-top:1rem;font-size:0.95rem;color:var(--sage-dark);">' +
                             'Want to help? <a href="/help/food?utm_source=memorial&utm_medium=support_card&utm_content=active_shiva">Send a meal</a> · <a href="/help/gifts?utm_source=memorial&utm_medium=support_card&utm_content=active_shiva">Send a gift</a></p>';
                         html += '<p style="text-align:center;margin-top:0.5rem;font-size:0.95rem;color:var(--sage-dark);">Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p>';
-                        if (s.donation_url) {
+                        if (s.donation_url && /^https?:\/\//i.test(s.donation_url)) {
                             html += '<br><a class="support-donation-link" href="' + escapeHtml(s.donation_url) +
                                     '" target="_blank" rel="noopener noreferrer">' +
                                     escapeHtml(s.donation_label || 'Make a donation') + ' &#x2197;</a>';
