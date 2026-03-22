@@ -547,6 +547,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_access_request(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
+        # V5: Extend shiva dates
+        elif path.startswith('/api/shiva/') and path.endswith('/extend'):
+            support_id = path[len('/api/shiva/'):-len('/extend')]
+            self.handle_extend_shiva(support_id, body)
         # V4: Transfer host
         elif path.startswith('/api/shiva/') and path.endswith('/transfer-host'):
             support_id = path[len('/api/shiva/'):-len('/transfer-host')]
@@ -4123,6 +4127,33 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    # ── API: V5 — Extend Shiva Dates ──────────────────────────
+
+    def handle_extend_shiva(self, support_id, body):
+        """Handle extending shiva end date"""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('magic_token', '') or data.get('token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization token required'}, 401)
+                return
+            new_end_date = data.get('new_end_date', '').strip()
+            if not new_end_date:
+                self.send_json_response({'status': 'error', 'message': 'new_end_date is required'}, 400)
+                return
+            result = shiva_mgr.extend_dates(support_id, token, new_end_date)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     # ── API: V2 — Co-organizers ─────────────────────────────
 
     def handle_invite_co_organizer(self, support_id, body):
@@ -5673,6 +5704,7 @@ def run_server(port=None):
     logging.info(f" POST /api/shiva/{{id}}/report - Report shiva page")
     logging.info(f" POST /api/shiva/{{id}}/remove-signup - Remove signup (organizer)")
     logging.info(f" PUT /api/shiva/{{id}} - Update shiva support")
+    logging.info(f" POST /api/shiva/{{id}}/extend - Extend shiva dates")
     logging.info(f" GET /api/caterers - Approved caterers")
     logging.info(f" POST /api/caterers/apply - Caterer application")
     logging.info(f" GET /api/caterers/pending - Pending applications (admin)")

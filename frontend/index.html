@@ -1291,6 +1291,130 @@
         }
 
         /* ══════════════════════════════════════════════════════
+           INLINE SUBSCRIBE SECTION
+           ══════════════════════════════════════════════════════ */
+
+        .inline-subscribe {
+            max-width: 600px;
+            margin: 3rem auto 1rem;
+            padding: 2rem 2rem 1.75rem;
+            background: var(--cream);
+            border: 1px solid var(--light-taupe);
+            border-radius: var(--card-radius);
+            box-shadow: 0 2px 12px var(--soft-shadow);
+            text-align: center;
+        }
+
+        .inline-subscribe-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .inline-subscribe-desc {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .inline-subscribe-form {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .inline-subscribe-form input[type="email"] {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: #fff;
+            color: var(--dark-brown);
+            width: 280px;
+            max-width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .inline-subscribe-form input[type="email"]:focus {
+            border-color: var(--terracotta);
+        }
+
+        .inline-subscribe-form button {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            background: var(--terracotta);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            white-space: nowrap;
+        }
+
+        .inline-subscribe-form button:hover {
+            background: #b8571a;
+        }
+
+        .inline-subscribe-form button:active {
+            transform: scale(0.98);
+        }
+
+        .inline-subscribe-form button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .inline-subscribe-fine {
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+        }
+
+        .inline-subscribe-error {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            color: #c0392b;
+            margin-bottom: 0.5rem;
+            display: none;
+        }
+
+        .inline-subscribe-error.active {
+            display: block;
+        }
+
+        .inline-subscribe-success {
+            display: none;
+        }
+
+        .inline-subscribe-success.active {
+            display: block;
+        }
+
+        .inline-subscribe-success p {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            color: var(--dark-brown);
+            line-height: 1.6;
+        }
+
+        .inline-subscribe-success .checkmark {
+            font-size: 2rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ══════════════════════════════════════════════════════
            FOOTER
            ══════════════════════════════════════════════════════ */
 
@@ -2049,6 +2173,27 @@
     </div>
 
     </main>
+
+    <!-- ════════════════════════════════════════════════════
+         INLINE SUBSCRIBE SECTION
+         ════════════════════════════════════════════════════ -->
+    <section class="inline-subscribe" id="inlineSubscribe" aria-label="Email subscription">
+        <div id="inlineSubscribeForm">
+            <h2 class="inline-subscribe-heading">Stay connected to our community</h2>
+            <p class="inline-subscribe-desc">Get daily or weekly obituary updates for Toronto and Montreal.</p>
+            <p class="inline-subscribe-error" id="inlineSubscribeError"></p>
+            <form class="inline-subscribe-form" id="inlineEmailForm" autocomplete="on">
+                <input type="email" id="inlineEmailInput" placeholder="Your email address" required aria-required="true" aria-label="Email address" autocomplete="email">
+                <button type="submit" id="inlineSubscribeBtn">Subscribe</button>
+            </form>
+            <p class="inline-subscribe-fine">Free. Unsubscribe anytime.</p>
+        </div>
+        <div class="inline-subscribe-success" id="inlineSubscribeSuccess">
+            <div class="checkmark">&#10003;</div>
+            <p>Thank you. Check your inbox (and spam folder) for a confirmation email from <strong>updates@neshama.ca</strong>.</p>
+        </div>
+    </section>
+
     <!-- ════════════════════════════════════════════════════
          FOOTER
          ════════════════════════════════════════════════════ -->
@@ -2346,6 +2491,57 @@
                 closeEmailPopup();
             }
         });
+
+        // ══════════════════════════════════════════════════════
+        // INLINE SUBSCRIBE FORM
+        // ══════════════════════════════════════════════════════
+
+        var inlineForm = document.getElementById('inlineEmailForm');
+        if (inlineForm) {
+            inlineForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var input = document.getElementById('inlineEmailInput');
+                var btn = document.getElementById('inlineSubscribeBtn');
+                var errEl = document.getElementById('inlineSubscribeError');
+                var email = input.value.trim();
+                if (!email) return;
+
+                btn.disabled = true;
+                btn.textContent = 'Subscribing...';
+                errEl.classList.remove('active');
+
+                fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        frequency: 'daily',
+                        locations: 'toronto,montreal',
+                        consent: true
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        document.getElementById('inlineSubscribeForm').style.display = 'none';
+                        var successEl = document.getElementById('inlineSubscribeSuccess');
+                        successEl.classList.add('active');
+                        localStorage.setItem('neshama_subscribed', 'true');
+                    } else {
+                        errEl.textContent = data.message || 'Something went wrong. Please try again.';
+                        errEl.classList.add('active');
+                        btn.disabled = false;
+                        btn.textContent = 'Subscribe';
+                    }
+                })
+                .catch(function() {
+                    errEl.textContent = 'Unable to connect right now. Please try again.';
+                    errEl.classList.add('active');
+                    btn.disabled = false;
+                    btn.textContent = 'Subscribe';
+                });
+            });
+        }
 
         // ══════════════════════════════════════════════════════
         // PREMIUM MODAL

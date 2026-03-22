@@ -791,6 +791,62 @@ class ShivaManager:
 
         return {'status': 'success', 'message': 'Support page updated'}
 
+    # ── Extend Shiva Dates ────────────────────────────────────
+
+    def extend_dates(self, support_id, magic_token, new_end_date):
+        """Extend the shiva end date. Only moves the date forward, never back.
+        Max 30 days extension from the current end date.
+        Existing meal signups are preserved — only the end_date changes."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify organizer auth
+        row = self._verify_organizer(cursor, support_id, magic_token)
+        if not row:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid support ID or token'}
+
+        # Validate new date format
+        try:
+            new_end = datetime.strptime(new_end_date, '%Y-%m-%d')
+        except (ValueError, TypeError):
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid date format. Use YYYY-MM-DD.'}
+
+        # Current end date
+        try:
+            current_end = datetime.strptime(row['shiva_end_date'], '%Y-%m-%d')
+        except (ValueError, KeyError):
+            conn.close()
+            return {'status': 'error', 'message': 'Could not read current end date'}
+
+        # New date must be after current end date
+        if new_end <= current_end:
+            conn.close()
+            return {'status': 'error', 'message': 'New end date must be after the current end date (' + row['shiva_end_date'] + ')'}
+
+        # Max 30 days extension from current end date
+        if (new_end - current_end).days > 30:
+            conn.close()
+            return {'status': 'error', 'message': 'Extension cannot exceed 30 days beyond the current end date'}
+
+        # Update only the end date — all existing meal signups are preserved
+        cursor.execute('UPDATE shiva_support SET shiva_end_date = ? WHERE id = ?',
+                       (new_end_date, support_id))
+        conn.commit()
+
+        # Return updated data
+        cursor.execute('SELECT * FROM shiva_support WHERE id = ?', (support_id,))
+        updated = cursor.fetchone()
+        conn.close()
+
+        updated_data = dict(updated) if updated else {}
+        # Remove sensitive fields from response
+        updated_data.pop('magic_token', None)
+
+        logging.info(f"Shiva dates extended: {support_id} end_date {row['shiva_end_date']} -> {new_end_date}")
+        return {'status': 'success', 'message': 'Shiva dates extended', 'data': updated_data}
+
     # ── Co-Organizers ─────────────────────────────────────────
 
     def _verify_organizer(self, cursor, support_id, magic_token):

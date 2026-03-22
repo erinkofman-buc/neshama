@@ -1091,7 +1091,8 @@
             #postUpdateSection,
             #thankYouSection,
             #donationPromptSection,
-            #passHostSection {
+            #passHostSection,
+            #extendDatesSection {
                 order: 10;
             }
             /* Tighten calendar section */
@@ -1242,6 +1243,7 @@
             #thankYouSection,
             #donationPromptSection,
             #passHostSection,
+            #extendDatesSection,
             #updatesFeed,
             #privateNotice,
             #heroShare,
@@ -1713,6 +1715,20 @@
             </div>
             <div id="passHostSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
             <div id="passHostError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
+        <!-- V5: Extend Shiva Dates (organizer only) -->
+        <div id="extendDatesSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Extend Meal Coordination</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5;">Need more time? Extend the meal coordination schedule. All existing signups will be preserved.</p>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <label style="font-size: 0.92rem; color: var(--dark-brown); font-weight: 500;">New end date:</label>
+                <input type="date" id="extendDatePicker" style="padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown);">
+                <button id="extendDatesBtn" onclick="extendShivaDates()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;">Extend Dates</button>
+            </div>
+            <p id="extendDatesCurrentInfo" style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.6rem;"></p>
+            <div id="extendDatesSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
+            <div id="extendDatesError" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
         </div>
 
         <!-- V3: Updates Feed (visible to all visitors) -->
@@ -2372,6 +2388,27 @@
                 if (supportData.is_primary) {
                     document.getElementById('passHostSection').style.display = '';
                 }
+
+                // V5: Extend Dates section
+                document.getElementById('extendDatesSection').style.display = '';
+                var extendPicker = document.getElementById('extendDatePicker');
+                // Pre-fill with current end_date + 7 days
+                try {
+                    var curEnd = new Date(supportData.shiva_end_date + 'T12:00:00');
+                    var defaultExtend = new Date(curEnd);
+                    defaultExtend.setDate(defaultExtend.getDate() + 7);
+                    extendPicker.value = defaultExtend.toISOString().split('T')[0];
+                    // Set min to day after current end
+                    var minDate = new Date(curEnd);
+                    minDate.setDate(minDate.getDate() + 1);
+                    extendPicker.min = minDate.toISOString().split('T')[0];
+                    // Set max to 30 days after current end
+                    var maxDate = new Date(curEnd);
+                    maxDate.setDate(maxDate.getDate() + 30);
+                    extendPicker.max = maxDate.toISOString().split('T')[0];
+                } catch(e) {}
+                document.getElementById('extendDatesCurrentInfo').textContent =
+                    'Currently ends: ' + formatDate(supportData.shiva_end_date) + '. You may extend up to 30 days.';
             }
 
             // Address for organizer
@@ -2512,6 +2549,49 @@
                     el.style.display = '';
                     setTimeout(function() { el.style.display = 'none'; }, 3000);
                 }
+            });
+        };
+
+        // ── V5: Extend Shiva Dates ──────────────────────
+        window.extendShivaDates = function() {
+            var newDate = document.getElementById('extendDatePicker').value;
+            var btn = document.getElementById('extendDatesBtn');
+            var successEl = document.getElementById('extendDatesSuccess');
+            var errorEl = document.getElementById('extendDatesError');
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            if (!newDate) {
+                errorEl.textContent = 'Please select a new end date.';
+                errorEl.style.display = '';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Extending...';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/extend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: organizerToken, new_end_date: newDate })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Extend Dates';
+                if (result.status === 'success') {
+                    successEl.style.display = '';
+                    setTimeout(function() { window.location.reload(); }, 1500);
+                } else {
+                    errorEl.textContent = result.message || 'Could not extend dates.';
+                    errorEl.style.display = '';
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Extend Dates';
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = '';
             });
         };
 
