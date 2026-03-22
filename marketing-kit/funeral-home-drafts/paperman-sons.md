@@ -12,7 +12,9 @@ Dear Paperman & Sons team,
 
 My name is Erin Kofman. I built a free community resource called Neshama (neshama.ca) for Jewish families in Toronto and Montreal, and I wanted to introduce myself.
 
-Neshama features obituaries from Paperman & Sons — your listings appear alongside Toronto funeral homes so that community members across both cities can find everything in one search. For Montreal families especially, Paperman is often the first name they look for. Hundreds of people use the site each week.
+Neshama features obituaries from Paperman & Sons — your listings appear alongside Toronto funeral homes so that community members across both cities can find everything in one search. For Montreal families especially, Paperman is often the first name they look for. Hundreds of people already use the site each week.
+
+We're officially launching on March 24, and as we prepare, I wanted to make sure the funeral homes whose listings are at the heart of Neshama know about us — and have a voice in how we move forward.
 
 **Why I'm reaching out:**
 

@@ -33,8 +33,13 @@ except ImportError:
 
 
 BASE_URL = "https://misaskim.ca/shiva-listings/"
+# Use browser-like User-Agent — Misaskim runs WordPress/Elementor with LevCharity plugin
+# which serves stripped-down HTML to bot User-Agents, omitting the campaign card blocks.
+# A bot UA was returning only ~2 listings instead of all ~28.
 HEADERS = {
-    'User-Agent': 'Neshama/1.0 (neshama.ca; partnership with Misaskim via Eli Warner)',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
 }
 
 
@@ -47,68 +52,142 @@ def clean_text(text):
     return text if text else None
 
 
+def _extract_slug(href):
+    """Extract the listing slug from a URL or path containing /shiva-listings/."""
+    # Strip query params and fragments
+    href_clean = href.split('?')[0].split('#')[0]
+    # Remove trailing slash and get last path component
+    return href_clean.rstrip('/').split('/')[-1]
+
+
+def _is_listing_link(href):
+    """Check if a URL/path points to an individual shiva listing (not the index page)."""
+    if '/shiva-listings/' not in href:
+        return False
+    # Reject the index page itself (relative or absolute)
+    if href.rstrip('/').endswith('/shiva-listings') or href.rstrip('/') == 'shiva-listings':
+        return False
+    if href == '/shiva-listings/' or href == BASE_URL:
+        return False
+    # Reject pagination links
+    if '?page=' in href or '?campaign_page=' in href:
+        return False
+    # Must have a slug after /shiva-listings/
+    slug = _extract_slug(href)
+    if not slug or slug == 'shiva-listings':
+        return False
+    return True
+
+
+def _name_from_slug(slug):
+    """Convert a URL slug to a human-readable name."""
+    # Remove trailing _1, _2 suffixes (duplicate slugs on Misaskim)
+    slug_clean = re.sub(r'_\d+$', '', slug)
+    name = slug_clean.replace('-', ' ').replace('_', ' ').title()
+    return name
+
+
 def scrape_listings_page(url):
-    """Scrape a single page of shiva listings."""
+    """Scrape a single page of shiva listings.
+
+    Uses two strategies:
+    1. Parse <a> tags with /shiva-listings/ hrefs (primary)
+    2. Regex scan the full HTML for listing URLs (fallback for JS-rendered content
+       that may appear in inline scripts, data attributes, or pre-rendered HTML blocks)
+    """
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
+        response = requests.get(url, headers=HEADERS, timeout=30)
         response.raise_for_status()
     except requests.RequestException as e:
         print(f"  ERROR fetching {url}: {e}")
         return [], None
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    html = response.text
+    soup = BeautifulSoup(html, 'html.parser')
     listings = []
+    found_slugs = set()  # track slugs across both strategies
 
-    # Find listing cards — links to individual shiva pages
-    # Cards are wrapped in <a> tags with full card content inside (name + donate + view text)
+    # --- Strategy 1: Parse <a> tags (works when server renders the campaign cards) ---
     for link in soup.find_all('a', href=True):
         href = link['href']
-        if '/shiva-listings/' in href and href != '/shiva-listings/' and href != BASE_URL:
-            # Skip pagination and generic links
-            if '?page=' in href or href.endswith('/shiva-listings'):
-                continue
+        if not _is_listing_link(href):
+            continue
 
-            # Extract name from heading inside the card, or from the slug
-            name_text = None
+        slug = _extract_slug(href)
+        if slug in found_slugs:
+            continue
+        found_slugs.add(slug)
 
-            # Try headings first (h2, h3, h4)
-            heading = link.find(['h1', 'h2', 'h3', 'h4', 'h5'])
-            if heading:
-                name_text = heading.get_text(strip=True)
+        # Extract name from heading inside the card
+        name_text = None
+        heading = link.find(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+        if heading:
+            name_text = heading.get_text(strip=True)
 
-            # If no heading, try extracting from the full text (remove action words)
-            if not name_text:
-                full_text = link.get_text(strip=True)
-                # Remove common action text that appears in cards
-                for remove in ['Donate in memory', 'View shiva information', 'Shiva Listings',
-                               'C$0', '0.0% of C$0 goal']:
-                    full_text = full_text.replace(remove, '')
-                name_text = full_text.strip()
+        # Try the full text of the <a>, stripping common action/fundraising text
+        if not name_text:
+            full_text = link.get_text(strip=True)
+            for remove in ['Donate in memory', 'Donate in Memory',
+                           'View shiva information', 'View Shiva Information',
+                           'Shiva Listings', 'shiva listings',
+                           'Become a Shiva Listing',
+                           'C$0', '0.0% of C$0 goal',
+                           'Donate to this campaign']:
+                full_text = full_text.replace(remove, '')
+            name_text = full_text.strip()
 
-            # Clean residual fundraising text from name
-            if name_text:
-                name_text = re.sub(r'\d+\.?\d*%\s*of\s*goal', '', name_text).strip()
-                name_text = re.sub(r'C?\$\d+', '', name_text).strip()
-                name_text = re.sub(r'\s{2,}', ' ', name_text).strip()
+        # Clean residual fundraising text
+        if name_text:
+            name_text = re.sub(r'\d+\.?\d*%\s*of\s*C?\$?\d*\s*goal', '', name_text).strip()
+            name_text = re.sub(r'C?\$\d[\d,.]*', '', name_text).strip()
+            name_text = re.sub(r'\s{2,}', ' ', name_text).strip()
 
-            # Last resort: build name from the URL slug
-            if not name_text or len(name_text) < 3:
-                slug = href.rstrip('/').split('/')[-1]
-                # Convert slug to name: "mrs-zeesal-klein-ah" → "Mrs Zeesal Klein Ah"
-                name_text = slug.replace('-', ' ').replace('_', ' ').title()
-                # Remove trailing numbers (like _1, _2)
-                name_text = re.sub(r'\s+\d+$', '', name_text)
+        # Fall back to slug-derived name
+        if not name_text or len(name_text) < 3:
+            name_text = _name_from_slug(slug)
 
-            full_url = href if href.startswith('http') else f"https://misaskim.ca{href}"
-            slug = href.rstrip('/').split('/')[-1]
+        full_url = href if href.startswith('http') else f"https://misaskim.ca{href}"
 
-            listings.append({
-                'name': clean_text(name_text) or name_text,
-                'url': full_url,
-                'slug': slug,
-                'source': 'Misaskim',
-                'scraped_at': datetime.now().isoformat(),
-            })
+        listings.append({
+            'name': clean_text(name_text) or name_text,
+            'url': full_url,
+            'slug': slug,
+            'source': 'Misaskim',
+            'scraped_at': datetime.now().isoformat(),
+        })
+
+    strategy1_count = len(listings)
+
+    # --- Strategy 2: Regex fallback — scan full HTML for listing URLs ---
+    # Catches URLs in inline JS, data-* attributes, JSON-LD, or any context
+    # where BeautifulSoup's <a> parsing misses them.
+    url_pattern = re.compile(
+        r'https?://misaskim\.ca/shiva-listings/([a-z0-9][a-z0-9_-]+)/?',
+        re.IGNORECASE
+    )
+    for match in url_pattern.finditer(html):
+        slug = match.group(1).rstrip('/')
+        if slug in found_slugs:
+            continue
+        # Skip if slug is just "shiva-listings" (the index page itself matched weirdly)
+        if slug == 'shiva-listings':
+            continue
+        found_slugs.add(slug)
+
+        full_url = f"https://misaskim.ca/shiva-listings/{slug}/"
+        name_text = _name_from_slug(slug)
+
+        listings.append({
+            'name': clean_text(name_text) or name_text,
+            'url': full_url,
+            'slug': slug,
+            'source': 'Misaskim',
+            'scraped_at': datetime.now().isoformat(),
+        })
+
+    strategy2_count = len(listings) - strategy1_count
+    if strategy2_count > 0:
+        logging.info(f"  Strategy 2 (regex) found {strategy2_count} additional listings")
 
     # Filter out test/junk entries from Misaskim
     TEST_PATTERNS = [
@@ -125,28 +204,37 @@ def scrape_listings_page(url):
             logging.info(f"  Skipping test entry: {l['name']}")
         else:
             filtered.append(l)
-    listings = filtered
 
-    # Deduplicate by slug (same listing appears in multiple links)
-    seen = set()
-    unique = []
-    for l in listings:
-        if l['slug'] not in seen:
-            seen.add(l['slug'])
-            unique.append(l)
-
-    # Check for next page
+    # Check for next page — try multiple pagination patterns
     next_page = None
+    current_page_num = 1
+    # Detect current page number from URL
+    page_match = re.search(r'[?&]campaign_page=(\d+)', url)
+    if page_match:
+        current_page_num = int(page_match.group(1))
+    next_page_num = current_page_num + 1
+
     for a in soup.find_all('a', href=True):
+        a_href = a['href']
         text = a.get_text(strip=True)
-        if text == '2' or text == 'Next' or '?page=2' in a['href']:
-            next_url = a['href']
+        # Match "2", "3", "Next", ">" or pagination query params
+        is_next = (
+            text == str(next_page_num) or
+            text.lower() in ('next', '>', 'next page', '\u00bb') or
+            f'campaign_page={next_page_num}' in a_href or
+            f'page={next_page_num}' in a_href or
+            f'paged={next_page_num}' in a_href
+        )
+        if is_next:
+            next_url = a_href
             if not next_url.startswith('http'):
                 next_url = f"https://misaskim.ca{next_url}"
-            next_page = next_url
-            break
+            # Only follow if the URL is for the same listings section
+            if 'shiva-listing' in next_url or 'page' in next_url:
+                next_page = next_url
+                break
 
-    return unique, next_page
+    return filtered, next_page
 
 
 def scrape_all_listings(max_pages=5):

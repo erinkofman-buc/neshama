@@ -12,7 +12,9 @@ Dear Benjamin's Park Memorial Chapel team,
 
 My name is Erin Kofman. I built a free community resource called Neshama (neshama.ca) for Jewish families in Toronto and Montreal, and I wanted to introduce myself.
 
-Neshama aggregates obituaries from the Jewish funeral homes in our community — including Benjamin's Park — so families don't have to check multiple websites when someone passes away. One search brings up everything. Hundreds of community members visit each week to find listings, coordinate meals for shiva, and figure out how to help.
+Neshama aggregates obituaries from the Jewish funeral homes in our community — including Benjamin's Park — so families don't have to check multiple websites when someone passes away. One search brings up everything. Hundreds of community members already visit each week to find listings, coordinate meals for shiva, and figure out how to help.
+
+We're officially launching on March 24, and as we prepare, I wanted to make sure the funeral homes whose listings are at the heart of Neshama know about us — and have a voice in how we move forward.
 
 **Why I'm reaching out:**
 

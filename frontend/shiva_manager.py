@@ -1843,6 +1843,11 @@ class ShivaManager:
         'shiva_support', 'meal_signups', 'caterer_partners',
         'donation_links', 'shiva_reports',
         'shiva_host_transfers', 'donation_prompts',
+        'obituaries', 'comments', 'vendors', 'vendor_leads',
+        'vendor_clicks', 'vendor_views', 'referrals',
+        'yahrzeit_reminders', 'unsubscribe_feedback',
+        'shiva_analytics', 'shiva_email_log', 'scraper_log',
+        'shiva_co_organizers', 'shiva_updates',
     ]
 
     def _get_backup_path(self):

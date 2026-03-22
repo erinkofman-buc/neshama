@@ -12,7 +12,9 @@ Dear Steeles Memorial Chapel team,
 
 My name is Erin Kofman. I built a free community resource called Neshama (neshama.ca) for Jewish families in Toronto and Montreal, and I wanted to introduce myself.
 
-Neshama features obituaries from Steeles Memorial Chapel. We pull listings from your public website and display them alongside other local funeral homes so families and community members can find everything in one search. Hundreds of people use the site each week to find obituaries, coordinate shiva meals, and support families going through a loss.
+Neshama features obituaries from Steeles Memorial Chapel. We pull listings from your public website and display them alongside other local funeral homes so families and community members can find everything in one search. Hundreds of people already use the site each week to find obituaries, coordinate shiva meals, and support families going through a loss.
+
+We're officially launching on March 24, and as we prepare, I wanted to make sure the funeral homes whose listings are at the heart of Neshama know about us — and have a voice in how we move forward.
 
 **Why I'm reaching out:**
 

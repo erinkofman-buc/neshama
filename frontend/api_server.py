@@ -20,6 +20,7 @@ from datetime import datetime, timedelta, timezone as _tz
 import pytz
 import logging
 
+import signal
 import time as _time_module
 import hmac
 
@@ -4912,6 +4913,24 @@ button:hover{background:#c45a1a}</style></head>
             checks['static_files']['missing'] = missing
             all_ok = False
 
+        # 8. Disk usage check (/data/ partition)
+        try:
+            import shutil as _shutil
+            data_dir = os.path.dirname(os.path.abspath(DB_PATH))
+            disk = _shutil.disk_usage(data_dir)
+            disk_usage_pct = round((disk.used / disk.total) * 100, 1)
+            disk_free_mb = round(disk.free / (1024 * 1024), 1)
+            checks['disk'] = {
+                'ok': disk_usage_pct < 80,
+                'disk_usage_percent': disk_usage_pct,
+                'disk_free_mb': disk_free_mb,
+            }
+            if disk_usage_pct >= 80:
+                logging.warning(f"[Health] Disk usage is {disk_usage_pct}% — only {disk_free_mb} MB free")
+                all_ok = False
+        except Exception as e:
+            checks['disk'] = {'ok': True, 'error': str(e), 'note': 'Could not check disk usage'}
+
         status_code = 200 if all_ok else 503
         self.send_json_response({
             'status': 'ok' if all_ok else 'degraded',
@@ -5890,6 +5909,15 @@ def run_server(port=None):
         conn = _connect_db()
         cursor = conn.cursor()
 
+        # Migration 2026-03-21: Add source column to vendors table
+        # Tracks origin of vendor records (seed, migration, user, partner_app)
+        # so migration code never deletes user-submitted vendors.
+        try:
+            cursor.execute("ALTER TABLE vendors ADD COLUMN source TEXT DEFAULT 'seed'")
+            logging.info(" Migrations: added source column to vendors")
+        except Exception:
+            pass  # Column already exists
+
         # Migration 2026-02-28: Fix vendor miscategorizations
         vendor_updates = [
             ("UPDATE vendors SET category = 'Restaurants & Delis', featured = 0, "
@@ -5932,41 +5960,41 @@ def run_server(port=None):
             "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Sonny Langers Dairy & Vegetarian Caterers' AND kosher_status = 'COR'",
             "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Me-Va-Me' AND kosher_status = 'COR'",
             # Remove nonexistent vendors
-            "DELETE FROM vendors WHERE name = 'Pizza Pita'",
-            "DELETE FROM vendors WHERE name = 'Shwarma Express'",
-            "DELETE FROM vendors WHERE name = 'Pita Box'",
+            "DELETE FROM vendors WHERE name = 'Pizza Pita' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Shwarma Express' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Pita Box' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Migration 2026-03-05: Remove unverified vendors (no working website/instagram)
-            "DELETE FROM vendors WHERE name = 'Butzi Gift Baskets'",
-            "DELETE FROM vendors WHERE name = 'Dani Gifts'",
-            "DELETE FROM vendors WHERE name = 'Gifts for Every Reason'",
-            "DELETE FROM vendors WHERE name = 'Baskets n'' Stuf'",
-            "DELETE FROM vendors WHERE name = 'Epic Baskets'",
-            "DELETE FROM vendors WHERE name = 'Fruitate'",
-            "DELETE FROM vendors WHERE name = 'My Baskets'",
-            "DELETE FROM vendors WHERE name = 'Romi''s Bakery'",
-            "DELETE FROM vendors WHERE name = 'Kapara'",
-            "DELETE FROM vendors WHERE name = 'Olive Branch'",
-            "DELETE FROM vendors WHERE name = 'Noah''s Natural Foods'",
+            "DELETE FROM vendors WHERE name = 'Butzi Gift Baskets' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Dani Gifts' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Gifts for Every Reason' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Baskets n'' Stuf' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Epic Baskets' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Fruitate' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'My Baskets' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Romi''s Bakery' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Kapara' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Olive Branch' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Noah''s Natural Foods' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Migration 2026-03-05: Remove vendors with dead URLs (DNS failure / connection refused / HTTP 500)
-            "DELETE FROM vendors WHERE name = 'Chanoch Sushi'",
-            "DELETE FROM vendors WHERE name = 'BSTRO Pret-a-Manger'",
-            "DELETE FROM vendors WHERE name = 'Eden Hall Kosher Caterer'",
-            "DELETE FROM vendors WHERE name = 'Chagall'",
+            "DELETE FROM vendors WHERE name = 'Chanoch Sushi' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'BSTRO Pret-a-Manger' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Eden Hall Kosher Caterer' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Chagall' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Migration 2026-03-05: Remove ghost entries (no website, no phone, no email, no Instagram)
-            "DELETE FROM vendors WHERE name = 'A&T Fruit Market'",
-            "DELETE FROM vendors WHERE name = 'Becked Goods'",
-            "DELETE FROM vendors WHERE name = 'Bubbies Bagels'",
-            "DELETE FROM vendors WHERE name = 'Candy Catchers'",
-            "DELETE FROM vendors WHERE name = 'Chocolate Charm'",
-            "DELETE FROM vendors WHERE name = 'Dave Young Fruit Market'",
-            "DELETE FROM vendors WHERE name = 'SugarMommy Chocolates'",
-            "DELETE FROM vendors WHERE name = 'Sweetsie''s Cookies'",
+            "DELETE FROM vendors WHERE name = 'A&T Fruit Market' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Becked Goods' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Bubbies Bagels' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Candy Catchers' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Chocolate Charm' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Dave Young Fruit Market' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'SugarMommy Chocolates' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Sweetsie''s Cookies' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Remove vendors with dead websites (403 - hosting expired/removed)
-            "DELETE FROM vendors WHERE name = 'Bagel World'",
-            "DELETE FROM vendors WHERE name = 'Rotisserie Laurier'",
-            "DELETE FROM vendors WHERE name = 'Pizza Cafe'",
-            "DELETE FROM vendors WHERE name = 'Slice N Bites'",
-            "DELETE FROM vendors WHERE name = 'Le Plezl'",
+            "DELETE FROM vendors WHERE name = 'Bagel World' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Rotisserie Laurier' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Pizza Cafe' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Slice N Bites' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Le Plezl' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Move memorial candles from gifts to home/essentials category
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
             "UPDATE vendors SET vendor_type = 'food', category = 'Shiva Supplies' WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",
@@ -5978,12 +6006,12 @@ def run_server(port=None):
         # Migration 2026-03-09: Jordana vendor fixes round 2
         mar9_updates = [
             # Remove vendors that no longer exist or are not appropriate
-            "DELETE FROM vendors WHERE name = 'Miami Grill'",
-            "DELETE FROM vendors WHERE name = 'Village Pizza Kosher'",
-            "DELETE FROM vendors WHERE name = 'Citrus Traiteur'",
-            "DELETE FROM vendors WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)'",
-            "DELETE FROM vendors WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle'",
-            "DELETE FROM vendors WHERE name = 'Bubby''s New York Bagels'",
+            "DELETE FROM vendors WHERE name = 'Miami Grill' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Village Pizza Kosher' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Citrus Traiteur' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = '24-Hour Yahrzeit Memorial Candles (Multipack)' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Ner Mitzvah 7-Day Shiva Memorial Candle' AND (source IS NULL OR source = 'seed' OR source = '')",
+            "DELETE FROM vendors WHERE name = 'Bubby''s New York Bagels' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Rename Bubby's → Bubby's Bagels
             "UPDATE vendors SET name = 'Bubby''s Bagels' WHERE name = 'Bubby''s'",
             # Rename Il Paesano → Paisanos + add website
@@ -6304,10 +6332,30 @@ def run_server(port=None):
     logging.info(f"\n Press Ctrl+C to stop")
     logging.info(f"{'='*60}\n")
 
+    # ── SIGTERM handler — backup data before Render rebuild ───
+    def _sigterm_handler(signum, frame):
+        logging.info("[SIGTERM] Received SIGTERM — backing up data before exit...")
+        if SHIVA_AVAILABLE:
+            try:
+                shiva_mgr.backup_to_file()
+                logging.info("[SIGTERM] Backup complete")
+            except Exception as e:
+                logging.error(f"[SIGTERM] Backup failed: {e}")
+        httpd.shutdown()
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, _sigterm_handler)
+
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         logging.info("\n\n Server stopped")
+        if SHIVA_AVAILABLE:
+            try:
+                shiva_mgr.backup_to_file()
+                logging.info("[Shutdown] Backup complete")
+            except Exception as e:
+                logging.error(f"[Shutdown] Backup failed: {e}")
         httpd.shutdown()
 
 if __name__ == '__main__':

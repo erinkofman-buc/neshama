@@ -14,7 +14,9 @@ My name is Erin Kofman. I built a free community resource called Neshama (nesham
 
 I know the work Misaskim does — coordinating support for families during a loss is exactly what drives Neshama too. We're trying to solve a related piece of that puzzle, and your shiva listings are part of how we do it.
 
-Neshama features listings from Misaskim Canada alongside obituaries from local funeral homes — Steeles, Benjamin's, Paperman & Sons — so community members can find everything in one search. Hundreds of people use the site each week to find listings, coordinate meals, and figure out how to support a family.
+Neshama features listings from Misaskim Canada alongside obituaries from local funeral homes — Steeles, Benjamin's, Paperman & Sons — so community members can find everything in one search. Hundreds of people already use the site each week to find listings, coordinate meals, and figure out how to support a family.
+
+We're officially launching on March 24, and as we prepare, I wanted to make sure the organizations whose listings are at the heart of Neshama know about us — and have a voice in how we move forward.
 
 **Why I'm reaching out:**
 
