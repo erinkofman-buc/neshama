@@ -472,6 +472,20 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             return
         elif path in self.STATIC_FILES:
             self.serve_static(path)
+        elif path.startswith('/ig-temp/') and path.endswith('.png'):
+            # Temporary route for Buffer image hosting
+            filename = os.path.basename(path)
+            filepath = os.path.join(FRONTEND_DIR, 'ig-temp', filename)
+            try:
+                with open(filepath, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/png')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            except FileNotFoundError:
+                self.send_404()
         else:
             self.send_404()
 
