@@ -116,7 +116,7 @@ This is B2B, not family-facing.
 
 ### 3. Affiliate & Partnerships
 
-- **Amazon affiliate links** on all product pages — tag `neshama07-20`. When someone clicks through and buys, we get 1-5% commission depending on category.
+- **Amazon affiliate links** on all product pages — tag `neshama0708-20`. When someone clicks through and buys, we get 1-5% commission depending on category.
 - **JNF memorial tree planting** — $18/tree partnership
 - **UTM-tracked vendor links** — all outbound vendor links tagged with `utm_source=neshama` for attribution
 - **Year 1 target:** $870-$4,680/year
@@ -168,7 +168,7 @@ Plausible analytics is on every single page. It tracks:
 - **Dashboard:** plausible.io (we'll share access)
 
 ### Amazon Affiliate
-Amazon Associates dashboard shows clicks and commissions. Tag: `neshama07-20`.
+Amazon Associates dashboard shows clicks and commissions. Tag: `neshama0708-20`.
 
 ---
 
