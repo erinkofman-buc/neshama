@@ -124,7 +124,7 @@
 
         /* ── Filter Bar ── */
         .filter-bar {
-            max-width: 960px;
+            max-width: 760px;
             margin: 1.5rem auto 0;
             padding: 0 1.5rem;
         }
@@ -225,26 +225,25 @@
             padding: 1rem 1.5rem 0;
             font-size: 0.95rem;
             color: var(--sage-dark);
-            max-width: 960px;
+            max-width: 760px;
             margin: 0 auto;
         }
 
         /* ── Vendor Grid ── */
         .vendor-grid {
-            max-width: 960px;
+            max-width: 760px;
             margin: 1.5rem auto 0;
             padding: 0 1.5rem 4rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
         }
 
         .vendor-card {
             background: white;
             border-radius: 1rem;
-            padding: 1.5rem;
+            padding: 2.5rem;
             box-shadow: 0 2px 12px var(--soft-shadow);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
             text-decoration: none;
@@ -252,8 +251,6 @@
         }
 
         .vendor-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(62, 39, 35, 0.12);
             text-decoration: none;
         }
 
@@ -267,22 +264,39 @@
 
         .vendor-card h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.35rem;
+            font-size: 1.8rem;
             font-weight: 500;
             color: var(--dark-brown);
             line-height: 1.3;
         }
 
-        .kosher-badge {
+        .badge {
             display: inline-block;
-            background: rgba(178, 190, 181, 0.2);
-            color: var(--sage-dark);
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            padding: 0.2rem 0.6rem;
-            border-radius: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-taupe);
             white-space: nowrap;
-            flex-shrink: 0;
+        }
+
+        .badge.kosher {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .badge.delivery {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1e40af;
+        }
+
+        .badges-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
         }
 
         .featured-badge {
@@ -305,24 +319,20 @@
         }
 
         .vendor-desc {
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 1.1rem;
+            line-height: 1.85;
             color: var(--dark-brown);
             margin-bottom: 0.75rem;
             flex-grow: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
         }
 
         .vendor-meta {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             flex-wrap: wrap;
-            font-size: 0.85rem;
+            font-size: 1.05rem;
             color: var(--sage-dark);
-            border-top: 1px solid var(--light-taupe);
+            border-top: 1px solid rgba(210, 105, 30, 0.1);
             padding-top: 0.75rem;
             margin-top: auto;
         }
@@ -388,7 +398,8 @@
             .filter-controls { flex-direction: column; }
             .search-box { min-width: 100%; }
             .filter-select, .filter-toggle { width: 100%; justify-content: center; }
-            .vendor-grid { grid-template-columns: 1fr; }
+            .vendor-card { padding: 1.75rem 1.5rem; }
+            .vendor-card h3 { font-size: 1.5rem; }
             .footer-links { gap: 1.25rem; }
         }
     </style>
@@ -594,21 +605,29 @@
                 if (v.featured) {
                     html += '<span class="featured-badge">Featured</span>';
                 }
-                if (v.kosher_status === 'COR') {
-                    html += '<span class="kosher-badge">COR Certified</span>';
-                } else if (v.kosher_status === 'MK') {
-                    html += '<span class="kosher-badge">MK Certified</span>';
-                }
                 html += '</div>';
                 html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
+                var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery);
+                if (hasBadges) {
+                    html += '<div class="badges-row">';
+                    if (v.kosher_status === 'COR') {
+                        html += '<span class="badge kosher">COR Certified</span>';
+                    } else if (v.kosher_status === 'MK') {
+                        html += '<span class="badge kosher">MK Certified</span>';
+                    }
+                    if (v.delivery) {
+                        html += '<span class="badge delivery">Delivery Available</span>';
+                    }
+                    html += '</div>';
+                }
                 html += '<p class="vendor-desc">' + escapeHtml(v.description || '') + '</p>';
                 html += '</a>';
-                if (v.phone) {
-                    html += '<p style="font-size:0.88rem;color:var(--sage-dark);margin-bottom:0;margin-top:-0.25rem;"><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">&#128222; ' + escapeHtml(v.phone) + '</a></p>';
-                }
                 html += '<div class="vendor-meta">';
                 if (v.neighborhood) {
                     html += '<span>' + escapeHtml(v.neighborhood) + '</span>';
+                }
+                if (v.phone) {
+                    html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
                 }
                 html += '<span>' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span>';
                 if (v.website) {

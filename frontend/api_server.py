@@ -5695,7 +5695,7 @@ def run_server(port=None):
                 'has_delivery': True,
                 'has_online_ordering': False,
                 'price_range': '$$',
-                'shiva_menu_description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing. Not kosher certified.',
+                'shiva_menu_description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.',
             },
             {
                 'business_name': 'TOBEN Food by Design',
@@ -5976,7 +5976,7 @@ def run_server(port=None):
         cursor.execute(
             "UPDATE caterer_partners SET kosher_level = 'not_kosher', "
             "shiva_menu_description = 'Fresh, wholesome salad platters and prepared meals with generous portions. "
-            "Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing. Not kosher certified.' "
+            "Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.' "
             "WHERE email = 'jem.salads@gmail.com' AND kosher_level != 'not_kosher'"
         )
         total_changed += cursor.rowcount

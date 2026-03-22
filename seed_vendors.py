@@ -1087,7 +1087,7 @@ MONTREAL_VENDORS = [
     {
         'name': 'Schwartz\'s Deli',
         'category': 'Restaurants & Delis',
-        'description': 'World-famous Montreal smoked meat restaurant since 1928. An iconic Jewish culinary landmark on Boulevard Saint-Laurent. Not kosher certified but deeply rooted in Montreal Jewish food tradition.',
+        'description': 'World-famous Montreal smoked meat restaurant since 1928. An iconic Jewish culinary landmark on Boulevard Saint-Laurent.',
         'address': '3895 Boulevard Saint-Laurent, Montréal, QC',
         'neighborhood': 'Plateau Mont-Royal',
         'phone': '(514) 842-4813',
