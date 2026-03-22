@@ -985,7 +985,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
 
         html = _welcome_drip_day3_html().replace('{{email}}', email)
         subject = 'Did you know? Neshama covers Toronto and Montreal'
-        email_id = _log_email(cursor, None, 'welcome_drip_day3', email, None)
+        email_id = _log_email(cursor, 'welcome_drip', 'welcome_drip_day3', email, None)
         ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
         if ok:
             _mark_sent(cursor, email_id, msg_id)
@@ -1014,7 +1014,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
 
         html = _welcome_drip_day7_html().replace('{{email}}', email)
         subject = 'How to organize shiva meals in 5 minutes'
-        email_id = _log_email(cursor, None, 'welcome_drip_day7', email, None)
+        email_id = _log_email(cursor, 'welcome_drip', 'welcome_drip_day7', email, None)
         ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
         if ok:
             _mark_sent(cursor, email_id, msg_id)
