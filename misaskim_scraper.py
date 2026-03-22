@@ -43,6 +43,27 @@ HEADERS = {
 }
 
 
+# Regex to strip honorific suffixes from names (A"H, Z"L, etc.)
+# Handles: straight quotes, curly quotes, Hebrew geresh (״), double prime (″),
+# no quotes at all (AH, ZL), spaces between letters and quote, and Hebrew ע"ה
+_QUOTE = r'[\u0022\u0027\u2018\u2019\u201c\u201d\u201e\u05f4\u2033\u02bc]'
+_HONORIFIC_SUFFIX_RE = re.compile(
+    r'\s*(?:'
+    r'z\s*' + _QUOTE + r'?\s*l'        # z"l  — zichrono livracha
+    r'|a\s*' + _QUOTE + r'?\s*h'       # a"h  — alav/aleha hashalom
+    r'|zt\s*' + _QUOTE + r'?\s*l'      # zt"l — zecher tzaddik livracha
+    r'|ob\s*' + _QUOTE + r'?\s*m'      # ob"m — olav/oleha hashalom
+    r'|\u05e2[\u0022\u05f4\u2033]?\u05d4'  # ע"ה — Hebrew
+    r')\s*$',
+    re.IGNORECASE
+)
+
+
+def strip_honorific_suffix(name):
+    """Remove honorific suffixes like A\"H, Z\"L, OB\"M, ZT\"L, ע\"ה from a name."""
+    return _HONORIFIC_SUFFIX_RE.sub('', name).strip()
+
+
 def clean_text(text):
     """Clean and normalize text, escaping HTML to prevent stored XSS."""
     if not text:
@@ -279,9 +300,7 @@ def check_against_neshama(listings, db_path=None):
     cursor.execute("SELECT deceased_name FROM obituaries")
     existing = set()
     for row in cursor.fetchall():
-        name = row[0].lower().strip()
-        # Remove common suffixes
-        name = re.sub(r'\s*(z"l|a"h|zt"l|ob"m)\s*$', '', name, flags=re.IGNORECASE)
+        name = strip_honorific_suffix(row[0].lower().strip())
         existing.add(name)
     conn.close()
 
@@ -289,8 +308,7 @@ def check_against_neshama(listings, db_path=None):
     already_in_db = []
 
     for l in listings:
-        name_clean = l['name'].lower().strip()
-        name_clean = re.sub(r'\s*(z"l|a"h|zt"l|ob"m)\s*$', '', name_clean, flags=re.IGNORECASE)
+        name_clean = strip_honorific_suffix(l['name'].lower().strip())
 
         # Check for fuzzy match (first + last name)
         parts = name_clean.split()

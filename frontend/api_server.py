@@ -6388,6 +6388,45 @@ def run_server(port=None):
                 'Toronto, ON', 'Toronto', '(647) 344-8323', 'https://tobenfoodbydesign.com', '', 1, 'Toronto,GTA', 0, datetime('now'))""")
             total_changed += cursor.rowcount
 
+        # Migration 2026-03-22e: Strip honorific suffixes (A"H, Z"L, etc.) from obituary names
+        # Covers: A"H, a"h, Z"L, ZT"L, OB"M with straight/curly/Hebrew quotes, no quotes, spaces
+        _q = r'["' + "'" + r'\u2018\u2019\u201c\u201d\u201e\u05f4\u2033\u02bc]'
+        suffix_patterns = [
+            # With various quote marks
+            (r'%A"H', ), (r'%a"h', ), (r'%A\u05f4H', ), (r'%A\u201cH', ), (r'%A\u201dH', ),
+            (r'%Z"L', ), (r'%z"l', ), (r'%ZT"L', ), (r'%zt"l', ),
+            (r'%OB"M', ), (r'%ob"m', ),
+            # Without quotes
+            (r'% AH', ), (r'% ah', ), (r'% ZL', ), (r'% zl', ),
+            (r'% ZTL', ), (r'% ztl', ), (r'% OBM', ), (r'% obm', ),
+            # Hebrew ע"ה
+            (r'%\u05e2\u05f4\u05d4', ), (r'%\u05e2"\u05d4', ),
+        ]
+        # Use Python to do the cleaning since SQLite regex support is limited
+        cursor.execute("SELECT id, deceased_name FROM obituaries")
+        import re as _re
+        _honorific_q = r'[\u0022\u0027\u2018\u2019\u201c\u201d\u201e\u05f4\u2033\u02bc]'
+        _honorific_re = _re.compile(
+            r'\s*(?:'
+            r'z\s*' + _honorific_q + r'?\s*l'
+            r'|a\s*' + _honorific_q + r'?\s*h'
+            r'|zt\s*' + _honorific_q + r'?\s*l'
+            r'|ob\s*' + _honorific_q + r'?\s*m'
+            r'|\u05e2[\u0022\u05f4\u2033]?\u05d4'
+            r')\s*$',
+            _re.IGNORECASE
+        )
+        cleaned_count = 0
+        for row in cursor.fetchall():
+            obit_id, name = row
+            cleaned = _honorific_re.sub('', name).strip()
+            if cleaned != name:
+                cursor.execute("UPDATE obituaries SET deceased_name = ? WHERE id = ?", (cleaned, obit_id))
+                cleaned_count += 1
+        if cleaned_count > 0:
+            logging.info(f" Migrations: stripped honorific suffixes from {cleaned_count} obituary names")
+        total_changed += cleaned_count
+
         conn.commit()
         conn.close()
         if total_changed > 0:
