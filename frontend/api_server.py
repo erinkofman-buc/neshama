@@ -5983,13 +5983,13 @@ def run_server(port=None):
 
         # Migration 2026-03-04: Fix vendor kosher labels per Jordana feedback (SUPERSEDED by 2026-03-12 below)
         mar4_updates = [
-            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'What A Bagel' AND kosher_status = 'COR'",
-            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Gryfe''s Bagel Bakery' AND kosher_status = 'COR'",
-            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Kiva''s Bagels' AND kosher_status = 'COR'",
-            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Sonny Langers Dairy & Vegetarian Caterers' AND kosher_status = 'COR'",
-            "UPDATE vendors SET kosher_status = 'Kosher Style' WHERE name = 'Me-Va-Me' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = '' WHERE name = 'What A Bagel' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = '' WHERE name = 'Gryfe''s Bagel Bakery' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = '' WHERE name = 'Kiva''s Bagels' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = '' WHERE name = 'Sonny Langers Dairy & Vegetarian Caterers' AND kosher_status = 'COR'",
+            "UPDATE vendors SET kosher_status = '' WHERE name = 'Me-Va-Me' AND kosher_status = 'COR'",
             # Remove nonexistent vendors
-            "DELETE FROM vendors WHERE name = 'Pizza Pita' AND (source IS NULL OR source = 'seed' OR source = '')",
+            # Pizza Pita re-added Mar 22, 2026 — DELETE removed
             "DELETE FROM vendors WHERE name = 'Shwarma Express' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Pita Box' AND (source IS NULL OR source = 'seed' OR source = '')",
             # Migration 2026-03-05: Remove unverified vendors (no working website/instagram)
@@ -6062,7 +6062,7 @@ def run_server(port=None):
         new_vendors_mar9 = [
             ("Pizza Cafe", "Kosher Restaurants & Caterers", "COR-certified kosher pizza restaurant. Pizza, pasta, and Italian favourites. Affordable catering options for shiva meals.", "Toronto, ON", "Toronto", "", "https://www.pizzacafe.ca", "COR", 1, "Toronto", "food"),
             ("Aroma Espresso Bar", "Restaurants & Delis", "Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.", "Multiple locations, Toronto, ON", "GTA", "", "https://www.aromaespressobar.ca", "not_certified", 1, "Toronto,North York", "food"),
-            ("Chop Hop", "Kosher Restaurants & Caterers", "Kosher restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.", "Toronto, ON", "Toronto", "", "https://www.chophop.com", "COR", 1, "Toronto", "food"),
+            ("Chop Hop", "Kosher Restaurants & Caterers", "Restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.", "Toronto, ON", "Toronto", "", "https://www.chophop.com", "", 1, "Toronto", "food"),
         ]
         for v in new_vendors_mar9:
             cursor.execute("SELECT id FROM vendors WHERE name = ?", (v[0],))
@@ -6126,7 +6126,7 @@ def run_server(port=None):
 
         # Migration 2026-03-12: Remove "not_certified" label — confusing, implies certification
         # These vendors are not certified; better to show no kosher badge at all
-        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
+        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
         ks_count = cursor.rowcount
         if ks_count > 0:
             logging.info(f" Migrations: removed 'Kosher Style' label from {ks_count} vendors")
@@ -6229,7 +6229,7 @@ def run_server(port=None):
                 total_changed += cursor.rowcount
 
         # Fix kosher_status: Chop Hop and Me Va Mi are NOT COR
-        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'chop-hop' AND kosher_status = 'COR'")
+        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE slug = 'chop-hop'")
         total_changed += cursor.rowcount
         cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'me-va-mi-kitchen-express' AND kosher_status = 'COR'")
         total_changed += cursor.rowcount
@@ -6313,7 +6313,7 @@ def run_server(port=None):
         # Migration 2026-03-18: Aroma is NOT COR certified; Aba's is Kosher Style
         cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'aroma-espresso-bar' AND kosher_status = 'COR'")
         total_changed += cursor.rowcount
-        cursor.execute("UPDATE vendors SET kosher_status = 'Kosher Style' WHERE slug = 'abas-bagel-company' AND kosher_status = 'not_certified'")
+        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE slug = 'abas-bagel-company' AND kosher_status = 'not_certified'")
         total_changed += cursor.rowcount
 
         # Migration 2026-03-18b: Remove duplicate Beyond Delish, fix Aroma description, fix Skye Dough category
@@ -6369,6 +6369,24 @@ def run_server(port=None):
                 pass
         cursor.execute(f"DELETE FROM shiva_support WHERE id IN ({placeholders})", test_shiva_ids)
         total_changed += cursor.rowcount
+
+        # Migration 2026-03-22b: Remove all 'Kosher Style' labels from vendors
+        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-22c: Remove kosher label from Chop Hop (not kosher)
+        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE slug = 'chop-hop'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-22d: Add Toben Food by Design as a caterer (non-kosher)
+        cursor.execute("SELECT id FROM vendors WHERE slug = 'toben-food-by-design'")
+        if not cursor.fetchone():
+            cursor.execute("""INSERT INTO vendors (name, slug, category, vendor_type, description,
+                address, neighborhood, phone, website, kosher_status, delivery, delivery_area, featured, created_at)
+                VALUES ('Toben Food by Design', 'toben-food-by-design', 'Caterers', 'food',
+                'Full-service caterer with 15+ years experience catering shiva and celebrations of life. High-end, customized menus with dietary accommodations including gluten-free and vegan options.',
+                'Toronto, ON', 'Toronto', '(647) 344-8323', 'https://tobenfoodbydesign.com', '', 1, 'Toronto,GTA', 0, datetime('now'))""")
+            total_changed += cursor.rowcount
 
         conn.commit()
         conn.close()

@@ -609,7 +609,6 @@
 
         function kosherLabel(level) {
             if (level === 'certified_kosher') return 'Certified Kosher';
-            if (level === 'kosher_style') return 'Kosher-style';
             return '';
         }
 
@@ -636,7 +635,6 @@
                 if (kl) html += '<span class="badge kosher">' + kl + '</span>';
                 if (c.has_delivery) html += '<span class="badge delivery">Delivery</span>';
                 if (c.has_online_ordering) html += '<span class="badge online">Online Ordering</span>';
-                html += '<span class="badge">' + escapeHtml(c.price_range) + '</span>';
                 html += '</div>';
 
                 html += '<div class="caterer-contact">';
