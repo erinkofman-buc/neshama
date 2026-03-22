@@ -5,13 +5,13 @@
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neshama — Toronto & Montreal Jewish Obituaries</title>
-    <meta name="description" content="Neshama brings together obituaries and memorials from Toronto and Montreal's Jewish funeral homes. Search, remember, and honour every soul.">
+    <meta name="description" content="Neshama brings together obituaries and memorials from Toronto and Montreal's Jewish funeral homes — comforting families and connecting community.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="canonical" href="https://neshama.ca">
-    <meta property="og:title" content="Neshama — Every Soul Remembered">
+    <meta property="og:title" content="Neshama — Comforting Our Community">
     <meta property="og:description" content="Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca">
@@ -258,7 +258,7 @@
         <div class="hero-content" id="main">
             <h1 class="hero-title reveal">Neshama</h1>
             <span class="hero-hebrew reveal reveal-d1" aria-label="Neshama in Hebrew">&#x05E0;&#x05E9;&#x05DE;&#x05D4;</span>
-            <p class="hero-tagline reveal reveal-d1">Every soul remembered</p>
+            <p class="hero-tagline reveal reveal-d1">Comforting our community</p>
             <hr class="hero-rule reveal reveal-d2" aria-hidden="true">
             <p class="hero-desc reveal reveal-d2">
                 Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.
@@ -286,10 +286,10 @@
 
     <!-- Trust Bar -->
     <div class="trust reveal" id="trustBar" role="region" aria-label="Trust signals">
-        <span class="trust-item"><span class="trust-num" id="trustObits">--</span> obituaries indexed</span>
-        <span class="trust-item"><span class="trust-num">3</span> funeral homes</span>
-        <span class="trust-item">Always free</span>
+        <span class="trust-item">Toronto &amp; Montreal</span>
         <span class="trust-item">Updated daily</span>
+        <span class="trust-item">Always free</span>
+        <span class="trust-item">Community-supported</span>
     </div>
 
     <!-- Recent Obituaries -->
@@ -390,7 +390,7 @@
                 <div class="meaning-hebrew reveal" aria-hidden="true">&#x05E0;&#x05E9;&#x05DE;&#x05D4;</div>
                 <h2 class="section-heading reveal reveal-d1" id="meaning-heading" style="color:var(--cream);">The Meaning of Neshama</h2>
                 <p class="meaning-text reveal reveal-d2">
-                    <strong style="color:var(--cream);">Neshama</strong> (&#x05E0;&#x05E9;&#x05DE;&#x05D4;) is the Hebrew word for "soul" — the divine spark within each person. This service was created to ensure that every soul in our community is remembered with the dignity they deserve.
+                    <strong style="color:var(--cream);">Neshama</strong> (&#x05E0;&#x05E9;&#x05DE;&#x05D4;) is the Hebrew word for "soul" — the divine spark within each person. This service was created to comfort those who mourn — to help our community come together and support families when they need it most.
                 </p>
                 <a href="/about" class="meaning-link reveal reveal-d3">
                     Learn more about our mission
@@ -472,6 +472,8 @@
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
         </nav>
         <p class="footer-copy">Built with care for the Jewish community</p>
     </footer>
@@ -622,8 +624,7 @@
                 if (data.status === 'success' && data.data) {
                     var obits = data.data.slice(0, 3);
                     var total = data.data.length;
-                    var trustEl = document.getElementById('trustObits');
-                    if (trustEl) trustEl.textContent = total;
+                    // Obituary count removed from trust bar (comfort-focused, not counting souls)
 
                     if (!grid || obits.length === 0) {
                         if (grid) {

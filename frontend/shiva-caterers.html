@@ -481,11 +481,11 @@
     </header>
 
     <div class="stats-banner" id="statsBanner" style="display:none;">
-        <span class="stat"><span class="stat-num" id="statObits">0</span> obituaries tracked</span>
-        <span class="stat-divider">&middot;</span>
-        <span class="stat"><span class="stat-num" id="statShiva">0</span> active shiva pages</span>
+        <span class="stat">Toronto &amp; Montreal</span>
         <span class="stat-divider">&middot;</span>
         <span class="stat"><span class="stat-num" id="statCaterers">0</span> caterers listed</span>
+        <span class="stat-divider">&middot;</span>
+        <span class="stat">Community-trusted</span>
     </div>
 
     <div class="container">
@@ -542,6 +542,8 @@
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
         </nav>
         <p class="footer-copy">Built with care for the Jewish community</p>
     </footer>
@@ -679,9 +681,7 @@
             .then(function(result) {
                 if (result.status === 'success' && result.data) {
                     var d = result.data;
-                    if (d.obituary_count > 0 || d.caterer_count > 0) {
-                        document.getElementById('statObits').textContent = d.obituary_count;
-                        document.getElementById('statShiva').textContent = d.active_shiva_count;
+                    if (d.caterer_count > 0) {
                         document.getElementById('statCaterers').textContent = d.caterer_count;
                         document.getElementById('statsBanner').style.display = 'flex';
                     }

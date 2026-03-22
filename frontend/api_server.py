@@ -23,6 +23,8 @@ import logging
 import signal
 import time as _time_module
 import hmac
+import hashlib
+from email.utils import formatdate as _format_http_date
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
@@ -645,24 +647,51 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         self.send_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
 
     def serve_static(self, path):
-        """Serve static files from the frontend directory"""
+        """Serve static files from the frontend directory with cache-busting headers"""
         filename, content_type = self.STATIC_FILES[path]
         filepath = os.path.join(FRONTEND_DIR, filename)
         try:
             with open(filepath, 'rb') as f:
                 content = f.read()
+
+            # Generate ETag from content hash for conditional requests
+            etag = '"' + hashlib.md5(content).hexdigest() + '"'
+
+            # Check If-None-Match for conditional GET (304 Not Modified)
+            if_none_match = self.headers.get('If-None-Match', '')
+            if if_none_match == etag:
+                self.send_response(304)
+                self.send_header('ETag', etag)
+                self.end_headers()
+                return
+
+            # Get file modification time for Last-Modified header
+            mtime = os.path.getmtime(filepath)
+            last_modified = _format_http_date(mtime, usegmt=True)
+
             self.send_response(200)
             if content_type.startswith('text/') or content_type in ('application/javascript', 'application/manifest+json'):
                 self.send_header('Content-Type', f'{content_type}; charset=utf-8')
             else:
                 self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(content)))
-            if content_type in ('image/svg+xml', 'image/png', 'application/manifest+json'):
+            self.send_header('ETag', etag)
+            self.send_header('Last-Modified', last_modified)
+
+            # Cache-Control strategy per content type:
+            # - HTML: always revalidate so users get latest after deploy
+            # - Service worker: must never be cached (sw.js)
+            # - CSS/JS: cache 1 hour, revalidate after
+            # - Images/icons/manifest: cache 1 day
+            if content_type == 'text/html' or filename == 'sw.js':
+                self.send_header('Cache-Control', 'no-cache')
+            elif content_type in ('image/svg+xml', 'image/png', 'application/manifest+json'):
                 self.send_header('Cache-Control', 'public, max-age=86400')
+            elif content_type in ('application/javascript', 'text/css'):
+                self.send_header('Cache-Control', 'public, max-age=3600')
             else:
-                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-                self.send_header('Pragma', 'no-cache')
-                self.send_header('Expires', '0')
+                self.send_header('Cache-Control', 'no-cache')
+
             self.end_headers()
             self.wfile.write(content)
         except FileNotFoundError:
@@ -5968,9 +5997,6 @@ def run_server(port=None):
             "DELETE FROM vendors WHERE name = 'Dani Gifts' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Gifts for Every Reason' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Baskets n'' Stuf' AND (source IS NULL OR source = 'seed' OR source = '')",
-            "DELETE FROM vendors WHERE name = 'Epic Baskets' AND (source IS NULL OR source = 'seed' OR source = '')",
-            "DELETE FROM vendors WHERE name = 'Fruitate' AND (source IS NULL OR source = 'seed' OR source = '')",
-            "DELETE FROM vendors WHERE name = 'My Baskets' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Romi''s Bakery' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Kapara' AND (source IS NULL OR source = 'seed' OR source = '')",
             "DELETE FROM vendors WHERE name = 'Olive Branch' AND (source IS NULL OR source = 'seed' OR source = '')",
@@ -6300,6 +6326,10 @@ def run_server(port=None):
         cursor.execute("UPDATE vendors SET category = 'Baked Goods' WHERE slug = 'skye-dough-cookies' AND category = 'Gift Baskets'")
         total_changed += cursor.rowcount
 
+        # Migration 2026-03-22: Remove Aish Tanoor (out of business per Jordana)
+        cursor.execute("DELETE FROM vendors WHERE slug = 'aish-tanoor' AND (source IS NULL OR source = 'seed' OR source = '')")
+        total_changed += cursor.rowcount
+
         # Ensure Becked Goods exists (seed may not insert if deploy cached old code)
         cursor.execute("SELECT id FROM vendors WHERE slug = 'becked-goods'")
         if not cursor.fetchone():
@@ -6309,6 +6339,36 @@ def run_server(port=None):
                 'Homemade baked goods and cookie gifts. A warm, personal option for bringing something sweet to a shiva home.',
                 'Toronto, ON', 'Toronto', '', 'https://beckedgoods.com', '', 'not_certified', 1, 'Toronto', '', 0, datetime('now'))""")
             total_changed += cursor.rowcount
+
+        # Migration 2026-03-22: Pre-launch cleanup — remove all test shiva data
+        # All 15 entries are from jordanamednick@gmail.com and erinkofman@gmail.com, created before launch
+        test_shiva_ids = [
+            '0eedaece-a905-47aa-bb8e-17f538a580f5',
+            '6e5f0b1a-17b2-43bc-8560-64b21657e9c8',
+            '419201d3-85e8-4b09-84de-8fa5be0e600a',
+            'e1be5002-a954-4b94-9f5f-c2adb4031656',
+            'cb507512-d887-4d27-994e-25bc3e5dc984',
+            'a3ffb4a5-05f1-41e4-8fdb-6eee15cbe85a',
+            '457ac6f5-a281-4fc2-81f0-bcc3550d2b38',
+            '46f1c9d9-a3fd-44a2-b7be-cd53431a5b57',
+            'fedf1bf9-64b8-4f06-948c-50438a630968',
+            '712e8edd-1284-4214-8c7c-48f48b550586',
+            '70af9f5b-c854-473e-89b4-8c96a6fe7543',
+            '86a37d29-447a-4bde-98c8-d1bf5cf3e8b0',
+            '5ce56d41-181f-4d83-8a56-ca1dae7ef3a0',
+            '1625aaa4-28b7-4b79-8a04-ee798d110a30',
+            'a38d6385-7776-49d0-b40a-cf3bb9bbba46',
+        ]
+        placeholders = ','.join('?' * len(test_shiva_ids))
+        # Clean up related tables first (use correct FK column names), then shiva_support
+        for table in ['meal_signups', 'shiva_co_organizers', 'shiva_updates']:
+            try:
+                cursor.execute(f"DELETE FROM {table} WHERE shiva_support_id IN ({placeholders})", test_shiva_ids)
+                total_changed += cursor.rowcount
+            except Exception:
+                pass
+        cursor.execute(f"DELETE FROM shiva_support WHERE id IN ({placeholders})", test_shiva_ids)
+        total_changed += cursor.rowcount
 
         conn.commit()
         conn.close()

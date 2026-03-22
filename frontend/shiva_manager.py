@@ -1846,9 +1846,18 @@ class ShivaManager:
         'obituaries', 'comments', 'vendors', 'vendor_leads',
         'vendor_clicks', 'vendor_views', 'referrals',
         'yahrzeit_reminders', 'unsubscribe_feedback',
-        'shiva_analytics', 'shiva_email_log', 'scraper_log',
+        'shiva_analytics', 'email_log', 'scraper_log',
         'shiva_co_organizers', 'shiva_updates',
     ]
+
+    # High-volume analytics/logging tables: only back up last 30 days
+    BACKUP_TABLES_30DAY = {
+        'vendor_clicks': 'created_at',
+        'vendor_views': 'created_at',
+        'shiva_analytics': 'created_at',
+        'email_log': 'created_at',
+        'scraper_log': 'run_time',
+    }
 
     def _get_backup_path(self):
         """Return backup.json path next to the database file."""
@@ -1862,7 +1871,11 @@ class ShivaManager:
 
         for table in self.BACKUP_TABLES:
             try:
-                cursor.execute(f'SELECT * FROM {table}')
+                if table in self.BACKUP_TABLES_30DAY:
+                    ts_col = self.BACKUP_TABLES_30DAY[table]
+                    cursor.execute(f"SELECT * FROM {table} WHERE {ts_col} > datetime('now', '-30 days')")
+                else:
+                    cursor.execute(f'SELECT * FROM {table}')
                 columns = [desc[0] for desc in cursor.description]
                 tables[table] = [dict(zip(columns, row)) for row in cursor.fetchall()]
             except Exception:
