@@ -16,6 +16,86 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
+def _normalize_name(name):
+    """Normalize an obituary name for dedup comparison.
+    Strips: née/born clauses, Hebrew honorifics (ז״ל), titles (Dr., Rabbi, etc.),
+    then lowercases and collapses whitespace."""
+    if not name:
+        return ''
+    n = name
+    # Remove parenthesized née/born info: "Frances Malette (née Prosserman)"
+    n = _re.sub(r'\s*\((?:n[ée]+|born)\s+[^)]*\)', '', n, flags=_re.IGNORECASE)
+    # Remove ז״ל / ז"ל honorific specifically (not all Hebrew text)
+    n = _re.sub(r'\s*\u05d6[\u05f4״"]\u05dc\s*', '', n)
+    # Remove titles
+    n = _re.sub(r'^(Dr\.|Rabbi|Rev\.|Cantor|Mr\.|Mrs\.|Ms\.)\s+', '', n, flags=_re.IGNORECASE)
+    # Collapse whitespace, strip, lowercase
+    n = _re.sub(r'\s+', ' ', n).strip().lower()
+    return n
+
+
+def _funeral_date(obit):
+    """Extract just the date portion from funeral_datetime for grouping."""
+    dt = obit.get('funeral_datetime') or ''
+    # Try to find a date like "March 24" or "2026-03-24"
+    m = _re.search(r'(\w+ \d{1,2})', dt)
+    if m:
+        return m.group(1).lower()
+    m = _re.search(r'(\d{4}-\d{2}-\d{2})', dt)
+    if m:
+        return m.group(1)
+    return ''
+
+
+def _pick_best(group):
+    """From a list of duplicate obituaries, pick the one with the most detail."""
+    def _score(o):
+        s = 0
+        if o.get('funeral_datetime'):
+            s += len(o['funeral_datetime'])
+        if o.get('shiva_info'):
+            s += len(o['shiva_info'])
+        if o.get('burial_location'):
+            s += 10
+        if o.get('livestream_available'):
+            s += 5
+        if o.get('hebrew_name'):
+            s += 10
+        if o.get('funeral_location'):
+            s += 10
+        return s
+    return max(group, key=_score)
+
+
+def deduplicate_obituaries(obituaries):
+    """Remove duplicate obituaries conservatively.
+    Only merges when normalized names match AND both have the same non-empty funeral date.
+    When in doubt, keeps both entries — a duplicate is better than a missing person."""
+    if not obituaries:
+        return obituaries
+
+    groups = {}  # (normalized_name, funeral_date) -> [obits]
+    for obit in obituaries:
+        key = (_normalize_name(obit.get('deceased_name', '')), _funeral_date(obit))
+        groups.setdefault(key, []).append(obit)
+
+    result = []
+    for key, group in groups.items():
+        norm_name = key[0]
+        if len(group) == 1 or not norm_name or not key[1]:
+            # Don't merge if: single entry, empty name, or no funeral date
+            # Missing date ≠ same person — keep both to be safe
+            result.extend(group)
+        else:
+            best = _pick_best(group)
+            result.append(best)
+            if len(group) > 1:
+                dupes = [o.get('deceased_name', '?') + ' (' + o.get('source', '?') + ')' for o in group if o is not best]
+                logging.info(f"[Dedup] Merged {len(group)} entries for '{norm_name}': kept {best.get('source', '?')}, dropped {dupes}")
+
+    return result
+
+
 def _html_to_plain(html):
     """Convert HTML email to readable plain text"""
     text = html
@@ -277,9 +357,9 @@ class DailyDigestSender:
         else:
             logging.info(f" Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
 
-        # Pre-fetch location-filtered obituary lists
-        toronto_obits = self.get_new_obituaries(hours=24, location='toronto') if not quiet_day else []
-        montreal_obits = self.get_new_obituaries(hours=24, location='montreal') if not quiet_day else []
+        # Pre-fetch location-filtered obituary lists, deduplicated
+        toronto_obits = deduplicate_obituaries(self.get_new_obituaries(hours=24, location='toronto')) if not quiet_day else []
+        montreal_obits = deduplicate_obituaries(self.get_new_obituaries(hours=24, location='montreal')) if not quiet_day else []
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
