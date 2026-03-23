@@ -234,6 +234,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/feed': ('index.html', 'text/html'),
         '/index.html': ('index.html', 'text/html'),
         '/app.js': ('app.js', 'application/javascript'),
+        '/footer-subscribe.js': ('footer-subscribe.js', 'application/javascript'),
         '/about': ('about.html', 'text/html'),
         '/about.html': ('about.html', 'text/html'),
         '/faq': ('faq.html', 'text/html'),
@@ -686,6 +687,13 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             # Get file modification time for Last-Modified header
             mtime = os.path.getmtime(filepath)
             last_modified = _format_http_date(mtime, usegmt=True)
+
+            # Inject footer subscribe script into all HTML pages
+            if content_type == 'text/html' and b'</body>' in content:
+                content = content.replace(
+                    b'</body>',
+                    b'<script defer src="/footer-subscribe.js"></script>\n</body>'
+                )
 
             self.send_response(200)
             if content_type.startswith('text/') or content_type in ('application/javascript', 'application/manifest+json'):
