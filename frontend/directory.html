@@ -273,18 +273,26 @@
         }
 
         .vendor-card-img {
-            height: 140px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
+            background: #f5f0eb;
         }
 
         .vendor-card-img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        /* Logos (non-photo images) get contain + padding */
+        .vendor-card-img img.img-logo {
+            object-fit: contain;
+            padding: 1.25rem;
+            background: white;
         }
 
         .vendor-card-initial {
@@ -316,7 +324,7 @@
 
         .vendor-card h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.35rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: var(--dark-brown);
             line-height: 1.3;
@@ -364,16 +372,20 @@
         }
 
         .vendor-category {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--terracotta);
             font-weight: 600;
             margin-bottom: 0.35rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
+            /* Truncate long category names gracefully */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .vendor-desc {
-            font-size: 0.95rem;
+            font-size: 1rem;
             line-height: 1.65;
             color: var(--dark-brown);
             margin-bottom: 0.75rem;
@@ -506,7 +518,7 @@
             .filter-controls { flex-direction: column; }
             .search-box { min-width: 100%; }
             .filter-select, .filter-toggle { width: 100%; justify-content: center; }
-            .vendor-card-img { height: 120px; }
+            .vendor-card-img { height: 150px; }
             .vendor-card h3 { font-size: 1.25rem; }
             .footer-links { gap: 1.25rem; }
         }
@@ -754,7 +766,21 @@
                 // Image or branded placeholder
                 html += '<div class="vendor-card-img">';
                 if (v.image_url) {
-                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" width="460" height="140" loading="lazy" referrerpolicy="no-referrer">';
+                    // Detect logos vs photos: logos are typically PNGs/SVGs with transparent bg,
+                    // from logo-specific CDN paths, or explicitly named as logos
+                    var imgUrl = v.image_url.toLowerCase();
+                    var isLogo = (
+                        imgUrl.indexOf('logo') !== -1 ||
+                        imgUrl.indexOf('favicon') !== -1 ||
+                        imgUrl.indexOf('.svg') !== -1 ||
+                        (imgUrl.indexOf('.png') !== -1 && (
+                            imgUrl.indexOf('shopify') !== -1 ||
+                            imgUrl.indexOf('wsimg.com') !== -1 ||
+                            imgUrl.indexOf('cdn.shop') !== -1
+                        ))
+                    );
+                    var imgClass = isLogo ? 'img-logo' : '';
+                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" class="' + imgClass + '" width="460" height="180" loading="lazy" referrerpolicy="no-referrer">';
                 } else {
                     html += '<div class="vendor-card-initial" style="background:' + color + ';">' + initial + '</div>';
                 }
