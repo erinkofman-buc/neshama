@@ -10,15 +10,31 @@ from datetime import datetime
 import sys
 import os
 
-# Import individual scrapers
+# Import individual scrapers (original 4 — Toronto + Montreal)
 from steeles_scraper import SteelesScraper
 from benjamins_scraper import BenjaminsScraper
 from paperman_scraper import PapermanScraper
 from misaskim_scraper import MisakimScraper
 from database_setup import NeshamaDatabase
 
+# Import city config and expansion scrapers
+from city_config import CITIES
+
+# Map of scraper type keywords to their scraper classes.
+# When a city in city_config lists a scraper name here, the master
+# scraper will automatically instantiate and run it.
+EXPANSION_SCRAPER_REGISTRY = {}
+
+try:
+    from dignity_memorial_scraper import DignityMemorialScraper
+    EXPANSION_SCRAPER_REGISTRY['dignity_memorial'] = DignityMemorialScraper
+except ImportError:
+    pass  # dignity_memorial_scraper not available
+
+
 class MasterScraper:
     def __init__(self):
+        # Original 4 scrapers — unchanged
         self.scrapers = [
             ('Steeles', SteelesScraper()),
             ('Benjamin\'s', BenjaminsScraper()),
@@ -62,6 +78,36 @@ class MasterScraper:
                 # Continue with next scraper even if one fails
                 continue
 
+        # ── Run expansion scrapers from city_config ──
+        # These are cities that define scraper types in EXPANSION_SCRAPER_REGISTRY
+        # (e.g. 'dignity_memorial' for South Florida, NYC, LA).
+        for city_slug, city_cfg in CITIES.items():
+            for scraper_key in city_cfg.get('scrapers', []):
+                if scraper_key in EXPANSION_SCRAPER_REGISTRY:
+                    scraper_cls = EXPANSION_SCRAPER_REGISTRY[scraper_key]
+                    display = f"{scraper_key} ({city_cfg['display_name']})"
+                    try:
+                        logging.info(f"\n>> Starting expansion scraper: {display}...")
+                        # Expansion scrapers with run_for_city() class method
+                        if hasattr(scraper_cls, 'run_for_city'):
+                            stats = scraper_cls.run_for_city(city_slug)
+                        else:
+                            # Fallback: instantiate directly
+                            scraper_instance = scraper_cls(city_slug=city_slug)
+                            stats = scraper_instance.run()
+
+                        total_stats['scrapers_run'] += 1
+                        total_stats['scrapers_succeeded'] += 1
+                        total_stats['total_found'] += stats.get('found', 0)
+                        total_stats['total_new'] += stats.get('new', 0)
+                        total_stats['total_updated'] += stats.get('updated', 0)
+
+                    except Exception as e:
+                        total_stats['scrapers_run'] += 1
+                        total_stats['scrapers_failed'] += 1
+                        logging.info(f"\n!! {display} scraper failed: {str(e)}\n")
+                        continue
+
         # Print summary
         logging.info(f"\n{'='*70}")
         logging.info(f" SUMMARY")
@@ -80,14 +126,32 @@ class MasterScraper:
         """Run a specific scraper by name"""
         scraper_name_lower = scraper_name.lower()
 
+        # Check original 4 scrapers
         for name, scraper in self.scrapers:
             if name.lower().startswith(scraper_name_lower):
                 logging.info(f"\nRunning {name} scraper...\n")
                 stats = scraper.run()
                 return stats
 
+        # Check expansion scrapers (e.g. 'dignity_memorial')
+        if scraper_name_lower in EXPANSION_SCRAPER_REGISTRY:
+            scraper_cls = EXPANSION_SCRAPER_REGISTRY[scraper_name_lower]
+            logging.info(f"\nRunning {scraper_name_lower} expansion scraper for all configured cities...\n")
+            combined_stats = {'found': 0, 'new': 0, 'updated': 0, 'errors': 0}
+            for city_slug, city_cfg in CITIES.items():
+                if scraper_name_lower in city_cfg.get('scrapers', []):
+                    if hasattr(scraper_cls, 'run_for_city'):
+                        stats = scraper_cls.run_for_city(city_slug)
+                    else:
+                        stats = scraper_cls(city_slug=city_slug).run()
+                    for k in combined_stats:
+                        combined_stats[k] += stats.get(k, 0)
+            return combined_stats
+
+        available = ['steeles', 'benjamins', 'paperman', 'misaskim']
+        available.extend(EXPANSION_SCRAPER_REGISTRY.keys())
         logging.info(f"Scraper '{scraper_name}' not found")
-        logging.info("Available scrapers: steeles, benjamins, paperman, misaskim")
+        logging.info(f"Available scrapers: {', '.join(available)}")
         return None
 
     def check_database_status(self):
@@ -163,25 +227,32 @@ def main():
     """Main entry point"""
     master = MasterScraper()
 
+    # Build list of all valid scraper commands
+    core_scrapers = ['steeles', 'benjamins', 'paperman', 'misaskim']
+    expansion_scrapers = list(EXPANSION_SCRAPER_REGISTRY.keys())
+    all_scraper_names = core_scrapers + expansion_scrapers
+
     # Check command line arguments
     if len(sys.argv) > 1:
         command = sys.argv[1].lower()
 
         if command == 'status':
             master.check_database_status()
-        elif command in ['steeles', 'benjamins', 'paperman', 'misaskim']:
+        elif command in all_scraper_names:
             master.run_single_scraper(command)
         elif command == 'all':
             master.run_all_scrapers()
         else:
             logging.info("Usage: python master_scraper.py [command]")
             logging.info("\nCommands:")
-            logging.info("  all         - Run all scrapers (default)")
-            logging.info("  steeles     - Run Steeles scraper only")
-            logging.info("  benjamins   - Run Benjamin's scraper only")
-            logging.info("  paperman    - Run Paperman scraper only")
-            logging.info("  misaskim    - Run Misaskim scraper only")
-            logging.info("  status      - Show database statistics")
+            logging.info("  all              - Run all scrapers (default)")
+            logging.info("  steeles          - Run Steeles scraper only")
+            logging.info("  benjamins        - Run Benjamin's scraper only")
+            logging.info("  paperman         - Run Paperman scraper only")
+            logging.info("  misaskim         - Run Misaskim scraper only")
+            for name in expansion_scrapers:
+                logging.info(f"  {name:<16} - Run {name} expansion scraper")
+            logging.info("  status           - Show database statistics")
     else:
         # Default: run all scrapers
         master.run_all_scrapers()

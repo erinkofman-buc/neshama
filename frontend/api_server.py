@@ -136,7 +136,8 @@ try:
     import sys as _sys
     if sys_path_parent not in _sys.path:
         _sys.path.insert(0, sys_path_parent)
-    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images
+    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images, backfill_vendor_cities
+    from city_config import get_cities_for_api, get_valid_location_set
     VENDORS_AVAILABLE = True
 except Exception as e:
     VENDORS_AVAILABLE = False
@@ -384,6 +385,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.get_vendors(city_filter)
         elif path == '/api/gift-vendors':
             self.get_gift_vendors()
+        elif path == '/api/cities':
+            self.send_json_response(get_cities_for_api())
         elif path == '/api/track-click':
             self.handle_track_click()
         elif path.startswith('/api/vendor-analytics/'):
@@ -950,7 +953,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 # Validate frequency/locations in fallback path
                 if frequency not in ('daily', 'weekly'):
                     frequency = 'daily'
-                valid_locs = {'toronto', 'montreal'}
+                valid_locs = get_valid_location_set() if VENDORS_AVAILABLE else {'toronto', 'montreal'}
                 loc_list = [l.strip() for l in locations.split(',') if l.strip() in valid_locs]
                 if not loc_list:
                     loc_list = ['toronto', 'montreal']
@@ -6047,6 +6050,7 @@ def run_server(port=None):
             seed_vendors(DB_PATH)
             backfill_vendor_emails(DB_PATH)
             enrich_vendor_images(DB_PATH)
+            backfill_vendor_cities(DB_PATH)
             logging.info(f" Vendor directory: Seeded + enriched")
         except Exception as e:
             logging.info(f" Vendor seed: {e}")

@@ -18,6 +18,10 @@ import sqlite3
 import sys
 from datetime import datetime
 
+# Add parent directory to path for city_config import
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from city_config import CITIES
+
 
 def slugify(name):
     """Convert vendor name to URL slug."""
@@ -63,12 +67,10 @@ def map_kosher_status(row):
         return 'MK'
     elif 'STAR-K' in cert or 'OU' in cert:
         return cert
-    elif 'KOSHER STYLE' in cert or 'STYLE' in cert:
-        return 'not_certified'
     return 'not_certified'
 
 
-def import_vendors(input_file, db_path, dry_run=False):
+def import_vendors(input_file, db_path, dry_run=False, city=None):
     """Import vendors from pipeline CSV into database."""
     existing = load_existing_vendors(db_path)
     print(f"Existing vendors in DB: {len(existing)}")
@@ -110,6 +112,9 @@ def import_vendors(input_file, db_path, dry_run=False):
         delivery = 1 if row.get('delivery_available', '').lower() in ('true', '1', 'yes') else 0
         delivery_area = row.get('delivery_areas', row.get('service_areas', ''))
 
+        # Determine vendor city: use --city arg, fall back to CSV data
+        vendor_city = city or row.get('vendor_city', '')
+
         to_import.append({
             'name': name,
             'slug': slug,
@@ -123,6 +128,7 @@ def import_vendors(input_file, db_path, dry_run=False):
             'delivery': delivery,
             'delivery_area': delivery_area,
             'vendor_type': 'food',
+            'city': vendor_city,
         })
 
     print(f"\nTo import: {len(to_import)}")
@@ -145,12 +151,12 @@ def import_vendors(input_file, db_path, dry_run=False):
             cursor.execute("""
                 INSERT INTO vendors (name, slug, category, description, address,
                     neighborhood, phone, website, kosher_status, delivery,
-                    delivery_area, vendor_type)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    delivery_area, vendor_type, city)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (v['name'], v['slug'], v['category'], v['description'],
                   v['address'], v['neighborhood'], v['phone'], v['website'],
                   v['kosher_status'], v['delivery'], v['delivery_area'],
-                  v['vendor_type']))
+                  v['vendor_type'], v['city']))
             imported += 1
         except Exception as e:
             print(f"  ERROR importing {v['name']}: {e}")
@@ -175,11 +181,12 @@ def import_vendors(input_file, db_path, dry_run=False):
             desc_escaped = v['description'].replace("'", "''")
             f.write(f"INSERT OR IGNORE INTO vendors (name, slug, category, description, "
                     f"address, neighborhood, phone, website, kosher_status, delivery, "
-                    f"delivery_area, vendor_type) VALUES ("
+                    f"delivery_area, vendor_type, city) VALUES ("
                     f"'{name_escaped}', '{v['slug']}', '{v['category']}', "
                     f"'{desc_escaped}', '{v['address']}', '{v['neighborhood']}', "
                     f"'{v['phone']}', '{v['website']}', '{v['kosher_status']}', "
-                    f"{v['delivery']}, '{v['delivery_area']}', '{v['vendor_type']}');\n")
+                    f"{v['delivery']}, '{v['delivery_area']}', '{v['vendor_type']}', "
+                    f"'{v['city']}');\n")
 
     print(f"Migration SQL saved to {migration_path}")
     print(f"Copy these SQL statements into api_server.py migrations for production deploy.")
@@ -188,8 +195,11 @@ def import_vendors(input_file, db_path, dry_run=False):
 
 
 def main():
+    all_city_slugs = list(CITIES.keys()) + ['south-florida', 'chicago', 'nyc', 'la']
     parser = argparse.ArgumentParser(description='Neshama Pipeline — Import Vendors')
     parser.add_argument('--input', type=str, required=True, help='Pipeline CSV to import')
+    parser.add_argument('--city', type=str, choices=all_city_slugs, default=None,
+                        help='City slug to assign to imported vendors (e.g. toronto, montreal, south-florida)')
     parser.add_argument('--db', type=str,
                         default=os.path.expanduser('~/Desktop/Neshama/neshama.db'),
                         help='Path to local neshama.db')
@@ -204,11 +214,12 @@ def main():
     print(f"{'='*60}")
     print(f"NESHAMA VENDOR IMPORT")
     print(f"Input: {args.input}")
+    print(f"City: {args.city or '(from CSV data)'}")
     print(f"Database: {args.db}")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE IMPORT'}")
     print(f"{'='*60}")
 
-    import_vendors(args.input, args.db, args.dry_run)
+    import_vendors(args.input, args.db, args.dry_run, city=args.city)
 
 
 if __name__ == '__main__':

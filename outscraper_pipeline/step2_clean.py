@@ -17,6 +17,10 @@ import sqlite3
 import sys
 from datetime import datetime
 
+# Add parent directory to path for city_config import
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from city_config import CITIES
+
 
 # ── Removal criteria ──
 
@@ -69,17 +73,52 @@ def is_valid_address(address, city):
 
 
 def is_in_service_area(city, state):
-    """Check if business is in Toronto GTA or Montreal metro."""
+    """Check if business is in any Neshama service area (uses city_config detection_keywords).
+
+    Supports all cities defined in city_config.py, including commented-out expansion cities.
+    Also includes hardcoded fallback lists for expansion cities not yet in CITIES dict.
+    """
     if not city and not state:
         return False
     combined = f"{city} {state}".lower()
-    toronto_area = ['toronto', 'north york', 'thornhill', 'vaughan', 'markham',
-                    'mississauga', 'scarborough', 'richmond hill', 'etobicoke',
-                    'woodbridge', 'aurora', 'newmarket', 'ontario']
-    montreal_area = ['montreal', 'montréal', 'laval', 'côte-saint-luc', 'cote-saint-luc',
-                     'hampstead', 'westmount', 'outremont', 'dollard-des-ormeaux',
-                     'ville saint-laurent', 'ndg', 'quebec', 'québec']
-    return any(area in combined for area in toronto_area + montreal_area)
+
+    # Build detection keywords from city_config (active cities)
+    all_detection_keywords = []
+    for slug, cfg in CITIES.items():
+        all_detection_keywords.extend(cfg['detection_keywords'])
+
+    # Expansion city keywords (ready for when they activate in city_config)
+    expansion_keywords = {
+        'south-florida': [
+            'boca raton', 'aventura', 'fort lauderdale', 'hollywood, fl',
+            'miami beach', 'sunny isles', 'surfside', 'bal harbour',
+            'deerfield beach', 'delray beach', 'parkland', 'weston',
+            'coral springs', 'tamarac', 'boynton beach', 'north miami beach',
+            'palm beach', 'pompano beach', 'davie', ', fl',
+        ],
+        'chicago': [
+            'skokie', 'highland park, il', 'deerfield, il', 'northbrook',
+            'buffalo grove', 'glencoe', 'wilmette', 'winnetka',
+            'lakeview', 'lincoln park', 'west rogers park', 'chicago', ', il',
+        ],
+        'nyc': [
+            'new york', 'manhattan', 'brooklyn', 'queens', 'bronx',
+            'long island', 'great neck', 'five towns', 'hewlett',
+            'teaneck', 'forest hills', 'borough park', 'flatbush',
+            'scarsdale', 'white plains', ', ny', ', nj',
+        ],
+        'la': [
+            'los angeles', 'beverly hills', 'pico-robertson', 'encino',
+            'tarzana', 'calabasas', 'culver city', 'santa monica',
+            'brentwood', 'hollywood', 'westwood', ', ca',
+        ],
+    }
+    # Only add expansion keywords if not already in CITIES (avoids duplicates)
+    for slug, keywords in expansion_keywords.items():
+        if slug not in CITIES:
+            all_detection_keywords.extend(keywords)
+
+    return any(area in combined for area in all_detection_keywords)
 
 
 def load_existing_vendors(db_path=None):

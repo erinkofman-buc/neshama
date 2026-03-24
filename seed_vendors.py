@@ -9,6 +9,7 @@ Run: python seed_vendors.py
 import sqlite3
 import os
 import re
+import sys
 from datetime import datetime
 
 DB_PATH = os.environ.get('DATABASE_PATH', 'neshama.db')
@@ -115,6 +116,12 @@ def create_tables(conn):
         cursor.execute('SELECT instagram FROM vendors LIMIT 1')
     except Exception:
         cursor.execute("ALTER TABLE vendors ADD COLUMN instagram TEXT")
+
+    # Migration: add city column if missing
+    try:
+        cursor.execute('SELECT city FROM vendors LIMIT 1')
+    except Exception:
+        cursor.execute("ALTER TABLE vendors ADD COLUMN city TEXT")
 
     # Create vendor_clicks table for click tracking
     cursor.execute('''
@@ -2280,7 +2287,37 @@ def enrich_vendor_images(db_path=None):
     return updated
 
 
+def backfill_vendor_cities(db_path=None):
+    """Detect and backfill city for vendors with NULL city column."""
+    path = db_path or DB_PATH
+    sys_dir = os.path.dirname(os.path.abspath(__file__))
+    if sys_dir not in sys.path:
+        sys.path.insert(0, sys_dir)
+    from city_config import detect_city_from_text, CITIES
+
+    conn = sqlite3.connect(path, timeout=30, isolation_level=None)
+    conn.execute('PRAGMA busy_timeout=30000')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT id, address, neighborhood, delivery_area FROM vendors WHERE city IS NULL')
+    rows = cursor.fetchall()
+    updated = 0
+    for row in rows:
+        vid, address, neighborhood, delivery_area = row
+        text = ' '.join(filter(None, [address, neighborhood, delivery_area]))
+        slug = detect_city_from_text(text)
+        if slug and slug in CITIES:
+            display_name = CITIES[slug]['display_name']
+            cursor.execute('UPDATE vendors SET city = ? WHERE id = ?', (display_name, vid))
+            updated += 1
+    conn.close()
+    if updated:
+        logging.info(f" Vendor cities: backfilled {updated} vendors")
+    return updated
+
+
 if __name__ == '__main__':
     seed_vendors()
     backfill_vendor_emails()
     enrich_vendor_images()
+    backfill_vendor_cities()

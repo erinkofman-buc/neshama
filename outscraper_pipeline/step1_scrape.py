@@ -7,6 +7,8 @@ Usage:
     python step1_scrape.py --category shiva --city toronto
     python step1_scrape.py --category bakeries --city montreal
     python step1_scrape.py --category all --city toronto
+    python step1_scrape.py --category shiva --city south-florida
+    python step1_scrape.py --category restaurants --city nyc
     python step1_scrape.py --keywords "kosher caterer Thornhill" --city toronto
 
 Requires: pip install outscraper
@@ -19,11 +21,29 @@ import os
 import sys
 from datetime import datetime
 
+# Add parent directory to path for city_config import
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from city_config import CITIES
+
 try:
     from outscraper import ApiClient
 except ImportError:
     print("Install outscraper: pip install outscraper")
     sys.exit(1)
+
+
+# ── All valid city slugs (active + expansion) ──
+# Expansion cities are defined here so keywords are ready when cities activate in city_config
+ALL_CITY_SLUGS = list(CITIES.keys()) + ['south-florida', 'chicago', 'nyc', 'la']
+
+# ── Region codes by city (for Outscraper API) ──
+REGION_CODES = {slug: cfg['country'] for slug, cfg in CITIES.items()}
+REGION_CODES.update({
+    'south-florida': 'US',
+    'chicago': 'US',
+    'nyc': 'US',
+    'la': 'US',
+})
 
 
 # ── Keyword definitions by category and city ──
@@ -67,6 +87,49 @@ KEYWORDS = {
             "kosher caterer Outremont",
             "kosher deli Montreal",
         ],
+        'south-florida': [
+            "shiva catering Boca Raton",
+            "shiva catering Fort Lauderdale",
+            "shiva meal delivery South Florida",
+            "shiva platters Aventura",
+            "bereavement catering Boca Raton",
+            "kosher caterer Boca Raton",
+            "kosher catering Hollywood FL",
+            "kosher catering Sunny Isles",
+            "kosher caterer Aventura",
+            "kosher meal delivery Boca Raton",
+        ],
+        'chicago': [
+            "shiva catering Skokie",
+            "shiva catering Highland Park IL",
+            "shiva catering Chicago",
+            "shiva meal delivery Chicago",
+            "kosher caterer Skokie",
+            "kosher catering Chicago",
+            "kosher catering Northbrook IL",
+            "bereavement catering Chicago",
+        ],
+        'nyc': [
+            "shiva catering Manhattan",
+            "shiva catering Brooklyn",
+            "shiva meal delivery New York",
+            "shiva platters Great Neck",
+            "shiva catering Five Towns",
+            "kosher caterer Brooklyn",
+            "kosher catering Manhattan",
+            "kosher catering Teaneck",
+            "bereavement catering New York",
+        ],
+        'la': [
+            "shiva catering Beverly Hills",
+            "shiva catering Pico Robertson",
+            "shiva catering Los Angeles",
+            "shiva meal delivery Encino",
+            "kosher caterer Beverly Hills",
+            "kosher catering Los Angeles",
+            "kosher catering Tarzana",
+            "bereavement catering Los Angeles",
+        ],
     },
     'bakeries': {
         'toronto': [
@@ -86,6 +149,32 @@ KEYWORDS = {
             "boulangerie casher Montreal",
             "challah delivery Montreal",
             "best kosher bakery Montreal",
+        ],
+        'south-florida': [
+            "kosher bakery Boca Raton",
+            "Jewish bakery Aventura",
+            "kosher bakery Hollywood FL",
+            "challah delivery Boca Raton",
+            "best kosher bakery South Florida",
+        ],
+        'chicago': [
+            "kosher bakery Skokie",
+            "kosher bakery Chicago",
+            "Jewish bakery Highland Park IL",
+            "challah delivery Chicago",
+        ],
+        'nyc': [
+            "kosher bakery Brooklyn",
+            "kosher bakery Manhattan",
+            "Jewish bakery Great Neck",
+            "challah delivery New York",
+            "best kosher bakery Brooklyn",
+        ],
+        'la': [
+            "kosher bakery Beverly Hills",
+            "kosher bakery Pico Robertson",
+            "Jewish bakery Los Angeles",
+            "challah delivery Encino",
         ],
     },
     'gifts': {
@@ -108,6 +197,33 @@ KEYWORDS = {
             "condolence basket Montreal",
             "sympathy gift delivery Montreal",
         ],
+        'south-florida': [
+            "gift basket Boca Raton",
+            "shiva gift basket Fort Lauderdale",
+            "kosher gift basket Aventura",
+            "bereavement gift basket Boca Raton",
+            "condolence gift South Florida",
+            "fruit basket delivery Hollywood FL",
+        ],
+        'chicago': [
+            "gift basket Chicago",
+            "shiva gift basket Skokie",
+            "kosher gift basket Chicago",
+            "condolence gift basket Highland Park IL",
+        ],
+        'nyc': [
+            "gift basket Five Towns",
+            "shiva gift basket Manhattan",
+            "kosher gift basket Brooklyn",
+            "condolence gift New York",
+            "bereavement gift basket Great Neck",
+        ],
+        'la': [
+            "gift basket Beverly Hills",
+            "shiva gift basket Los Angeles",
+            "kosher gift basket Pico Robertson",
+            "condolence gift Encino",
+        ],
     },
     'judaica': {
         'toronto': [
@@ -124,8 +240,30 @@ KEYWORDS = {
             "Jewish bookstore Montreal",
             "Judaica store Cote-Saint-Luc",
         ],
+        'south-florida': [
+            "Judaica store Boca Raton",
+            "Judaica shop Aventura",
+            "Jewish bookstore Fort Lauderdale",
+            "shiva candles Boca Raton",
+        ],
+        'chicago': [
+            "Judaica store Skokie",
+            "Jewish bookstore Chicago",
+            "Judaica shop Highland Park IL",
+        ],
+        'nyc': [
+            "Judaica store Brooklyn",
+            "Judaica shop Manhattan",
+            "Jewish bookstore Great Neck",
+            "Judaica store Five Towns",
+        ],
+        'la': [
+            "Judaica store Beverly Hills",
+            "Judaica shop Pico Robertson",
+            "Jewish bookstore Los Angeles",
+        ],
     },
-    # New category: services that help with shiva logistics
+    # Services that help with shiva logistics
     'shiva_services': {
         'toronto': [
             "shiva home setup Toronto",
@@ -138,11 +276,58 @@ KEYWORDS = {
             "shiva home setup Montreal",
             "chair rental Montreal Jewish",
         ],
+        'south-florida': [
+            "shiva home setup Boca Raton",
+            "chair rental Fort Lauderdale Jewish",
+            "event rental Aventura kosher",
+        ],
+        'chicago': [
+            "shiva home setup Chicago",
+            "chair rental Skokie Jewish",
+        ],
+        'nyc': [
+            "shiva home setup Manhattan",
+            "chair rental Brooklyn Jewish",
+            "event rental Five Towns kosher",
+        ],
+        'la': [
+            "shiva home setup Beverly Hills",
+            "chair rental Los Angeles Jewish",
+        ],
+    },
+    # Restaurants & delis (expansion cities get dedicated keywords)
+    'restaurants': {
+        'south-florida': [
+            "kosher restaurant Aventura",
+            "kosher restaurant Boca Raton",
+            "Jewish deli Hollywood FL",
+            "kosher deli Boca Raton",
+            "kosher restaurant Sunny Isles",
+        ],
+        'chicago': [
+            "kosher restaurant Chicago",
+            "kosher restaurant Skokie",
+            "kosher deli Chicago",
+            "Jewish deli Skokie",
+        ],
+        'nyc': [
+            "kosher deli Great Neck",
+            "kosher restaurant Brooklyn",
+            "kosher restaurant Manhattan",
+            "Jewish deli Five Towns",
+            "kosher restaurant Forest Hills",
+        ],
+        'la': [
+            "kosher restaurant Encino",
+            "kosher restaurant Beverly Hills",
+            "kosher restaurant Pico Robertson",
+            "kosher deli Los Angeles",
+        ],
     },
 }
 
 
-def scrape_google_maps(api_key, queries, limit_per_query=50):
+def scrape_google_maps(api_key, queries, limit_per_query=50, region='CA'):
     """Run Outscraper Google Maps search for each query."""
     client = ApiClient(api_key=api_key)
     all_results = []
@@ -154,7 +339,7 @@ def scrape_google_maps(api_key, queries, limit_per_query=50):
                 query,
                 limit=limit_per_query,
                 language='en',
-                region='CA',
+                region=region,
             )
             if results and len(results) > 0:
                 # Outscraper returns list of lists
@@ -238,11 +423,12 @@ def load_existing_vendors(db_path=None):
 
 
 def main():
+    all_categories = list(KEYWORDS.keys())
     parser = argparse.ArgumentParser(description='Neshama Outscraper Pipeline — Step 1')
-    parser.add_argument('--category', choices=['shiva', 'bakeries', 'gifts', 'judaica', 'shiva_services', 'all'],
+    parser.add_argument('--category', choices=all_categories + ['all'],
                         default='shiva', help='Vendor category to scrape')
-    parser.add_argument('--city', choices=['toronto', 'montreal', 'both'],
-                        default='toronto', help='City to scrape')
+    parser.add_argument('--city', choices=ALL_CITY_SLUGS + ['all'],
+                        default='toronto', help='City to scrape (any city from city_config)')
     parser.add_argument('--keywords', type=str, help='Custom keyword(s), comma-separated')
     parser.add_argument('--api-key', type=str, help='Outscraper API key (or set OUTSCRAPER_API_KEY)')
     parser.add_argument('--limit', type=int, default=50, help='Max results per keyword')
@@ -256,8 +442,8 @@ def main():
     if args.keywords:
         queries = [k.strip() for k in args.keywords.split(',')]
     else:
-        categories = list(KEYWORDS.keys()) if args.category == 'all' else [args.category]
-        cities = ['toronto', 'montreal'] if args.city == 'both' else [args.city]
+        categories = all_categories if args.category == 'all' else [args.category]
+        cities = ALL_CITY_SLUGS if args.city == 'all' else [args.city]
         queries = []
         for cat in categories:
             for city in cities:
@@ -284,8 +470,11 @@ def main():
         print("\nERROR: No API key. Set OUTSCRAPER_API_KEY or pass --api-key")
         sys.exit(1)
 
+    # Determine region code for Outscraper API
+    region = REGION_CODES.get(args.city, 'US') if args.city != 'all' else 'US'
+
     # Scrape
-    raw_results = scrape_google_maps(api_key, queries, limit_per_query=args.limit)
+    raw_results = scrape_google_maps(api_key, queries, limit_per_query=args.limit, region=region)
     print(f"\nTotal raw results: {len(raw_results)}")
 
     # Deduplicate
