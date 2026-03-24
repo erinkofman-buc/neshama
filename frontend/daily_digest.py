@@ -23,8 +23,8 @@ def _normalize_name(name):
     if not name:
         return ''
     n = name
-    # Remove parenthesized née/born info: "Frances Malette (née Prosserman)"
-    n = _re.sub(r'\s*\((?:n[ée]+|born)\s+[^)]*\)', '', n, flags=_re.IGNORECASE)
+    # Remove ALL parenthesized content: nicknames "(Jerry)", née "(née Smith)", etc.
+    n = _re.sub(r'\s*\([^)]*\)', '', n)
     # Remove ז״ל / ז"ל honorific specifically (not all Hebrew text)
     n = _re.sub(r'\s*\u05d6[\u05f4״"]\u05dc\s*', '', n)
     # Remove titles
@@ -74,17 +74,47 @@ def deduplicate_obituaries(obituaries):
     if not obituaries:
         return obituaries
 
-    groups = {}  # (normalized_name, funeral_date) -> [obits]
+    # Phase 1: Group by (normalized_name, funeral_date)
+    groups = {}
     for obit in obituaries:
         key = (_normalize_name(obit.get('deceased_name', '')), _funeral_date(obit))
         groups.setdefault(key, []).append(obit)
 
-    result = []
+    # Phase 2: Merge groups with same name+source where one has no date
+    # (handles preliminary "details to follow" entries superseded by full obituaries)
+    by_name_source = {}
     for key, group in groups.items():
         norm_name = key[0]
-        if len(group) == 1 or not norm_name or not key[1]:
-            # Don't merge if: single entry, empty name, or no funeral date
-            # Missing date ≠ same person — keep both to be safe
+        if not norm_name:
+            continue
+        for obit in group:
+            ns_key = (norm_name, obit.get('source', ''))
+            by_name_source.setdefault(ns_key, []).append((key, obit))
+
+    merged_away = set()  # keys to skip because they were merged into another group
+    for ns_key, entries in by_name_source.items():
+        if len(entries) < 2:
+            continue
+        # Check if we have both dated and undated entries for same name+source
+        dated = [(k, o) for k, o in entries if k[1]]
+        undated = [(k, o) for k, o in entries if not k[1]]
+        if dated and undated:
+            # Merge undated into the dated group (preliminary → full)
+            target_key = dated[0][0]
+            for uk, uo in undated:
+                groups.setdefault(target_key, []).append(uo)
+                if uk in groups and uo in groups[uk]:
+                    groups[uk].remove(uo)
+                    if not groups[uk]:
+                        merged_away.add(uk)
+                logging.info(f"[Dedup] Merged preliminary entry for '{ns_key[0]}' ({ns_key[1]}) into dated group")
+
+    result = []
+    for key, group in groups.items():
+        if key in merged_away:
+            continue
+        norm_name = key[0]
+        if len(group) == 1 or not norm_name:
             result.extend(group)
         else:
             best = _pick_best(group)
