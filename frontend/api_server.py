@@ -2553,8 +2553,19 @@ button:hover{background:#c45a1a}</style></head>
             # Log the lead
             logging.info(f"[Vendor Lead] {contact_name} ({contact_email}) -> {vendor_name}")
 
-            # Send alert email to vendor
-            if vendor_email:
+            # Always notify Erin + send to vendor if they have email
+            notify_email = 'contact@neshama.ca'
+            self._send_vendor_lead_alert(
+                vendor_email=notify_email,
+                vendor_name=vendor_name,
+                contact_name=contact_name,
+                contact_email=contact_email,
+                event_type=event_type,
+                event_date=event_date,
+                estimated_guests=estimated_guests,
+                message=message
+            )
+            if vendor_email and vendor_email != notify_email:
                 self._send_vendor_lead_alert(
                     vendor_email=vendor_email,
                     vendor_name=vendor_name,
