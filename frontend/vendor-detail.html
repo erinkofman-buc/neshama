@@ -248,8 +248,7 @@
         }
 
         /* ── Lead Form ── */
-        .lead-form { display: none; margin-top: 1.25rem; }
-        .lead-form.visible { display: block; }
+        .lead-form { margin-top: 1.25rem; }
 
         .form-row {
             margin-bottom: 1rem;
@@ -441,10 +440,9 @@
                 <div id="infoRows"></div>
             </div>
 
-            <div class="quote-section">
-                <h2>Request a Quote</h2>
-                <p>Interested in this vendor for a shiva meal or event? Send them a request and they'll get back to you.</p>
-                <button class="quote-btn" id="quoteBtn" onclick="toggleForm()">Request a Quote</button>
+            <div class="quote-section" id="reach-out">
+                <h2 id="quoteHeading">Reach Out</h2>
+                <p id="quoteSubtext">Have a question or need help planning a meal? Fill out the form below and they'll get back to you.</p>
 
                 <div class="lead-form" id="leadForm">
                     <div class="form-row-half">
@@ -481,7 +479,7 @@
                         <label for="leadMessage">Message</label>
                         <textarea id="leadMessage" placeholder="Any details about dietary needs, timing, or special requests..."></textarea>
                     </div>
-                    <button class="quote-btn" id="submitBtn" onclick="submitLead()">Send Request</button>
+                    <button class="quote-btn" id="submitBtn" onclick="submitLead()">Send Message</button>
                     <div class="form-msg" id="formMsg"></div>
                 </div>
             </div>
@@ -596,6 +594,12 @@
 
             document.getElementById('infoRows').innerHTML = rows;
 
+            // Set warm heading with vendor name
+            var quoteHeading = document.getElementById('quoteHeading');
+            if (quoteHeading) quoteHeading.textContent = 'Reach out to ' + v.name;
+            var quoteSubtext = document.getElementById('quoteSubtext');
+            if (quoteSubtext) quoteSubtext.textContent = 'Have a question or need help planning a meal? Fill out the form below and ' + v.name + ' will get back to you.';
+
             var claimLink = document.getElementById('claimLink');
             if (claimLink) claimLink.href = '/partner?vendor=' + encodeURIComponent(slug);
 
@@ -631,18 +635,6 @@
         }
 
         // Expose functions to global scope for onclick
-        window.toggleForm = function() {
-            var form = document.getElementById('leadForm');
-            var btn = document.getElementById('quoteBtn');
-            if (form.classList.contains('visible')) {
-                form.classList.remove('visible');
-                btn.textContent = 'Request a Quote';
-            } else {
-                form.classList.add('visible');
-                btn.textContent = 'Hide Form';
-            }
-        };
-
         window.submitLead = function() {
             var name = document.getElementById('leadName').value.trim();
             var email = document.getElementById('leadEmail').value.trim();
@@ -686,7 +678,7 @@
             .then(function(data) {
                 if (data.status === 'success') {
                     msgEl.className = 'form-msg success';
-                    msgEl.textContent = 'Your request has been sent! The vendor will receive your details and reach out to you directly.';
+                    msgEl.textContent = 'Your message has been sent! They\'ll receive your details and reach out to you directly.';
                     submitBtn.textContent = 'Sent!';
                 } else {
                     msgEl.className = 'form-msg error';

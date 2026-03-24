@@ -430,6 +430,22 @@
             outline-offset: 3px;
         }
 
+        .vendor-cta-secondary {
+            background: transparent;
+            color: var(--terracotta);
+            border: 2px solid var(--terracotta);
+            margin-left: 0;
+        }
+
+        .vendor-cta-secondary:hover {
+            background: rgba(210, 105, 30, 0.08);
+            color: var(--terracotta);
+        }
+
+        .vendor-cta-reach {
+            margin-left: auto;
+        }
+
         .no-results {
             text-align: center;
             padding: 4rem 1.5rem;
@@ -778,13 +794,14 @@
                 if (v.phone) {
                     html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--sage-dark);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
                 }
-                // CTA button
+                // CTA buttons
+                html += '<a href="/directory/' + encodeURIComponent(v.slug) + '#reach-out" class="vendor-cta vendor-cta-reach">Reach Out</a>';
                 if (v.website) {
-                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta">Visit &rarr;</a>';
+                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta vendor-cta-secondary">Visit &rarr;</a>';
                 } else if (v.instagram) {
                     var ig = v.instagram.replace(/^@/, '');
                     var igUrl = 'https://instagram.com/' + ig;
-                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" class="vendor-cta">@' + escapeHtml(ig) + '</a>';
+                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" class="vendor-cta vendor-cta-secondary">@' + escapeHtml(ig) + '</a>';
                 }
                 html += '</div>'; // close vendor-meta
 
