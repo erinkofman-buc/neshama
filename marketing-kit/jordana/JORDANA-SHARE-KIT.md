@@ -1,5 +1,5 @@
 # Jordana Share Kit
-Updated: March 13, 2026
+Updated: March 23, 2026 (LAUNCH WEEK)
 
 Everything Jordana needs to share Neshama. Written in her voice — not a press release.
 
@@ -7,13 +7,40 @@ Everything Jordana needs to share Neshama. Written in her voice — not a press 
 
 ---
 
-## MESSAGE 1: From Erin to Jordana (follow-up)
+## WHAT'S NEW SINCE LAST TIME
+
+- **We launch TOMORROW — March 24**
+- 322 obituaries now (was 240+), 144 vendors, 14 subscribers, 2 active shivas
+- All 4 scrapers running daily (Steeles, Benjamin's, Paperman, Misaskim)
+- Daily email digest goes out 7 AM to subscribers
+- Passover starts **sundown April 1** — only 9 days away
+- Instagram content scheduled through March 30, Passover content planned
+
+## LAUNCH WEEK PRIORITY
+
+This week is everything. Goal: **15-25 WhatsApp groups by Mar 24.** Every message Jordana sends this week hits harder because the site is live and people can go look right now.
+
+---
+
+## PASSOVER TALKING POINT (new)
+
+Passover is 9 days away. When Jordana shares Neshama this week, she can mention:
+
+> "They also have a page about going through your first Passover after losing someone — neshama.ca/first-passover-after-loss. Worth saving for someone who might need it."
+
+This is the kind of thing people screenshot and forward. Timing is perfect.
+
+---
+
+## MESSAGE 1: From Erin to Jordana (launch week)
 
 Hey J,
 
-Neshama's been live for a bit now and people are actually using it. Toby called it "BRILLIANT" and Joelle said "It's actually amazing." We've had real people go through the whole thing.
+We're launching tomorrow. Everything is live — 322 obituaries, 144 vendors, daily email digest, meal coordination, all of it. 14 people have already subscribed.
 
-Your WhatsApp groups are the perfect audience. Can you drop one of the messages below into 2-3 groups this week? Copy-paste, 10 seconds. Pick whichever one sounds most like you.
+This is the week. Can you hit your WhatsApp groups today or tomorrow? Pick any message below, copy-paste, done. The earlier the better — launch day traffic matters.
+
+Also: Passover is April 1. We have a page for people going through their first Passover after a loss. Might be worth mentioning when you share.
 
 neshama.ca
 
@@ -85,3 +112,23 @@ Yes — neshama.ca/shiva/caterers has an application form. Or just email contact
 
 **"Is it legit?"**
 All the obituary info comes straight from the funeral home websites. Nothing weird, nothing hidden. No data collected.
+
+**"What about Passover?"**
+There's actually a whole page about navigating your first Passover after a loss — neshama.ca/first-passover-after-loss. Really gentle, really thoughtful. Worth sharing with anyone who might be dreading the seder this year.
+
+---
+
+## CONTENT CALENDAR (what's posting this week)
+
+| Date | Post |
+|------|------|
+| Mar 23 (today) | "Tomorrow changes everything" teaser |
+| Mar 24 | Launch announcement |
+| Mar 25 | 5 things every shiva guest should know |
+| Mar 26 | One feed, two cities |
+| Mar 27 | Meaning of Neshama |
+| Mar 28 | 3 ways to help a shiva family |
+| Mar 29 | Passover grief reflection |
+| Mar 30 | One week thank you |
+
+Follow @neshama.ca on Instagram and engage with the posts when they go up — likes and comments from real people help the algorithm show them to more of the community.

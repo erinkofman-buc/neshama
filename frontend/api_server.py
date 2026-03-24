@@ -487,6 +487,25 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.wfile.write(content)
             except FileNotFoundError:
                 self.send_404()
+        elif path.startswith('/img/') and path.endswith('.png'):
+            # Serve images from frontend/img/ subdirectories
+            rel_path = path.lstrip('/')
+            filepath = os.path.join(FRONTEND_DIR, rel_path)
+            filepath = os.path.realpath(filepath)
+            if not filepath.startswith(os.path.realpath(FRONTEND_DIR)):
+                self.send_404()
+                return
+            try:
+                with open(filepath, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/png')
+                self.send_header('Content-Length', str(len(content)))
+                self.send_header('Cache-Control', 'public, max-age=86400')
+                self.end_headers()
+                self.wfile.write(content)
+            except FileNotFoundError:
+                self.send_404()
         else:
             self.send_404()
 
@@ -694,6 +713,18 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     b'</body>',
                     b'<script defer src="/footer-subscribe.js"></script>\n</body>'
                 )
+                # Inject "How It Works" link into nav on all pages (skip demo.html — it's the target page)
+                if b'nav-group-secondary' in content and b'See How It Works - Neshama' not in content:
+                    hiw_link = b'<a href="/demo" class="nav-link nav-link-secondary">How It Works</a>\n                '
+                    content = content.replace(
+                        b'<a href="/about" class="nav-link nav-link-secondary">About</a>',
+                        hiw_link + b'<a href="/about" class="nav-link nav-link-secondary">About</a>'
+                    )
+                    # Handle about.html where About link has active class
+                    content = content.replace(
+                        b'<a href="/about" class="nav-link nav-link-secondary active">About</a>',
+                        hiw_link + b'<a href="/about" class="nav-link nav-link-secondary active">About</a>'
+                    )
 
             self.send_response(200)
             if content_type.startswith('text/') or content_type in ('application/javascript', 'application/manifest+json'):

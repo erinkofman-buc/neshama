@@ -139,7 +139,7 @@
 
         /* ── Filter Bar ── */
         .filter-bar {
-            max-width: 760px;
+            max-width: 960px;
             margin: 1.5rem auto 0;
             padding: 0 1.5rem;
         }
@@ -246,50 +246,87 @@
 
         /* ── Vendor Grid ── */
         .vendor-grid {
-            max-width: 760px;
+            max-width: 960px;
             margin: 1.5rem auto 0;
             padding: 0 1.5rem 4rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
         }
 
         .vendor-card {
             background: white;
             border-radius: 1rem;
-            padding: 2.5rem;
             box-shadow: 0 2px 12px var(--soft-shadow);
             display: flex;
             flex-direction: column;
             text-decoration: none;
             color: var(--dark-brown);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .vendor-card:hover {
             text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(62, 39, 35, 0.12);
+        }
+
+        .vendor-card-img {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .vendor-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .vendor-card-initial {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .vendor-card-body {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
         .vendor-card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
         }
 
         .vendor-card h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 500;
+            font-size: 1.35rem;
+            font-weight: 600;
             color: var(--dark-brown);
             line-height: 1.3;
         }
 
         .badge {
             display: inline-block;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.3rem 0.8rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 0.5rem;
             border: 1px solid var(--light-taupe);
             white-space: nowrap;
@@ -309,53 +346,88 @@
 
         .badges-row {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.35rem;
             flex-wrap: wrap;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
         .featured-badge {
             display: inline-block;
             background: #fdf6e3;
             color: #8b6914;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            padding: 0.2rem 0.6rem;
+            padding: 0.15rem 0.5rem;
             border-radius: 1rem;
             white-space: nowrap;
             flex-shrink: 0;
         }
 
         .vendor-category {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--terracotta);
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         .vendor-desc {
-            font-size: 1.1rem;
-            line-height: 1.85;
+            font-size: 0.95rem;
+            line-height: 1.65;
             color: var(--dark-brown);
             margin-bottom: 0.75rem;
             flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .vendor-meta {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             flex-wrap: wrap;
-            font-size: 1.05rem;
+            font-size: 0.85rem;
             color: var(--sage-dark);
             border-top: 1px solid rgba(210, 105, 30, 0.1);
-            padding-top: 0.75rem;
+            padding-top: 0.65rem;
             margin-top: auto;
+            align-items: center;
         }
 
         .vendor-meta span {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.25rem;
+        }
+
+        .vendor-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.5rem 1.25rem;
+            background: var(--terracotta);
+            color: white;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: auto;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .vendor-cta:hover {
+            background: #c45a1a;
+            text-decoration: none;
+            color: white;
+        }
+
+        .vendor-cta:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
         }
 
         .no-results {
@@ -365,6 +437,7 @@
             font-size: 1.1rem;
             grid-column: 1 / -1;
         }
+
 
         .no-results h3 {
             font-family: 'Cormorant Garamond', serif;
@@ -407,14 +480,18 @@
         }
 
         /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .vendor-grid { grid-template-columns: 1fr; max-width: 520px; }
+        }
+
         @media (max-width: 600px) {
             .hero h1 { font-size: 2.2rem; }
             .hero { padding: 2rem 1.5rem 1rem; }
             .filter-controls { flex-direction: column; }
             .search-box { min-width: 100%; }
             .filter-select, .filter-toggle { width: 100%; justify-content: center; }
-            .vendor-card { padding: 1.75rem 1.5rem; }
-            .vendor-card h3 { font-size: 1.5rem; }
+            .vendor-card-img { height: 120px; }
+            .vendor-card h3 { font-size: 1.25rem; }
             .footer-links { gap: 1.25rem; }
         }
     </style>
@@ -610,52 +687,102 @@
 
             resultCount.textContent = vendors.length + ' vendor' + (vendors.length !== 1 ? 's' : '') + ' found';
 
+            // Category color map for placeholder initials — uses substring matching
+            var catColorRules = [
+                { match: 'caterer', color: '#D2691E' },
+                { match: 'restaurant', color: '#8B6914' },
+                { match: 'bake', color: '#A0522D' },
+                { match: 'bagel', color: '#A0522D' },
+                { match: 'deli', color: '#6b7c6e' },
+                { match: 'gift', color: '#C9A96E' },
+                { match: 'chocolate', color: '#7a5230' },
+                { match: 'sweet', color: '#7a5230' },
+                { match: 'pizza', color: '#c45a1a' },
+                { match: 'sushi', color: '#5a7a6e' },
+                { match: 'japanese', color: '#5a7a6e' },
+                { match: 'mediterranean', color: '#8b7355' },
+                { match: 'middle eastern', color: '#8b7355' },
+                { match: 'israeli', color: '#8b7355' },
+                { match: 'italian', color: '#7a5230' },
+                { match: 'fruit', color: '#7a9e7e' },
+                { match: 'grocery', color: '#5C534A' },
+                { match: 'florist', color: '#7a9e7e' }
+            ];
+            var defaultColor = '#B2BEB5';
+
+            function getCatColor(category) {
+                var cat = (category || '').toLowerCase();
+                for (var j = 0; j < catColorRules.length; j++) {
+                    if (cat.indexOf(catColorRules[j].match) !== -1) return catColorRules[j].color;
+                }
+                return defaultColor;
+            }
+
             var html = '';
             for (var i = 0; i < vendors.length; i++) {
                 var v = vendors[i];
+                var color = getCatColor(v.category);
+                var initial = escapeHtml(v.name.charAt(0));
+
                 html += '<div class="vendor-card">';
-                html += '<a href="/help/food/' + v.slug + '" style="text-decoration:none;color:inherit;">';
+
+                // Clickable area: image + body content
+                html += '<a href="/help/food/' + encodeURIComponent(v.slug) + '" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex-grow:1;">';
+
+                // Image or branded placeholder
+                html += '<div class="vendor-card-img">';
+                if (v.image_url) {
+                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" width="460" height="140" loading="lazy">';
+                } else {
+                    html += '<div class="vendor-card-initial" style="background:' + color + ';">' + initial + '</div>';
+                }
+                html += '</div>';
+
+                html += '<div class="vendor-card-body">';
+                html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
                 html += '<div class="vendor-card-header">';
                 html += '<h3>' + escapeHtml(v.name) + '</h3>';
                 if (v.featured) {
                     html += '<span class="featured-badge">Featured</span>';
                 }
                 html += '</div>';
-                html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
+
                 var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery);
                 if (hasBadges) {
                     html += '<div class="badges-row">';
                     if (v.kosher_status === 'COR') {
-                        html += '<span class="badge kosher">COR Certified</span>';
+                        html += '<span class="badge kosher" title="COR Kosher Certified">COR</span>';
                     } else if (v.kosher_status === 'MK') {
-                        html += '<span class="badge kosher">MK Certified</span>';
+                        html += '<span class="badge kosher" title="MK Kosher Certified">MK</span>';
                     }
                     if (v.delivery) {
-                        html += '<span class="badge delivery">Delivery Available</span>';
+                        html += '<span class="badge delivery">Delivery</span>';
                     }
                     html += '</div>';
                 }
                 html += '<p class="vendor-desc">' + escapeHtml(v.description || '') + '</p>';
-                html += '</a>';
+                html += '</div>'; // close vendor-card-body
+                html += '</a>'; // close clickable area
+
+                // Meta row — outside the link to avoid nested <a> tags
                 html += '<div class="vendor-meta">';
                 if (v.neighborhood) {
                     html += '<span>' + escapeHtml(v.neighborhood) + '</span>';
                 }
                 if (v.phone) {
-                    html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dark-brown);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
+                    html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--sage-dark);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
                 }
-                html += '<span>' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span>';
+                // CTA button
                 if (v.website) {
-                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">Visit Website &rarr;</a>';
+                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta">Visit &rarr;</a>';
                 } else if (v.instagram) {
                     var ig = v.instagram.replace(/^@/, '');
                     var igUrl = 'https://instagram.com/' + ig;
-                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">@' + escapeHtml(ig) + ' &rarr;</a>';
-                } else if (v.phone) {
-                    html += '<a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--terracotta);text-decoration:none;font-weight:600;margin-left:auto;">Call ' + escapeHtml(v.phone) + '</a>';
+                    html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" class="vendor-cta">@' + escapeHtml(ig) + '</a>';
                 }
-                html += '</div>';
-                html += '</div>';
+                html += '</div>'; // close vendor-meta
+
+                html += '</div>'; // close vendor-card
             }
             vendorGrid.innerHTML = html;
         }
