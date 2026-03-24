@@ -397,21 +397,29 @@
         }
 
         .vendor-meta {
+            border-top: 1px solid rgba(210, 105, 30, 0.1);
+            padding: 0.75rem 1.5rem 1rem;
+            margin-top: auto;
+        }
+
+        .vendor-meta-info {
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
+            gap: 0.75rem;
             font-size: 0.9rem;
             color: var(--sage-dark);
-            border-top: 1px solid rgba(210, 105, 30, 0.1);
-            padding-top: 0.65rem;
-            margin-top: auto;
+            margin-bottom: 0.65rem;
             align-items: center;
         }
 
-        .vendor-meta span {
+        .vendor-meta-info span {
             display: flex;
             align-items: center;
             gap: 0.25rem;
+        }
+
+        .vendor-meta-actions {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .vendor-cta {
@@ -426,9 +434,10 @@
             font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
-            margin-left: auto;
             white-space: nowrap;
             transition: background 0.2s;
+            flex: 1;
+            text-align: center;
         }
 
         .vendor-cta:hover {
@@ -446,7 +455,6 @@
             background: transparent;
             color: var(--terracotta);
             border: 2px solid var(--terracotta);
-            margin-left: 0;
         }
 
         .vendor-cta-secondary:hover {
@@ -455,7 +463,8 @@
         }
 
         .vendor-cta-reach {
-            margin-left: auto;
+            flex: 1;
+            text-align: center;
         }
 
         .no-results {
@@ -814,13 +823,21 @@
 
                 // Meta row — outside the link to avoid nested <a> tags
                 html += '<div class="vendor-meta">';
-                if (v.neighborhood) {
-                    html += '<span>' + escapeHtml(v.neighborhood) + '</span>';
+
+                // Info line: neighborhood + phone
+                if (v.neighborhood || v.phone) {
+                    html += '<div class="vendor-meta-info">';
+                    if (v.neighborhood) {
+                        html += '<span>' + escapeHtml(v.neighborhood) + '</span>';
+                    }
+                    if (v.phone) {
+                        html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--sage-dark);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
+                    }
+                    html += '</div>';
                 }
-                if (v.phone) {
-                    html += '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--sage-dark);text-decoration:none;">' + escapeHtml(v.phone) + '</a></span>';
-                }
-                // CTA buttons
+
+                // Action buttons on their own row
+                html += '<div class="vendor-meta-actions">';
                 html += '<a href="/directory/' + encodeURIComponent(v.slug) + '#reach-out" class="vendor-cta vendor-cta-reach">Reach Out</a>';
                 if (v.website) {
                     html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(v.website) + '" target="_blank" rel="noopener" class="vendor-cta vendor-cta-secondary">Visit &rarr;</a>';
