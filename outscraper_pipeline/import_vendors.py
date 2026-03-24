@@ -64,7 +64,7 @@ def map_kosher_status(row):
     elif 'STAR-K' in cert or 'OU' in cert:
         return cert
     elif 'KOSHER STYLE' in cert or 'STYLE' in cert:
-        return 'Kosher Style'
+        return 'not_certified'
     return 'not_certified'
 
 
