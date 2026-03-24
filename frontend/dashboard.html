@@ -484,6 +484,22 @@
         </div>
     </div>
 
+    <!-- ═══════ SUBSCRIBERS ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Recent Subscribers</h2>
+        <div id="subscribers-list" style="display:flex;flex-direction:column;gap:0.5rem;">
+            <p style="color:var(--text-secondary);font-size:0.95rem;">Loading...</p>
+        </div>
+    </div>
+
+    <!-- ═══════ ACTIVE SHIVA PAGES ═══════ -->
+    <div class="dash-section">
+        <h2 class="section-header">Active Shiva Pages</h2>
+        <div id="active-shivas-list" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <p style="color:var(--text-secondary);font-size:0.95rem;">Loading...</p>
+        </div>
+    </div>
+
     <!-- ═══════ RECENT ACTIVITY ═══════ -->
     <div class="dash-section">
         <h2 class="section-header">Recent Activity</h2>
@@ -869,6 +885,55 @@
         });
     }
 
+    async function fetchSubscribers() {
+        const data = await fetchJSON(`${BASE}/api/dashboard-stats`);
+        const container = document.getElementById('subscribers-list');
+        if (!container) return;
+
+        let subs = (data && data.data && data.data.recent_subscribers) || [];
+        if (subs.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);font-size:0.95rem;">No subscribers yet.</p>';
+            return;
+        }
+
+        container.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;">' +
+            '<tr style="border-bottom:1px solid #e8e0d8;"><th style="text-align:left;padding:0.5rem 0;color:#6b7c6e;">Email</th><th style="text-align:left;padding:0.5rem 0;color:#6b7c6e;">Frequency</th><th style="text-align:left;padding:0.5rem 0;color:#6b7c6e;">Cities</th><th style="text-align:left;padding:0.5rem 0;color:#6b7c6e;">Joined</th></tr>' +
+            subs.map(s => `<tr style="border-bottom:1px solid #f0ebe6;">
+                <td style="padding:0.4rem 0;">${escapeHTML(s.email)}</td>
+                <td style="padding:0.4rem 0;">${escapeHTML(s.frequency || 'daily')}</td>
+                <td style="padding:0.4rem 0;">${escapeHTML(s.locations || 'toronto,montreal')}</td>
+                <td style="padding:0.4rem 0;">${formatDate(s.subscribed_at)}</td>
+            </tr>`).join('') + '</table>';
+    }
+
+    async function fetchActiveShivas() {
+        const data = await fetchJSON(`${BASE}/api/dashboard-stats`);
+        const container = document.getElementById('active-shivas-list');
+        if (!container) return;
+
+        let shivas = (data && data.data && data.data.active_shivas) || [];
+        if (shivas.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);font-size:0.95rem;">No active shiva pages right now.</p>';
+            return;
+        }
+
+        container.innerHTML = shivas.map(s => `
+            <div style="background:white;border-radius:0.75rem;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <div>
+                        <strong style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#3E2723;">${escapeHTML(s.family_name)} Family</strong>
+                        <div style="font-size:0.9rem;color:#6b7c6e;margin-top:0.25rem;">
+                            ${escapeHTML(s.shiva_start_date || '')} — ${escapeHTML(s.shiva_end_date || '')}
+                            &middot; Organized by ${escapeHTML(s.organizer_name || '')}
+                            &middot; ${s.signup_count || 0} meal signup${(s.signup_count || 0) !== 1 ? 's' : ''}
+                        </div>
+                    </div>
+                    <a href="/shiva/${encodeURIComponent(s.id)}" target="_blank" style="background:#D2691E;color:white;padding:0.4rem 1rem;border-radius:2rem;text-decoration:none;font-size:0.85rem;font-weight:500;white-space:nowrap;">View Page</a>
+                </div>
+            </div>
+        `).join('');
+    }
+
     // ── Refresh Logic ─────────────────────────────────────
 
     async function refreshAll() {
@@ -880,7 +945,9 @@
                 fetchOverviewStats(),
                 fetchVendorClicks(),
                 fetchReferralStats(),
-                fetchRecentActivity()
+                fetchRecentActivity(),
+                fetchActiveShivas(),
+                fetchSubscribers()
             ]);
         } catch (err) {
             console.error('[Dashboard] Refresh error:', err);

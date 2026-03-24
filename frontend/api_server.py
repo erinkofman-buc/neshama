@@ -1552,6 +1552,45 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass
 
+            # Recent subscribers (masked emails for dashboard)
+            recent_subscribers = []
+            try:
+                cursor.execute('''
+                    SELECT email, confirmed, frequency, locations, subscribed_at
+                    FROM subscribers
+                    WHERE confirmed = TRUE AND unsubscribed_at IS NULL
+                    ORDER BY subscribed_at DESC
+                    LIMIT 20
+                ''')
+                for r in cursor.fetchall():
+                    email = r[0]
+                    local, domain = email.split('@', 1) if '@' in email else (email, '')
+                    masked = local[0] + '***@' + domain if len(local) > 1 else '***@' + domain
+                    recent_subscribers.append({
+                        'email': masked,
+                        'frequency': r[2],
+                        'locations': r[3],
+                        'subscribed_at': r[4]
+                    })
+            except Exception:
+                pass
+
+            # Active shiva pages (for dashboard — no private addresses)
+            active_shivas = []
+            try:
+                cursor.execute('''
+                    SELECT s.id, s.family_name, s.shiva_start_date, s.shiva_end_date,
+                           s.organizer_name, s.created_at,
+                           (SELECT COUNT(*) FROM meal_signups ms WHERE ms.shiva_support_id = s.id) as signup_count
+                    FROM shiva_support s
+                    WHERE s.status = 'active'
+                    ORDER BY s.created_at DESC
+                    LIMIT 20
+                ''')
+                active_shivas = [dict(row) for row in cursor.fetchall()]
+            except Exception:
+                pass
+
             conn.close()
 
             self.send_json_response({
@@ -1566,7 +1605,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     'total_clicks': total_clicks,
                     'vendor_clicks': vendor_clicks,
                     'recent_obituaries': recent_obituaries,
-                    'recent_tributes': recent_tributes
+                    'recent_tributes': recent_tributes,
+                    'active_shivas': active_shivas,
+                    'recent_subscribers': recent_subscribers
                 }
             })
         except Exception as e:
