@@ -2708,6 +2708,38 @@ button:hover{background:#c45a1a}</style></head>
             self.send_404()
             return
 
+        # Validate destination matches a known vendor URL in the database
+        try:
+            db_path = self.get_db_path()
+            conn = _connect_db(db_path)
+            cursor = conn.cursor()
+            dest_domain = parsed_dest.netloc.lower().replace('www.', '')
+            cursor.execute("SELECT website, instagram FROM vendors WHERE slug = ?", (vendor_slug,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                known_urls = [row[0] or '', row[1] or '']
+                known_domains = set()
+                for u in known_urls:
+                    try:
+                        p = urlparse(u if '://' in u else 'https://' + u)
+                        if p.netloc:
+                            known_domains.add(p.netloc.lower().replace('www.', ''))
+                    except Exception:
+                        pass
+                known_domains.add('instagram.com')  # always allow IG links
+                if dest_domain not in known_domains:
+                    logging.warning(f"[Click] Blocked redirect to unknown domain: {dest_url} (vendor: {vendor_slug})")
+                    self.send_404()
+                    return
+            else:
+                logging.warning(f"[Click] Unknown vendor slug: {vendor_slug}")
+                self.send_404()
+                return
+        except Exception as e:
+            logging.error(f"[Click] Vendor validation error: {e}")
+            # On error, fail open but log — don't block legitimate traffic
+
         # Log click to database
         try:
             db_path = self.get_db_path()

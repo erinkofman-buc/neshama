@@ -379,10 +379,6 @@
             .footer-links { gap: 1.25rem; }
         }
     </style>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Neshama — Every Soul Remembered">
-    <meta name="twitter:description" content="Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.">
-    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
@@ -545,6 +541,12 @@
         function renderVendor() {
             var v = vendor;
             document.title = v.name + ' - Neshama';
+            var canon = document.querySelector('link[rel=canonical]');
+            if (canon) canon.href = 'https://neshama.ca/directory/' + encodeURIComponent(slug);
+            var ogUrl = document.querySelector('meta[property="og:url"]');
+            if (ogUrl) ogUrl.content = 'https://neshama.ca/directory/' + encodeURIComponent(slug);
+            var ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.content = v.name + ' - Neshama';
 
             document.getElementById('vendorName').textContent = v.name;
             document.getElementById('breadcrumbName').textContent = v.name;

@@ -324,7 +324,7 @@
 
         .badge {
             display: inline-block;
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             font-weight: 600;
             padding: 0.2rem 0.6rem;
             border-radius: 0.5rem;
@@ -354,8 +354,8 @@
         .featured-badge {
             display: inline-block;
             background: #fdf6e3;
-            color: #8b6914;
-            font-size: 0.7rem;
+            color: #7a5c10;
+            font-size: 0.875rem;
             font-weight: 600;
             padding: 0.15rem 0.5rem;
             border-radius: 1rem;
@@ -364,7 +364,7 @@
         }
 
         .vendor-category {
-            font-size: 0.8rem;
+            font-size: 0.875rem;
             color: var(--terracotta);
             font-weight: 600;
             margin-bottom: 0.35rem;
@@ -388,7 +388,7 @@
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--sage-dark);
             border-top: 1px solid rgba(210, 105, 30, 0.1);
             padding-top: 0.65rem;
@@ -411,7 +411,7 @@
             background: var(--terracotta);
             color: white;
             border-radius: 2rem;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
             margin-left: auto;
@@ -575,10 +575,10 @@
     <div style="max-width:960px;margin:0 auto 1.25rem;padding:0 2rem;">
         <div style="background:var(--cream);border:1px solid var(--light-taupe);border-radius:0.75rem;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
             <div>
-                <strong style="color:var(--brown);font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Own a food business?</strong>
-                <span style="color:var(--sage-dark);font-size:0.95rem;margin-left:0.5rem;">Get listed free or become a Featured Partner.</span>
+                <strong style="color:var(--brown);font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Serve the community through Neshama</strong>
+                <span style="color:var(--sage-dark);font-size:0.95rem;margin-left:0.5rem;">Food vendors can join our free directory.</span>
             </div>
-            <a href="/shiva/caterers/apply" style="background:var(--terracotta);color:white;padding:0.5rem 1.25rem;border-radius:2rem;text-decoration:none;font-size:0.9rem;font-weight:500;white-space:nowrap;">Apply Now</a>
+            <a href="/shiva/caterers/apply" style="background:var(--terracotta);color:white;padding:0.5rem 1.25rem;border-radius:2rem;text-decoration:none;font-size:0.9rem;font-weight:500;white-space:nowrap;">Learn More</a>
         </div>
     </div>
 
@@ -744,7 +744,7 @@
                 // Image or branded placeholder
                 html += '<div class="vendor-card-img">';
                 if (v.image_url) {
-                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" width="460" height="140" loading="lazy">';
+                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" width="460" height="140" loading="lazy" referrerpolicy="no-referrer">';
                 } else {
                     html += '<div class="vendor-card-initial" style="background:' + color + ';">' + initial + '</div>';
                 }
@@ -793,9 +793,6 @@
                     html += '<a href="/api/track-click?vendor=' + encodeURIComponent(v.slug) + '&dest=' + encodeURIComponent(igUrl) + '" target="_blank" rel="noopener" class="vendor-cta">@' + escapeHtml(ig) + '</a>';
                 }
                 html += '</div>'; // close vendor-meta
-
-                // Claim listing link
-                html += '<div style="text-align:center;padding:0 1rem 0.75rem;"><a href="/partner?vendor=' + encodeURIComponent(v.slug) + '" style="font-size:0.8rem;color:var(--sage-dark);text-decoration:none;opacity:0.7;">Is this your business?</a></div>';
 
                 html += '</div>'; // close vendor-card
             }
