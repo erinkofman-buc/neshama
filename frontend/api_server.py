@@ -136,7 +136,7 @@ try:
     import sys as _sys
     if sys_path_parent not in _sys.path:
         _sys.path.insert(0, sys_path_parent)
-    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails
+    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images
     VENDORS_AVAILABLE = True
 except Exception as e:
     VENDORS_AVAILABLE = False
@@ -6014,7 +6014,8 @@ def run_server(port=None):
         try:
             seed_vendors(DB_PATH)
             backfill_vendor_emails(DB_PATH)
-            logging.info(f" Vendor directory: Seeded")
+            enrich_vendor_images(DB_PATH)
+            logging.info(f" Vendor directory: Seeded + enriched")
         except Exception as e:
             logging.info(f" Vendor seed: {e}")
 

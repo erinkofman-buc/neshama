@@ -2242,6 +2242,45 @@ def backfill_vendor_emails(db_path=None):
     return updated
 
 
+def enrich_vendor_images(db_path=None):
+    """Apply vendor image/instagram/phone enrichment from outscraper pipeline.
+    Safe to run multiple times — all UPDATEs are conditional (only where NULL)."""
+    path = db_path or DB_PATH
+    enrichment_sql = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outscraper_pipeline', 'vendor_enrichment.sql')
+    if not os.path.exists(enrichment_sql):
+        logging.info("No vendor_enrichment.sql found. Skipping image enrichment.")
+        return 0
+
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    # Count images before
+    cursor.execute("SELECT COUNT(*) FROM vendors WHERE image_url IS NOT NULL AND image_url != ''")
+    before = cursor.fetchone()[0]
+
+    with open(enrichment_sql, 'r') as f:
+        sql = f.read()
+
+    for statement in sql.split(';'):
+        stmt = statement.strip()
+        if stmt and not stmt.startswith('--'):
+            try:
+                cursor.execute(stmt)
+            except Exception as e:
+                logging.warning(f"Enrichment SQL error: {e} — statement: {stmt[:80]}")
+
+    conn.commit()
+
+    cursor.execute("SELECT COUNT(*) FROM vendors WHERE image_url IS NOT NULL AND image_url != ''")
+    after = cursor.fetchone()[0]
+    updated = after - before
+
+    conn.close()
+    logging.info(f"Image enrichment: {updated} vendor(s) updated ({after} total with images)")
+    return updated
+
+
 if __name__ == '__main__':
     seed_vendors()
     backfill_vendor_emails()
+    enrich_vendor_images()
