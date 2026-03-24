@@ -33,6 +33,8 @@ If you'd ever prefer we adjust the format, add your logo, or switch to a direct 
 
 I'd love for this to be a partnership. If there's a way Neshama can be useful to your families — a link on your website, a mention during arrangements, a resource card in your office — I'd be grateful. And if there's anything you'd like changed about how we present your listings, just say the word.
 
+Here's a quick walkthrough of how it all works: neshama.ca/demo
+
 Happy to meet in person or hop on a call anytime.
 
 Warm regards,

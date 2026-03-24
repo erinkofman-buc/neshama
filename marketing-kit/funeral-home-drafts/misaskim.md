@@ -35,6 +35,8 @@ If you'd prefer a different format, or if there's a better way to pull data than
 
 I think there's a natural overlap between what Misaskim does and what Neshama offers. If there's a way we could support each other's work — cross-linking, sharing resources, co-promoting to the community — I'd love to explore that. Your reach and reputation could help families discover tools that make coordination easier, and Neshama can help drive awareness of the support Misaskim provides.
 
+Here's a quick walkthrough of how it all works: neshama.ca/demo
+
 Happy to talk anytime.
 
 Warm regards,

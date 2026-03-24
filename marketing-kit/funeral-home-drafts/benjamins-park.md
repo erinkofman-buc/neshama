@@ -33,6 +33,8 @@ If you'd prefer a different format, want your logo included, or would rather pro
 
 I think there's a natural fit here. If there's a way Neshama could be useful to your families — a link on your resources page, a mention during arrangements, a printed card for the chapel — I'd be grateful for the partnership. And if anything about your listings needs adjusting, just let me know.
 
+Here's a quick walkthrough of how it all works: neshama.ca/demo
+
 Happy to meet in person or hop on a call anytime.
 
 Warm regards,
