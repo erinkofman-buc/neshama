@@ -599,6 +599,28 @@
             var claimLink = document.getElementById('claimLink');
             if (claimLink) claimLink.href = '/partner?vendor=' + encodeURIComponent(slug);
 
+            var schemaScript = document.getElementById('vendorSchema');
+            if (!schemaScript) {
+                schemaScript = document.createElement('script');
+                schemaScript.type = 'application/ld+json';
+                schemaScript.id = 'vendorSchema';
+                document.head.appendChild(schemaScript);
+            }
+            var schema = {
+                "@context": "https://schema.org",
+                "@type": "FoodEstablishment",
+                "name": v.name,
+                "description": v.description || '',
+                "url": v.website || ('https://neshama.ca/directory/' + slug)
+            };
+            if (v.address) schema.address = {"@type": "PostalAddress", "streetAddress": v.address};
+            if (v.phone) schema.telephone = v.phone;
+            if (v.image_url) schema.image = v.image_url;
+            if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                schema.additionalProperty = {"@type": "PropertyValue", "name": "Kosher Certification", "value": v.kosher_status};
+            }
+            schemaScript.textContent = JSON.stringify(schema);
+
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         }
