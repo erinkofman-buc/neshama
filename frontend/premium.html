@@ -27,7 +27,7 @@
     <style>
         :root {
             --sage: #B2BEB5;
-            --sage-dark: #6b7c6e;
+            --sage-dark: #556258;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
             --cream: #FAF9F6;
@@ -347,7 +347,7 @@
         /* Disclaimer */
         .disclaimer {
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--sage-dark);
             margin-bottom: 3.5rem;
             line-height: 1.6;
@@ -420,7 +420,7 @@
 
         #emailError {
             color: var(--dark-brown);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             margin-top: 0.4rem;
         }
 
@@ -448,7 +448,7 @@
 
         .footer-links a:hover { color: var(--terracotta); }
 
-        .footer-copy { font-size: 0.85rem; color: var(--sage-dark); }
+        .footer-copy { font-size: 1rem; color: var(--sage-dark); }
 
         @media (max-width: 768px) {
             .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
@@ -468,10 +468,20 @@
             .cta-btn { padding: 1rem 2.5rem; font-size: 1.1rem; }
         }
     </style>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sustain Neshama">
-    <meta name="twitter:description" content="Help keep Neshama free for every family.">
-    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Sustain Neshama",
+      "url": "https://neshama.ca/sustain",
+      "description": "Neshama is free and always will be. Your support keeps obituary listings, meal coordination, and community resources available for every family.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Neshama",
+        "url": "https://neshama.ca"
+      }
+    }
+    </script>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
