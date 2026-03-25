@@ -67,6 +67,7 @@ API_ENDPOINTS = [
     "/api/referral-stats",
     "/api/subscribers/count",
     "/api/tributes/counts",
+    "/api/dashboard-stats",
 ]
 
 # ── Helpers ─────────────────────────────────────────────────
@@ -147,6 +148,23 @@ def test_apis(base_url):
                         detail = f"Degraded: {', '.join(failed)}"
                     else:
                         detail = f"All systems OK"
+                elif endpoint == "/api/dashboard-stats":
+                    # Verify response structure
+                    if data.get("status") != "success":
+                        detail = "Missing status: success"
+                        ok = False
+                    else:
+                        dash_data = data.get("data", {})
+                        required_keys = ["obituaries", "vendors", "subscribers", "active_shiva"]
+                        missing = [k for k in required_keys if k not in dash_data]
+                        if missing:
+                            detail = f"Missing data keys: {', '.join(missing)}"
+                            ok = False
+                        else:
+                            detail = (f"OK — {dash_data['obituaries']} obits, "
+                                      f"{dash_data['vendors']} vendors, "
+                                      f"{dash_data['subscribers']} subs, "
+                                      f"{dash_data['active_shiva']} active shiva")
                 else:
                     detail = "Valid JSON"
             except json.JSONDecodeError:
