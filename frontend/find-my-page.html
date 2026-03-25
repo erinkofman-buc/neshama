@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find My Page - Neshama</title>
     <meta name="description" content="Lost your shiva page or meal signup link? Enter your email and we'll send you all your Neshama links.">
@@ -46,6 +47,8 @@
             min-height: 100vh;
         }
 
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 1rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
         a:focus-visible, button:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; border-radius: 4px; }
 
         /* ── Navigation ── */
@@ -95,7 +98,7 @@
         .form-group { margin-bottom: 1.5rem; }
         .form-group label {
             display: block;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 500;
             color: var(--dark-brown);
             margin-bottom: 0.5rem;
@@ -131,11 +134,11 @@
         .submit-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); }
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .error-text { color: #c62828; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+        .error-text { color: #c62828; font-size: 1rem; margin-bottom: 1rem; display: none; }
 
         .help-text {
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--sage-dark);
             margin-top: 1.25rem;
             line-height: 1.6;
@@ -200,9 +203,24 @@
             .result-message { margin: 0 1rem 3rem; padding: 1.75rem 1.5rem; }
         }
     </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Find My Page",
+      "description": "Lost your shiva page or meal signup link? Enter your email and we'll send you all your Neshama links.",
+      "url": "https://neshama.ca/find-my-page",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Neshama",
+        "url": "https://neshama.ca"
+      }
+    }
+    </script>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <nav class="top-nav" aria-label="Main navigation">
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
@@ -222,7 +240,7 @@
         </button>
     </nav>
 
-    <main>
+    <main id="main-content">
         <header class="hero">
             <h1>Find My Page</h1>
             <p class="subtitle">Lost a link? Enter your email and we'll send you all your Neshama pages.</p>
