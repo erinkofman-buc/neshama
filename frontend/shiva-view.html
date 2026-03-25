@@ -47,6 +47,11 @@
             --red-light: #ffebee;
             --red-mid: #ef9a9a;
             --red-text: #c62828;
+            --amber-light: #FFF0ED;
+            --amber-mid: #D2691E;
+            --amber-text: #A0522D;
+            --sage-light: #f1f5ee;
+            --sage-mid: #B2BEB5;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -366,18 +371,18 @@
         }
 
         .meal-day-card.day-full {
-            border-left-color: var(--red-mid);
-            background: linear-gradient(135deg, var(--red-light) 0%, white 40%);
+            border-left-color: var(--green-mid);
+            background: linear-gradient(135deg, var(--green-light) 0%, white 40%);
         }
 
         .meal-day-card.day-partial {
-            border-left-color: var(--gold);
-            background: linear-gradient(135deg, #fff8e1 0%, white 40%);
+            border-left-color: var(--sage-mid);
+            background: linear-gradient(135deg, var(--sage-light) 0%, white 40%);
         }
 
         .meal-day-card.day-empty {
-            border-left-color: var(--green-mid);
-            background: linear-gradient(135deg, var(--green-light) 0%, white 40%);
+            border-left-color: var(--amber-mid);
+            background: linear-gradient(135deg, var(--amber-light) 0%, white 40%);
         }
 
         /* ── Coverage Summary ──────────────────────────── */
@@ -405,9 +410,9 @@
             flex-shrink: 0;
         }
 
-        .coverage-dot.green { background: var(--green-mid); }
-        .coverage-dot.yellow { background: var(--gold); }
-        .coverage-dot.red { background: var(--red-mid); }
+        .coverage-dot.green { background: var(--amber-mid); }
+        .coverage-dot.yellow { background: var(--sage-mid); }
+        .coverage-dot.red { background: var(--green-mid); }
 
         .coverage-bar {
             width: 100%;
@@ -440,15 +445,15 @@
         }
 
         .meal-day-card.day-full .meal-day-header {
-            background: var(--red-light);
+            background: var(--green-light);
         }
 
         .meal-day-card.day-partial .meal-day-header {
-            background: #fff8e1;
+            background: var(--sage-light);
         }
 
         .meal-day-card.day-empty .meal-day-header {
-            background: var(--green-light);
+            background: var(--amber-light);
         }
 
         .meal-day-card.shabbat .meal-day-header {
@@ -492,27 +497,27 @@
             margin-bottom: 0.3rem;
         }
 
-        /* ── Available Slot (green) ──────────────────────── */
+        /* ── Available Slot (warm amber — needs help) ──────── */
 
         .meal-slot.available {
-            background: var(--green-light);
+            background: var(--amber-light);
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            border-left: 4px solid var(--green-mid);
+            border-left: 4px solid var(--amber-mid);
             user-select: none;
         }
 
         .meal-slot.available:hover,
         .meal-slot.available:active {
-            background: #dcedc8;
+            background: #ffe0d6;
         }
 
         .meal-slot.available .meal-slot-label {
-            color: var(--green-text);
+            color: var(--amber-text);
         }
 
         .meal-slot.available .slot-action {
-            color: #689f38;
+            color: var(--amber-text);
             font-size: 0.9rem;
             font-weight: 600;
         }
@@ -1351,9 +1356,9 @@
                 print-color-adjust: exact;
             }
 
-            .coverage-dot.green { background: #4caf50 !important; }
-            .coverage-dot.yellow { background: #ff9800 !important; }
-            .coverage-dot.red { background: #f44336 !important; }
+            .coverage-dot.green { background: #D2691E !important; }
+            .coverage-dot.yellow { background: #B2BEB5 !important; }
+            .coverage-dot.red { background: #4caf50 !important; }
 
             /* Day cards — table-like */
             .meal-calendar {
@@ -1798,6 +1803,23 @@
             </div>
             <div id="coverageSummary"></div>
             <div class="meal-calendar" id="mealCalendar"></div>
+            <div id="calendarLegend" style="display: none; margin-top: 1rem; padding: 0.75rem 1rem; background: white; border-radius: 0.6rem; border: 1px solid rgba(212, 197, 185, 0.25);">
+                <div style="font-size: 0.78rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Calendar Key</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; font-size: 0.82rem; color: var(--sage-dark);">
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--green-light); border-left: 3px solid var(--green-mid); flex-shrink: 0;"></span> Covered
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--sage-light); border-left: 3px solid var(--sage-mid); flex-shrink: 0;"></span> Partial
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--amber-light); border-left: 3px solid var(--amber-mid); flex-shrink: 0;"></span> Help needed
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #f8f5f0; border-left: 3px solid var(--gold); flex-shrink: 0;"></span> Shabbat
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Can't Cook? Alternative Options -->
@@ -2748,18 +2770,19 @@
                 pageUrl += '?access=' + encodeURIComponent(supportData.share_token);
             }
             var familyName = supportData.family_name || 'the family';
-            var shareMessage = isOrganizerMode
-                ? 'Help coordinate meals for ' + familyName + '\'s shiva: ' + pageUrl
-                : familyName + ' \u2014 shiva meal coordination on Neshama: ' + pageUrl;
+            var whatsAppMessage = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals \u2014 sign up for a day: ' + pageUrl;
+            var emailSubject = 'Shiva meals for the ' + familyName + ' family \u2014 sign up to help';
+            var emailBody = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals so the family is taken care of.\n\nIf you\u2019d like to sign up to bring a meal, you can do so here:\n' + pageUrl + '\n\nEvery meal makes a difference. Thank you for being part of this community.';
+            var smsMessage = 'The ' + familyName + ' family is sitting shiva. Sign up to bring a meal: ' + pageUrl;
 
             // Build share menu with multiple options
             var shareMenu = document.createElement('div');
             shareMenu.id = 'shareMenu';
             shareMenu.style.cssText = 'display:none; position:absolute; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(62,39,35,0.15); padding:0.5rem; margin-top:0.5rem; z-index:50; min-width:200px;';
             var shareOptions = [
-                { label: 'WhatsApp', icon: '\uD83D\uDCAC', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage), '_blank'); } },
-                { label: 'Email', icon: '\u2709\uFE0F', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(familyName + ' — Shiva Support') + '&body=' + encodeURIComponent(shareMessage); } },
-                { label: 'Text Message', icon: '\uD83D\uDCF1', action: function() { window.location.href = 'sms:?body=' + encodeURIComponent(shareMessage); } },
+                { label: 'WhatsApp', icon: '\uD83D\uDCAC', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppMessage), '_blank'); } },
+                { label: 'Email', icon: '\u2709\uFE0F', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody); } },
+                { label: 'Text Message', icon: '\uD83D\uDCF1', action: function() { var ua = navigator.userAgent; var sep = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?'; window.location.href = 'sms:' + sep + 'body=' + encodeURIComponent(smsMessage); } },
                 { label: 'Copy Link', icon: '\uD83D\uDD17', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
             ];
             shareOptions.forEach(function(opt) {
@@ -2973,11 +2996,11 @@
                     var lunchS = signupMap[dateStr + '_Lunch'] || [];
                     var dinnerS = signupMap[dateStr + '_Dinner'] || [];
                     if (lunchS.length > 0 && dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--red-text);font-weight:600;">Covered</span>';
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
                     } else if (lunchS.length > 0 || dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:#F57F17;font-weight:600;">Needs help</span>';
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
                     } else {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Help needed</span>';
+                        statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
                     }
                 }
 
@@ -3012,6 +3035,10 @@
 
             document.getElementById('mealCalendar').innerHTML = html;
 
+            // Show calendar legend
+            var legendEl = document.getElementById('calendarLegend');
+            if (legendEl) legendEl.style.display = '';
+
             // Render coverage summary
             var summaryEl = document.getElementById('coverageSummary');
             if (summaryEl && totalSlots > 0) {
@@ -3020,9 +3047,9 @@
                 summaryEl.innerHTML =
                     '<div class="coverage-bar"><div class="coverage-bar-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
                     '<div class="coverage-summary">' +
-                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + emptyDays + ' need help</div>' +
-                    '<div class="coverage-stat"><span class="coverage-dot yellow"></span>' + partialDays + ' partial</div>' +
                     '<div class="coverage-stat"><span class="coverage-dot red"></span>' + fullDays + ' covered</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot yellow"></span>' + partialDays + ' partial</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + emptyDays + ' need help</div>' +
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {

@@ -1474,7 +1474,16 @@
             }
         }
 
-        document.getElementById('shivaStartDate').addEventListener('change', buildMealBlockingGrid);
+        document.getElementById('shivaStartDate').addEventListener('change', function() {
+            var startVal = this.value;
+            if (startVal) {
+                var startDate = new Date(startVal + 'T00:00:00');
+                var endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + 7);
+                document.getElementById('shivaEndDate').value = endDate.toISOString().split('T')[0];
+            }
+            buildMealBlockingGrid();
+        });
         document.getElementById('shivaEndDate').addEventListener('change', buildMealBlockingGrid);
         document.getElementById('pauseShabbat').addEventListener('change', buildMealBlockingGrid);
 
@@ -1759,16 +1768,16 @@
 
         window.shareWhatsApp = function() {
             var pageUrl = getShareUrl();
-            var familyVal = (document.getElementById('familyName') || {}).value || '';
-            var text = 'A shiva support page has been set up to coordinate meals' + (familyVal ? ' for ' + familyVal : '') + '. You can sign up to help here: ' + pageUrl;
+            var familyVal = (document.getElementById('familyName') || {}).value || 'the';
+            var text = 'The ' + familyVal + ' family is sitting shiva. Friends are organizing meals \u2014 sign up for a day: ' + pageUrl;
             window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
         };
 
         window.shareEmail = function() {
             var pageUrl = getShareUrl();
-            var familyVal = (document.getElementById('familyName') || {}).value || '';
-            var subject = familyVal ? familyVal + ' — Shiva Meal Coordination' : 'Shiva Support Page - Help Coordinate Meals';
-            var body = 'A shiva support page has been set up to help coordinate meals' + (familyVal ? ' for ' + familyVal : ' for the family') + '.\n\nYou can view the page and sign up to bring a meal here:\n' + pageUrl + '\n\nThank you for being part of this community.';
+            var familyVal = (document.getElementById('familyName') || {}).value || 'the';
+            var subject = 'Shiva meals for the ' + familyVal + ' family \u2014 sign up to help';
+            var body = 'The ' + familyVal + ' family is sitting shiva. Friends are organizing meals so the family is taken care of.\n\nIf you\u2019d like to sign up to bring a meal, you can do so here:\n' + pageUrl + '\n\nEvery meal makes a difference. Thank you for being part of this community.';
             var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
             var w = window.open(mailtoUrl, '_self');
             // If browser blocks mailto, show fallback with copyable link
@@ -1796,7 +1805,8 @@
 
         window.shareSMS = function() {
             var pageUrl = getShareUrl();
-            var text = 'A shiva support page has been set up to coordinate meals. Sign up to help: ' + pageUrl;
+            var familyVal = (document.getElementById('familyName') || {}).value || 'the';
+            var text = 'The ' + familyVal + ' family is sitting shiva. Sign up to bring a meal: ' + pageUrl;
             var ua = navigator.userAgent;
             var separator = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?';
             window.location.href = 'sms:' + separator + 'body=' + encodeURIComponent(text);
