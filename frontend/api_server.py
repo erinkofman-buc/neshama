@@ -137,7 +137,7 @@ try:
     if sys_path_parent not in _sys.path:
         _sys.path.insert(0, sys_path_parent)
     from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images, backfill_vendor_cities
-    from city_config import get_cities_for_api, get_valid_location_set
+    from city_config import get_cities_for_api, get_valid_location_set, get_city_slugs, get_city_by_slug
     VENDORS_AVAILABLE = True
 except Exception as e:
     VENDORS_AVAILABLE = False
@@ -474,6 +474,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self._log_request('GET', path, 301, _req_start)
             return
+        # City landing pages (e.g. /toronto, /south-florida)
+        elif VENDORS_AVAILABLE and path.strip('/') in get_city_slugs():
+            self.serve_city_landing(path.strip('/'))
         elif path in self.STATIC_FILES:
             self.serve_static(path)
         elif path.startswith('/ig-temp/') and path.endswith('.png'):
@@ -1126,6 +1129,83 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 self.send_json_response({'status': 'error', 'message': 'Obituary not found'}, 404)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def serve_city_landing(self, city_slug):
+        """Serve a city-specific SEO landing page from the template."""
+        template_path = os.path.join(FRONTEND_DIR, 'city-landing-template.html')
+        try:
+            with open(template_path, 'r', encoding='utf-8') as f:
+                template = f.read()
+        except FileNotFoundError:
+            self.send_404()
+            return
+
+        city = get_city_by_slug(city_slug)
+        if not city:
+            self.send_404()
+            return
+
+        display_name = city['display_name']
+        seo = city.get('seo', {})
+
+        # Build funeral homes list items
+        fh_items = []
+        for _key, name in city.get('funeral_homes', {}).items():
+            fh_items.append(
+                '<li><span class="fh-icon" aria-hidden="true">&#x2726;</span> '
+                + html_mod.escape(name) + '</li>'
+            )
+        funeral_homes_html = '\n                '.join(fh_items) if fh_items else '<li>Funeral homes coming soon</li>'
+
+        # Build neighborhoods string
+        neighborhoods = city.get('neighborhoods', [])
+        if neighborhoods:
+            neighborhoods_html = ' &bull; '.join(html_mod.escape(n) for n in neighborhoods)
+        else:
+            neighborhoods_html = display_name
+
+        # Build hero description from funeral home names
+        fh_names = list(city.get('funeral_homes', {}).values())
+        if fh_names:
+            if len(fh_names) <= 3:
+                fh_list_text = ', '.join(fh_names)
+            else:
+                fh_list_text = ', '.join(fh_names[:3]) + ', and more'
+            hero_desc = 'Obituaries from ' + fh_list_text + ' — updated daily.'
+        else:
+            hero_desc = 'Obituaries from ' + display_name + "'s Jewish funeral homes — updated daily."
+
+        # Build cross-links to other cities
+        all_slugs = get_city_slugs()
+        cross_links = []
+        for slug in all_slugs:
+            if slug != city_slug:
+                other_city = get_city_by_slug(slug)
+                if other_city:
+                    cross_links.append(
+                        '<a href="/' + html_mod.escape(slug) + '">'
+                        + html_mod.escape(other_city['display_name']) + '</a>'
+                    )
+        cross_links_html = ' &middot; '.join(cross_links) if cross_links else ''
+
+        # Replace all placeholders
+        html_content = template
+        html_content = html_content.replace('{{CITY_SLUG}}', html_mod.escape(city_slug))
+        html_content = html_content.replace('{{CITY_NAME}}', html_mod.escape(display_name))
+        html_content = html_content.replace('{{SEO_TITLE}}', html_mod.escape(seo.get('title', display_name + ' Jewish Obituaries & Shiva Support')))
+        html_content = html_content.replace('{{SEO_DESCRIPTION}}', html_mod.escape(seo.get('description', 'Obituaries from ' + display_name + ' Jewish funeral homes. Free shiva meal coordination and community support.')))
+        html_content = html_content.replace('{{FUNERAL_HOMES}}', funeral_homes_html)
+        html_content = html_content.replace('{{NEIGHBORHOODS}}', neighborhoods_html)
+        html_content = html_content.replace('{{HERO_DESCRIPTION}}', html_mod.escape(hero_desc))
+        html_content = html_content.replace('{{CROSS_LINKS}}', cross_links_html)
+
+        content_bytes = html_content.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header('Content-Length', str(len(content_bytes)))
+        self.send_header('Cache-Control', 'public, max-age=300')
+        self.end_headers()
+        self.wfile.write(content_bytes)
 
     def serve_memorial_page(self):
         """Serve the memorial page template (JS handles data loading)"""
