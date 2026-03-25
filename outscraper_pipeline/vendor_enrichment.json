@@ -1,0 +1,596 @@
+[
+  {
+    "slug": "abas-bagel-company",
+    "name": "Aba's Bagel Company",
+    "image_url": "https://img1.wsimg.com/isteam/ip/b9fc4f49-b834-4894-b337-fadb0b8205fa/blob-247fa0a.png",
+    "instagram": null,
+    "phone": null,
+    "email": "info@abasbagel.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "apex-kosher-catering",
+    "name": "Apex Kosher Catering",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@apexkoshercatering.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "ba-li-laffa",
+    "name": "Ba-Li Laffa",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "edloomy@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "benny-fils-downtown",
+    "name": "Benny & Fils (Downtown)",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "bennyetfils@hotmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "benny-fils-queen-mary",
+    "name": "Benny & Fils (Queen Mary)",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "bennyetfils@hotmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "beyond-delish",
+    "name": "Beyond Delish",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@beyonddelish.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "blossom-by-la-plaza",
+    "name": "Blossom by La Plaza",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@blossombylaplaza.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "bubbys",
+    "name": "Bubby's Bagels",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@bubbysbagels.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "cafe-sheli",
+    "name": "Cafe Sheli",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@cafesheli.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "chiyoko",
+    "name": "Chiyoko",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "8c4075d5481d476e945486754f783364@sentry.io",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "chop-hop",
+    "name": "Chop Hop",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@chophop.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "deli-365",
+    "name": "Deli 365",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "montrealdeli365@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "district-bagel",
+    "name": "District Bagel",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@districtbagel.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "dr-laffa",
+    "name": "Dr. Laffa",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@drlaffa.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "elys-fine-foods",
+    "name": "Ely's Fine Foods",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "catering@elysfinefoods.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "europea",
+    "name": "Europea",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@jeromeferrer.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "fairmount-bagel",
+    "name": "Fairmount Bagel",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@fairmountbagel.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "gibbys",
+    "name": "Gibby's",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@gibbys.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "hermes-bakery",
+    "name": "Hermes Bakery",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "orders@hermesbakery.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "kivas-bagels",
+    "name": "Kiva's Bagels",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@kivas.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "kosher-gourmet",
+    "name": "Kosher Gourmet",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "orders@koshergourmet.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "la-marguerite-catering",
+    "name": "La Marguerite Catering",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@lamarguerite.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "lesters-deli",
+    "name": "Lester's Deli",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@lestersdeli.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "me-va-me",
+    "name": "Me-Va-Me",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@mevame.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "menchens-glatt-kosher-catering",
+    "name": "Menchens Glatt Kosher Catering",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "naomi@menchens.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "milk-n-honey",
+    "name": "Milk 'N Honey",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "order@milknhoney.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "moishes",
+    "name": "Moishes",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "moishesmontreal@moishes.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "montreal-kosher-bakery",
+    "name": "Montreal Kosher Bakery",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@montrealkosher.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "nosherz",
+    "name": "Nosherz",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "robert@nosherz.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "oinegs-kosher",
+    "name": "Oineg's Kosher",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "oinegshabbes@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "olive-et-gourmando",
+    "name": "Olive et Gourmando",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@oliveetgourmando.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "orlys-kitchen",
+    "name": "Orly's Kitchen",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "orlygrill2019@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "prc-caterers",
+    "name": "PRC Caterers",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@prccaterers.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "il-paesano",
+    "name": "Paisanos",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@thepaisanos.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "pantry-foods",
+    "name": "Pantry Foods",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "orders@pantryfoods.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "paradise-kosher-catering",
+    "name": "Paradise Kosher Catering",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@paradisekosher.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "parallel",
+    "name": "Parallel",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "parallel@pasturerestaurant.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "royal-dairy-cafe-catering",
+    "name": "Royal Dairy Cafe & Catering",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@royaldairycafe.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "schmaltz-appetizing",
+    "name": "Schmaltz Appetizing",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@schmaltzappetizing.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "schwartzs-deli",
+    "name": "Schwartz's Deli",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@schwartzsdeli.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "shalom-india",
+    "name": "Shalom India",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "shalomindiacatering@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "sushi-inn",
+    "name": "Sushi Inn",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@sushiinn.net",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "terroni",
+    "name": "Terroni",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@terroni.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "the-chicken-nest",
+    "name": "The Chicken Nest",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "chickennestorders@gmail.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "tov-li-pizza-falafel",
+    "name": "Tov-Li Pizza & Falafel",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@tovlipizza.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "wok-bowl",
+    "name": "Wok & Bowl",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@wokandbowl.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "yummy-market",
+    "name": "Yummy Market",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@yummymarket.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "1-800-baskets",
+    "name": "1-800-Baskets",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "npriorityunit@1800flowers.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "baskets-galore",
+    "name": "Baskets Galore",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@basketsgalore.co.uk",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "becked-goods",
+    "name": "Becked Goods",
+    "image_url": null,
+    "instagram": "@beckedgoods",
+    "phone": "(170) 483-1382",
+    "email": "info@beckedgoods.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "bossa",
+    "name": "Bossa",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "serviceclient@bossa.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "box-and-board",
+    "name": "Box and Board",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "8c4075d5481d476e945486754f783364@sentry.io",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "candy-catchers",
+    "name": "Candy Catchers",
+    "image_url": "http://candycatchers.com/cdn/shop/files/Logo-01_copy_9c297b14-751d-488e-8f22-f4388e1b0dc0.png?height=628&pad_color=ffffff&v=1630532191&width=1200",
+    "instagram": "@thecandycatchers",
+    "phone": "(161) 373-6220",
+    "email": null,
+    "source": "website_scrape"
+  },
+  {
+    "slug": "cheryls-cookies",
+    "name": "Cheryl's Cookies",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "npriorityunit@1800flowers.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "clarke-cafe",
+    "name": "Clarke Cafe",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@clarkecafe.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "elys-fine-foods-gift-baskets",
+    "name": "Ely's Fine Foods Gift Baskets",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "catering@elysfinefoods.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "epic-baskets",
+    "name": "Epic Baskets",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "mail@epicbaskets.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "fruitate",
+    "name": "Fruitate",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "customercare@fruitate.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "gifting-kosher-canada",
+    "name": "Gifting Kosher Canada",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "cs@giftingkosher.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "harry-david",
+    "name": "Harry & David",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "service@harryanddavid.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "hickory-farms",
+    "name": "Hickory Farms",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "b2bleads@hickoryfarms.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "laura-secord",
+    "name": "Laura Secord",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "customerservice@laurasecord.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "my-baskets",
+    "name": "My Baskets",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "info@mybaskets.ca",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "purdys-chocolatier",
+    "name": "Purdys Chocolatier",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "sales@purdys.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "the-fruit-company",
+    "name": "The Fruit Company",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "customerservice@thefruitcompany.com",
+    "source": "website_scrape"
+  },
+  {
+    "slug": "wolfermans-bakery",
+    "name": "Wolferman's Bakery",
+    "image_url": null,
+    "instagram": null,
+    "phone": null,
+    "email": "npriorityunit@1800flowers.com",
+    "source": "website_scrape"
+  }
+]
