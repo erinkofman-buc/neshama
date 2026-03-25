@@ -271,10 +271,25 @@ def main():
         # Email (only if vendor currently has none)
         existing_email = v.get("email")
         if not existing_email and parser.email_addresses:
-            enriched["email"] = parser.email_addresses[0]
-            stats.setdefault("emails", 0)
-            stats["emails"] += 1
-            found_something = True
+            # Filter junk emails
+            junk_patterns = [
+                'user@domain', 'sentry-next', 'wixpress.com', 'gist-apps.com',
+                'example.com', 'test@', 'noreply@', 'no-reply@',
+                'support@shopify', 'support@squarespace',
+            ]
+            clean_emails = []
+            for em in parser.email_addresses:
+                em = em.lstrip(':').replace('%20', '').strip()
+                if '@' not in em or '.' not in em.split('@')[1]:
+                    continue
+                if any(junk in em.lower() for junk in junk_patterns):
+                    continue
+                clean_emails.append(em)
+            if clean_emails:
+                enriched["email"] = clean_emails[0]
+                stats.setdefault("emails", 0)
+                stats["emails"] += 1
+                found_something = True
 
         if found_something:
             results.append(enriched)
@@ -323,6 +338,12 @@ def main():
             sql_lines.append(
                 f"UPDATE vendors SET phone = '{val}' "
                 f"WHERE slug = '{slug}' AND (phone IS NULL OR phone = '');"
+            )
+        if r.get("email"):
+            val = sql_escape(r["email"])
+            sql_lines.append(
+                f"UPDATE vendors SET email = '{val}' "
+                f"WHERE slug = '{slug}' AND (email IS NULL OR email = '');"
             )
         sql_lines.append("")  # blank line between vendors
 
