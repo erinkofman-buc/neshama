@@ -627,6 +627,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/report'):
             support_id = path[len('/api/shiva/'):-len('/report')]
             self.handle_shiva_report(support_id, body)
+        elif path == '/api/js-errors':
+            self.handle_js_error_report(body)
         else:
             self.send_404()
 
@@ -5254,6 +5256,46 @@ button:hover{background:#c45a1a}</style></head>
             'status': 'error',
             'message': 'Too many requests. Please wait a few minutes before trying again.'
         }, 429)
+
+    # ── JS Error Reporting ─────────────────────────────────────
+    _js_error_rate = {}  # ip -> list of timestamps
+
+    def handle_js_error_report(self, body):
+        """Accept client-side JS error reports (POST /api/js-errors).
+        Rate limited to 10 per IP per minute. Returns 204 No Content."""
+        client_ip = self._get_client_ip()
+
+        # Rate limit: max 10 per IP per minute
+        now = _time_module.time()
+        timestamps = NeshamaHandler._js_error_rate.get(client_ip, [])
+        timestamps = [t for t in timestamps if now - t < 60]
+        if len(timestamps) >= 10:
+            self.send_response(429)
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+            return
+        timestamps.append(now)
+        NeshamaHandler._js_error_rate[client_ip] = timestamps
+
+        # Parse and log
+        try:
+            data = json.loads(body) if body else {}
+        except (json.JSONDecodeError, ValueError):
+            data = {'raw': body.decode('utf-8', errors='replace')[:500] if body else ''}
+
+        logging.error(
+            f"[JSError] {data.get('message', 'unknown')} "
+            f"at {data.get('source', '?')}:{data.get('line', '?')}:{data.get('col', '?')} "
+            f"url={data.get('url', '?')} ip={client_ip} "
+            f"ua={data.get('userAgent', '?')[:100]}"
+        )
+        if data.get('stack'):
+            logging.error(f"[JSError] Stack: {data['stack'][:500]}")
+
+        # 204 No Content
+        self.send_response(204)
+        self.send_header('Content-Length', '0')
+        self.end_headers()
 
     def _friendly_error(self, raw_message):
         """Convert technical error messages to user-friendly text."""

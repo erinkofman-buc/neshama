@@ -565,6 +565,17 @@
         }
     </style>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+    <script>
+    window.onerror = function(msg, src, line, col, err) {
+        try {
+            navigator.sendBeacon('/api/js-errors', JSON.stringify({
+                message: msg, source: src, line: line, col: col,
+                stack: err && err.stack, url: location.href,
+                userAgent: navigator.userAgent
+            }));
+        } catch(e) {}
+    };
+    </script>
 </head>
 <body>
 
