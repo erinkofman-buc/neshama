@@ -12,6 +12,8 @@ Email types:
   - daily_summary:        8 PM daily during active shiva
   - guestbook_digest:     8 PM daily — new tribute summary for organizer
   - thank_you:            Day after shiva_end_date
+  - welcome_drip_day3:    10 AM, 3 days after subscriber confirmation
+  - welcome_drip_day7:    10 AM, 7 days after subscriber confirmation
   - (retry failed):       Any email_log row with status='failed' < 24h old
 
 All emails: From updates@neshama.ca | Warm/white/dignified tone
@@ -902,56 +904,55 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
 # ── Welcome drip emails ──────────────────────────────────────
 
 def _welcome_drip_day3_html():
-    """Day 3: Feature highlights — city filter, WhatsApp sharing, guestbook."""
+    """Day 3: Three ways to help when someone is grieving."""
     return _email_wrapper("""
     <div style="text-align:center;margin-bottom:1.5rem;">
-        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Did you know?</h1>
-        <p style="color:#8a9a8d;font-size:1rem;margin-top:0.5rem;">Neshama covers Toronto and Montreal</p>
+        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Three ways to help when someone is grieving</h1>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">Here are a few things you might not have discovered yet:</p>
+    <p style="font-size:1rem;line-height:1.7;">When you don't know what to say, showing up with food says everything.</p>
 
-    <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1rem 0;">
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 12px 0;"><strong style="color:#D2691E;">City filter</strong> &mdash; Toggle between Toronto, Montreal, or both at the top of the feed.</p>
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 12px 0;"><strong style="color:#D2691E;">Share via WhatsApp</strong> &mdash; Every obituary and shiva page has a share button. One tap sends the details to your community groups.</p>
-        <p style="font-size:1rem;line-height:1.7;margin:0;"><strong style="color:#D2691E;">Condolence guestbook</strong> &mdash; Leave a tribute on any memorial page. Families can export the messages as a keepsake.</p>
+    <p style="font-size:1rem;line-height:1.7;">Here are three things you can do through Neshama when someone in your community is sitting shiva.</p>
+
+    <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1.25rem 0;">
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">1. Organize meals</strong><br>Set up a meal coordination page so friends and community members can sign up for specific days. No more overlapping casseroles and empty gaps.</p>
+        <div style="margin:0 0 16px 0;">
+            <a href="https://neshama.ca/shiva/organize" style="color:#D2691E;font-size:0.95rem;">Set up a meal page</a>
+        </div>
+
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">2. Browse local vendors</strong><br>Find caterers, bakeries, and gift options across Toronto and Montreal. When you want to send something but can't cook, this is where to start.</p>
+        <div style="margin:0 0 16px 0;">
+            <a href="https://neshama.ca/directory" style="color:#D2691E;font-size:0.95rem;">Browse the directory</a>
+        </div>
+
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 8px 0;"><strong style="color:#D2691E;">3. Set yahrzeit reminders</strong><br>Never miss an anniversary. Neshama will send you a quiet reminder each year so you can reach out to the family when it matters.</p>
+        <div style="margin:0;">
+            <a href="https://neshama.ca/feed" style="color:#D2691E;font-size:0.95rem;">Browse obituaries and set reminders</a>
+        </div>
     </div>
-
-    <div style="text-align:center;margin:1.5rem 0;">
-        <a href="https://neshama.ca/feed" style="display:inline-block;background:#3E2723;color:white;padding:11px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Browse the feed</a>
-    </div>
-
-    <p style="font-size:1rem;line-height:1.7;text-align:center;margin:1rem 0 0.5rem;">Want to see the full picture? <a href="https://neshama.ca/demo" style="color:#D2691E;font-weight:600;">See how Neshama works</a> &mdash; a 2-minute walkthrough.</p>
 
     <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">You're receiving this because you subscribed to Neshama updates. <a href="https://neshama.ca/unsubscribe?email={{email}}" style="color:#3E2723;">Unsubscribe</a></p>
     """)
 
 
 def _welcome_drip_day7_html():
-    """Day 7: Shiva meal coordinator walkthrough."""
+    """Day 7: Gentle share ask — know someone who could use Neshama?"""
     return _email_wrapper("""
     <div style="text-align:center;margin-bottom:1.5rem;">
-        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Organize shiva meals in 5 minutes</h1>
+        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Know someone who could use Neshama?</h1>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">When a family is sitting shiva, coordinating meals can be overwhelming. Neshama makes it simple.</p>
+    <p style="font-size:1rem;line-height:1.7;">You have been part of Neshama for a week now. Thank you for being here.</p>
 
-    <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1rem 0;">
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 1:</strong> A friend or family member creates a shiva meal page</p>
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 2:</strong> Share the link in your WhatsApp groups</p>
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 10px 0;"><strong>Step 3:</strong> Volunteers sign up for specific days and meals</p>
-        <p style="font-size:1rem;line-height:1.7;margin:0;"><strong>Step 4:</strong> Everyone sees what's covered and what's still needed</p>
-    </div>
+    <p style="font-size:1rem;line-height:1.7;">If you know someone who would benefit from receiving obituary updates, shiva meal coordination, or yahrzeit reminders, we would be grateful if you shared Neshama with them.</p>
 
-    <p style="font-size:1rem;line-height:1.7;">No more overlapping casseroles on Monday and nothing on Wednesday. No more phone trees.</p>
+    <p style="font-size:1rem;line-height:1.7;">Every family deserves this kind of support.</p>
 
     <div style="text-align:center;margin:1.5rem 0;">
-        <a href="https://neshama.ca/shiva/organize" style="display:inline-block;background:#D2691E;color:white;padding:11px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Set up a shiva meal page</a>
+        <a href="https://api.whatsapp.com/send?text=Neshama%20sends%20daily%20obituary%20updates%20from%20Toronto%20and%20Montreal%20funeral%20homes%2C%20with%20funeral%20times%2C%20shiva%20details%2C%20and%20meal%20coordination.%20Free%20to%20use.%20https%3A%2F%2Fneshama.ca" style="display:inline-block;background:#3E2723;color:white;padding:11px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Share via WhatsApp</a>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">And when someone needs to send food but can't cook? Our <a href="https://neshama.ca/help" style="color:#D2691E;">vendor directory</a> lists 140+ caterers, bakeries, and gift options across Toronto and Montreal.</p>
-
-    <p style="font-size:0.95rem;line-height:1.7;color:#5c534a;">Want to see the full picture first? <a href="https://neshama.ca/demo" style="color:#D2691E;">Walk through a real scenario</a> in 2 minutes.</p>
+    <p style="font-size:1rem;line-height:1.7;text-align:center;margin:1rem 0 0.5rem;">Or share the link directly: <a href="https://neshama.ca/demo" style="color:#D2691E;">neshama.ca/demo</a></p>
 
     <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">You're receiving this because you subscribed to Neshama updates. <a href="https://neshama.ca/unsubscribe?email={{email}}" style="color:#3E2723;">Unsubscribe</a></p>
     """)
@@ -988,7 +989,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
             continue
 
         html = _welcome_drip_day3_html().replace('{{email}}', email)
-        subject = 'Did you know? Neshama covers Toronto and Montreal'
+        subject = 'Three ways to help when someone is grieving'
         email_id = _log_email(cursor, 'welcome_drip', 'welcome_drip_day3', email, None)
         ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
         if ok:
@@ -1017,7 +1018,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
             continue
 
         html = _welcome_drip_day7_html().replace('{{email}}', email)
-        subject = 'How to organize shiva meals in 5 minutes'
+        subject = 'Know someone who could use Neshama?'
         email_id = _log_email(cursor, 'welcome_drip', 'welcome_drip_day7', email, None)
         ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
         if ok:

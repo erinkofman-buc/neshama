@@ -435,7 +435,7 @@ class EmailSubscriptionManager:
             logging.error(f" Failed to send confirmation email: {str(e)}")
     
     def send_welcome_email(self, email):
-        """Send welcome email after confirmation"""
+        """Send welcome email after confirmation — Email 1 of the 3-email drip sequence."""
         if not self.sendgrid_api_key:
             logging.info(f" Would send welcome email to {email}")
             return
@@ -460,20 +460,22 @@ class EmailSubscriptionManager:
     <tr><td style="padding: 32px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; line-height: 1.7; color: #3E2723;">
         <p style="margin: 0 0 20px 0;">Welcome to Neshama.</p>
 
-        <p style="margin: 0 0 20px 0;">Your subscription is confirmed. You will receive updates when new obituaries are posted from Toronto and Montreal funeral homes, including funeral times, shiva details, and links to full obituaries.</p>
+        <p style="margin: 0 0 20px 0;">You are now subscribed to receive obituary updates from Toronto and Montreal funeral homes. Each update includes funeral times, shiva details, and links to full obituaries so you can show up for the people in your community when it matters most.</p>
 
-        <p style="margin: 0 0 20px 0;">In the meantime, you can browse the latest notices on our site.</p>
+        <p style="margin: 0 0 20px 0;">If you would like to see what Neshama looks like in action, take a quick look around.</p>
 
         <!-- Button -->
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 28px 0;">
         <tr><td style="background-color: #3E2723; border-radius: 4px;">
-            <a href="https://neshama.ca/feed" style="display: inline-block; padding: 13px 32px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #ffffff; text-decoration: none; letter-spacing: 0.02em;">View latest obituaries</a>
+            <a href="https://neshama.ca/demo" style="display: inline-block; padding: 13px 32px; font-family: Georgia, 'Times New Roman', serif; font-size: 15px; color: #ffffff; text-decoration: none; letter-spacing: 0.02em;">See how Neshama works</a>
         </td></tr>
         </table>
 
+        <p style="margin: 0 0 20px 0;">Neshama was built by two women in Toronto who believe showing up for each other shouldn't be this hard.</p>
+
         <p style="margin: 0 0 20px 0;">You can unsubscribe at any time with one click from any email we send.</p>
 
-        <p style="margin: 0; font-size: 14px; color: #5c534a; line-height: 1.6;">If you have questions or feedback, reply to this email or reach us at <a href="mailto:contact@neshama.ca" style="color: #3E2723;">contact@neshama.ca</a>.</p>
+        <p style="margin: 0; font-size: 14px; color: #5c534a; line-height: 1.6;">If you have questions or feedback, reach us at <a href="mailto:contact@neshama.ca" style="color: #3E2723;">contact@neshama.ca</a>.</p>
     </td></tr>
 
     <!-- Footer -->
