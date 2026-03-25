@@ -1414,6 +1414,18 @@ MONTREAL_VENDORS = [
         'delivery_area': 'Downtown Montreal,Plateau,Westmount',
     },
     {
+        'name': "Linny's Luncheonette",
+        'category': 'Delis & Smoked Meat',
+        'description': "Nostalgic Jewish-style takeout deli on Ossington Ave. Hand-cut pastrami on rye, freshly baked knishes, smoked fish sandwiches, and full-sour pickles. Named after restaurateur David Schwartz's late mother Linda. Catering available.",
+        'address': '174 Ossington Avenue, Toronto, ON M6J 2Z7',
+        'neighborhood': 'Ossington',
+        'phone': '',
+        'website': 'https://linnysluncheonette.com',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
         'name': 'Deli 770',
         'category': 'Delis & Smoked Meat',
         'description': 'Chabad-inspired kosher deli in the Westbury complex specializing in Montreal-style smoked meat sandwiches and gourmet grill fusions.',

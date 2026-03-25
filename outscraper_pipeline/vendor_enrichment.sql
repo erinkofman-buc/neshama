@@ -284,3 +284,7 @@ UPDATE vendors SET image_url = 'https://images.contentstack.io/v3/assets/blt7273
 UPDATE vendors SET phone = '(083) 570-8627' WHERE slug = 'wolfermans-bakery' AND (phone IS NULL OR phone = '');
 
 UPDATE vendors SET image_url = 'http://yansdeli.com/cdn/shop/files/home-yans_796dc25b-2435-4853-81a8-13859fa761c9.jpg?v=1755461841' WHERE slug = 'yans-deli' AND image_url IS NULL;
+
+UPDATE vendors SET image_url = 'https://ambassador-media-library-assets.s3.us-east-1.amazonaws.com/50d32cff-7991-49ab-8be6-dd0bcadd72f4.png' WHERE slug = 'linnys-luncheonette' AND image_url IS NULL;
+UPDATE vendors SET instagram = '@linnysluncheonette' WHERE slug = 'linnys-luncheonette' AND (instagram IS NULL OR instagram = '');
+UPDATE vendors SET email = 'hello@linnysluncheonette.com' WHERE slug = 'linnys-luncheonette' AND (email IS NULL OR email = '');
