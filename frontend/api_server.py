@@ -3465,11 +3465,12 @@ button:hover{background:#c45a1a}</style></head>
             parsed_path = urlparse(self.path)
             query_params = parse_qs(parsed_path.query)
             token = query_params.get('token', [None])[0]
+            access_token = query_params.get('access', [None])[0]
 
             if token:
                 result = shiva_mgr.get_signups_for_organizer(support_id, token)
             else:
-                result = shiva_mgr.get_signups(support_id)
+                result = shiva_mgr.get_signups(support_id, access_token=access_token)
             self.send_json_response(result)
         except Exception as e:
             self.send_error_response(str(e))
@@ -4676,10 +4677,14 @@ button:hover{background:#c45a1a}</style></head>
             data = json.loads(body)
             result = shiva_mgr.create_access_request(data)
 
+            email_sent = False
             if result['status'] == 'success':
                 shiva_mgr._trigger_backup()
-                # Send email to organizer
-                self._send_access_request_email(result)
+                # Only attempt email if organizer has an email address
+                if result.get('organizer_email'):
+                    email_sent = self._send_access_request_email(result)
+                else:
+                    logging.warning(f"[Access] No organizer email for shiva {data.get('shiva_id')} — cannot notify")
 
             status_code = 200 if result['status'] in ('success', 'already_approved') else 400
             # Don't expose organizer_email/key to client
@@ -4689,6 +4694,8 @@ button:hover{background:#c45a1a}</style></head>
             }
             if result['status'] == 'already_approved':
                 safe_result['access_token'] = result['access_token']
+            if result['status'] == 'success' and not email_sent:
+                safe_result['message'] = 'Your request was saved. The organizer will be notified when they next check the page.'
             self.send_json_response(safe_result, status_code)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
@@ -4715,9 +4722,11 @@ button:hover{background:#c45a1a}</style></head>
             shiva_mgr._trigger_backup()
             # Send approval email to requester
             self._send_access_approved_email(result)
+            safe_name = html_mod.escape(str(result.get("requester_name", "")))
+            safe_family = html_mod.escape(str(result.get("family_name", "")))
             self._serve_access_result_page(
                 'Access Granted',
-                f'{result["requester_name"]} can now view the full {result["family_name"]} shiva page.'
+                f'{safe_name} can now view the full {safe_family} shiva page.'
             )
         else:
             self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
@@ -4742,21 +4751,24 @@ button:hover{background:#c45a1a}</style></head>
             shiva_mgr._trigger_backup()
             # Send denial email to requester
             self._send_access_denied_email(result)
+            safe_name = html_mod.escape(str(result.get("requester_name", "")))
             self._serve_access_result_page(
                 'Request Declined',
-                f'The request from {result["requester_name"]} has been declined.'
+                f'The request from {safe_name} has been declined.'
             )
         else:
             self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
 
     def _serve_access_result_page(self, title, message):
         """Serve a simple result page for approve/deny actions"""
+        safe_title = html_mod.escape(str(title))
+        safe_msg = message  # Already escaped by callers; re-escaping would double-encode
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} - Neshama</title>
+    <title>{safe_title} - Neshama</title>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body {{ font-family: 'Crimson Pro', serif; background: linear-gradient(135deg, #FAF9F6 0%, #F5F5DC 100%); color: #3E2723; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }}
@@ -4768,8 +4780,8 @@ button:hover{background:#c45a1a}</style></head>
 </head>
 <body>
     <div class="container">
-        <h1>{title}</h1>
-        <p>{message}</p>
+        <h1>{safe_title}</h1>
+        <p>{safe_msg}</p>
         <a href="/" class="btn">Return to Neshama</a>
     </div>
 </body>
@@ -4782,14 +4794,15 @@ button:hover{background:#c45a1a}</style></head>
         self.wfile.write(content)
 
     def _send_access_request_email(self, result):
-        """Send email to organizer about new access request"""
+        """Send email to organizer about new access request. Returns True if sent."""
         if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
             logging.info(f"[Access] Would email {result['organizer_email']}: access request from {result['requester_name']}")
-            return
+            return False
 
         try:
             from sendgrid import SendGridAPIClient
             from sendgrid.helpers.mail import Mail, Email, To, Content
+            esc = lambda v: html_mod.escape(str(v)) if v else ''
 
             base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
             approve_url = f"{base_url}/api/shiva-access/approve?request_id={result['request_id']}&organizer_key={result['organizer_key']}"
@@ -4797,25 +4810,29 @@ button:hover{background:#c45a1a}</style></head>
 
             msg_line = ''
             if result.get('requester_message'):
-                msg_line = f'<p style="background:#FAF9F6;padding:1rem;border-radius:0.5rem;border-left:3px solid #D2691E;margin:1rem 0;">They wrote: "{result["requester_message"]}"</p>'
+                msg_line = f'<p style="background:#FAF9F6;padding:1rem;border-radius:0.5rem;border-left:3px solid #D2691E;margin:1rem 0;">They wrote: &ldquo;{esc(result["requester_message"])}&rdquo;</p>'
+
+            safe_name = esc(result.get('requester_name'))
+            safe_email = esc(result.get('requester_email'))
+            safe_family = esc(result.get('family_name'))
 
             html = f"""
             <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
                 <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Request</h2>
-                <p><strong>{result['requester_name']}</strong> ({result['requester_email']}) is requesting access to the <strong>{result['family_name']}</strong> shiva page.</p>
+                <p><strong>{safe_name}</strong> ({safe_email}) is requesting access to the <strong>{safe_family}</strong> shiva page.</p>
                 {msg_line}
                 <div style="margin:2rem 0;">
                     <a href="{approve_url}" style="display:inline-block;background:#4CAF50;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;margin-right:1rem;font-size:1rem;">Approve</a>
                     <a href="{deny_url}" style="display:inline-block;background:#f44336;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">Deny</a>
                 </div>
-                <p style="font-size:0.85rem;color:#B2BEB5;">You are receiving this because you organized the {result['family_name']} shiva page on Neshama.</p>
+                <p style="font-size:0.85rem;color:#B2BEB5;">You are receiving this because you organized the {safe_family} shiva page on Neshama.</p>
             </div>"""
 
             plain_text = _html_to_plain(html)
             message = Mail(
                 from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['organizer_email']),
-                subject=f"Shiva access request from {result['requester_name']}",
+                subject=f"Shiva access request from {safe_name}",
                 plain_text_content=Content("text/plain", plain_text),
                 html_content=Content("text/html", html)
             )
@@ -4832,8 +4849,10 @@ button:hover{background:#c45a1a}</style></head>
                                         sendgrid_message_id=msg_id)
                 except Exception:
                     logging.exception("[Access] Failed to log email")
+            return True
         except Exception as e:
             logging.error(f"[Access] Failed to send request email: {e}")
+            return False
 
     def _send_access_approved_email(self, result):
         """Send approval email to requester with access link"""
@@ -4844,14 +4863,16 @@ button:hover{background:#c45a1a}</style></head>
         try:
             from sendgrid import SendGridAPIClient
             from sendgrid.helpers.mail import Mail, Email, To, Content
+            esc = lambda v: html_mod.escape(str(v)) if v else ''
 
             base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
             access_url = f"{base_url}/shiva/{result['shiva_id']}?access={result['access_token']}"
+            safe_family = esc(result.get('family_name'))
 
             html = f"""
             <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
                 <h2 style="color:#D2691E;font-size:1.5rem;">You've Been Approved</h2>
-                <p>The organizer of the <strong>{result['family_name']}</strong> shiva has approved your request.</p>
+                <p>The organizer of the <strong>{safe_family}</strong> shiva has approved your request.</p>
                 <p>You can now view the full shiva details including address, dietary information, and sign up to bring a meal.</p>
                 <div style="margin:2rem 0;text-align:center;">
                     <a href="{access_url}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">View Shiva Details</a>
@@ -4863,7 +4884,7 @@ button:hover{background:#c45a1a}</style></head>
             message = Mail(
                 from_email=Email('updates@neshama.ca', 'Neshama'),
                 to_emails=To(result['requester_email']),
-                subject=f"You've been approved \u2014 {result['family_name']} shiva details",
+                subject=f"You've been approved \u2014 {safe_family} shiva details",
                 plain_text_content=Content("text/plain", plain_text),
                 html_content=Content("text/html", html)
             )
@@ -4891,11 +4912,12 @@ button:hover{background:#c45a1a}</style></head>
         try:
             from sendgrid import SendGridAPIClient
             from sendgrid.helpers.mail import Mail, Email, To, Content
+            safe_family = html_mod.escape(str(result.get('family_name', '')))
 
             html = f"""
             <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
                 <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Update</h2>
-                <p>The organizer of the <strong>{result['family_name']}</strong> shiva has chosen to manage meal coordination privately.</p>
+                <p>The organizer of the <strong>{safe_family}</strong> shiva has chosen to manage meal coordination privately.</p>
                 <p>Thank you for your thoughtfulness. Your care and compassion mean a great deal to the family during this difficult time.</p>
                 <p style="font-size:0.9rem;color:#B2BEB5;margin-top:2rem;">Neshama \u2014 Every soul remembered</p>
             </div>"""

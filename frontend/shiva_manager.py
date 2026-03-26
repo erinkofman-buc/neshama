@@ -389,11 +389,17 @@ class ShivaManager:
     MAX_TEXT_LENGTH = 2000
 
     def _sanitize_text(self, value, max_len=None):
-        """Truncate text fields to prevent abuse."""
+        """Strip HTML tags and truncate text fields to prevent abuse."""
         if not value:
             return value
+        import re
+        text = str(value)
+        # Strip complete tags
+        text = re.sub(r'<[^>]*>', '', text)
+        # Strip unclosed tags (e.g. "<img src=x onerror=alert(1)")
+        text = re.sub(r'<[^>]*$', '', text)
         limit = max_len or self.MAX_FIELD_LENGTH
-        return str(value)[:limit].strip()
+        return text[:limit].strip()
 
     def _validate_url(self, url):
         """Validate URL uses http:// or https://. Reject javascript:, data:, vbscript: schemes."""
@@ -619,7 +625,24 @@ class ShivaManager:
         conn.close()
 
         if row:
-            return {'status': 'success', 'data': dict(row)}
+            data = dict(row)
+            # For private pages, only expose limited fields (same as get_support_by_id)
+            if data.get('privacy') == 'private':
+                data = {
+                    'id': data['id'],
+                    'obituary_id': data['obituary_id'],
+                    'organizer_name': data['organizer_name'],
+                    'organizer_relationship': data['organizer_relationship'],
+                    'family_name': data['family_name'],
+                    'shiva_city': data.get('shiva_city'),
+                    'shiva_sub_area': data.get('shiva_sub_area'),
+                    'shiva_start_date': data['shiva_start_date'],
+                    'shiva_end_date': data['shiva_end_date'],
+                    'status': data['status'],
+                    'privacy': 'private',
+                    'created_at': data['created_at'],
+                }
+            return {'status': 'success', 'data': data}
         return {'status': 'not_found', 'message': 'No active support page for this memorial'}
 
     def get_support_by_id(self, support_id, access_token=None):
@@ -1033,6 +1056,16 @@ class ShivaManager:
         conn = self._get_conn()
         cursor = conn.cursor()
 
+        # Rate limit: max 10 pending requests per shiva page
+        cursor.execute('''
+            SELECT COUNT(*) as cnt FROM shiva_access_requests
+            WHERE shiva_id = ? AND status = 'pending'
+        ''', (shiva_id,))
+        pending_count = cursor.fetchone()['cnt']
+        if pending_count >= 10:
+            conn.close()
+            return {'status': 'error', 'message': 'Too many pending requests. Please try again later.'}
+
         # Verify shiva page exists and is private
         cursor.execute('SELECT id, family_name, organizer_email, privacy FROM shiva_support WHERE id = ?', (shiva_id,))
         shiva = cursor.fetchone()
@@ -1400,10 +1433,30 @@ class ShivaManager:
 
     # ── Get Signups ───────────────────────────────────────────
 
-    def get_signups(self, support_id):
-        """Get all meal signups for a support page (for calendar display)."""
+    def get_signups(self, support_id, access_token=None):
+        """Get all meal signups for a support page (for calendar display).
+        For private pages, requires a valid access_token or share_token."""
         conn = self._get_conn()
         cursor = conn.cursor()
+
+        # Check privacy before returning signups
+        cursor.execute('SELECT privacy, share_token FROM shiva_support WHERE id = ?', (support_id,))
+        support = cursor.fetchone()
+        if support and dict(support).get('privacy') == 'private':
+            has_access = False
+            if access_token:
+                if access_token == dict(support).get('share_token'):
+                    has_access = True
+                else:
+                    cursor.execute('''
+                        SELECT id FROM shiva_access_requests
+                        WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
+                    ''', (support_id, access_token))
+                    has_access = cursor.fetchone() is not None
+            if not has_access:
+                conn.close()
+                return {'status': 'success', 'data': []}
+
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, meal_description,
                    num_servings, will_serve, created_at,

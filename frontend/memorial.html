@@ -1889,8 +1889,9 @@
                     var heroCtaBtn = document.getElementById('heroCtaBtn');
                     if (data.status === 'success' && data.data) {
                         var s = data.data;
+                        var isPrivate = s.privacy === 'private';
                         // Hero CTA: link to existing support page
-                        heroCtaBtn.textContent = 'View Shiva Support Page \u2192';
+                        heroCtaBtn.textContent = isPrivate ? 'View Shiva Page (Private) \u2192' : 'View Shiva Support Page \u2192';
                         heroCtaBtn.href = '/shiva/' + encodeURIComponent(s.id);
                         heroCta.style.display = '';
 
@@ -1900,11 +1901,18 @@
                             html += '<span>Shiva: ' + escapeHtml(formatDate(s.shiva_start_date)) +
                                     ' &ndash; ' + escapeHtml(formatDate(s.shiva_end_date)) + '</span>';
                         }
-                        if (s.dietary_notes) {
+                        if (isPrivate) {
+                            html += '<span style="color:var(--terracotta);">This shiva page is private &mdash; the family is coordinating meals through direct invitations. You can request access on the page.</span>';
+                        }
+                        if (!isPrivate && s.dietary_notes) {
                             html += '<span>Dietary notes: ' + escapeHtml(s.dietary_notes) + '</span>';
                         }
                         html += '</div>';
-                        html += '<a class="support-cta-btn" href="/shiva/' + encodeURIComponent(s.id) + '">Help coordinate meals</a>';
+                        if (isPrivate) {
+                            html += '<a class="support-cta-btn" href="/shiva/' + encodeURIComponent(s.id) + '">Request Access to Help</a>';
+                        } else {
+                            html += '<a class="support-cta-btn" href="/shiva/' + encodeURIComponent(s.id) + '">Help coordinate meals</a>';
+                        }
                         html += '<p style="text-align:center;margin-top:1rem;font-size:0.95rem;color:var(--sage-dark);">' +
                             'Want to help? <a href="/help/food?utm_source=memorial&utm_medium=support_card&utm_content=active_shiva">Send a meal</a> · <a href="/help/gifts?utm_source=memorial&utm_medium=support_card&utm_content=active_shiva">Send something thoughtful</a></p>';
                         html += '<p style="text-align:center;margin-top:0.5rem;font-size:0.95rem;color:var(--sage-dark);">Read our <a href="/shiva/guide">guide to shiva meal coordination</a></p>';

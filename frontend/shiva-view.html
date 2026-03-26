@@ -2225,6 +2225,7 @@
                 mealsUrl += '?token=' + encodeURIComponent(organizerToken);
             } else if (accessToken) {
                 shivaUrl += '?access=' + encodeURIComponent(accessToken);
+                mealsUrl += '?access=' + encodeURIComponent(accessToken);
             }
 
             Promise.all([
