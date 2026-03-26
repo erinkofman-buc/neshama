@@ -428,9 +428,9 @@
             flex-shrink: 0;
         }
 
-        .coverage-dot.green { background: var(--amber-mid); }
-        .coverage-dot.yellow { background: var(--sage-mid); }
-        .coverage-dot.red { background: var(--green-mid); }
+        .coverage-dot.covered { background: #4a8c5c; }
+        .coverage-dot.partial { background: var(--sage-mid); }
+        .coverage-dot.needs-help { background: var(--amber-mid); }
 
         .coverage-bar {
             width: 100%;
@@ -3076,9 +3076,9 @@
                 summaryEl.innerHTML =
                     '<div class="coverage-bar"><div class="coverage-bar-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
                     '<div class="coverage-summary">' +
-                    '<div class="coverage-stat"><span class="coverage-dot red"></span>' + fullDays + ' covered</div>' +
-                    '<div class="coverage-stat"><span class="coverage-dot yellow"></span>' + partialDays + ' partial</div>' +
-                    '<div class="coverage-stat"><span class="coverage-dot green"></span>' + emptyDays + ' need help</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot covered"></span>' + fullDays + ' covered</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot partial"></span>' + partialDays + ' partial</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot needs-help"></span>' + emptyDays + ' need help</div>' +
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {

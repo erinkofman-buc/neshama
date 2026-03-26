@@ -26,6 +26,9 @@ VENDORS_TO_REMOVE = [
     "Citrus Traiteur",        # Removed per Jordana Mar 9
     "24-Hour Yahrzeit Memorial Candles (Multipack)",  # Removed per Jordana Mar 9
     "Bubby's New York Bagels",  # Duplicate of Bubby's Bagels
+    "Main Event Catering",      # Removed per Jordana Mar 25
+    "Paramount Fine Foods",     # Removed per Jordana Mar 25
+    "Zuchter Berk Kosher Caterers",  # Closed, site not working — Jordana Mar 25
 ]
 
 
@@ -767,8 +770,8 @@ VENDORS = [
     },
     {
         'name': 'Chop Hop',
-        'category': 'Kosher Restaurants & Caterers',
-        'description': 'Restaurant offering fresh, flavourful meals. A great option for shiva catering and family-style meals.',
+        'category': 'Restaurants & Delis',
+        'description': 'Fresh, flavourful salads and bowls. A great option for lighter shiva meals and family-style gatherings.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
         'phone': '',
@@ -893,7 +896,7 @@ VENDORS = [
         'description': 'COR-certified kosher bakery on Bathurst. Fresh breads, challahs, pastries, and cakes. A neighbourhood staple for Shabbat baking and shiva dessert trays.',
         'address': '4119 Bathurst St Unit 1, North York, ON M3H 3P4',
         'neighborhood': 'Bathurst Manor',
-        'phone': '',
+        'phone': '(647) 776-5995',
         'website': 'http://richmondkosherbakery.com',
         'kosher_status': 'COR',
         'delivery': 0,
@@ -955,7 +958,7 @@ VENDORS = [
         'address': '3031 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
         'phone': '(416) 781-4212',
-        'website': 'https://www.haymishebakery.com/',
+        'website': 'https://www.instagram.com/haymishebakeryto/',
         'instagram': 'haymishebakeryto',
         'kosher_status': 'COR',
         'delivery': 0,
@@ -1390,29 +1393,18 @@ MONTREAL_VENDORS = [
     },
     # ── Montreal restaurants (MK-certified, added Mar 4 research) ──
     {
-        'name': 'Benny & Fils (Queen Mary)',
+        'name': 'Benny & Fils',
         'category': 'Middle Eastern & Israeli',
         'description': 'Family-run kosher grill serving shawarma, falafel, schnitzel, and Mediterranean-style meat dishes on Queen Mary Road.',
         'address': '4944 Queen Mary Rd, Montreal, QC H3W 1X2',
         'neighborhood': 'Snowdon',
         'phone': '(514) 735-5858',
-        'website': 'https://www.bennyetfils.com',
+        'website': 'http://www.bennyetfils.com/',
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Hampstead,Cote-Saint-Luc',
     },
-    {
-        'name': 'Benny & Fils (Downtown)',
-        'category': 'Middle Eastern & Israeli',
-        'description': 'Downtown branch of the popular kosher grill near McGill University, serving shawarma, falafel, and fried chicken.',
-        'address': '575 Boul. de Maisonneuve Ouest, Montreal, QC H3A 1L8',
-        'neighborhood': 'Downtown Montreal',
-        'phone': '(514) 842-7575',
-        'website': 'https://www.bennyetfils.com',
-        'kosher_status': 'MK',
-        'delivery': 1,
-        'delivery_area': 'Downtown Montreal,Plateau,Westmount',
-    },
+    # Benny & Fils Downtown REMOVED per Jordana Mar 25 — keep Queen Mary only
     {
         'name': "Linny's Luncheonette",
         'category': 'Delis & Smoked Meat',
@@ -1424,6 +1416,43 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+    },
+    # ── New vendors from Jordana — Mar 25, 2026 ──
+    {
+        'name': 'Encore Catering',
+        'category': 'Caterers',
+        'description': 'A trusted name in Toronto catering since 1979. Encore brings warmth and professionalism to meaningful gatherings — from shiva meals to celebrations of life — with generous portions and attentive service.',
+        'address': '5000 Dufferin St, Unit P, Toronto, ON M3H 5T5',
+        'neighborhood': 'Downsview',
+        'phone': '(416) 661-4460',
+        'website': 'https://encorecatering.com/',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Toronto,North York,GTA-wide',
+    },
+    {
+        'name': 'Jerusalem Restaurant',
+        'category': 'Middle Eastern & Israeli',
+        'description': "Toronto's first Middle Eastern restaurant, serving beloved family recipes since 1971. A cornerstone of the Forest Hill Jewish community, offering the kind of comforting, home-style fare that nourishes during times of loss.",
+        'address': '955 Eglinton Ave W, Toronto, ON M6C 2C4',
+        'neighborhood': 'Forest Hill',
+        'phone': '(416) 783-6494',
+        'website': 'https://www.jerusalemrestaurant.ca/',
+        'kosher_status': 'not_certified',
+        'delivery': 0,
+        'delivery_area': '',
+    },
+    {
+        'name': 'Tabule',
+        'category': 'Middle Eastern & Israeli',
+        'description': 'A warm and inviting Midtown destination for exceptional Middle Eastern cuisine since 2005. Comforting dishes rooted in tradition — a thoughtful option for bringing nourishing food to families during difficult times.',
+        'address': '2009 Yonge St, Toronto, ON',
+        'neighborhood': 'Midtown',
+        'phone': '(416) 483-3747',
+        'website': 'https://tabule.ca/location/tabule-midtown/',
+        'kosher_status': 'not_certified',
+        'delivery': 1,
+        'delivery_area': 'Midtown,Toronto',
     },
     {
         'name': 'Deli 770',

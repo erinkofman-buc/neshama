@@ -479,10 +479,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.serve_city_landing(path.strip('/'))
         elif path in self.STATIC_FILES:
             self.serve_static(path)
-        elif path.startswith('/ig-temp/') and path.endswith('.png'):
-            # Temporary route for Buffer image hosting
+        elif (path.startswith('/ig-temp/') or path.startswith('/ig/')) and path.endswith('.png'):
+            # Route for Buffer image hosting — serves instagram post graphics
+            subdir = 'ig' if path.startswith('/ig/') else 'ig-temp'
             filename = os.path.basename(path)
-            filepath = os.path.join(FRONTEND_DIR, 'ig-temp', filename)
+            filepath = os.path.join(FRONTEND_DIR, subdir, filename)
             try:
                 with open(filepath, 'rb') as f:
                     content = f.read()
@@ -2865,14 +2866,19 @@ button:hover{background:#c45a1a}</style></head>
                     except Exception:
                         pass
                 known_domains.add('instagram.com')  # always allow IG links
+                # Trusted affiliate/partner domains
+                known_domains.update(['amazon.ca', 'amazon.com', 'amzn.to', 'jnf.ca', 'jnfusa.org'])
                 if dest_domain not in known_domains:
                     logging.warning(f"[Click] Blocked redirect to unknown domain: {dest_url} (vendor: {vendor_slug})")
                     self.send_404()
                     return
             else:
-                logging.warning(f"[Click] Unknown vendor slug: {vendor_slug}")
-                self.send_404()
-                return
+                # Vendor slug not in DB — allow if it's a trusted domain (affiliate links)
+                trusted_domains = {'amazon.ca', 'amazon.com', 'amzn.to', 'instagram.com', 'jnf.ca', 'jnfusa.org'}
+                if dest_domain not in trusted_domains:
+                    logging.warning(f"[Click] Unknown vendor slug and untrusted domain: {vendor_slug} -> {dest_domain}")
+                    self.send_404()
+                    return
         except Exception as e:
             logging.error(f"[Click] Vendor validation error: {e}")
             # On error, fail open but log — don't block legitimate traffic

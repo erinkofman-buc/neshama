@@ -138,3 +138,11 @@ UPDATE vendors SET email = 'sales@purdys.com' WHERE slug = 'purdys-chocolatier' 
 UPDATE vendors SET email = 'customerservice@thefruitcompany.com' WHERE slug = 'the-fruit-company' AND (email IS NULL OR email = '');
 
 UPDATE vendors SET email = 'npriorityunit@1800flowers.com' WHERE slug = 'wolfermans-bakery' AND (email IS NULL OR email = '');
+
+UPDATE vendors SET image_url = 'https://encorecatering.com/wp-content/uploads/Encore-Logo-square.jpg' WHERE slug = 'encore-catering' AND image_url IS NULL;
+UPDATE vendors SET instagram = '@encorecatering' WHERE slug = 'encore-catering' AND (instagram IS NULL OR instagram = '');
+
+UPDATE vendors SET image_url = 'https://www.jerusalemrestaurant.ca/restaurants/jerusalem/website/images/header-logo.png' WHERE slug = 'jerusalem-restaurant' AND image_url IS NULL;
+
+UPDATE vendors SET image_url = 'https://tabule.ca/wp-content/uploads/2025/09/Tabule_Midtown_Seating_6-scaled.jpg' WHERE slug = 'tabule' AND image_url IS NULL;
+UPDATE vendors SET instagram = '@tabulemiddleeastern' WHERE slug = 'tabule' AND (instagram IS NULL OR instagram = '');

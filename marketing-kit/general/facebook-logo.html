@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Neshama Logo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    body { margin: 0; padding: 0; background: #FAF9F6; display: flex; align-items: center; justify-content: center; width: 800px; height: 800px; overflow: hidden; }
+    .logo {
+        width: 800px;
+        height: 800px;
+        background: #FAF9F6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    /* Subtle warm radial glow */
+    .logo::before {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(210, 105, 30, 0.06) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .candle-container {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    /* Flame */
+    .flame {
+        width: 24px;
+        height: 36px;
+        background: linear-gradient(180deg, #F4A020 0%, #D2691E 60%, #C45A1A 100%);
+        border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+        margin-bottom: 2px;
+        position: relative;
+        box-shadow: 0 0 20px rgba(244, 160, 32, 0.4), 0 0 40px rgba(210, 105, 30, 0.2);
+    }
+    .flame::after {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 16px;
+        background: linear-gradient(180deg, #FFD700 0%, #F4A020 100%);
+        border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    /* Wick */
+    .wick {
+        width: 3px;
+        height: 12px;
+        background: #8B7355;
+        margin-bottom: 0;
+    }
+    /* Candle body */
+    .candle-body {
+        width: 6px;
+        height: 50px;
+        background: linear-gradient(180deg, #D4C5B9 0%, #C4B5A9 100%);
+        border-radius: 0 0 2px 2px;
+    }
+    /* Name */
+    .name {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 120px;
+        font-weight: 500;
+        color: #3E2723;
+        letter-spacing: 0.06em;
+        margin-top: 24px;
+        line-height: 1;
+    }
+    /* Hebrew */
+    .hebrew {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 32px;
+        color: #8B7355;
+        letter-spacing: 0.15em;
+        margin-top: 8px;
+    }
+    /* Divider */
+    .divider {
+        width: 60px;
+        height: 2.5px;
+        background: #D2691E;
+        margin-top: 16px;
+        border-radius: 2px;
+    }
+    /* Tagline */
+    .tagline {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 28px;
+        font-weight: 400;
+        font-style: italic;
+        color: #D2691E;
+        margin-top: 16px;
+        letter-spacing: 0.02em;
+    }
+</style>
+</head>
+<body>
+<div class="logo">
+    <div class="candle-container">
+        <div class="flame"></div>
+        <div class="wick"></div>
+        <div class="candle-body"></div>
+    </div>
+    <div class="name">NESHAMA</div>
+    <div class="hebrew" dir="rtl">נְשָׁמָה</div>
+    <div class="divider"></div>
+    <div class="tagline">Every Soul Remembered</div>
+</div>
+</body>
+</html>
