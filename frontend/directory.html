@@ -602,7 +602,7 @@
     <main id="main-content">
     <header class="hero">
         <h1>Local Vendors Ready to Help</h1>
-        <p class="subtitle">Caterers, bakeries, and food vendors &mdash; here when your community needs them most.</p>
+        <p class="subtitle">Caterers, bakeries, food vendors, and event services &mdash; here when your community needs them most.</p>
         <p id="heroCount" class="hero-count"></p>
         <div class="hero-search">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -653,6 +653,9 @@
             <button class="cat-pill" data-cat="Mediterranean" onclick="setCat('Mediterranean',this)">
                 <span class="cat-pill-icon">&#127813;</span> Mediterranean
             </button>
+            <button class="cat-pill" data-cat="Event Staff &amp; Services" onclick="setCat('Event Staff &amp; Services',this)">
+                <span class="cat-pill-icon">&#128188;</span> Event Staff
+            </button>
         </div>
 
         <!-- Secondary filters -->
@@ -673,7 +676,7 @@
 
     <!-- Partner banner — below grid, softer (Task 5) -->
     <div class="vendor-apply-footer">
-        <p>Are you a food vendor serving the Toronto or Montreal Jewish community?</p>
+        <p>Are you a vendor or service provider serving the Toronto or Montreal Jewish community?</p>
         <a href="/shiva/caterers/apply">Join our free directory &rarr;</a>
     </div>
 
@@ -816,7 +819,11 @@
                 { match: 'italian', color: '#7a5230' },
                 { match: 'fruit', color: '#7a9e7e' },
                 { match: 'grocery', color: '#5C534A' },
-                { match: 'florist', color: '#7a9e7e' }
+                { match: 'florist', color: '#7a9e7e' },
+                { match: 'event staff', color: '#6b7c8e' },
+                { match: 'setup', color: '#6b7c8e' },
+                { match: 'cleaning', color: '#6b7c8e' },
+                { match: 'server', color: '#6b7c8e' }
             ];
             var defaultColor = '#B2BEB5';
 

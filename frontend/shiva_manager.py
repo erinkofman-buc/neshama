@@ -1957,6 +1957,8 @@ class ShivaManager:
         'yahrzeit_reminders', 'unsubscribe_feedback',
         'shiva_analytics', 'email_log', 'scraper_log',
         'shiva_co_organizers', 'shiva_updates',
+        'shiva_access_requests', 'candles',
+        'digest_runs', 'email_daily_cap',
     ]
 
     # High-volume analytics/logging tables: only back up last 30 days

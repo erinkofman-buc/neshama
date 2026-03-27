@@ -185,12 +185,26 @@
 
         .step-card.active { display: block; }
 
+        .step-indicator {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--terracotta);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
         .step-title {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.5rem;
             font-weight: 500;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
             color: var(--dark-brown);
+        }
+        .step-reassurance {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
         }
 
         /* ── Form Elements ───────────────────────────────── */
@@ -871,7 +885,9 @@
 
         <!-- Step 1: Your Information -->
         <div class="step-card active" id="step1">
+            <p class="step-indicator">Step 1 of 3</p>
             <h2 class="step-title">Your Information</h2>
+            <p class="step-reassurance">You can't break anything here. Everything can be changed later.</p>
 
             <div class="form-group">
                 <label for="organizerName">Your Name</label>
@@ -915,17 +931,20 @@
 
         <!-- Step 2: Shiva Details -->
         <div class="step-card" id="step2">
+            <p class="step-indicator">Step 2 of 3</p>
             <h2 class="step-title">Shiva Details</h2>
+            <p class="step-reassurance">Don't worry about getting everything perfect — you can update these details anytime.</p>
 
             <div class="form-group">
                 <label for="familyName">Family Name</label>
                 <input type="text" id="familyName" placeholder="The Cohen Family" required>
+                <div class="form-hint">You can change this later.</div>
             </div>
 
             <div class="form-group">
                 <label for="shivaAddress">Shiva Address</label>
                 <input type="text" id="shivaAddress" placeholder="123 Main Street, Apt 4B" required>
-                <div class="privacy-notice">This address will only be shared with confirmed volunteers who sign up to bring a meal.</div>
+                <div class="privacy-notice">This address will only be shared with confirmed volunteers who sign up to bring a meal. You can change this later.</div>
             </div>
 
             <div class="form-group">
@@ -961,7 +980,7 @@
             <div class="form-group">
                 <label for="shivaEndDate">End Date</label>
                 <input type="date" id="shivaEndDate" required>
-                <div class="form-hint">Typically 7 days from the start</div>
+                <div class="form-hint">Typically 7 days from the start. You can change this later.</div>
             </div>
 
             <div class="toggle-group">
@@ -1030,7 +1049,9 @@
 
         <!-- Step 3: Optional Extras + Review -->
         <div class="step-card" id="step3">
+            <p class="step-indicator">Step 3 of 3</p>
             <h2 class="step-title">Review &amp; Submit</h2>
+            <p class="step-reassurance">Almost done. Review the details below and you're all set.</p>
 
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;margin:1.5rem 0 1rem;">Summary</h3>
             <div class="review-summary" id="reviewSummary">

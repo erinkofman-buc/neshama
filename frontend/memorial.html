@@ -888,6 +888,11 @@
         .share-btn-icon {
             font-size: 1.1rem;
         }
+        .share-btn-primary {
+            background: #25D366; color: white; flex: 1 1 100%;
+            font-size: 1.1rem; font-weight: 600; justify-content: center;
+        }
+        .share-btn-primary:hover { background: #1da851; color: white; border-color: #1da851; }
 
         /* ── Funeral Home Link ───────────────────────────── */
 
@@ -1111,6 +1116,20 @@
                 opacity: 1 !important;
                 transform: none !important;
             }
+
+            /* Clean print layout */
+            .hero { background: white !important; }
+            .hero-divider { border-color: #999 !important; }
+            .hero-dates, .hero-hebrew { color: #333 !important; }
+            a { color: black !important; text-decoration: underline; }
+            .candle-section, .donation-section { break-inside: avoid; }
+
+            /* Print footer with URL */
+            body::after {
+                content: "Memorial page: " attr(data-print-url) " — neshama.ca";
+                display: block; text-align: center; margin-top: 2rem;
+                font-size: 0.85rem; color: #666;
+            }
         }
     </style>
     <meta name="twitter:card" content="summary_large_image">
@@ -1293,14 +1312,14 @@
         <section class="memorial-section share-section" id="shareSection">
             <h2 class="section-heading">Share This Memorial</h2>
             <div class="share-buttons">
+                <a class="share-btn share-btn-primary" id="shareWhatsApp" href="#" target="_blank" rel="noopener noreferrer">
+                    <span class="share-btn-icon">&#x1F4AC;</span>
+                    Share via WhatsApp
+                </a>
                 <button class="share-btn" id="shareCopy" type="button">
                     <span class="share-btn-icon">&#x1F517;</span>
                     Copy Link
                 </button>
-                <a class="share-btn" id="shareWhatsApp" href="#" target="_blank" rel="noopener noreferrer">
-                    <span class="share-btn-icon">&#x1F4AC;</span>
-                    WhatsApp
-                </a>
                 <a class="share-btn" id="shareEmail" href="#">
                     <span class="share-btn-icon">&#x2709;&#xFE0F;</span>
                     Email
@@ -1984,9 +2003,10 @@
                 });
             });
 
-            // WhatsApp
+            // WhatsApp — grief-appropriate pre-composed message
             var waLink = document.getElementById('shareWhatsApp');
-            waLink.href = 'https://wa.me/?text=' + encodeURIComponent(shareText + '\n' + pageUrl);
+            var waMessage = 'Baruch Dayan HaEmet. ' + obit.deceased_name + ' has passed away. Memorial and shiva details: ' + pageUrl;
+            waLink.href = 'https://wa.me/?text=' + encodeURIComponent(waMessage);
 
             // Email
             var emailLink = document.getElementById('shareEmail');
@@ -1996,6 +2016,7 @@
 
             // Print
             document.getElementById('sharePrint').addEventListener('click', function() {
+                document.body.setAttribute('data-print-url', pageUrl);
                 window.print();
             });
 

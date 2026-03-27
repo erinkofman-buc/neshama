@@ -396,6 +396,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             slug = path[len('/api/vendors/'):]
             self.get_vendor_by_slug(slug)
         # Vendor analytics page (/vendor-analytics/slug)
+        elif path == '/vendor-analytics':
+            self.send_response(301)
+            self.send_header('Location', '/directory')
+            self.end_headers()
         elif path.startswith('/vendor-analytics/') and path != '/vendor-analytics/':
             self.serve_vendor_analytics_page()
         # Vendor detail pages (/directory/slug)
@@ -434,9 +438,17 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
         # Shiva pages
+        elif path == '/shiva':
+            self.send_response(301)
+            self.send_header('Location', '/shiva/organize')
+            self.end_headers()
         elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
         # Memorial pages
+        elif path == '/memorial':
+            self.send_response(301)
+            self.send_header('Location', '/')
+            self.end_headers()
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
         # Yahrzeit confirm/unsubscribe routes
@@ -2550,7 +2562,7 @@ button:hover{background:#c45a1a}</style></head>
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT * FROM vendors WHERE vendor_type = 'food' ORDER BY featured DESC, name ASC")
+                cursor.execute("SELECT * FROM vendors WHERE vendor_type IN ('food', 'services') ORDER BY featured DESC, name ASC")
             except Exception:
                 cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
             vendors = [dict(row) for row in cursor.fetchall()]
@@ -6450,10 +6462,10 @@ def run_server(port=None):
 
         # Migration 2026-03-12: Remove "not_certified" label — confusing, implies certification
         # These vendors are not certified; better to show no kosher badge at all
-        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
         ks_count = cursor.rowcount
         if ks_count > 0:
-            logging.info(f" Migrations: removed 'Kosher Style' label from {ks_count} vendors")
+            logging.info(f" Migrations: changed 'Kosher Style' to 'not_certified' for {ks_count} vendors")
         total_changed += ks_count
 
         # Migration 2026-03-12b: Fix 3 vendors missing website URLs (orange button fix)
@@ -6694,8 +6706,8 @@ def run_server(port=None):
         cursor.execute(f"DELETE FROM shiva_support WHERE id IN ({placeholders})", test_shiva_ids)
         total_changed += cursor.rowcount
 
-        # Migration 2026-03-22b: Remove all 'Kosher Style' labels from vendors
-        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
+        # Migration 2026-03-22b: Fix 'Kosher Style' labels — use 'not_certified' instead
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
         total_changed += cursor.rowcount
 
         # Migration 2026-03-22c: Remove kosher label from Chop Hop (not kosher)
@@ -6750,6 +6762,122 @@ def run_server(port=None):
         if cleaned_count > 0:
             logging.info(f" Migrations: stripped honorific suffixes from {cleaned_count} obituary names")
         total_changed += cleaned_count
+
+        # Migration 2026-03-26: Firecrawl vendor enrichment — emails, instagram, phones
+        firecrawl_enrichment = [
+            "UPDATE vendors SET email = 'info@abasbagel.com', instagram = '@abas.bagels', phone = '(416) 780-2020' WHERE slug = 'abas-bagel-company' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'info@apexkoshercatering.com', instagram = '@apexkoshercatering' WHERE slug = 'apex-kosher-catering' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            # Aroma phone removed — (805) is California, not Toronto
+            "UPDATE vendors SET email = 'edloomy@gmail.com' WHERE slug = 'ba-li-laffa' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@bistro.grande' WHERE slug = 'bistro-grande' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@boxandboardto' WHERE slug = 'box-and-board' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@bubbysbagels.com' WHERE slug = 'bubbys' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@chophop_salads' WHERE slug = 'chop-hop' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@cumbraes' WHERE slug = 'cumbraes' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@deli770' WHERE slug = 'deli-770' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@districtbagel.com', instagram = '@districtbagel' WHERE slug = 'district-bagel' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'catering@elysfinefoods.com' WHERE slug = 'elys-fine-foods' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'catering@elysfinefoods.com' WHERE slug = 'elys-fine-foods-gift-baskets' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@fandbkosher' WHERE slug = 'f-b-kosher-catering' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@fairmountbagel.com' WHERE slug = 'fairmount-bagel' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'info@gibbys.com', instagram = '@gibbysrestaurant' WHERE slug = 'gibbys' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@jem.salads' WHERE slug = 'jem-salads' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'customerservice@laurasecord.ca', phone = '(800) 268-6353' WHERE slug = 'laura-secord' AND (email IS NULL OR email = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'catering@maineventmauzone.com' WHERE slug = 'main-event-catering' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'info@montrealkosher.ca' WHERE slug = 'montreal-kosher-bakery' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@lovemevame' WHERE slug = 'me-va-me' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@menchenscatering', phone = '(416) 638-8381' WHERE slug = 'menchens-glatt-kosher-catering' AND (instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET instagram = '@milknhoneyto' WHERE slug = 'milk-n-honey' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET phone = '(647) 343-4773' WHERE slug = 'noah-kosher-sushi' AND (phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'orlygrill2019@gmail.com' WHERE slug = 'orlys-kitchen' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@prccaterers' WHERE slug = 'prc-caterers' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@paeseristorante' WHERE slug = 'paese-ristorante' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@paisanos_orginal' WHERE slug = 'il-paesano' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'orders@pantryfoods.ca', instagram = '@pantryfoods', phone = '(416) 785-0996' WHERE slug = 'pantry-foods' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'shalomindiacatering@gmail.com' WHERE slug = 'shalom-india' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@snowdondeli' WHERE slug = 'snowdon-deli' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@stviateurbagel' WHERE slug = 'st-viateur-bagel' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@terroni.com' WHERE slug = 'terroni' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@fooddudes' WHERE slug = 'the-food-dudes' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@unitedbakers' WHERE slug = 'united-bakers-dairy-restaurant' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@wokandbowl.ca' WHERE slug = 'wok-bowl' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@zeldensdeli', phone = '(647) 347-3474' WHERE slug = 'zeldens-deli-and-desserts' AND (instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+        ]
+        for stmt in firecrawl_enrichment:
+            cursor.execute(stmt)
+            total_changed += cursor.rowcount
+
+        # Migration 2026-03-26b: Firecrawl vendor images (og:image metadata)
+        firecrawl_images = {
+            "1-800-baskets": "https://images.contentstack.io/v3/assets/bltc699f5c4977942f7/blt8afadb9aace1d727/601c6c964b8030688c37b81f/baskets-com.jpg",
+            "abas-bagel-company": "https://img1.wsimg.com/isteam/ip/b9fc4f49-b834-4894-b337-fadb0b8205fa/blob-247fa0a.png",
+            "aish-tanoor": "http://aishtanoor.com/wp-content/uploads/2019/08/home-pic-2.jpg",
+            "apex-kosher-catering": "https://static.wixstatic.com/media/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg",
+            "aroma-espresso-bar": "https://www.aromaespressobar.ca/wp-content/uploads/2025/01/cropped-aroma-favicon-1.png",
+            "ba-li-laffa": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/website/images/header-logo.png",
+            "beautys-luncheonette": "http://static1.squarespace.com/static/6633b66c8902e916bd868d86/t/66f57916d4f3b30a3b03dc88/1727363350434/Beautys-1942-navy-drop.png?format=1500w",
+            "beyond-delish": "https://www.beyonddelish.ca/logo-for-facebook.png",
+            "bistro-grande": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg",
+            "bubbys": "https://static.wixstatic.com/media/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png/v1/fill/w_2500,h_3196,al_c/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png",
+            "candy-catchers": "http://candycatchers.com/cdn/shop/files/Logo-01_copy_9c297b14-751d-488e-8f22-f4388e1b0dc0.png?height=628&pad_color=ffffff&v=1630532191&width=1200",
+            "centre-street-deli": "https://static.wixstatic.com/media/a9a0b8_a639f1e141ec4594bcb35b4f83b413fc%7Emv2.png/v1/fit/w_2500,h_1330,al_c/a9a0b8_a639f1e141ec4594bcb35b4f83b413fc%7Emv2.png",
+            "chenoys-deli": "https://static.goto-where.com/7042-albums-1.jpg",
+            "cheryls-cookies": "https://images.contentstack.io/v3/assets/blt9f0a9533818afd99/bltbecc4b167616d036/603951582eee966ee2e3d43e/CherylsLogo_250x250.jpg",
+            "chop-hop": "https://static.wixstatic.com/media/0fc9e4_bfb57a9d00934444a0759055b8615b3b~mv2.jpeg/v1/fill/w_2500,h_2000,al_c/0fc9e4_bfb57a9d00934444a0759055b8615b3b~mv2.jpeg",
+            "daiters-kitchen": "https://www.daiterskitchen.ca/media/2020/02/cor4.png",
+            "deli-770": "https://deli770.com/wp-content/uploads/2024/07/Smoked-Meat-.png",
+            "deli-boyz": "https://restaurantdeliboyz.com/wp-content/uploads/2023/12/cropped-favicon-32x32-1.png",
+            "f-b-kosher-catering": "https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Home-Background.jpg",
+            "gibbys": "https://www.gibbys.com/wp-content/uploads/2025/06/cropped-_GB-Shooting2avril128-2.jpg",
+            "harry-david": "https://images.contentstack.io/v3/assets/blt89dbf1c763ec00a6/bltc724c01a1c03ea6f/67d3211a1aa7755631b1b3c9/20_4202_30E_05.jpg",
+            "la-marguerite-catering": "http://www.lamarguerite.ca/cdn/shop/files/SHOPIFY_1200x1200.png?v=1683573799",
+            "lesters-deli": "https://i0.wp.com/lestersdeli.com/wp-content/uploads/2023/10/Homepage-Lesters.webp",
+            "mandys": "https://mandys.ca/wp-content/uploads/2025/02/cropped-Mandys-Gourmet-Salads.webp",
+            "me-va-me": "https://lirp.cdn-website.com/ed3e1e79/dms3rep/multi/opt/mevame_open_graph-1920w.jpg",
+            "menchens-glatt-kosher-catering": "https://menchens.ca/img/logo_og.jpg",
+            "mitzuyan-kosher-catering": "https://staging9.mitzuyankoshercatering.com/wp-content/uploads/2021/03/Kosher-Wedding-Package_Mitzuyan-Kosher-Catering_CM.jpg",
+            "moishes": "https://moishes.ca/wp-content/uploads/2023/05/moishes_og.jpg",
+            "noah-kosher-sushi": "https://noah-kosher-sushi.vercel.app/images/og-thumbnail.webp",
+            "nosherz": "http://nosherz.com/cdn/shop/files/Nosherz_Sticker-Logo_Final_1200x1200.jpg?v=1629121749",
+            "oinegs-kosher": "https://static.wixstatic.com/media/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg",
+            "olive-et-gourmando": "http://oliveetgourmando.com/cdn/shop/files/Olive_LOGO.svg?height=628&pad_color=ffffff&v=1720203290&width=1200",
+            "pancers-original-deli": "https://static.wixstatic.com/media/ccc15e_a59923da2656400984c425b7afb4ce04.png/v1/fit/w_2500,h_1330,al_c/ccc15e_a59923da2656400984c425b7afb4ce04.png",
+            "paradise-kosher-catering": "https://www.paradisekosher.com/wp-content/uploads/2018/07/kosher350.png",
+            "parallel": "https://cdn.sanity.io/images/x07rp3eb/production/26e17ca9c79d53e2d548d75d2334c10c29c8384a-1737x1172.jpg",
+            "pickle-barrel": "https://www.picklebarrel.ca/content/dam/cara/en/pickle-barrel-image-library/pb-share-image.jpg",
+            "pizza-gourmetti": "https://i.ibb.co/ZW3nCyT/gourmetti-logo.png",
+            "prc-caterers": "https://prccaterers.com/wp-content/uploads/2024/09/01HERB1-scaled.jpg",
+            "purdys-chocolatier": "https://www.purdys.com/media/og_image/stores/1/logo.png",
+            "pusateris-fine-foods": "https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg",
+            "richmond-kosher-bakery": "https://richmondkosherbakery.com/wp-content/uploads/2023/08/Share.jpg",
+            "royal-dairy-cafe-catering": "https://royaldairycafe.com/wp-content/uploads/2025/12/Royal-Dairy-Cafe-Logo-Main.svg",
+            "schwartzs-deli": "http://schwartzsdeli.com/cdn/shop/t/9/assets/logo.png?v=974",
+            "st-viateur-bagel": "http://stviateurbagel.com/cdn/shop/files/st-viateur-bagel-social-share.png?v=1737128349",
+            "summerhill-market": "http://static1.squarespace.com/static/6478a38999812546babb8e36/t/67bf42b0d7ee0406f0c5f769/1724096196631/5.png?format=1500w",
+            # sushi-inn removed — ChowNow generic placeholder, not restaurant image
+            "terroni": "https://cdn.prod.website-files.com/62fc3b45d1a5bb6c2ec29d06/638565decf1e5fde853b7361_og-gruppo-terroni-30.png",
+            "the-chicken-nest": "https://static.wixstatic.com/media/e6a6d4_faddf65a9b8b400f8b4ddfbefcc91742%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/e6a6d4_faddf65a9b8b400f8b4ddfbefcc91742%7Emv2.jpg",
+            "the-fruit-company": "http://www.thefruitcompany.com/cdn/shop/files/Recurso_1.png?height=628&pad_color=ffffff&v=1706213999&width=1200",
+            # tutto-pronto removed — WordPress theme demo image, not restaurant
+            "united-bakers-dairy-restaurant": "http://unitedbakers.ca/cdn/shop/files/UB_Logos_UB_Secondary_Logo_1.png?v=1662426190",
+            "what-a-bagel": "https://www.whatabagel.com/wp-content/uploads/2019/07/slider-home-01.jpg",
+            "wolfermans-bakery": "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/blta0835708627fd460/602076e937c7bc6afba5213d/Wolfermans-Logo-250x250.jpg",
+        }
+        for slug, img_url in firecrawl_images.items():
+            cursor.execute("UPDATE vendors SET image_url = ? WHERE slug = ? AND (image_url IS NULL OR image_url = '')", (img_url, slug))
+            total_changed += cursor.rowcount
+
+        # Centre Street Deli instagram from image pass
+        cursor.execute("UPDATE vendors SET instagram = '@centrestreetdeli1988' WHERE slug = 'centre-street-deli' AND (instagram IS NULL OR instagram = '')")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-26c: Fix Candy Catchers bare "Kosher" label
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'candy-catchers' AND kosher_status = 'Kosher'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-26d: Fix Tarnofsky test shiva — set to public so link works
+        cursor.execute("UPDATE shiva_support SET privacy = 'public' WHERE id = '1f94514f-931c-4147-8f4f-1847a0368815' AND privacy = 'private'")
+        total_changed += cursor.rowcount
 
         conn.commit()
         conn.close()
