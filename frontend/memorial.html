@@ -1256,6 +1256,7 @@
             <!-- Submission form -->
             <div class="guestbook-form-wrapper">
                 <h3 class="guestbook-form-title">Add to the Guestbook</h3>
+                <p style="font-size: 0.9rem; color: var(--sage-dark); margin: -0.25rem 0 1rem 0; line-height: 1.5;">Your message appears only on Neshama and is not shared with the funeral home.</p>
 
                 <!-- Entry type selector -->
                 <div class="entry-type-selector" id="entryTypeSelector">
@@ -1832,6 +1833,7 @@
                     candle: 'A candle has been lit.'
                 };
                 msgEl.className = 'form-message success';
+                msgEl.style.display = 'block';
                 var thankYou = successMsgs[entryType] || 'Thank you for your entry.';
                 msgEl.innerHTML = '<span class="confirm-icon">&#x2713;</span>' + thankYou + '<br><span style="font-size:0.88em;color:var(--sage-dark);margin-top:0.25rem;display:inline-block;">Your entry will appear in the guestbook below.</span>';
                 msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1850,6 +1852,7 @@
             })
             .catch(function(err) {
                 msgEl.className = 'form-message error';
+                msgEl.style.display = 'block';
                 msgEl.textContent = err.message || 'We weren\'t able to save your entry. Please try again.';
                 btn.disabled = false;
                 btn.textContent = originalText;

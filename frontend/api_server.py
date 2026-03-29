@@ -295,6 +295,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/jewish-funeral-etiquette.html': ('jewish-funeral-etiquette.html', 'text/html'),
         '/condolence-messages': ('condolence-messages.html', 'text/html'),
         '/condolence-messages.html': ('condolence-messages.html', 'text/html'),
+        '/shiva-dos-and-donts': ('shiva-dos-and-donts.html', 'text/html'),
+        '/shiva-dos-and-donts.html': ('shiva-dos-and-donts.html', 'text/html'),
+        '/jewish-death-traditions': ('jewish-death-traditions.html', 'text/html'),
+        '/jewish-death-traditions.html': ('jewish-death-traditions.html', 'text/html'),
+        '/types-of-shiva': ('types-of-shiva.html', 'text/html'),
+        '/types-of-shiva.html': ('types-of-shiva.html', 'text/html'),
+        '/grief-support': ('grief-support.html', 'text/html'),
+        '/grief-support.html': ('grief-support.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
         '/gifts': ('gifts.html', 'text/html'),
@@ -791,7 +799,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             if city:
                 cursor.execute(f'''
                     SELECT o.*,
-                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                           s.id AS shiva_id
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
@@ -802,7 +811,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             else:
                 cursor.execute(f'''
                     SELECT o.*,
-                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                           s.id AS shiva_id
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
@@ -831,7 +841,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             cursor.execute('''
                 SELECT o.*,
-                       CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                       CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                       s.id AS shiva_id
                 FROM obituaries o
                 LEFT JOIN shiva_support s
                   ON s.obituary_id = o.id AND s.status = 'active'

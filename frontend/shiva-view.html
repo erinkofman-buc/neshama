@@ -2312,11 +2312,11 @@
             show('mainContent');
         }
 
-        function showAccessForm() {
+        window.showAccessForm = function() {
             show('accessForm');
-        }
+        };
 
-        function submitAccessRequest() {
+        window.submitAccessRequest = function() {
             var name = document.getElementById('accessName').value.trim();
             var email = document.getElementById('accessEmail').value.trim();
             var message = document.getElementById('accessMessage').value.trim();

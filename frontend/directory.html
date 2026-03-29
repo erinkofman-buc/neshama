@@ -720,6 +720,22 @@
         var kosherActive = false;
         var deliveryActive = false;
 
+        // Apply URL query params (e.g. /directory?filter=kosher)
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var filter = params.get('filter');
+            if (filter === 'kosher') {
+                kosherActive = true;
+                kosherToggle.classList.add('active');
+                kosherToggle.setAttribute('aria-pressed', 'true');
+            }
+            if (filter === 'delivery') {
+                deliveryActive = true;
+                deliveryToggle.classList.add('active');
+                deliveryToggle.setAttribute('aria-pressed', 'true');
+            }
+        })();
+
         var montrealKeywords = ['montreal','montréal','côte-saint-luc','cote-saint-luc',
             'outremont','mile end','snowdon','hampstead','westmount','dollard',
             'mount royal','plateau','saint-henri','old montreal','côte-des-neiges'];

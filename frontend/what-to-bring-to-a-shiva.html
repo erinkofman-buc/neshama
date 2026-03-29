@@ -347,6 +347,15 @@
             .section h2 { font-size: 1.5rem; }
             .footer-links { gap: 1.25rem; }
         }
+
+        @media print {
+            nav, footer, .hero, .cta-section, .affiliate-disclaimer, button, .vendor-cards-grid { display: none !important; }
+            .content-wrapper { max-width: 100%; padding: 0; }
+            .section { padding: 0.5rem 0; box-shadow: none; background: white; }
+            #printableChecklist { border: 1px solid #ccc; page-break-inside: avoid; }
+            body { font-size: 12pt; color: #000; }
+            a { color: #000; text-decoration: none; }
+        }
     </style>
     <script type="application/ld+json">
     {
@@ -422,7 +431,7 @@
 
             <div style="background: var(--cream); border: 2px solid var(--sage); border-radius: 1rem; padding: 1.25rem 1.5rem; margin-top: 1.5rem; text-align: center;">
                 <p style="font-size: 1.05rem; color: var(--dark-brown); margin: 0 0 0.75rem 0; font-family: 'Cormorant Garamond', serif; font-weight: 500;">Want to order a meal instead of cooking?</p>
-                <a href="/help/food" style="display: inline-block; background: var(--terracotta); color: white; text-decoration: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;">Browse Local Caterers &rarr;</a>
+                <a href="/directory?filter=kosher" style="display: inline-block; background: var(--terracotta); color: white; text-decoration: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;">Browse Kosher Caterers &rarr;</a>
             </div>
         </div>
 
@@ -512,6 +521,64 @@
             <p>
                 If you're helping the family prepare their home for shiva, we've put together a <a href="/help/supplies">Shiva Essentials guide</a> covering memorial candles, prayer books, seating, serving supplies, and comfort items &mdash; everything the community may need, gathered in one place.
             </p>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Printable Shiva Essentials Checklist</h2>
+            <p>
+                Heading to a shiva and want to make sure you have everything? Print this quick list and check off as you go.
+            </p>
+            <div style="background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;" id="printableChecklist">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 1rem; color: var(--dark-brown);">Shiva Visit Checklist</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; A prepared meal or hearty dish (enough for 6&ndash;8 people)</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Disposable containers &mdash; no returns needed</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Labels with dish name, ingredients, dairy/meat/pareve, and reheating instructions</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Paper goods &mdash; plates, cups, napkins, cutlery (<a href="https://www.amazon.ca/dp/B0CDR2FR8H?tag=neshama07-20" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta);">bulk paper goods</a>)</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Beverages &mdash; coffee, tea, juice boxes, bottled water</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Snacks for between meals &mdash; fruit, cookies, nuts, crackers</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; A sympathy card or brief handwritten note (<a href="https://www.amazon.ca/dp/B0C1MZ83LC?tag=neshama07-20" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta);">sympathy cards</a>)</li>
+                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--cream);">&#x2610; Garbage bags and paper towels (<a href="https://www.amazon.ca/dp/B07GRDDJJF?tag=neshama07-20" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta);">supplies</a>)</li>
+                    <li style="padding: 0.4rem 0;">&#x2610; <em>Optional:</em> A memorial candle if you're not sure the family has one (<a href="https://www.amazon.ca/dp/B0006GQEMC?tag=neshama07-20" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta);">7-day memorial candle</a>)</li>
+                </ul>
+                <div style="text-align: center; margin-top: 1.25rem;">
+                    <button onclick="window.print()" style="background: var(--terracotta); color: white; border: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; min-height: 44px;">Print This Checklist</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>What to Do with Excess Food at a Shiva House</h2>
+            <p>
+                It's a beautiful thing when a community shows up with food. But sometimes there's more than the family can use, and it helps to know what to do.
+            </p>
+            <ul>
+                <li><strong>Don't take food home from the shiva house.</strong> Even if there seems to be too much, the family may need it for the next day, for visitors who come later, or simply to feed themselves when the shiva ends and the quiet sets in.</li>
+                <li><strong>Ask the organizer first.</strong> If you're genuinely trying to help reduce waste, check with whoever is coordinating. They'll know if food should be redirected.</li>
+                <li><strong>Offer to portion and freeze.</strong> If you notice the family is overwhelmed with food, offer to pack individual portions and label them for the freezer. This is one of the most practical things you can do &mdash; those frozen meals become a lifeline in the weeks after shiva ends.</li>
+                <li><strong>Coordinate with the meal organizer.</strong> If you're part of the meal coordination group, flag the surplus so future meals can be adjusted. Our <a href="/shiva/guide">shiva coordination guide</a> can help.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>The weeks after shiva matter most.</strong> When shiva ends and the visitors stop coming, the family still needs to eat. Frozen meals from the shiva week become genuinely precious.
+            </div>
+        </div>
+
+        <div class="section" data-animate>
+            <h2>Gift Ideas That Truly Help</h2>
+            <p>
+                Sometimes the most meaningful gift isn't something wrapped &mdash; it's something practical that takes a burden off the family's shoulders.
+            </p>
+            <ul>
+                <li><strong>Hire a cleaning service.</strong> After a week of visitors, the house needs attention the family shouldn't have to think about. Arranging a one-time deep clean after shiva ends is one of the most thoughtful gifts you can give.</li>
+                <li><strong>Be the point-of-contact.</strong> Offer to be the person who coordinates visitors, food deliveries, and logistics so the family doesn't have to manage it themselves. Our <a href="/shiva/organize">meal coordination tool</a> makes this easy.</li>
+                <li><strong>Grocery delivery or meal kit.</strong> A week's worth of groceries or prepared meal delivery for after shiva ends keeps the family fed when the community meals stop.</li>
+                <li><strong>Childcare or school pickup.</strong> If the family has young children, offering specific help ("I'll pick up the kids Tuesday and Thursday") is far more useful than "let me know if you need anything."</li>
+                <li><strong>Practical errands.</strong> Picking up dry cleaning, walking the dog, handling mail &mdash; small things that pile up when someone is grieving.</li>
+                <li><strong>A comfort basket.</strong> If you'd rather bring something tangible: herbal tea, a soft blanket, a journal, or a book about grief. Keep it simple and warm. Browse our <a href="/help/gifts?utm_source=content&utm_medium=inline_link&utm_content=what-to-bring">curated gift ideas</a>.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>Be specific.</strong> Instead of "let me know if you need anything," say "I'm bringing dinner Tuesday &mdash; does 5 pm work?" Grieving families rarely have the energy to delegate.
+            </div>
         </div>
 
         <div class="section cta-section" data-animate>

@@ -350,10 +350,11 @@ class NeshamaApp {
             ? '<span class="card-tributes">' + this.svgIconHeart() + ' ' + tributeCount + '</span>'
             : '<span class="card-tributes"></span>';
 
-        // Shiva badge
+        // Shiva support page button
         let shivaBadge = '';
         if (obit.has_shiva) {
-            shivaBadge = '<a href="/shiva/' + obit.id + '" class="card-shiva-badge" onclick="event.stopPropagation()" title="Active shiva support page">' + this.svgIconShiva() + ' Shiva</a>';
+            var shivaUrl = '/shiva/' + (obit.shiva_id || obit.id);
+            shivaBadge = '<a href="' + shivaUrl + '" class="card-shiva-btn" onclick="event.stopPropagation()" title="Active shiva support page">' + this.svgIconShiva() + ' View Shiva Support Page \u2192</a>';
         }
 
         // Organize Shiva link (only when no active shiva page)
