@@ -1240,7 +1240,10 @@
             })
             .then(function(r) {
                 if (r.status === 429) throw new Error('Too many requests. Please wait a moment and try again.');
-                if (!r.ok) return r.json().then(function(d) { throw new Error(d.error || 'Something went wrong. Please try again.'); });
+                if (!r.ok) return r.json().then(function(d) {
+                    var msg = (d.error && d.error.message) ? d.error.message : (typeof d.error === 'string' ? d.error : (d.message || 'Something went wrong. Please try again.'));
+                    throw new Error(msg);
+                });
                 return r.json();
             })
             .then(function(data) {
