@@ -223,9 +223,27 @@ class NeshamaDatabase:
         content_hash = self.generate_content_hash(obituary_data)
         now = datetime.now().isoformat()
 
-        # Check if obituary exists
+        # Check if obituary exists by ID (exact name match)
         self.cursor.execute('SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,))
         existing = self.cursor.fetchone()
+
+        # Also check for same funeral home + same funeral datetime (name may have been corrected)
+        if not existing and obituary_data.get('funeral_datetime'):
+            source_norm = obituary_data['source'].strip()
+            funeral_dt = obituary_data['funeral_datetime'].strip()
+            self.cursor.execute('''
+                SELECT id, content_hash, deceased_name FROM obituaries
+                WHERE source = ? AND funeral_datetime = ? AND funeral_datetime != ''
+                LIMIT 1
+            ''', (source_norm, funeral_dt))
+            name_corrected = self.cursor.fetchone()
+            if name_corrected:
+                # Same funeral home, same funeral time — this is a name correction, not a new person
+                obit_id = name_corrected[0]
+                existing = name_corrected
+                # Update the name to the corrected version
+                self.cursor.execute('UPDATE obituaries SET deceased_name = ? WHERE id = ?',
+                    (obituary_data['deceased_name'], obit_id))
 
         if existing:
             # Update if content changed

@@ -238,47 +238,45 @@
                 </div>
             </div>
 
-            <!-- Section 3: Coordination Preferences -->
+            <!-- Section 3: How Can People Help? -->
             <div class="form-card">
-                <h2 class="section-header">Coordination Preferences</h2>
-                <p class="section-hint">Help volunteers know how to help. You can always change these later.</p>
+                <h2 class="section-header">How Can People Help?</h2>
+                <p class="section-hint">Tell your community what the family needs right now. You can always update this later.</p>
+
                 <div class="form-group">
-                    <label>Visiting hours</label>
-                    <div class="form-row" id="visitingHoursRow">
-                        <div class="form-group">
-                            <input type="time" id="visitingStart" name="visiting_hours_start" value="10:00" aria-label="Visiting hours start">
-                        </div>
-                        <div style="padding-bottom:1.25rem;color:var(--sage-dark);">to</div>
-                        <div class="form-group">
-                            <input type="time" id="visitingEnd" name="visiting_hours_end" value="20:00" aria-label="Visiting hours end">
-                        </div>
-                    </div>
-                    <div class="checkbox-row">
-                        <input type="checkbox" id="noVisitingHours" name="no_visiting_hours">
-                        <label for="noVisitingHours">No set visiting hours</label>
-                    </div>
+                    <label for="address">Address <span class="optional">(optional)</span></label>
+                    <input type="text" id="address" name="address" placeholder="Where meals and visitors should go" autocomplete="street-address">
+                    <div class="form-hint">Only shared with confirmed volunteers — not visible publicly.</div>
                 </div>
-                <div class="toggle-group">
-                    <label class="toggle-switch" aria-label="Meals needed">
-                        <input type="checkbox" id="mealsNeeded" name="meals_needed" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label">Meals needed</span>
-                </div>
-                <div class="conditional-fields visible" id="mealFields">
-                    <div class="form-group">
-                        <label for="mealServings">How many people to feed?</label>
-                        <input type="number" id="mealServings" name="meal_servings" min="1" max="50" value="6" style="max-width:120px;">
-                    </div>
-                    <div class="form-group">
-                        <label for="dietaryNotes">Dietary notes <span class="optional">(optional)</span></label>
-                        <input type="text" id="dietaryNotes" name="dietary_notes" placeholder="e.g., Kosher, no nuts, vegetarian options welcome">
-                    </div>
-                </div>
+
                 <div class="form-group">
-                    <label for="address">Address for drop-offs <span class="optional">(optional)</span></label>
-                    <input type="text" id="address" name="address" placeholder="123 Bathurst St, Toronto" autocomplete="street-address">
-                    <div class="privacy-notice">Only shared with confirmed volunteers</div>
+                    <label for="mealServings">Number of People to Feed per Meal</label>
+                    <input type="number" id="mealServings" name="meal_servings" value="6" min="1" max="50">
+                    <div class="form-hint">Approximate number of people at the house each day</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dietaryNotes">Dietary Notes <span class="optional">(optional)</span></label>
+                    <textarea id="dietaryNotes" name="dietary_notes" placeholder="e.g., Strictly kosher, nut allergy, vegetarian options welcome..." rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialInstructions">Special Instructions <span class="optional">(optional)</span></label>
+                    <textarea id="specialInstructions" name="special_instructions" placeholder="e.g., Please use side entrance, ring doorbell, best times to visit..." rows="2"></textarea>
+                    <div class="form-hint">Anything visitors and volunteers should know</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Visiting Hours <span class="optional">(optional)</span></label>
+                    <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                        <input type="time" id="visitingStart" name="visiting_hours_start" value="10:00" aria-label="Visiting hours start" style="flex:1; min-width:120px;">
+                        <span style="color:var(--sage-dark);">to</span>
+                        <input type="time" id="visitingEnd" name="visiting_hours_end" value="20:00" aria-label="Visiting hours end" style="flex:1; min-width:120px;">
+                    </div>
+                    <div style="margin-top:0.5rem;">
+                        <input type="checkbox" id="noVisitingHours" name="no_visiting_hours" style="margin-right:0.5rem;">
+                        <label for="noVisitingHours" style="font-size:0.95rem; color:var(--sage-dark);">No set visiting hours — visitors welcome anytime</label>
+                    </div>
                 </div>
             </div>
 
