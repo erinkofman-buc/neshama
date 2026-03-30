@@ -117,9 +117,51 @@ class CareManager:
             )
         ''')
 
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS care_providers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                provider_type TEXT NOT NULL,
+                description TEXT,
+                city TEXT,
+                neighbourhood TEXT,
+                phone TEXT,
+                email TEXT,
+                website TEXT,
+                instagram TEXT,
+                services TEXT,
+                price_range TEXT,
+                image_url TEXT,
+                featured INTEGER DEFAULT 0,
+                virtual_available INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+        ''')
+
         conn.commit()
         conn.close()
         logging.info("[Care] Database tables initialized")
+
+    def get_providers(self, provider_type=None, city=None):
+        """Get care providers, optionally filtered by type and city."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        query = 'SELECT * FROM care_providers WHERE 1=1'
+        params = []
+        if provider_type:
+            query += ' AND provider_type = ?'
+            params.append(provider_type)
+        if city:
+            query += ' AND LOWER(city) LIKE ?'
+            params.append(f'%{city.lower()}%')
+
+        query += ' ORDER BY featured DESC, name ASC'
+        cursor.execute(query, params)
+        providers = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return {'status': 'success', 'data': providers}
 
     def _sanitize(self, text, max_len=500):
         if not text:

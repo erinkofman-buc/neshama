@@ -316,6 +316,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/grief-support.html': ('grief-support.html', 'text/html'),
         '/care/setup': ('care-setup.html', 'text/html'),
         '/care-setup': ('care-setup.html', 'text/html'),
+        '/find-a-death-doula': ('death-doula-directory.html', 'text/html'),
+        '/find-home-care': ('home-care-directory.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
         '/gifts': ('gifts.html', 'text/html'),
@@ -458,6 +460,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
+        # Care providers API
+        elif path == '/api/providers':
+            self.handle_get_providers()
         # Care coordination API
         elif path.startswith('/api/care/') and not path.endswith('/meals') and not path.endswith('/visitors') and not path.endswith('/tasks') and not path.endswith('/updates'):
             care_id = path[len('/api/care/'):]
@@ -4382,6 +4387,21 @@ button:hover{background:#c45a1a}</style></head>
 </html>'''
 
     # ── Care Coordination Handlers ─────────────────────────────
+
+    def handle_get_providers(self):
+        """GET care providers (death doulas, PSWs, home care)"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'success', 'data': []})
+            return
+        try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            provider_type = params.get('type', [''])[0] or None
+            city = params.get('city', [''])[0] or None
+            result = care_mgr.get_providers(provider_type=provider_type, city=city)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def serve_care_page(self):
         """Serve the care coordination page (JS handles data loading)"""
