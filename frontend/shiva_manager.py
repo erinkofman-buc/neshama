@@ -437,9 +437,9 @@ class ShivaManager:
     # ── Create Support Page ───────────────────────────────────
 
     def _normalize_obituary_id(self, obit_id):
-        """Normalize obituary_id: treat 'unknown', empty string as None."""
-        if not obit_id or str(obit_id).strip() in ('unknown', ''):
-            return None
+        """Normalize obituary_id: treat 'unknown', empty string as 'standalone'."""
+        if not obit_id or str(obit_id).strip() in ('unknown', '', 'null', 'None'):
+            return 'standalone'
         return str(obit_id).strip()
 
     def create_support(self, data):
