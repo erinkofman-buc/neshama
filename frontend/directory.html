@@ -188,6 +188,15 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            position: sticky;
+            top: 56px;
+            z-index: 100;
+            background: rgba(250, 249, 246, 0.97);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
         }
 
         .filter-pills-row {
@@ -425,7 +434,7 @@
         /* Category as colored pill (Task 4) */
         .vendor-category {
             display: inline-block;
-            font-size: 0.8rem;
+            font-size: 1rem;
             color: var(--terracotta);
             font-weight: 500;
             padding: 0.15rem 0.6rem;
@@ -451,7 +460,7 @@
 
         /* Vendor location line (Task 4) */
         .vendor-location {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--sage-dark);
             margin-top: auto;
             padding-top: 0.5rem;
@@ -464,7 +473,7 @@
             padding: 0.75rem;
             color: var(--terracotta);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             text-decoration: none;
             border-top: 1px solid rgba(210, 105, 30, 0.1);
             transition: background 0.2s;
@@ -560,8 +569,35 @@
             .hero { padding: 1.5rem 1.5rem 1rem; }
             .hero-search input { font-size: 1rem; padding: 0.75rem 1rem 0.75rem 2.75rem; }
             .vendor-card-img { height: 150px; }
-            .vendor-card h3 { font-size: 1.25rem; }
+            .vendor-card h3 { font-size: 1.35rem; }
             .footer-links { gap: 1.25rem; }
+        }
+        .show-more-wrapper {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        .show-more-btn {
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.85rem 2.5rem;
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            cursor: pointer;
+            min-height: 56px;
+            transition: all 0.2s;
+        }
+        .show-more-btn:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+        }
+        .show-more-count {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--sage-dark);
         }
     </style>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
@@ -626,32 +662,17 @@
             <button class="cat-pill" data-cat="Caterers" onclick="setCat('Caterers',this)">
                 <span class="cat-pill-icon">&#127858;</span> Caterers
             </button>
-            <button class="cat-pill" data-cat="Bagel Shops &amp; Bakeries" onclick="setCat('Bagel Shops &amp; Bakeries',this)">
-                <span class="cat-pill-icon">&#127838;</span> Bakeries
-            </button>
-            <button class="cat-pill" data-cat="Kosher Restaurants &amp; Caterers" onclick="setCat('Kosher Restaurants &amp; Caterers',this)">
-                <span class="cat-pill-icon">&#127860;</span> Kosher
-            </button>
-            <button class="cat-pill" data-cat="Restaurants &amp; Delis" onclick="setCat('Restaurants &amp; Delis',this)">
+            <button class="cat-pill" data-cat="Delis &amp; Restaurants" onclick="setCat('Delis &amp; Restaurants',this)">
                 <span class="cat-pill-icon">&#129386;</span> Delis
             </button>
-            <button class="cat-pill" data-cat="Delis &amp; Smoked Meat" onclick="setCat('Delis &amp; Smoked Meat',this)">
-                <span class="cat-pill-icon">&#129385;</span> Smoked Meat
+            <button class="cat-pill" data-cat="Bagel Shops &amp; Bakeries" onclick="setCat('Bagel Shops &amp; Bakeries',this)">
+                <span class="cat-pill-icon">&#127838;</span> Bakeries
             </button>
             <button class="cat-pill" data-cat="Middle Eastern &amp; Israeli" onclick="setCat('Middle Eastern &amp; Israeli',this)">
                 <span class="cat-pill-icon">&#129474;</span> Middle Eastern
             </button>
-            <button class="cat-pill" data-cat="Pizza &amp; Dairy" onclick="setCat('Pizza &amp; Dairy',this)">
-                <span class="cat-pill-icon">&#127829;</span> Pizza
-            </button>
-            <button class="cat-pill" data-cat="Italian" onclick="setCat('Italian',this)">
-                <span class="cat-pill-icon">&#127837;</span> Italian
-            </button>
-            <button class="cat-pill" data-cat="Japanese &amp; Sushi" onclick="setCat('Japanese &amp; Sushi',this)">
-                <span class="cat-pill-icon">&#127843;</span> Sushi
-            </button>
-            <button class="cat-pill" data-cat="Mediterranean" onclick="setCat('Mediterranean',this)">
-                <span class="cat-pill-icon">&#127813;</span> Mediterranean
+            <button class="cat-pill" data-cat="Italian &amp; Pizza" onclick="setCat('Italian &amp; Pizza',this)">
+                <span class="cat-pill-icon">&#127829;</span> Italian &amp; Pizza
             </button>
             <button class="cat-pill" data-cat="Event Staff &amp; Services" onclick="setCat('Event Staff &amp; Services',this)">
                 <span class="cat-pill-icon">&#128188;</span> Event Staff
@@ -668,7 +689,7 @@
         </div>
     </div>
 
-    <p class="result-count" id="resultCount"></p>
+    <p class="result-count" id="resultCount" aria-live="polite" aria-atomic="true"></p>
 
     <div class="vendor-grid" id="vendorGrid">
         <div class="no-results" id="loadingMsg">Loading vendors...</div>
@@ -709,6 +730,7 @@
     (function() {
         'use strict';
         var allVendors = [];
+        var displayLimit = 12;
         var activeCity = 'all';
         var activeCategory = '';
         var searchInput = document.getElementById('searchInput');
@@ -720,7 +742,7 @@
         var kosherActive = false;
         var deliveryActive = false;
 
-        // Apply URL query params (e.g. /directory?filter=kosher)
+        // Apply URL query params (e.g. /directory?filter=kosher&category=Caterers&city=toronto)
         (function() {
             var params = new URLSearchParams(window.location.search);
             var filter = params.get('filter');
@@ -734,20 +756,51 @@
                 deliveryToggle.classList.add('active');
                 deliveryToggle.setAttribute('aria-pressed', 'true');
             }
+
+            // Pre-select category from URL param
+            var categoryParam = params.get('category');
+            if (categoryParam) {
+                var pills = document.querySelectorAll('.cat-pill');
+                pills.forEach(function(p) {
+                    if (p.getAttribute('data-cat') === categoryParam) {
+                        pills.forEach(function(pp) { pp.classList.remove('active'); });
+                        p.classList.add('active');
+                        activeCategory = categoryParam;
+                    }
+                });
+            }
+
+            // Pre-select city from URL param
+            var cityParam = params.get('city');
+            if (cityParam) {
+                var cityLower = cityParam.toLowerCase();
+                if (cityLower === 'toronto' || cityLower === 'montreal') {
+                    activeCity = cityLower;
+                    var cityBtns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
+                    cityBtns.forEach(function(b) { b.classList.remove('active'); });
+                    if (cityLower === 'toronto') {
+                        document.getElementById('cityToronto').classList.add('active');
+                    } else {
+                        document.getElementById('cityMontreal').classList.add('active');
+                    }
+                }
+            }
         })();
 
         var montrealKeywords = ['montreal','montréal','côte-saint-luc','cote-saint-luc',
             'outremont','mile end','snowdon','hampstead','westmount','dollard',
-            'mount royal','plateau','saint-henri','old montreal','côte-des-neiges'];
+            'mount royal','plateau','saint-henri','old montreal','côte-des-neiges',
+            'cote-des-neiges','saint-laurent'];
 
         var torontoNeighborhoods = ['Annex','Bathurst Manor','Bayview Village','Bloor West',
-            'Cabbagetown','Church-Wellesley','Don Mills','Eglinton West','Forest Hill',
-            'GTA-wide','Harbord Village','Kensington','Lawrence Heights','Lawrence Park',
-            'Leslieville','Liberty Village','Little Italy','North York','Queen West',
-            'Richmond Hill','Summerhill','Thornhill','Toronto','Yorkville'];
+            'Cabbagetown','Church-Wellesley','Don Mills','Downsview','Eglinton West',
+            'Forest Hill','GTA-wide','Harbord Village','Kensington','Lawrence Heights',
+            'Lawrence Park','Leslieville','Liberty Village','Little Italy','Midtown',
+            'North York','Ossington','Queen West','Richmond Hill','Summerhill',
+            'Thornhill','Toronto','Yorkville'];
         var montrealNeighborhoods = ['Côte-des-Neiges','Côte-Saint-Luc','Dollard-des-Ormeaux',
             'Downtown','Mile End','Mount Royal','Old Montreal','Outremont',
-            'Plateau Mont-Royal','Saint-Henri','Snowdon'];
+            'Plateau Mont-Royal','Saint-Henri','Saint-Laurent','Snowdon'];
 
         function isMontrealVendor(v) {
             var nb = (v.neighborhood || '').toLowerCase();
@@ -759,6 +812,7 @@
 
         window.setCity = function(city, btn) {
             activeCity = city;
+            displayLimit = 12;
             var btns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
             btns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
@@ -768,6 +822,7 @@
 
         window.setCat = function(cat, btn) {
             activeCategory = cat;
+            displayLimit = 12;
             var pills = document.querySelectorAll('.cat-pill');
             pills.forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
@@ -851,16 +906,18 @@
                 return defaultColor;
             }
 
+            var visible = vendors.slice(0, displayLimit);
             var html = '';
-            for (var i = 0; i < vendors.length; i++) {
-                var v = vendors[i];
+            for (var i = 0; i < visible.length; i++) {
+                var v = visible[i];
                 var color = getCatColor(v.category);
                 var initial = escapeHtml(v.name.charAt(0));
+                var detailUrl = '/directory/' + encodeURIComponent(v.slug) + '?from=directory';
 
                 html += '<div class="vendor-card">';
 
                 // Clickable area: image + body content
-                html += '<a href="/directory/' + encodeURIComponent(v.slug) + '" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex-grow:1;">';
+                html += '<a href="' + detailUrl + '" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex-grow:1;">';
 
                 // Image or branded placeholder with badge overlays
                 html += '<div class="vendor-card-img">';
@@ -911,13 +968,29 @@
                 html += '</div>'; // close vendor-card-body
                 html += '</a>'; // close clickable area
 
-                // Single CTA (Task 4)
-                html += '<a href="/directory/' + encodeURIComponent(v.slug) + '" class="vendor-card-cta">View Details</a>';
+                // Single CTA
+                html += '<a href="' + detailUrl + '" class="vendor-card-cta">View Details</a>';
 
                 html += '</div>'; // close vendor-card
             }
+
+            // Show More button if there are more vendors
+            if (vendors.length > displayLimit) {
+                var remaining = vendors.length - displayLimit;
+                var nextBatch = remaining < 12 ? remaining : 12;
+                html += '<div class="show-more-wrapper">';
+                html += '<button class="show-more-btn" onclick="window.showMoreVendors()">Show ' + nextBatch + ' More Vendors</button>';
+                html += '<p class="show-more-count">Showing ' + displayLimit + ' of ' + vendors.length + ' vendors</p>';
+                html += '</div>';
+            }
+
             vendorGrid.innerHTML = html;
         }
+
+        window.showMoreVendors = function() {
+            displayLimit += 12;
+            filterVendors();
+        };
 
         function filterVendors() {
             var query = searchInput.value.toLowerCase().trim();
@@ -951,11 +1024,12 @@
             return div.innerHTML;
         }
 
-        searchInput.addEventListener('input', filterVendors);
-        neighborhoodFilter.addEventListener('change', filterVendors);
+        searchInput.addEventListener('input', function() { displayLimit = 12; filterVendors(); });
+        neighborhoodFilter.addEventListener('change', function() { displayLimit = 12; filterVendors(); });
 
         kosherToggle.addEventListener('click', function() {
             kosherActive = !kosherActive;
+            displayLimit = 12;
             this.classList.toggle('active', kosherActive);
             this.setAttribute('aria-pressed', kosherActive);
             filterVendors();
@@ -963,6 +1037,7 @@
 
         deliveryToggle.addEventListener('click', function() {
             deliveryActive = !deliveryActive;
+            displayLimit = 12;
             this.classList.toggle('active', deliveryActive);
             this.setAttribute('aria-pressed', deliveryActive);
             filterVendors();
