@@ -201,6 +201,17 @@ except Exception as e:
     shiva_mgr = None
     logging.info(f" Shiva support: Not available ({e})")
 
+# Optional Care Coordination import
+try:
+    from care_manager import CareManager
+    care_mgr = CareManager(db_path=DB_PATH)
+    CARE_AVAILABLE = True
+    logging.info(f" Care coordination: Available")
+except Exception as e:
+    CARE_AVAILABLE = False
+    care_mgr = None
+    logging.info(f" Care coordination: Not available ({e})")
+
 # Optional Yahrzeit Reminder import
 try:
     from yahrzeit_manager import YahrzeitManager
@@ -303,6 +314,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/types-of-shiva.html': ('types-of-shiva.html', 'text/html'),
         '/grief-support': ('grief-support.html', 'text/html'),
         '/grief-support.html': ('grief-support.html', 'text/html'),
+        '/care/setup': ('care-setup.html', 'text/html'),
+        '/care-setup': ('care-setup.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
         '/gifts': ('gifts.html', 'text/html'),
@@ -445,6 +458,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
+        # Care coordination API
+        elif path.startswith('/api/care/') and not path.endswith('/meals') and not path.endswith('/visitors') and not path.endswith('/tasks') and not path.endswith('/updates'):
+            care_id = path[len('/api/care/'):]
+            self.handle_get_care_page(care_id)
         # Shiva pages
         elif path == '/shiva':
             self.send_response(301)
@@ -452,6 +469,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.end_headers()
         elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
+        # Care coordination pages
+        elif path.startswith('/care/') and path not in self.STATIC_FILES:
+            self.serve_care_page()
         # Memorial pages
         elif path == '/memorial':
             self.send_response(301)
@@ -592,6 +612,23 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_find_my_page(body)
         elif path == '/api/shiva-access/request':
             self.handle_access_request(body)
+        # Care coordination POST routes
+        elif path == '/api/care':
+            self.handle_create_care_page(body)
+        elif path.startswith('/api/care/') and path.endswith('/updates'):
+            care_id = path[len('/api/care/'):-len('/updates')]
+            self.handle_care_post_update(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/visitors'):
+            care_id = path[len('/api/care/'):-len('/visitors')]
+            self.handle_care_add_visitor(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/meals'):
+            care_id = path[len('/api/care/'):-len('/meals')]
+            self.handle_care_add_meal(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/tasks'):
+            care_id = path[len('/api/care/'):-len('/tasks')]
+            self.handle_care_add_task(care_id, body)
+        elif path == '/api/care-task/claim':
+            self.handle_care_claim_task(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         # V5: Extend shiva dates
@@ -4343,6 +4380,128 @@ button:hover{background:#c45a1a}</style></head>
     </div>
 </body>
 </html>'''
+
+    # ── Care Coordination Handlers ─────────────────────────────
+
+    def serve_care_page(self):
+        """Serve the care coordination page (JS handles data loading)"""
+        filepath = os.path.join(FRONTEND_DIR, 'care-page.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    def handle_get_care_page(self, care_id):
+        """GET care page data"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Care coordination not available'}, 503)
+            return
+        try:
+            parsed = urlparse(self.path)
+            token = parse_qs(parsed.query).get('token', [''])[0]
+            result = care_mgr.get_page(care_id, token)
+            status_code = 200 if result['status'] == 'success' else 404
+            self.send_json_response(result, status_code)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_create_care_page(self, body):
+        """POST create a new care page"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Care coordination not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_create', max_calls=3, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.create_page(data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_post_update(self, care_id, body):
+        """POST an update to a care page"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = care_mgr.post_update(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_visitor(self, care_id, body):
+        """POST sign up for a visit"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_visitor', max_calls=10, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.add_visitor(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_meal(self, care_id, body):
+        """POST sign up to bring a meal"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_meal', max_calls=10, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.add_meal(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_task(self, care_id, body):
+        """POST add a new task (organizer)"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = care_mgr.add_task(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_claim_task(self, body):
+        """POST claim a task"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            task_id = data.get('task_id')
+            if not task_id:
+                self.send_json_response({'status': 'error', 'message': 'Task ID required'}, 400)
+                return
+            result = care_mgr.claim_task(task_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_update_shiva(self, support_id, body):
         """Handle organizer update to shiva support page"""

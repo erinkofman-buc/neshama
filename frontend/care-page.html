@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Care Coordination - Neshama</title>
+    <meta name="description" content="Coordinate visiting, meals, and support for your family during a difficult time. Community care, organized with warmth through Neshama.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="canonical" href="https://neshama.ca/care">
+    <meta property="og:title" content="Family Care Coordination - Neshama">
+    <meta property="og:description" content="Coordinate visiting, meals, and support for your family during a difficult time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/care">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Family Care Coordination - Neshama">
+    <meta name="twitter:description" content="Coordinate visiting, meals, and support for your family during a difficult time.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Family Care Coordination",
+      "description": "Coordinate visiting, meals, and support for your family during a difficult time.",
+      "url": "https://neshama.ca/care",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Neshama",
+        "url": "https://neshama.ca",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://neshama.ca/og-image.png"
+        }
+      }
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #556258;
+            --terracotta: #D2691E;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(210, 105, 30, 0.15);
+            --green-light: #f1f8e9;
+            --green-mid: #a5d6a7;
+            --green-text: #558b2f;
+            --red-light: #ffebee;
+            --red-mid: #ef9a9a;
+            --red-text: #c62828;
+            --amber-light: #FFF0ED;
+            --amber-mid: #D2691E;
+            --amber-text: #A0522D;
+            --sage-light: #f1f5ee;
+            --sage-mid: #B2BEB5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(210, 105, 30, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 1rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible { outline-offset: 0; }
+
+        /* Nav */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-link-help { font-size: 0.95rem; color: var(--terracotta); font-weight: 500; opacity: 1; }
+        .nav-link-help:hover { color: #c45a1a; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25); text-decoration: none; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* Page Container */
+        .page-container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+        /* Loading & Error States */
+        .page-loading { text-align: center; padding: 6rem 2rem; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--light-taupe); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .page-loading p { font-size: 1.2rem; color: var(--sage-dark); font-style: italic; }
+        .error-state { text-align: center; padding: 6rem 2rem; }
+        .error-state h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; margin-bottom: 1rem; }
+        .error-state p { font-size: 1.1rem; color: var(--sage-dark); margin-bottom: 2rem; }
+        .error-state a { display: inline-block; background: var(--terracotta); color: white; padding: 0.75rem 2rem; border-radius: 2rem; text-decoration: none; font-size: 1.1rem; transition: all 0.3s ease; }
+        .error-state a:hover { background: #c45a1a; transform: translateY(-2px); }
+
+        /* Hero Section */
+        .care-hero { text-align: center; padding: 3rem 0 2rem; }
+        .care-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 400; margin-bottom: 0.25rem; }
+        .care-hero .subtitle { font-size: 1.15rem; color: var(--sage-dark); font-style: italic; margin-bottom: 0.5rem; }
+        .hero-divider { width: 80px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 1.5rem auto 0; }
+
+        .share-btn-wrap { margin-top: 1.25rem; }
+        .share-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--sage); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .share-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+        .share-btn svg { width: 16px; height: 16px; }
+        .share-toast { display: none; font-size: 0.88rem; color: var(--green-text); margin-top: 0.5rem; font-weight: 500; }
+        .share-toast.active { display: block; }
+
+        /* Organizer Banner */
+        .organizer-banner { background: rgba(210, 105, 30, 0.08); border: 2px solid var(--gold); border-radius: 1rem; padding: 1rem 1.25rem; margin: 1rem 0; text-align: center; }
+        .organizer-banner p { font-size: 0.95rem; color: var(--terracotta); font-weight: 500; }
+
+        /* Section Heading */
+        .section-heading { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 500; text-align: center; margin-bottom: 1.5rem; color: var(--dark-brown); }
+        .section-heading::after { content: ''; display: block; width: 50px; height: 2px; background: var(--gold); margin: 0.75rem auto 0; }
+
+        /* Cards */
+        .card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 20px var(--soft-shadow); margin-bottom: 1rem; }
+        .card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--dark-brown); }
+        .card p { font-size: 1rem; color: var(--dark-brown); line-height: 1.6; }
+
+        /* Section spacing */
+        .care-section { margin: 2.5rem 0; }
+
+        /* Update Feed */
+        .update-item { background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; box-shadow: 0 2px 12px var(--soft-shadow); border-left: 4px solid var(--gold); }
+        .update-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.25rem; }
+        .update-author { font-weight: 600; font-size: 1rem; color: var(--dark-brown); }
+        .update-time { font-size: 0.85rem; color: var(--sage-dark); }
+        .update-body { font-size: 1rem; line-height: 1.6; color: var(--dark-brown); }
+        .update-empty { text-align: center; padding: 2rem; color: var(--sage-dark); font-style: italic; font-size: 1rem; }
+
+        .post-update-box { background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+        .post-update-box textarea { width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; min-height: 80px; }
+        .post-update-box textarea:focus { outline: none; border-color: var(--terracotta); }
+        .post-update-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+        .char-count { font-size: 0.8rem; color: var(--sage-dark); }
+
+        /* Visitor Calendar */
+        .visitor-day { background: white; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 12px var(--soft-shadow); margin-bottom: 0.75rem; }
+        .visitor-day-header { padding: 0.7rem 1.25rem; font-weight: 600; font-size: 0.95rem; background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; }
+        .visitor-slots { padding: 0.5rem 1rem; }
+        .visitor-slot { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .visitor-slot:last-child { border-bottom: none; }
+        .visitor-slot-time { font-weight: 600; font-size: 0.95rem; color: var(--dark-brown); min-width: 100px; }
+        .visitor-slot-name { font-size: 0.95rem; color: var(--dark-brown); }
+        .visitor-slot-open { font-size: 0.9rem; color: var(--amber-text); font-weight: 500; cursor: pointer; background: none; border: none; font-family: 'Source Serif 4', serif; padding: 0.4rem 0.8rem; border-radius: 2rem; transition: background 0.2s; }
+        .visitor-slot-open:hover { background: var(--amber-light); }
+        .visitor-hours-note { text-align: center; font-size: 0.9rem; color: var(--sage-dark); font-style: italic; padding: 0.75rem; }
+
+        /* Meal Calendar (reused from shiva-view) */
+        .meal-calendar { display: flex; flex-direction: column; gap: 0.75rem; }
+        .meal-day-card { background: white; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 12px var(--soft-shadow); border-left: 4px solid transparent; transition: border-color 0.2s; }
+        .meal-day-card.day-full { border-left-color: var(--green-mid); background: linear-gradient(135deg, var(--green-light) 0%, white 40%); }
+        .meal-day-card.day-partial { border-left-color: var(--sage-mid); background: linear-gradient(135deg, var(--sage-light) 0%, white 40%); }
+        .meal-day-card.day-empty { border-left-color: var(--amber-mid); background: linear-gradient(135deg, var(--amber-light) 0%, white 40%); }
+        .meal-day-header { padding: 0.7rem 1.25rem; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; background: var(--cream); border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .meal-day-card.day-full .meal-day-header { background: var(--green-light); }
+        .meal-day-card.day-partial .meal-day-header { background: var(--sage-light); }
+        .meal-day-card.day-empty .meal-day-header { background: var(--amber-light); }
+        .meal-slots-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .meal-slot { padding: 0.85rem 1rem; min-height: 76px; display: flex; flex-direction: column; justify-content: center; position: relative; transition: background 0.15s; }
+        .meal-slot:first-child { border-right: 1px solid var(--cream); }
+        .meal-slot-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+        .meal-slot.available { background: var(--amber-light); cursor: pointer; -webkit-tap-highlight-color: transparent; border-left: 4px solid var(--amber-mid); user-select: none; }
+        .meal-slot.available:hover, .meal-slot.available:active { background: #ffe0d6; }
+        .meal-slot.available .meal-slot-label { color: var(--amber-text); }
+        .meal-slot.available .slot-action { color: var(--amber-text); font-size: 0.9rem; font-weight: 600; }
+        .meal-slot.available .slot-action .plus { font-size: 1.1rem; margin-right: 0.2rem; }
+        .meal-slot.taken { background: #fafafa; border-left: 4px solid #e0e0e0; }
+        .meal-slot.taken .meal-slot-label { color: var(--sage-dark); }
+        .meal-slot.taken .vol-name { font-size: 0.9rem; font-weight: 600; color: var(--dark-brown); }
+        .meal-slot.taken .vol-desc { font-size: 0.8rem; color: var(--sage-dark); margin-top: 0.1rem; }
+
+        /* Task Board */
+        .task-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; background: white; border-radius: 0.75rem; margin-bottom: 0.5rem; box-shadow: 0 2px 8px var(--soft-shadow); transition: transform 0.1s; }
+        .task-item:hover { transform: translateX(2px); }
+        .task-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--light-taupe); flex-shrink: 0; margin-top: 0.15rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .task-check.done { background: var(--green-mid); border-color: var(--green-mid); }
+        .task-check.done::after { content: '\2713'; color: white; font-size: 0.75rem; font-weight: bold; }
+        .task-content { flex: 1; }
+        .task-desc { font-size: 1rem; color: var(--dark-brown); font-weight: 500; }
+        .task-desc.done-text { text-decoration: line-through; opacity: 0.6; }
+        .task-assigned { font-size: 0.85rem; color: var(--sage-dark); margin-top: 0.15rem; }
+        .task-claim-btn { font-size: 0.85rem; color: var(--terracotta); font-weight: 500; background: none; border: none; font-family: 'Source Serif 4', serif; cursor: pointer; padding: 0.3rem 0; transition: opacity 0.2s; }
+        .task-claim-btn:hover { opacity: 0.7; }
+        .add-task-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+        .add-task-row input { flex: 1; padding: 0.7rem 0.9rem; font-family: 'Source Serif 4', serif; font-size: 1rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; background: white; color: var(--dark-brown); }
+        .add-task-row input:focus { outline: none; border-color: var(--terracotta); }
+
+        /* Directory Links */
+        .directory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .directory-card { background: white; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s; display: block; text-align: center; }
+        .directory-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--soft-shadow); }
+        .directory-card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .directory-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .directory-card-desc { font-size: 0.9rem; color: var(--sage-dark); }
+
+        /* Phase Guide (collapsible) */
+        .guide-section { background: white; border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 20px var(--soft-shadow); }
+        .guide-toggle { width: 100%; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; background: white; border: none; cursor: pointer; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark-brown); text-align: left; transition: background 0.15s; }
+        .guide-toggle:hover { background: var(--cream); }
+        .guide-toggle svg { width: 20px; height: 20px; stroke: var(--sage-dark); fill: none; stroke-width: 2; transition: transform 0.2s; flex-shrink: 0; }
+        .guide-toggle.open svg { transform: rotate(180deg); }
+        .guide-content { display: none; padding: 0 1.25rem 1.25rem; font-size: 1rem; line-height: 1.7; color: var(--dark-brown); }
+        .guide-content.open { display: block; }
+        .guide-content ul { list-style: none; padding: 0; }
+        .guide-content li { padding: 0.4rem 0; padding-left: 1.25rem; position: relative; }
+        .guide-content li::before { content: '\2022'; color: var(--gold); position: absolute; left: 0; font-size: 1.2rem; line-height: 1.5; }
+        .guide-divider { height: 1px; background: var(--light-taupe); opacity: 0.3; }
+
+        /* Transition Section */
+        .transition-section { background: rgba(210, 105, 30, 0.04); border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .transition-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 0.75rem; color: var(--dark-brown); }
+        .transition-section p { font-size: 1rem; color: var(--sage-dark); line-height: 1.6; margin-bottom: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .transition-confirm { display: none; margin-top: 1.5rem; }
+        .transition-confirm.active { display: block; }
+        .transition-confirm p { font-size: 0.95rem; color: var(--dark-brown); margin-bottom: 1.25rem; }
+        .transition-btn-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+        /* Buttons */
+        .btn-primary { background: var(--terracotta); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary:hover { background: #c45a1a; transform: translateY(-1px); box-shadow: 0 4px 12px var(--warm-glow); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary { background: transparent; color: var(--dark-brown); border: 2px solid var(--light-taupe); padding: 0.8rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer; transition: all 0.2s; }
+        .btn-secondary:hover { border-color: var(--dark-brown); }
+        .btn-gentle { background: transparent; color: var(--sage-dark); border: 1.5px solid var(--light-taupe); padding: 0.7rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+        .btn-gentle:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 1.5rem; padding: 2rem; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); }
+        .modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; margin-bottom: 0.2rem; }
+        .modal .modal-subtitle { font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.25rem; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 1rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.3rem; }
+        .form-group label .optional { font-weight: 400; color: var(--sage-dark); font-size: 1rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 0.7rem 0.9rem; font-family: 'Source Serif 4', serif; font-size: 1rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; background: white; color: var(--dark-brown); transition: border-color 0.2s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--terracotta); }
+        .form-group textarea { min-height: 60px; resize: vertical; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--sage); }
+        .modal-btn-row { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+        .form-error { display: none; background: rgba(210, 105, 30, 0.08); color: var(--dark-brown); border: 1px solid #c45a1a; border-radius: 0.5rem; padding: 0.6rem 0.9rem; margin-top: 0.75rem; font-size: 0.9rem; }
+        .form-error.active { display: block; }
+
+        /* Footer */
+        footer { max-width: 800px; margin: 3rem auto 0; padding: 2rem 1.5rem; border-top: 1px solid var(--light-taupe); text-align: center; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 1rem; color: var(--sage-dark); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-group-secondary { padding-bottom: 0.5rem; }
+            .nav-divider { display: none; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-hamburger { display: block; }
+        }
+
+        @media (max-width: 600px) {
+            .page-container { padding: 0 1rem 3rem; }
+            .directory-grid { grid-template-columns: 1fr; }
+            .modal-overlay { align-items: flex-end; padding: 0; }
+            .modal { border-radius: 1.25rem 1.25rem 0 0; max-height: 92vh; padding: 1.5rem; }
+            .modal::before { content: ''; display: block; width: 36px; height: 4px; background: var(--light-taupe); border-radius: 2px; margin: 0 auto 1rem; }
+            .modal-btn-row { flex-direction: column; }
+            .meal-slots-grid { grid-template-columns: 1fr 1fr; }
+            .meal-slot { padding: 0.75rem 0.7rem; min-height: 70px; }
+            .footer-links { gap: 1.25rem; }
+            .transition-btn-row { flex-direction: column; align-items: center; }
+        }
+
+        @media (max-width: 480px) {
+            .care-hero { padding: 1.5rem 0 1rem; }
+            .care-hero h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+            .section-heading { font-size: 1.4rem; margin-bottom: 0.75rem; }
+            .care-section { margin: 1.5rem 0; }
+        }
+
+        @media (max-width: 375px) {
+            .page-container { padding: 0 0.75rem 2rem; }
+            .btn-primary, .btn-secondary, .btn-gentle { min-height: 48px; }
+            .task-item { padding: 0.75rem 1rem; }
+        }
+
+        /* Hide organizer-only elements by default */
+        .organizer-only { display: none; }
+    </style>
+    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+    <script>
+    window.onerror = function(msg, src, line, col, err) {
+        try {
+            navigator.sendBeacon('/api/js-errors', JSON.stringify({
+                message: msg, source: src, line: line, col: col,
+                stack: err && err.stack, url: location.href,
+                userAgent: navigator.userAgent
+            }));
+        } catch(e) {}
+    };
+    </script>
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals</a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main-content">
+
+    <!-- Loading State -->
+    <div class="page-container" id="pageLoading">
+        <div class="page-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading care page...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="page-container" id="errorState" style="display: none;">
+        <div class="error-state">
+            <h2>We Couldn't Find This Page</h2>
+            <p>This care page may have been removed, or the link may be incorrect.</p>
+            <a href="/">Return Home</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-container" id="mainContent" style="display: none;">
+
+        <!-- Hero -->
+        <section class="care-hero">
+            <h1 id="familyName">The Goldstein Family</h1>
+            <p class="subtitle" id="heroSubtitle">Supporting Bubbe Ruth</p>
+            <div class="hero-divider"></div>
+            <div class="share-btn-wrap">
+                <button type="button" class="share-btn" id="shareBtn" aria-label="Copy page link to share">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    Share this page
+                </button>
+                <div class="share-toast" id="shareToast">Link copied to clipboard</div>
+            </div>
+        </section>
+
+        <!-- Organizer Banner -->
+        <div class="organizer-banner organizer-only" id="organizerBanner">
+            <p>You are the organizer &mdash; you can post updates, manage tasks, and edit visiting hours</p>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- UPDATE FEED -->
+        <!-- ============================================ -->
+        <section class="care-section" id="updatesFeedSection">
+            <h2 class="section-heading">Updates from the Family</h2>
+
+            <!-- Organizer: Post update -->
+            <div class="post-update-box organizer-only" id="postUpdateBox">
+                <textarea id="updateInput" placeholder="Share an update with family and friends..." maxlength="500" rows="3"></textarea>
+                <div class="post-update-row">
+                    <span class="char-count" id="updateCharCount">0 / 500</span>
+                    <button class="btn-primary" id="postUpdateBtn" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">Post Update</button>
+                </div>
+            </div>
+
+            <div id="updatesFeed">
+                <!-- Updates rendered by JS -->
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VISITOR CALENDAR -->
+        <!-- ============================================ -->
+        <section class="care-section" id="visitorSection">
+            <h2 class="section-heading">Visiting Schedule</h2>
+            <p class="visitor-hours-note" id="visitingHoursNote">Visiting hours: 10:00 AM &ndash; 8:00 PM daily</p>
+
+            <!-- Organizer: Set visiting hours -->
+            <div class="organizer-only" id="setVisitingHours" style="text-align: center; margin-bottom: 1rem;">
+                <button class="btn-gentle" onclick="window.showVisitingHoursModal()">Edit visiting hours</button>
+            </div>
+
+            <div id="visitorCalendar">
+                <!-- Days rendered by JS -->
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MEAL COORDINATION -->
+        <!-- ============================================ -->
+        <section class="care-section" id="mealSection">
+            <h2 class="section-heading">Meals for the Family</h2>
+
+            <div class="meal-calendar" id="mealCalendar">
+                <!-- Meal days rendered by JS -->
+            </div>
+
+            <div style="text-align: center; margin-top: 1.25rem;">
+                <a href="/directory?category=Caterers" style="color: var(--terracotta); text-decoration: none; font-weight: 500; font-size: 1rem;">Need help? Browse local caterers &rarr;</a>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- TASK BOARD -->
+        <!-- ============================================ -->
+        <section class="care-section" id="taskSection">
+            <h2 class="section-heading">How You Can Help</h2>
+
+            <div id="taskBoard">
+                <!-- Tasks rendered by JS -->
+            </div>
+
+            <!-- Organizer: Add task -->
+            <div class="add-task-row organizer-only" id="addTaskRow">
+                <input type="text" id="newTaskInput" placeholder="Add a new task..." maxlength="200">
+                <button class="btn-primary" id="addTaskBtn" style="padding: 0.6rem 1.25rem; font-size: 0.95rem; white-space: nowrap;">Add</button>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- PROVIDER DIRECTORY LINKS -->
+        <!-- ============================================ -->
+        <section class="care-section" id="directorySection">
+            <h2 class="section-heading">Find Local Help</h2>
+            <div class="directory-grid">
+                <a href="/directory?category=Caterers" class="directory-card">
+                    <div class="directory-card-icon" aria-hidden="true">&#127858;</div>
+                    <div class="directory-card-title">Find a caterer for meals</div>
+                    <div class="directory-card-desc">Browse local caterers who can deliver meals to the family</div>
+                </a>
+                <a href="/directory?category=Event+Staff+%26+Services" class="directory-card">
+                    <div class="directory-card-icon" aria-hidden="true">&#129309;</div>
+                    <div class="directory-card-title">Find home care support</div>
+                    <div class="directory-card-desc">Professional help for caregiving and household support</div>
+                </a>
+                <a href="/grief-support" class="directory-card">
+                    <div class="directory-card-icon" aria-hidden="true">&#128156;</div>
+                    <div class="directory-card-title">Grief support resources</div>
+                    <div class="directory-card-desc">Counselling, support groups, and helpful reading</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- PHASE GUIDE (collapsible) -->
+        <!-- ============================================ -->
+        <section class="care-section" id="guideSection">
+            <h2 class="section-heading">What to Expect</h2>
+            <p style="text-align: center; font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.25rem; max-width: 550px; margin-left: auto; margin-right: auto;">Practical guidance for this time. Every family's experience is different &mdash; take what feels helpful and leave the rest.</p>
+
+            <div class="guide-section">
+                <button class="guide-toggle" onclick="window.toggleGuide(this)" aria-expanded="false">
+                    Setting up the home
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="guide-content">
+                    <ul>
+                        <li>Create a comfortable, quiet space for your loved one with familiar blankets and photographs nearby</li>
+                        <li>Keep a small table by the bedside for water, medications, and personal items</li>
+                        <li>Set up a comfortable chair or recliner for the person keeping watch overnight</li>
+                        <li>Consider soft lighting &mdash; a warm lamp rather than overhead fluorescents</li>
+                        <li>Have extra linens, towels, and pillows easily accessible</li>
+                    </ul>
+                </div>
+                <div class="guide-divider"></div>
+
+                <button class="guide-toggle" onclick="window.toggleGuide(this)" aria-expanded="false">
+                    Managing visitors
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="guide-content">
+                    <ul>
+                        <li>It is okay to limit visits when the family needs rest &mdash; share visiting hours on this page</li>
+                        <li>Ask one person to be the "door greeter" so the primary caregiver does not have to manage arrivals</li>
+                        <li>Visitors often want to help but do not know how &mdash; point them to the task board above</li>
+                        <li>Short visits (15&ndash;30 minutes) are often easier for everyone than long ones</li>
+                        <li>It is perfectly fine to post an update saying "today is a quiet day" when visits are not welcome</li>
+                    </ul>
+                </div>
+                <div class="guide-divider"></div>
+
+                <button class="guide-toggle" onclick="window.toggleGuide(this)" aria-expanded="false">
+                    Caregiver self-care
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="guide-content">
+                    <ul>
+                        <li>You cannot pour from an empty cup &mdash; accepting help is not weakness, it is wisdom</li>
+                        <li>Try to eat regular meals, even small ones. Let people bring you food.</li>
+                        <li>Step outside for fresh air, even for five minutes. The world will not fall apart.</li>
+                        <li>Sleep when you can. Ask someone to take over for a few hours &mdash; that is what the visiting schedule is for.</li>
+                        <li>It is normal to feel exhausted, frustrated, or guilty. All of those feelings belong here.</li>
+                    </ul>
+                </div>
+                <div class="guide-divider"></div>
+
+                <button class="guide-toggle" onclick="window.toggleGuide(this)" aria-expanded="false">
+                    When things change
+                    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="guide-content">
+                    <ul>
+                        <li>Changes in breathing, appetite, and wakefulness are natural parts of this process</li>
+                        <li>Your hospice team or palliative care nurse is there for questions at any hour &mdash; do not hesitate to call</li>
+                        <li>Being present is enough. You do not need to say the perfect thing.</li>
+                        <li>When the time comes, Neshama can help you transition to memorial and shiva coordination &mdash; your contacts and meal calendar will carry over</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- TRANSITION SECTION (organizer only) -->
+        <!-- ============================================ -->
+        <section class="care-section organizer-only" id="transitionSection">
+            <div class="transition-section">
+                <h3>When you are ready</h3>
+                <p>If and when the time comes, we can help you transition to a memorial and shiva coordination page. There is no rush.</p>
+                <button class="btn-gentle" id="transitionBtn" onclick="window.showTransitionConfirm()">Your loved one has passed</button>
+
+                <div class="transition-confirm" id="transitionConfirm">
+                    <p>This will transition this page to a memorial and shiva coordination page on Neshama. Your contacts and meal calendar will carry over.</p>
+                    <div class="transition-btn-row">
+                        <a href="#" class="btn-primary" id="transitionContinueBtn" style="text-decoration: none;">Continue to Neshama</a>
+                        <button class="btn-secondary" onclick="window.hideTransitionConfirm()">Not yet</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- /mainContent -->
+
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/help">How Can I Help?</a>
+            <a href="/directory">Directory</a>
+            <a href="/grief-support">Grief Support</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+        </nav>
+        <p class="footer-copy">Built with care for families</p>
+    </footer>
+
+    <!-- ============================================ -->
+    <!-- VISITOR SIGN-UP MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="visitorModal">
+        <div class="modal" role="dialog" aria-labelledby="visitorModalTitle">
+            <h2 id="visitorModalTitle">Sign Up to Visit</h2>
+            <p class="modal-subtitle" id="visitorModalSubtitle">Wednesday, April 2 &mdash; 2:00 PM</p>
+            <div class="form-group">
+                <label for="visitorName">Your Name</label>
+                <input type="text" id="visitorName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="visitorEmail">Your Email</label>
+                <input type="email" id="visitorEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="visitorMessage">Message for the family <span class="optional">(optional)</span></label>
+                <textarea id="visitorMessage" placeholder="e.g., I can bring coffee, or I'll just sit quietly..." rows="2"></textarea>
+            </div>
+            <div class="form-error" id="visitorError"></div>
+            <div class="modal-btn-row">
+                <button class="btn-secondary" onclick="window.closeVisitorModal()">Cancel</button>
+                <button class="btn-primary" id="visitorSubmitBtn" onclick="window.submitVisitorSignup()">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MEAL SIGN-UP MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="mealModal">
+        <div class="modal" role="dialog" aria-labelledby="mealModalTitle">
+            <h2 id="mealModalTitle">Bring a Meal</h2>
+            <p class="modal-subtitle" id="mealModalSubtitle">Wednesday, April 2 &mdash; Dinner</p>
+            <div class="form-group">
+                <label for="mealVolName">Your Name</label>
+                <input type="text" id="mealVolName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="mealVolEmail">Your Email</label>
+                <input type="email" id="mealVolEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="mealDesc">What will you bring? <span class="optional">(optional)</span></label>
+                <input type="text" id="mealDesc" placeholder="e.g., Chicken soup & challah">
+            </div>
+            <div class="form-group">
+                <label for="mealDietary">Dietary notes <span class="optional">(optional)</span></label>
+                <input type="text" id="mealDietary" placeholder="e.g., Nut-free, gluten-free">
+            </div>
+            <div class="form-error" id="mealError"></div>
+            <div class="modal-btn-row">
+                <button class="btn-secondary" onclick="window.closeMealModal()">Cancel</button>
+                <button class="btn-primary" id="mealSubmitBtn" onclick="window.submitMealSignup()">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TASK CLAIM MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="taskClaimModal">
+        <div class="modal" role="dialog" aria-labelledby="taskClaimTitle">
+            <h2 id="taskClaimTitle">Claim This Task</h2>
+            <p class="modal-subtitle" id="taskClaimDesc">Pick up prescriptions</p>
+            <div class="form-group">
+                <label for="taskClaimName">Your Name</label>
+                <input type="text" id="taskClaimName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="taskClaimEmail">Your Email</label>
+                <input type="email" id="taskClaimEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="form-error" id="taskClaimError"></div>
+            <div class="modal-btn-row">
+                <button class="btn-secondary" onclick="window.closeTaskClaimModal()">Cancel</button>
+                <button class="btn-primary" id="taskClaimSubmitBtn" onclick="window.submitTaskClaim()">I'll Do It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VISITING HOURS MODAL (organizer) -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="visitingHoursModal">
+        <div class="modal" role="dialog" aria-labelledby="visitingHoursTitle">
+            <h2 id="visitingHoursTitle">Set Visiting Hours</h2>
+            <p class="modal-subtitle">Choose when visitors are welcome</p>
+            <div class="form-group">
+                <label for="visitStart">Start time</label>
+                <input type="time" id="visitStart" value="10:00">
+            </div>
+            <div class="form-group">
+                <label for="visitEnd">End time</label>
+                <input type="time" id="visitEnd" value="20:00">
+            </div>
+            <div class="form-group">
+                <label for="visitNote">Note for visitors <span class="optional">(optional)</span></label>
+                <textarea id="visitNote" placeholder="e.g., Please ring the bell gently, text when you arrive..." rows="2"></textarea>
+            </div>
+            <div class="modal-btn-row">
+                <button class="btn-secondary" onclick="window.closeVisitingHoursModal()">Cancel</button>
+                <button class="btn-primary" onclick="window.saveVisitingHours()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* =========================================================
+       CARE PAGE — Family Coordination
+       Follows same patterns as shiva-view.html
+       ========================================================= */
+
+    // State
+    var careId = null;
+    var careData = null;
+    var isOrganizerMode = false;
+    var organizerToken = null;
+    var selectedVisitorSlot = null;
+    var selectedMealDate = null;
+    var selectedMealType = null;
+    var claimingTaskId = null;
+
+    // ── URL Parsing ──────────────────────────────────────
+
+    window.getCareIdFromUrl = function() {
+        var path = window.location.pathname;
+        var parts = path.split('/');
+        if (parts.length >= 3 && parts[1] === 'care') {
+            return decodeURIComponent(parts.slice(2).join('/'));
+        }
+        return null;
+    };
+
+    window.getTokenFromUrl = function() {
+        var params = new URLSearchParams(window.location.search);
+        return params.get('token') || null;
+    };
+
+    // ── Utilities ────────────────────────────────────────
+
+    window.escapeHtml = function(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
+
+    window.formatDate = function(dateStr) {
+        if (!dateStr) return '';
+        try {
+            var d = new Date(dateStr + 'T12:00:00');
+            return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        } catch (e) { return dateStr; }
+    };
+
+    window.formatDateShort = function(dateStr) {
+        if (!dateStr) return '';
+        try {
+            var d = new Date(dateStr + 'T12:00:00');
+            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        } catch (e) { return dateStr; }
+    };
+
+    window.formatTime = function(timeStr) {
+        if (!timeStr) return '';
+        var parts = timeStr.split(':');
+        var h = parseInt(parts[0], 10);
+        var m = parts[1] || '00';
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        if (h > 12) h -= 12;
+        if (h === 0) h = 12;
+        return h + ':' + m + ' ' + ampm;
+    };
+
+    window.getNextDays = function(count) {
+        var days = [];
+        var today = new Date();
+        for (var i = 0; i < count; i++) {
+            var d = new Date(today);
+            d.setDate(today.getDate() + i);
+            var yyyy = d.getFullYear();
+            var mm = String(d.getMonth() + 1).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            days.push(yyyy + '-' + mm + '-' + dd);
+        }
+        return days;
+    };
+
+    // ── Placeholder / Demo Data ──────────────────────────
+
+    window.getPlaceholderData = function() {
+        var days = window.getNextDays(7);
+        return {
+            id: 'demo-123',
+            family_name: 'The Goldstein Family',
+            loved_one: 'Bubbe Ruth',
+            organizer_name: 'Sarah Goldstein',
+            organizer_email: 'sarah@example.com',
+            visiting_hours: { start: '10:00', end: '20:00', note: '' },
+            updates: [
+                { author: 'Sarah Goldstein', time: new Date(Date.now() - 3600000).toISOString(), message: 'Mum had a peaceful morning. She enjoyed seeing the grandchildren on video call. Visitors are welcome this afternoon.' },
+                { author: 'Sarah Goldstein', time: new Date(Date.now() - 86400000).toISOString(), message: 'Thank you all for the beautiful flowers and the meals. Dad says the chicken soup from yesterday was "almost as good as Mum\'s." High praise.' },
+                { author: 'Sarah Goldstein', time: new Date(Date.now() - 172800000).toISOString(), message: 'We have set up this page to help coordinate visits and meals. Please sign up for a time slot so we can make sure Mum is not overwhelmed. We love you all.' }
+            ],
+            visitors: [
+                { date: days[0], time: '10:00', name: 'Rabbi Friedman' },
+                { date: days[0], time: '14:00', name: null },
+                { date: days[0], time: '16:00', name: 'Miriam & Joel' },
+                { date: days[1], time: '10:00', name: null },
+                { date: days[1], time: '14:00', name: 'Aunt Debbie' },
+                { date: days[1], time: '16:00', name: null },
+                { date: days[2], time: '10:00', name: null },
+                { date: days[2], time: '14:00', name: null },
+                { date: days[2], time: '16:00', name: null }
+            ],
+            meals: [
+                { date: days[0], lunch: { name: 'Rivka Abrams', desc: 'Vegetable soup & bread' }, dinner: { name: null } },
+                { date: days[1], lunch: { name: null }, dinner: { name: 'The Levine Family', desc: 'Brisket & roasted vegetables' } },
+                { date: days[2], lunch: { name: null }, dinner: { name: null } },
+                { date: days[3], lunch: { name: null }, dinner: { name: null } },
+                { date: days[4], lunch: { name: null }, dinner: { name: null } },
+                { date: days[5], lunch: { name: null }, dinner: { name: null } },
+                { date: days[6], lunch: { name: null }, dinner: { name: null } }
+            ],
+            tasks: [
+                { id: 1, desc: 'Pick up prescriptions', assigned: 'Uncle David', status: 'claimed' },
+                { id: 2, desc: 'Bring folding chairs', assigned: null, status: 'open' },
+                { id: 3, desc: 'Walk the dog', assigned: 'Cousin Jake', status: 'done' },
+                { id: 4, desc: 'Grocery run', assigned: null, status: 'open' },
+                { id: 5, desc: 'Pick up dry cleaning', assigned: null, status: 'open' },
+                { id: 6, desc: 'Water the garden', assigned: null, status: 'open' }
+            ]
+        };
+    };
+
+    // ── Render Functions ─────────────────────────────────
+
+    window.renderPage = function(data) {
+        careData = data;
+
+        // Hero
+        document.getElementById('familyName').textContent = data.family_name || 'Family Care Page';
+        document.getElementById('heroSubtitle').textContent = data.loved_one ? ('Supporting ' + data.loved_one) : '';
+
+        // Transition link
+        var continueBtn = document.getElementById('transitionContinueBtn');
+        if (continueBtn) {
+            continueBtn.href = '/shiva/organize?from_care=' + encodeURIComponent(data.id || careId);
+        }
+
+        // Visiting hours note
+        if (data.visiting_hours) {
+            var note = 'Visiting hours: ' + window.formatTime(data.visiting_hours.start) + ' \u2013 ' + window.formatTime(data.visiting_hours.end) + ' daily';
+            if (data.visiting_hours.note) {
+                note += ' \u2014 ' + data.visiting_hours.note;
+            }
+            document.getElementById('visitingHoursNote').textContent = note;
+        }
+
+        window.renderUpdates(data.updates || []);
+        window.renderVisitorCalendar(data.visitors || [], data.visiting_hours);
+        window.renderMealCalendar(data.meals || []);
+        window.renderTasks(data.tasks || []);
+
+        // Show main content
+        document.getElementById('pageLoading').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+
+        // Organizer mode
+        if (isOrganizerMode) {
+            var els = document.querySelectorAll('.organizer-only');
+            for (var i = 0; i < els.length; i++) {
+                els[i].style.display = 'block';
+            }
+        }
+    };
+
+    window.renderUpdates = function(updates) {
+        var container = document.getElementById('updatesFeed');
+        if (!updates || updates.length === 0) {
+            container.innerHTML = '<div class="update-empty">No updates yet. Check back soon.</div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < updates.length; i++) {
+            var u = updates[i];
+            var timeStr = '';
+            if (u.time) {
+                try {
+                    var d = new Date(u.time);
+                    var now = new Date();
+                    var diff = now - d;
+                    if (diff < 3600000) {
+                        timeStr = Math.max(1, Math.floor(diff / 60000)) + ' minutes ago';
+                    } else if (diff < 86400000) {
+                        timeStr = Math.floor(diff / 3600000) + ' hours ago';
+                    } else {
+                        timeStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    }
+                } catch (e) { timeStr = ''; }
+            }
+            html += '<div class="update-item">';
+            html += '<div class="update-meta"><span class="update-author">' + window.escapeHtml(u.author) + '</span><span class="update-time">' + window.escapeHtml(timeStr) + '</span></div>';
+            html += '<div class="update-body">' + window.escapeHtml(u.message) + '</div>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    };
+
+    window.renderVisitorCalendar = function(visitors, hours) {
+        var container = document.getElementById('visitorCalendar');
+        var days = window.getNextDays(7);
+        var timeSlots = ['10:00', '12:00', '14:00', '16:00', '18:00'];
+
+        // If we have visiting hours, generate appropriate slots
+        if (hours && hours.start && hours.end) {
+            timeSlots = [];
+            var startH = parseInt(hours.start.split(':')[0], 10);
+            var endH = parseInt(hours.end.split(':')[0], 10);
+            for (var h = startH; h < endH; h += 2) {
+                timeSlots.push(String(h).padStart(2, '0') + ':00');
+            }
+        }
+
+        // Index visitors by date+time
+        var visitorMap = {};
+        for (var v = 0; v < visitors.length; v++) {
+            var key = visitors[v].date + '_' + visitors[v].time;
+            visitorMap[key] = visitors[v];
+        }
+
+        var html = '';
+        for (var d = 0; d < days.length; d++) {
+            var dayStr = days[d];
+            var dayLabel = window.formatDate(dayStr);
+            if (d === 0) dayLabel = 'Today \u2014 ' + dayLabel;
+            if (d === 1) dayLabel = 'Tomorrow \u2014 ' + dayLabel;
+
+            html += '<div class="visitor-day">';
+            html += '<div class="visitor-day-header"><span>' + window.escapeHtml(dayLabel) + '</span></div>';
+            html += '<div class="visitor-slots">';
+
+            for (var s = 0; s < timeSlots.length; s++) {
+                var slotKey = dayStr + '_' + timeSlots[s];
+                var visitor = visitorMap[slotKey];
+                var timeLabel = window.formatTime(timeSlots[s]);
+
+                html += '<div class="visitor-slot">';
+                html += '<span class="visitor-slot-time">' + window.escapeHtml(timeLabel) + '</span>';
+                if (visitor && visitor.name) {
+                    html += '<span class="visitor-slot-name">' + window.escapeHtml(visitor.name) + '</span>';
+                } else {
+                    html += '<button class="visitor-slot-open" onclick="window.openVisitorModal(\'' + dayStr + '\', \'' + timeSlots[s] + '\')">Sign up</button>';
+                }
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    };
+
+    window.renderMealCalendar = function(meals) {
+        var container = document.getElementById('mealCalendar');
+        if (!meals || meals.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--sage-dark); font-style: italic;">No meal dates set yet.</p>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < meals.length; i++) {
+            var m = meals[i];
+            var lunchFilled = m.lunch && m.lunch.name;
+            var dinnerFilled = m.dinner && m.dinner.name;
+            var dayClass = (lunchFilled && dinnerFilled) ? 'day-full' : (lunchFilled || dinnerFilled) ? 'day-partial' : 'day-empty';
+
+            html += '<div class="meal-day-card ' + dayClass + '">';
+            html += '<div class="meal-day-header"><span>' + window.escapeHtml(window.formatDateShort(m.date)) + '</span></div>';
+            html += '<div class="meal-slots-grid">';
+
+            // Lunch
+            if (lunchFilled) {
+                html += '<div class="meal-slot taken">';
+                html += '<div class="meal-slot-label">Lunch</div>';
+                html += '<div class="vol-name">' + window.escapeHtml(m.lunch.name) + '</div>';
+                if (m.lunch.desc) html += '<div class="vol-desc">' + window.escapeHtml(m.lunch.desc) + '</div>';
+                html += '</div>';
+            } else {
+                html += '<div class="meal-slot available" onclick="window.openMealModal(\'' + m.date + '\', \'lunch\')">';
+                html += '<div class="meal-slot-label">Lunch</div>';
+                html += '<div class="slot-action"><span class="plus">+</span> Sign up</div>';
+                html += '</div>';
+            }
+
+            // Dinner
+            if (dinnerFilled) {
+                html += '<div class="meal-slot taken">';
+                html += '<div class="meal-slot-label">Dinner</div>';
+                html += '<div class="vol-name">' + window.escapeHtml(m.dinner.name) + '</div>';
+                if (m.dinner.desc) html += '<div class="vol-desc">' + window.escapeHtml(m.dinner.desc) + '</div>';
+                html += '</div>';
+            } else {
+                html += '<div class="meal-slot available" onclick="window.openMealModal(\'' + m.date + '\', \'dinner\')">';
+                html += '<div class="meal-slot-label">Dinner</div>';
+                html += '<div class="slot-action"><span class="plus">+</span> Sign up</div>';
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    };
+
+    window.renderTasks = function(tasks) {
+        var container = document.getElementById('taskBoard');
+        if (!tasks || tasks.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: var(--sage-dark); font-style: italic;">No tasks yet.</p>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < tasks.length; i++) {
+            var t = tasks[i];
+            var isDone = t.status === 'done';
+            var isClaimed = t.status === 'claimed';
+
+            html += '<div class="task-item">';
+            html += '<div class="task-check' + (isDone ? ' done' : '') + '" ' + (isOrganizerMode ? 'onclick="window.toggleTaskDone(' + t.id + ')" role="button" aria-label="Mark task complete"' : '') + '></div>';
+            html += '<div class="task-content">';
+            html += '<div class="task-desc' + (isDone ? ' done-text' : '') + '">' + window.escapeHtml(t.desc) + '</div>';
+
+            if (isDone && t.assigned) {
+                html += '<div class="task-assigned">Completed by ' + window.escapeHtml(t.assigned) + '</div>';
+            } else if (isClaimed && t.assigned) {
+                html += '<div class="task-assigned">' + window.escapeHtml(t.assigned) + ' is on it</div>';
+            } else if (t.status === 'open') {
+                html += '<button class="task-claim-btn" onclick="window.openTaskClaimModal(' + t.id + ')">I can help with this</button>';
+            }
+
+            html += '</div></div>';
+        }
+        container.innerHTML = html;
+    };
+
+    // ── Modal Handlers ───────────────────────────────────
+
+    window.openVisitorModal = function(date, time) {
+        selectedVisitorSlot = { date: date, time: time };
+        document.getElementById('visitorModalSubtitle').textContent = window.formatDate(date) + ' \u2014 ' + window.formatTime(time);
+        document.getElementById('visitorName').value = '';
+        document.getElementById('visitorEmail').value = '';
+        document.getElementById('visitorMessage').value = '';
+        document.getElementById('visitorError').classList.remove('active');
+        document.getElementById('visitorModal').classList.add('active');
+    };
+
+    window.closeVisitorModal = function() {
+        document.getElementById('visitorModal').classList.remove('active');
+        selectedVisitorSlot = null;
+    };
+
+    window.submitVisitorSignup = function() {
+        var name = document.getElementById('visitorName').value.trim();
+        var email = document.getElementById('visitorEmail').value.trim();
+        var errEl = document.getElementById('visitorError');
+
+        if (!name || !email) {
+            errEl.textContent = 'Please fill in your name and email.';
+            errEl.classList.add('active');
+            return;
+        }
+
+        var btn = document.getElementById('visitorSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Signing up...';
+
+        var payload = {
+            date: selectedVisitorSlot.date,
+            time: selectedVisitorSlot.time,
+            name: name,
+            email: email,
+            message: document.getElementById('visitorMessage').value.trim()
+        };
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/visitors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Update local data
+            if (careData && careData.visitors) {
+                careData.visitors.push({ date: payload.date, time: payload.time, name: payload.name });
+                window.renderVisitorCalendar(careData.visitors, careData.visiting_hours);
+            }
+            window.closeVisitorModal();
+        }).catch(function() {
+            // Offline / API not ready — update UI optimistically
+            if (careData && careData.visitors) {
+                careData.visitors.push({ date: payload.date, time: payload.time, name: payload.name });
+                window.renderVisitorCalendar(careData.visitors, careData.visiting_hours);
+            }
+            window.closeVisitorModal();
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = 'Sign Up';
+        });
+    };
+
+    window.openMealModal = function(date, mealType) {
+        selectedMealDate = date;
+        selectedMealType = mealType;
+        var typeLabel = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+        document.getElementById('mealModalSubtitle').textContent = window.formatDate(date) + ' \u2014 ' + typeLabel;
+        document.getElementById('mealVolName').value = '';
+        document.getElementById('mealVolEmail').value = '';
+        document.getElementById('mealDesc').value = '';
+        document.getElementById('mealDietary').value = '';
+        document.getElementById('mealError').classList.remove('active');
+        document.getElementById('mealModal').classList.add('active');
+    };
+
+    window.closeMealModal = function() {
+        document.getElementById('mealModal').classList.remove('active');
+        selectedMealDate = null;
+        selectedMealType = null;
+    };
+
+    window.submitMealSignup = function() {
+        var name = document.getElementById('mealVolName').value.trim();
+        var email = document.getElementById('mealVolEmail').value.trim();
+        var errEl = document.getElementById('mealError');
+
+        if (!name || !email) {
+            errEl.textContent = 'Please fill in your name and email.';
+            errEl.classList.add('active');
+            return;
+        }
+
+        var btn = document.getElementById('mealSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Signing up...';
+
+        var payload = {
+            date: selectedMealDate,
+            meal_type: selectedMealType,
+            name: name,
+            email: email,
+            description: document.getElementById('mealDesc').value.trim(),
+            dietary_notes: document.getElementById('mealDietary').value.trim()
+        };
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/meals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.json(); })
+        .then(function() {
+            window.updateMealLocally(payload);
+            window.closeMealModal();
+        }).catch(function() {
+            window.updateMealLocally(payload);
+            window.closeMealModal();
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = 'Sign Up';
+        });
+    };
+
+    window.updateMealLocally = function(payload) {
+        if (!careData || !careData.meals) return;
+        for (var i = 0; i < careData.meals.length; i++) {
+            if (careData.meals[i].date === payload.date) {
+                careData.meals[i][payload.meal_type] = { name: payload.name, desc: payload.description };
+                break;
+            }
+        }
+        window.renderMealCalendar(careData.meals);
+    };
+
+    window.openTaskClaimModal = function(taskId) {
+        claimingTaskId = taskId;
+        var task = null;
+        if (careData && careData.tasks) {
+            for (var i = 0; i < careData.tasks.length; i++) {
+                if (careData.tasks[i].id === taskId) { task = careData.tasks[i]; break; }
+            }
+        }
+        document.getElementById('taskClaimDesc').textContent = task ? task.desc : '';
+        document.getElementById('taskClaimName').value = '';
+        document.getElementById('taskClaimEmail').value = '';
+        document.getElementById('taskClaimError').classList.remove('active');
+        document.getElementById('taskClaimModal').classList.add('active');
+    };
+
+    window.closeTaskClaimModal = function() {
+        document.getElementById('taskClaimModal').classList.remove('active');
+        claimingTaskId = null;
+    };
+
+    window.submitTaskClaim = function() {
+        var name = document.getElementById('taskClaimName').value.trim();
+        var email = document.getElementById('taskClaimEmail').value.trim();
+        var errEl = document.getElementById('taskClaimError');
+
+        if (!name || !email) {
+            errEl.textContent = 'Please fill in your name and email.';
+            errEl.classList.add('active');
+            return;
+        }
+
+        var btn = document.getElementById('taskClaimSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Claiming...';
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/tasks/' + claimingTaskId + '/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, email: email })
+        }).then(function(r) { return r.json(); })
+        .then(function() {
+            window.updateTaskLocally(claimingTaskId, name);
+            window.closeTaskClaimModal();
+        }).catch(function() {
+            window.updateTaskLocally(claimingTaskId, name);
+            window.closeTaskClaimModal();
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = "I'll Do It";
+        });
+    };
+
+    window.updateTaskLocally = function(taskId, name) {
+        if (!careData || !careData.tasks) return;
+        for (var i = 0; i < careData.tasks.length; i++) {
+            if (careData.tasks[i].id === taskId) {
+                careData.tasks[i].assigned = name;
+                careData.tasks[i].status = 'claimed';
+                break;
+            }
+        }
+        window.renderTasks(careData.tasks);
+    };
+
+    window.toggleTaskDone = function(taskId) {
+        if (!isOrganizerMode || !careData || !careData.tasks) return;
+        for (var i = 0; i < careData.tasks.length; i++) {
+            if (careData.tasks[i].id === taskId) {
+                careData.tasks[i].status = careData.tasks[i].status === 'done' ? 'claimed' : 'done';
+                break;
+            }
+        }
+        window.renderTasks(careData.tasks);
+    };
+
+    // ── Organizer Actions ────────────────────────────────
+
+    window.postUpdate = function() {
+        var input = document.getElementById('updateInput');
+        var text = input.value.trim();
+        if (!text) return;
+
+        var btn = document.getElementById('postUpdateBtn');
+        btn.disabled = true;
+        btn.textContent = 'Posting...';
+
+        var payload = { message: text, token: organizerToken };
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/updates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.json(); })
+        .then(function() {
+            window.addUpdateLocally(text);
+        }).catch(function() {
+            window.addUpdateLocally(text);
+        }).finally(function() {
+            btn.disabled = false;
+            btn.textContent = 'Post Update';
+        });
+    };
+
+    window.addUpdateLocally = function(text) {
+        if (!careData) careData = {};
+        if (!careData.updates) careData.updates = [];
+        careData.updates.unshift({
+            author: careData.organizer_name || 'Organizer',
+            time: new Date().toISOString(),
+            message: text
+        });
+        window.renderUpdates(careData.updates);
+        document.getElementById('updateInput').value = '';
+        document.getElementById('updateCharCount').textContent = '0 / 500';
+    };
+
+    window.addTask = function() {
+        var input = document.getElementById('newTaskInput');
+        var desc = input.value.trim();
+        if (!desc) return;
+
+        var newId = careData && careData.tasks ? careData.tasks.length + 100 : 100;
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ desc: desc, token: organizerToken })
+        }).catch(function() {});
+
+        if (!careData) careData = {};
+        if (!careData.tasks) careData.tasks = [];
+        careData.tasks.push({ id: newId, desc: desc, assigned: null, status: 'open' });
+        window.renderTasks(careData.tasks);
+        input.value = '';
+    };
+
+    // ── Visiting Hours Modal ─────────────────────────────
+
+    window.showVisitingHoursModal = function() {
+        document.getElementById('visitingHoursModal').classList.add('active');
+    };
+
+    window.closeVisitingHoursModal = function() {
+        document.getElementById('visitingHoursModal').classList.remove('active');
+    };
+
+    window.saveVisitingHours = function() {
+        var start = document.getElementById('visitStart').value;
+        var end = document.getElementById('visitEnd').value;
+        var note = document.getElementById('visitNote').value.trim();
+
+        if (careData) {
+            careData.visiting_hours = { start: start, end: end, note: note };
+            var noteText = 'Visiting hours: ' + window.formatTime(start) + ' \u2013 ' + window.formatTime(end) + ' daily';
+            if (note) noteText += ' \u2014 ' + note;
+            document.getElementById('visitingHoursNote').textContent = noteText;
+            window.renderVisitorCalendar(careData.visitors || [], careData.visiting_hours);
+        }
+
+        fetch('/api/care/' + encodeURIComponent(careId) + '/visiting-hours', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start: start, end: end, note: note, token: organizerToken })
+        }).catch(function() {});
+
+        window.closeVisitingHoursModal();
+    };
+
+    // ── Transition ───────────────────────────────────────
+
+    window.showTransitionConfirm = function() {
+        document.getElementById('transitionBtn').style.display = 'none';
+        document.getElementById('transitionConfirm').classList.add('active');
+    };
+
+    window.hideTransitionConfirm = function() {
+        document.getElementById('transitionConfirm').classList.remove('active');
+        document.getElementById('transitionBtn').style.display = '';
+    };
+
+    // ── Share ────────────────────────────────────────────
+
+    window.sharePage = function() {
+        var url = window.location.href.split('?')[0]; // strip token for sharing
+        if (navigator.share) {
+            navigator.share({ title: careData ? careData.family_name : 'Care Page', url: url }).catch(function() {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+                var toast = document.getElementById('shareToast');
+                toast.classList.add('active');
+                setTimeout(function() { toast.classList.remove('active'); }, 2500);
+            });
+        }
+    };
+
+    // ── Guide Toggle ─────────────────────────────────────
+
+    window.toggleGuide = function(btn) {
+        var content = btn.nextElementSibling;
+        var isOpen = btn.classList.contains('open');
+        btn.classList.toggle('open');
+        btn.setAttribute('aria-expanded', !isOpen);
+        content.classList.toggle('open');
+    };
+
+    // ── Hamburger Nav ────────────────────────────────────
+
+    window.toggleNav = function() {
+        var nav = document.getElementById('navLinks');
+        var btn = document.getElementById('hamburgerBtn');
+        var isOpen = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+    };
+
+    // ── Init ─────────────────────────────────────────────
+
+    window.initCarePage = function() {
+        // Nav hamburger
+        document.getElementById('hamburgerBtn').addEventListener('click', window.toggleNav);
+
+        // Share button
+        document.getElementById('shareBtn').addEventListener('click', window.sharePage);
+
+        // Post update button
+        document.getElementById('postUpdateBtn').addEventListener('click', window.postUpdate);
+
+        // Update char count
+        document.getElementById('updateInput').addEventListener('input', function() {
+            document.getElementById('updateCharCount').textContent = this.value.length + ' / 500';
+        });
+
+        // Add task
+        document.getElementById('addTaskBtn').addEventListener('click', window.addTask);
+        document.getElementById('newTaskInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); window.addTask(); }
+        });
+
+        // Close modals on overlay click
+        var modals = document.querySelectorAll('.modal-overlay');
+        for (var i = 0; i < modals.length; i++) {
+            (function(modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            })(modals[i]);
+        }
+
+        // Close modals on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var activeModals = document.querySelectorAll('.modal-overlay.active');
+                for (var j = 0; j < activeModals.length; j++) {
+                    activeModals[j].classList.remove('active');
+                }
+            }
+        });
+
+        // Parse URL
+        careId = window.getCareIdFromUrl();
+        organizerToken = window.getTokenFromUrl();
+
+        if (!careId) {
+            // Demo mode — show placeholder
+            careId = 'demo';
+            isOrganizerMode = true;
+            window.renderPage(window.getPlaceholderData());
+            return;
+        }
+
+        // Check if organizer
+        if (organizerToken) {
+            isOrganizerMode = true;
+        }
+
+        // Fetch data
+        fetch('/api/care/' + encodeURIComponent(careId))
+        .then(function(r) {
+            if (!r.ok) throw new Error('Not found');
+            return r.json();
+        })
+        .then(function(data) {
+            window.renderPage(data);
+        })
+        .catch(function() {
+            // API not ready — show placeholder for demo
+            isOrganizerMode = true;
+            window.renderPage(window.getPlaceholderData());
+        });
+    };
+
+    // Boot
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.initCarePage);
+    } else {
+        window.initCarePage();
+    }
+
+    // ── Service Worker ───────────────────────────────────
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
+    </script>
+
+</body>
+</html>

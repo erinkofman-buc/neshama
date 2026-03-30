@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Your Family - Neshama</title>
+    <meta name="description" content="Create a coordination page so friends and community can help with meals, visits, and daily tasks for your loved one. Free, no account needed.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Neshama">
+    <link rel="canonical" href="https://neshama.ca/care/setup">
+    <meta property="og:title" content="Support Your Family - Neshama">
+    <meta property="og:description" content="Create a coordination page so friends and community can help with meals, visits, and daily tasks for your loved one. Free, no account needed.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/care/setup">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Support Your Family - Neshama">
+    <meta name="twitter:description" content="Create a coordination page so friends and community can help with meals, visits, and daily tasks for your loved one. Free, no account needed.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --sage:#B2BEB5; --sage-dark:#556258; --terracotta:#D2691E; --warm-beige:#F5F5DC; --cream:#FAF9F6; --dark-brown:#3E2723; --light-taupe:#D4C5B9; --gold:#C9A96E; --soft-shadow:rgba(62,39,35,0.08); --warm-glow:rgba(210,105,30,0.15); }
+        .skip-link { position:absolute; top:-100%; left:16px; background:var(--dark-brown); color:var(--cream); padding:12px 24px; border-radius:4px; font-size:0.9rem; z-index:1000; transition:top 0.2s ease; }
+        .skip-link:focus { top:16px; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        ::selection { background:rgba(210,105,30,0.2); color:var(--dark-brown); }
+        body { font-family:'Source Serif 4',serif; background:linear-gradient(135deg,var(--cream) 0%,var(--warm-beige) 100%); color:var(--dark-brown); line-height:1.7; min-height:100vh; }
+        a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid var(--terracotta); outline-offset:3px; border-radius:4px; }
+        input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset:0; }
+        /* Nav */
+        .top-nav { display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:56px; background:rgba(255,255,255,0.96); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-bottom:1px solid rgba(212,197,185,0.3); position:sticky; top:0; z-index:200; }
+        .nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:500; color:var(--dark-brown); text-decoration:none; letter-spacing:0.03em; }
+        .nav-logo:hover { opacity:0.7; }
+        .nav-center { display:flex; align-items:center; gap:2rem; }
+        .nav-link { font-family:'Source Serif 4',serif; font-size:1rem; color:var(--sage-dark); text-decoration:none; transition:color 0.2s; font-weight:400; }
+        .nav-link:hover { color:var(--dark-brown); }
+        .nav-link.active { color:var(--dark-brown); font-weight:600; }
+        .nav-link-secondary { font-size:0.92rem; opacity:0.7; }
+        .nav-link-secondary:hover { opacity:1; }
+        .nav-group-primary,.nav-group-secondary { display:flex; align-items:center; gap:1.5rem; }
+        .nav-link-help { font-size:0.95rem; color:var(--terracotta); font-weight:500; opacity:1; }
+        .nav-link-help:hover { color:#c45a1a; }
+        .nav-group-secondary { gap:1.25rem; }
+        .nav-divider { width:1px; height:18px; background:var(--light-taupe); opacity:0.5; }
+        .nav-premium-btn { position:relative; font-family:'Source Serif 4',serif; font-size:0.9rem; font-weight:600; color:white; background:var(--terracotta); padding:0.45rem 1.25rem; border-radius:2rem; text-decoration:none; transition:all 0.2s; border:none; cursor:pointer; white-space:nowrap; }
+        .nav-premium-btn:hover { background:#c45a1a; transform:translateY(-1px); box-shadow:0 4px 12px rgba(210,105,30,0.25); }
+        .nav-btn-subtext { display:none; font-size:0.72rem; font-weight:400; opacity:0.9; }
+        @media(min-width:769px){.nav-premium-btn:hover .nav-btn-subtext{display:block;position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--dark-brown);color:white;padding:0.3rem 0.65rem;border-radius:0.35rem;font-size:0.75rem;font-weight:400;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:300;}}
+        .nav-hamburger { display:none; background:none; border:none; cursor:pointer; padding:0.5rem; color:var(--dark-brown); }
+        .nav-hamburger svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+        /* Layout */
+        .page-container { max-width:640px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+        .page-title { font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,5vw,2.5rem); font-weight:400; text-align:center; margin-bottom:0.5rem; }
+        .page-subtitle { text-align:center; font-size:1.1rem; color:var(--sage-dark); margin-bottom:2.5rem; line-height:1.6; }
+        .section-header { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:500; color:var(--dark-brown); margin-bottom:0.25rem; }
+        .section-hint { font-size:0.9rem; color:var(--sage-dark); margin-bottom:1.25rem; line-height:1.5; }
+        .form-card { background:white; border-radius:1rem; padding:2rem; box-shadow:0 4px 20px var(--soft-shadow); margin-bottom:1.5rem; }
+        /* Form */
+        .form-group { margin-bottom:1.25rem; }
+        .form-group label { display:block; font-size:0.95rem; font-weight:600; color:var(--dark-brown); margin-bottom:0.35rem; }
+        .form-group label .optional { font-weight:400; color:var(--sage-dark); font-size:0.85rem; }
+        .form-group input,.form-group select,.form-group textarea { width:100%; padding:0.75rem 1rem; font-family:'Source Serif 4',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; background:white; color:var(--dark-brown); transition:border-color 0.3s ease; }
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus { outline:none; border-color:var(--terracotta); }
+        .form-group input::placeholder,.form-group textarea::placeholder { color:var(--sage); }
+        .form-hint { font-size:0.85rem; color:var(--sage-dark); margin-top:0.3rem; }
+        .form-row { display:flex; gap:1rem; align-items:flex-end; }
+        .form-row .form-group { flex:1; }
+        .field-error { border-color:#c45a1a !important; }
+        /* Toggle */
+        .toggle-group { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; }
+        .toggle-switch { position:relative; width:48px; height:26px; flex-shrink:0; }
+        .toggle-switch input { opacity:0; width:0; height:0; }
+        .toggle-slider { position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0; background:var(--light-taupe); border-radius:26px; transition:0.3s; }
+        .toggle-slider::before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.3s; }
+        .toggle-switch input:checked+.toggle-slider { background:var(--terracotta); }
+        .toggle-switch input:checked+.toggle-slider::before { transform:translateX(22px); }
+        .toggle-label { font-size:0.95rem; font-weight:600; color:var(--dark-brown); }
+        /* Checkbox */
+        .checkbox-row { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
+        .checkbox-row input[type="checkbox"] { width:20px; height:20px; flex-shrink:0; accent-color:var(--terracotta); }
+        .checkbox-row label { font-size:0.92rem; color:var(--dark-brown); cursor:pointer; }
+        /* Radio */
+        .radio-group { display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem; }
+        .radio-option { display:flex; align-items:flex-start; gap:0.75rem; padding:1rem; background:var(--cream); border:2px solid var(--light-taupe); border-radius:0.5rem; cursor:pointer; transition:border-color 0.2s; }
+        .radio-option:hover { border-color:var(--terracotta); }
+        .radio-option.selected { border-color:var(--terracotta); background:rgba(210,105,30,0.04); }
+        .radio-option input[type="radio"] { width:20px; height:20px; flex-shrink:0; margin-top:0.1rem; accent-color:var(--terracotta); }
+        .radio-option-text { font-size:0.95rem; line-height:1.5; color:var(--dark-brown); }
+        .radio-option-text strong { display:block; margin-bottom:0.15rem; }
+        .radio-option-text span { font-size:0.85rem; color:var(--sage-dark); }
+        /* Consent & Privacy */
+        .consent-group { display:flex; gap:0.75rem; align-items:flex-start; margin:1.5rem 0; padding:1rem; background:var(--cream); border-radius:0.5rem; border:1px solid var(--light-taupe); }
+        .consent-group input[type="checkbox"] { width:20px; height:20px; flex-shrink:0; margin-top:0.1rem; accent-color:var(--terracotta); }
+        .consent-group label { font-size:0.9rem; line-height:1.5; color:var(--dark-brown); }
+        .privacy-notice { font-size:0.85rem; color:var(--sage-dark); background:rgba(210,105,30,0.05); border-left:3px solid var(--terracotta); padding:0.75rem 1rem; margin-top:0.5rem; border-radius:0 0.5rem 0.5rem 0; }
+        /* Buttons */
+        .btn-submit { width:100%; height:56px; background:var(--terracotta); color:white; border:none; border-radius:2rem; font-family:'Source Serif 4',serif; font-size:1.1rem; font-weight:600; cursor:pointer; transition:all 0.3s ease; margin-top:1rem; }
+        .btn-submit:hover { background:#c45a1a; transform:translateY(-2px); box-shadow:0 4px 12px var(--warm-glow); }
+        .btn-submit:disabled { opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none; }
+        /* Error */
+        .form-error { display:none; background:rgba(210,105,30,0.08); color:var(--dark-brown); border:1px solid #c45a1a; border-radius:0.5rem; padding:0.75rem 1rem; margin-top:1rem; font-size:0.95rem; }
+        .form-error.active { display:block; }
+        /* Success */
+        .success-state { text-align:center; display:none; }
+        .success-state.active { display:block; }
+        .success-icon { font-size:4rem; margin-bottom:1rem; }
+        .success-state h2 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:400; margin-bottom:1rem; }
+        .success-state p { font-size:1.1rem; color:var(--sage-dark); margin-bottom:1rem; }
+        .link-box { background:var(--cream); border:2px solid var(--light-taupe); border-radius:0.5rem; padding:1rem; margin:1.5rem 0; word-break:break-all; font-size:0.9rem; text-align:left; }
+        .link-box strong { display:block; margin-bottom:0.5rem; color:var(--dark-brown); }
+        .link-box .link-url { color:var(--sage-dark); font-size:0.88rem; display:block; margin-bottom:0.5rem; }
+        .link-box .warning-text { font-size:0.82rem; color:#c45a1a; font-style:italic; }
+        .copy-link-btn { display:inline-block; background:var(--terracotta); color:white; border:none; padding:0.6rem 1.5rem; border-radius:2rem; font-family:'Source Serif 4',serif; font-size:0.95rem; cursor:pointer; margin-top:0.5rem; transition:all 0.3s ease; }
+        .copy-link-btn:hover { background:#c45a1a; }
+        .btn-row-success { display:flex; gap:1rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap; }
+        .btn-view { background:var(--terracotta); color:white; border:none; padding:0.85rem 2rem; border-radius:2rem; font-family:'Source Serif 4',serif; font-size:1.05rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.3s ease; }
+        .btn-view:hover { background:#c45a1a; transform:translateY(-2px); box-shadow:0 4px 12px var(--warm-glow); }
+        .btn-copy-share { background:transparent; color:var(--dark-brown); border:2px solid var(--light-taupe); padding:0.85rem 2rem; border-radius:2rem; font-family:'Source Serif 4',serif; font-size:1.05rem; cursor:pointer; transition:all 0.3s ease; }
+        .btn-copy-share:hover { border-color:var(--dark-brown); }
+        /* Conditional fields */
+        .conditional-fields { overflow:hidden; max-height:0; opacity:0; transition:max-height 0.3s ease,opacity 0.3s ease; }
+        .conditional-fields.visible { max-height:300px; opacity:1; }
+        /* Footer */
+        footer { max-width:640px; margin:3rem auto 0; padding:2rem 1.5rem; border-top:1px solid var(--light-taupe); text-align:center; }
+        .footer-links { display:flex; justify-content:center; gap:2rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+        .footer-links a { color:var(--dark-brown); text-decoration:none; font-size:1rem; transition:color 0.2s; }
+        .footer-links a:hover { color:var(--terracotta); }
+        .footer-copy { font-size:1rem; color:var(--sage-dark); }
+        /* Responsive */
+        @media(max-width:768px){
+            .nav-center{display:none;position:absolute;top:56px;left:0;right:0;background:white;flex-direction:column;padding:1rem 1.5rem;border-bottom:1px solid var(--light-taupe);box-shadow:0 8px 24px rgba(0,0,0,0.08);gap:0;z-index:199;}
+            .nav-center.open{display:flex;}
+            .nav-group-primary,.nav-group-secondary{flex-direction:column;gap:0.5rem;width:100%;}
+            .nav-group-primary{padding-bottom:0.75rem;margin-bottom:0.5rem;border-bottom:1px solid rgba(212,197,185,0.3);}
+            .nav-group-secondary{padding-bottom:0.5rem;}
+            .nav-divider{display:none;}
+            .nav-link-secondary{opacity:0.7;font-size:0.92rem;}
+            .nav-premium-btn{text-align:center;width:100%;margin-top:0.25rem;}
+            .nav-btn-subtext{display:block;margin-top:0.2rem;font-size:0.75rem;font-weight:400;opacity:0.85;}
+            .nav-hamburger{display:block;}
+        }
+        @media(max-width:600px){
+            .form-card{padding:1.5rem;}
+            .form-row{flex-direction:column;gap:0;}
+            .btn-row-success{flex-direction:column;}
+        }
+    </style>
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebPage","name":"Support Your Family - Neshama","url":"https://neshama.ca/care/setup","description":"Create a coordination page so friends and community can help with meals, visits, and daily tasks for your loved one.","publisher":{"@type":"Organization","name":"Neshama","url":"https://neshama.ca"}}
+    </script>
+    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+    <script>
+    window.onerror=function(msg,src,line,col,err){try{navigator.sendBeacon('/api/js-errors',JSON.stringify({message:msg,source:src,line:line,col:col,stack:err&&err.stack,url:location.href,userAgent:navigator.userAgent}));}catch(e){}};
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main-content">
+    <div class="page-container">
+        <h1 class="page-title">Support Your Family</h1>
+        <p class="page-subtitle">Create a coordination page so friends and community can help with meals, visits, and daily tasks. Free, no account needed.</p>
+
+        <form id="careForm" novalidate>
+            <!-- Section 1: About Your Loved One -->
+            <div class="form-card">
+                <h2 class="section-header">About Your Loved One</h2>
+                <p class="section-hint">Your community wants to help. This page makes it easy for them to coordinate.</p>
+                <div class="form-group">
+                    <label for="lovedOneName">Who are you supporting?</label>
+                    <input type="text" id="lovedOneName" name="loved_one_name" placeholder="Their first and last name" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="familyName">Your family name</label>
+                    <input type="text" id="familyName" name="family_name" placeholder="e.g., The Goldstein Family" required autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Section 2: About You -->
+            <div class="form-card">
+                <h2 class="section-header">About You</h2>
+                <p class="section-hint">So volunteers know who to contact.</p>
+                <div class="form-group">
+                    <label for="organizerName">Your name</label>
+                    <input type="text" id="organizerName" name="organizer_name" placeholder="Your full name" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="organizerEmail">Your email</label>
+                    <input type="email" id="organizerEmail" name="organizer_email" placeholder="you@example.com" required autocomplete="email">
+                    <p class="form-hint">We'll send your organizer link here so you can manage the page.</p>
+                </div>
+                <div class="form-group">
+                    <label for="organizerRelationship">Your relationship</label>
+                    <select id="organizerRelationship" name="organizer_relationship">
+                        <option value="" disabled selected>Select one</option>
+                        <option value="Son">Son</option>
+                        <option value="Daughter">Daughter</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Sibling">Sibling</option>
+                        <option value="Grandchild">Grandchild</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="organizerPhone">Your phone <span class="optional">(optional)</span></label>
+                    <input type="tel" id="organizerPhone" name="organizer_phone" placeholder="(416) 555-0123" autocomplete="tel">
+                </div>
+            </div>
+
+            <!-- Section 3: Coordination Preferences -->
+            <div class="form-card">
+                <h2 class="section-header">Coordination Preferences</h2>
+                <p class="section-hint">Help volunteers know how to help. You can always change these later.</p>
+                <div class="form-group">
+                    <label>Visiting hours</label>
+                    <div class="form-row" id="visitingHoursRow">
+                        <div class="form-group">
+                            <input type="time" id="visitingStart" name="visiting_hours_start" value="10:00" aria-label="Visiting hours start">
+                        </div>
+                        <div style="padding-bottom:1.25rem;color:var(--sage-dark);">to</div>
+                        <div class="form-group">
+                            <input type="time" id="visitingEnd" name="visiting_hours_end" value="20:00" aria-label="Visiting hours end">
+                        </div>
+                    </div>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="noVisitingHours" name="no_visiting_hours">
+                        <label for="noVisitingHours">No set visiting hours</label>
+                    </div>
+                </div>
+                <div class="toggle-group">
+                    <label class="toggle-switch" aria-label="Meals needed">
+                        <input type="checkbox" id="mealsNeeded" name="meals_needed" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Meals needed</span>
+                </div>
+                <div class="conditional-fields visible" id="mealFields">
+                    <div class="form-group">
+                        <label for="mealServings">How many people to feed?</label>
+                        <input type="number" id="mealServings" name="meal_servings" min="1" max="50" value="6" style="max-width:120px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="dietaryNotes">Dietary notes <span class="optional">(optional)</span></label>
+                        <input type="text" id="dietaryNotes" name="dietary_notes" placeholder="e.g., Kosher, no nuts, vegetarian options welcome">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address for drop-offs <span class="optional">(optional)</span></label>
+                    <input type="text" id="address" name="address" placeholder="123 Bathurst St, Toronto" autocomplete="street-address">
+                    <div class="privacy-notice">Only shared with confirmed volunteers</div>
+                </div>
+            </div>
+
+            <!-- Section 4: Privacy -->
+            <div class="form-card">
+                <h2 class="section-header">Privacy</h2>
+                <p class="section-hint">Choose who can see your coordination page.</p>
+                <div class="radio-group" id="privacyGroup">
+                    <label class="radio-option selected">
+                        <input type="radio" name="privacy" value="open" checked>
+                        <div class="radio-option-text">
+                            <strong>Open</strong>
+                            <span>Anyone with the link can see the page and sign up to help</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="privacy" value="private">
+                        <div class="radio-option-text">
+                            <strong>Private</strong>
+                            <span>People must request access to see details</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="consent-group">
+                    <input type="checkbox" id="privacyConsent" name="privacy_consent" required>
+                    <label for="privacyConsent">I confirm this information is shared with my consent and I have the authority to share it on behalf of my family.</label>
+                </div>
+            </div>
+
+            <div class="form-error" id="formError" role="alert"></div>
+            <button type="submit" class="btn-submit" id="submitBtn">Create Your Page</button>
+        </form>
+
+        <!-- Success State -->
+        <div class="success-state" id="successState">
+            <div class="success-icon" aria-hidden="true">&#x2764;&#xFE0F;</div>
+            <h2>Your coordination page is ready</h2>
+            <p>Share this link with family and friends so they can sign up to help.</p>
+            <div class="link-box">
+                <strong>Share link</strong>
+                <span class="link-url" id="shareLink"></span>
+                <button type="button" class="copy-link-btn" onclick="copyLink('shareLink')">Copy Link</button>
+            </div>
+            <div class="link-box">
+                <strong>Your organizer link</strong>
+                <span class="link-url" id="organizerLink"></span>
+                <span class="warning-text">Save this link! It lets you manage your page. We also sent it to your email.</span>
+                <button type="button" class="copy-link-btn" onclick="copyLink('organizerLink')">Copy Organizer Link</button>
+            </div>
+            <div class="btn-row-success">
+                <a href="#" class="btn-view" id="viewPageBtn">View Your Page</a>
+                <button type="button" class="btn-copy-share" onclick="copyLink('shareLink')">Copy Share Link</button>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/help">How Can I Help?</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+        var form = document.getElementById('careForm');
+        var submitBtn = document.getElementById('submitBtn');
+        var formError = document.getElementById('formError');
+        var successState = document.getElementById('successState');
+
+        // Toggle visiting hours
+        var noVisitingHours = document.getElementById('noVisitingHours');
+        var visitingHoursRow = document.getElementById('visitingHoursRow');
+        noVisitingHours.addEventListener('change', function() {
+            var inputs = visitingHoursRow.querySelectorAll('input[type="time"]');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].disabled = this.checked;
+                inputs[i].style.opacity = this.checked ? '0.4' : '1';
+            }
+        });
+
+        // Toggle meal fields
+        var mealsNeeded = document.getElementById('mealsNeeded');
+        var mealFields = document.getElementById('mealFields');
+        mealsNeeded.addEventListener('change', function() {
+            mealFields.classList.toggle('visible', this.checked);
+        });
+
+        // Radio styling
+        var radioOptions = document.querySelectorAll('.radio-option');
+        for (var i = 0; i < radioOptions.length; i++) {
+            radioOptions[i].addEventListener('click', function() {
+                for (var j = 0; j < radioOptions.length; j++) radioOptions[j].classList.remove('selected');
+                this.classList.add('selected');
+            });
+        }
+
+        function clearFieldErrors() {
+            var els = document.querySelectorAll('.field-error');
+            for (var i = 0; i < els.length; i++) els[i].classList.remove('field-error');
+        }
+
+        function validateForm() {
+            var errors = [];
+            clearFieldErrors();
+            var fields = [
+                ['lovedOneName', 'Please enter the name of the person you are supporting.'],
+                ['familyName', 'Please enter your family name.'],
+                ['organizerName', 'Please enter your name.']
+            ];
+            for (var i = 0; i < fields.length; i++) {
+                var el = document.getElementById(fields[i][0]);
+                if (!el.value.trim()) { errors.push(fields[i][1]); el.classList.add('field-error'); }
+            }
+            var email = document.getElementById('organizerEmail');
+            if (!email.value.trim()) {
+                errors.push('Please enter your email address.'); email.classList.add('field-error');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+                errors.push('Please enter a valid email address.'); email.classList.add('field-error');
+            }
+            if (!document.getElementById('privacyConsent').checked) {
+                errors.push('Please confirm the privacy consent to continue.');
+            }
+            return errors;
+        }
+
+        function showError(messages) {
+            formError.innerHTML = messages.join('<br>');
+            formError.classList.add('active');
+            formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function hideError() { formError.classList.remove('active'); formError.innerHTML = ''; }
+
+        function buildPayload() {
+            var noHours = document.getElementById('noVisitingHours').checked;
+            var meals = document.getElementById('mealsNeeded').checked;
+            return {
+                loved_one_name: document.getElementById('lovedOneName').value.trim(),
+                family_name: document.getElementById('familyName').value.trim(),
+                organizer_name: document.getElementById('organizerName').value.trim(),
+                organizer_email: document.getElementById('organizerEmail').value.trim(),
+                organizer_relationship: document.getElementById('organizerRelationship').value || '',
+                organizer_phone: document.getElementById('organizerPhone').value.trim(),
+                visiting_hours_start: noHours ? '' : document.getElementById('visitingStart').value,
+                visiting_hours_end: noHours ? '' : document.getElementById('visitingEnd').value,
+                meals_needed: meals,
+                meal_servings: meals ? parseInt(document.getElementById('mealServings').value, 10) || 0 : 0,
+                dietary_notes: meals ? document.getElementById('dietaryNotes').value.trim() : '',
+                address: document.getElementById('address').value.trim(),
+                privacy: document.querySelector('input[name="privacy"]:checked').value,
+                privacy_consent: document.getElementById('privacyConsent').checked
+            };
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideError();
+            var errors = validateForm();
+            if (errors.length > 0) { showError(errors); return; }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating your page...';
+
+            fetch('/api/care', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(buildPayload())
+            })
+            .then(function(response) {
+                if (response.status === 429) throw new Error('Too many requests. Please wait a moment and try again.');
+                if (!response.ok) return response.json().then(function(d) { throw new Error(d.error || 'Something went wrong. Please try again.'); });
+                return response.json();
+            })
+            .then(function(data) {
+                form.style.display = 'none';
+                successState.classList.add('active');
+                var base = window.location.origin;
+                document.getElementById('shareLink').textContent = base + '/care/' + data.slug;
+                document.getElementById('organizerLink').textContent = base + '/care/' + data.slug + '?token=' + data.organizer_token;
+                document.getElementById('viewPageBtn').href = base + '/care/' + data.slug + '?token=' + data.organizer_token;
+                successState.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            })
+            .catch(function(err) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Your Page';
+                showError([err.message]);
+            });
+        });
+
+        window.copyLink = function(elementId) {
+            var text = document.getElementById(elementId).textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() { showCopyFeedback(elementId); });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta); showCopyFeedback(elementId);
+            }
+        };
+
+        function showCopyFeedback(elementId) {
+            var btn = document.getElementById(elementId).parentElement.querySelector('.copy-link-btn');
+            if (!btn) return;
+            var original = btn.textContent;
+            btn.textContent = 'Copied!'; btn.style.background = 'var(--sage-dark)';
+            setTimeout(function() { btn.textContent = original; btn.style.background = ''; }, 2000);
+        }
+    })();
+    </script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+    <script>
+    var hamburgerBtn=document.getElementById('hamburgerBtn');
+    var navLinks=document.getElementById('navLinks');
+    if(hamburgerBtn&&navLinks){hamburgerBtn.addEventListener('click',function(){var isOpen=navLinks.classList.toggle('open');hamburgerBtn.setAttribute('aria-expanded',isOpen);});}
+    </script>
+</body>
+</html>
