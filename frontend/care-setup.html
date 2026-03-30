@@ -1093,16 +1093,7 @@
         document.getElementById('careEndDate').addEventListener('change', buildMealBlockingGrid);
         buildMealBlockingGrid();
 
-        // Dead stub for old visiting hours references
-        var noVisitingHours = { checked: true };
-        if (false) {
-            var startInput = document.getElementById('visitingStart');
-            var endInput = document.getElementById('visitingEnd');
-            startInput.disabled = this.checked;
-            startInput.style.opacity = this.checked ? '0.4' : '1';
-            endInput.disabled = this.checked;
-            endInput.style.opacity = this.checked ? '0.4' : '1';
-        });
+        // Visiting hours removed from care setup
 
         // ── Step Navigation ─────────────────────────────
         window.goToStep = function(step) {
