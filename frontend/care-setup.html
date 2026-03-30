@@ -1178,16 +1178,14 @@
 
         // ── Build Review Summary ────────────────────────
         function buildReview() {
-            var noHours = document.getElementById('noVisitingHours').checked;
-            var visitingDisplay = noHours ? 'Visitors welcome anytime' : document.getElementById('visitingStart').value + ' to ' + document.getElementById('visitingEnd').value;
-
             var items = [
                 ['Organizer', document.getElementById('organizerName').value],
                 ['Email', document.getElementById('organizerEmail').value],
                 ['Relationship', document.getElementById('organizerRelationship').value],
                 ['Supporting', document.getElementById('lovedOneName').value],
                 ['Family', document.getElementById('familyName').value],
-                ['People per meal', document.getElementById('guestsPerMeal').value]
+                ['People per meal', document.getElementById('guestsPerMeal').value],
+                ['Dates', document.getElementById('careStartDate').value + ' to ' + document.getElementById('careEndDate').value]
             ];
 
             var addr = document.getElementById('careAddress').value.trim();
@@ -1218,8 +1216,6 @@
             btn.textContent = 'Creating your page...';
             errEl.classList.remove('active');
 
-            var noHours = document.getElementById('noVisitingHours').checked;
-
             var payload = {
                 obituary_id: obituaryId || null,
                 loved_one_name: document.getElementById('lovedOneName').value.trim(),
@@ -1232,8 +1228,8 @@
                 meal_servings: parseInt(document.getElementById('guestsPerMeal').value) || 6,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
-                visiting_hours_start: noHours ? '' : document.getElementById('visitingStart').value,
-                visiting_hours_end: noHours ? '' : document.getElementById('visitingEnd').value,
+                start_date: document.getElementById('careStartDate').value,
+                end_date: document.getElementById('careEndDate').value,
                 privacy_consent: true
             };
 
