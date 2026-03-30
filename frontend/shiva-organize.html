@@ -983,14 +983,7 @@
                 <div class="form-hint">Typically 7 days from the start. You can change this later.</div>
             </div>
 
-            <div class="toggle-group">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="pauseShabbat" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Pause for Shabbat</span>
-            </div>
-            <p class="toggle-hint">Meal coordination will pause from Friday sunset to Saturday sunset</p>
+            <!-- Shabbat pause removed — organizers can block individual meals instead -->
 
             <!-- V5: Meal Blocking Grid -->
             <div class="form-group" id="mealBlockingSection" style="display: none;">
@@ -1444,7 +1437,7 @@
 
             section.style.display = '';
             grid.innerHTML = '';
-            var pauseShabbat = document.getElementById('pauseShabbat').checked;
+            var pauseShabbat = false; // Removed — organizers block individual meals instead
             var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -1517,7 +1510,7 @@
             buildMealBlockingGrid();
         });
         document.getElementById('shivaEndDate').addEventListener('change', buildMealBlockingGrid);
-        document.getElementById('pauseShabbat').addEventListener('change', buildMealBlockingGrid);
+        // pauseShabbat listener removed
 
         // ── Step Navigation ─────────────────────────────
         window.goToStep = function(step) {
@@ -1621,7 +1614,7 @@
                 ['Location', (document.getElementById('shivaCity').value || '(not specified)') + (document.getElementById('shivaSubArea').value ? ' \u2014 ' + document.getElementById('shivaSubArea').value : '')],
                 ['Start', document.getElementById('shivaStartDate').value],
                 ['End', document.getElementById('shivaEndDate').value],
-                ['Shabbat pause', document.getElementById('pauseShabbat').checked ? 'Yes' : 'No'],
+                // Shabbat pause removed from review
                 ['Guests per meal', document.getElementById('guestsPerMeal').value],
             ];
 
@@ -1662,7 +1655,7 @@
                 shiva_sub_area: document.getElementById('shivaSubArea').value || null,
                 shiva_start_date: document.getElementById('shivaStartDate').value,
                 shiva_end_date: document.getElementById('shivaEndDate').value,
-                pause_shabbat: document.getElementById('pauseShabbat').checked,
+                pause_shabbat: false,
                 guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
