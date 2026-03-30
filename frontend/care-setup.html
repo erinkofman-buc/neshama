@@ -706,18 +706,7 @@
                 <div class="form-hint">Anything visitors and volunteers should know</div>
             </div>
 
-            <div class="form-group">
-                <label>Visiting Hours <span class="optional">(optional)</span></label>
-                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                    <input type="time" id="visitingStart" value="10:00" aria-label="Visiting hours start" style="flex: 1; min-width: 120px;">
-                    <span style="color: var(--sage-dark);">to</span>
-                    <input type="time" id="visitingEnd" value="20:00" aria-label="Visiting hours end" style="flex: 1; min-width: 120px;">
-                </div>
-                <div style="margin-top: 0.5rem;">
-                    <input type="checkbox" id="noVisitingHours" style="margin-right: 0.5rem;">
-                    <label for="noVisitingHours" style="font-size: 0.95rem; color: var(--sage-dark); font-weight: 400;">No set visiting hours &mdash; visitors welcome anytime</label>
-                </div>
-            </div>
+            <!-- Visiting hours removed — not needed for care coordination setup -->
 
             <div class="form-error" id="step2Error"></div>
 
@@ -976,9 +965,10 @@
                 .catch(function() {});
         }
 
-        // ── Visiting Hours Toggle ───────────────────────
-        var noVisitingHours = document.getElementById('noVisitingHours');
-        noVisitingHours.addEventListener('change', function() {
+        // ── Visiting Hours (removed from form) ──────────
+        // Keeping stub so review/submit don't break
+        var noVisitingHours = { checked: true, addEventListener: function() {} };
+        if (false) { // disabled
             var startInput = document.getElementById('visitingStart');
             var endInput = document.getElementById('visitingEnd');
             startInput.disabled = this.checked;
@@ -1078,8 +1068,7 @@
                 ['Relationship', document.getElementById('organizerRelationship').value],
                 ['Supporting', document.getElementById('lovedOneName').value],
                 ['Family', document.getElementById('familyName').value],
-                ['People per meal', document.getElementById('guestsPerMeal').value],
-                ['Visiting hours', visitingDisplay]
+                ['People per meal', document.getElementById('guestsPerMeal').value]
             ];
 
             var addr = document.getElementById('careAddress').value.trim();
