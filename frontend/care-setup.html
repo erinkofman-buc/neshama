@@ -470,9 +470,11 @@
                 form.style.display = 'none';
                 successState.classList.add('active');
                 var base = window.location.origin;
-                document.getElementById('shareLink').textContent = base + '/care/' + data.slug;
-                document.getElementById('organizerLink').textContent = base + '/care/' + data.slug + '?token=' + data.organizer_token;
-                document.getElementById('viewPageBtn').href = base + '/care/' + data.slug + '?token=' + data.organizer_token;
+                var pageId = data.id || data.slug;
+                var token = data.magic_token || data.organizer_token;
+                document.getElementById('shareLink').textContent = base + '/care/' + pageId;
+                document.getElementById('organizerLink').textContent = base + '/care/' + pageId + '?token=' + token;
+                document.getElementById('viewPageBtn').href = base + '/care/' + pageId + '?token=' + token;
                 successState.scrollIntoView({ behavior: 'smooth', block: 'start' });
             })
             .catch(function(err) {
