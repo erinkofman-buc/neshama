@@ -273,6 +273,42 @@
             margin-top: 0.5rem;
             border-radius: 0 0.5rem 0.5rem 0;
         }
+        .meal-block-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-taupe);
+        }
+        .meal-block-day {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            min-width: 100px;
+        }
+        .meal-block-btn {
+            padding: 0.35rem 0.75rem;
+            border: 1.5px solid var(--sage);
+            border-radius: 2rem;
+            background: white;
+            color: var(--sage-dark);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 44px;
+            min-width: 70px;
+        }
+        .meal-block-btn:hover {
+            background: var(--cream);
+        }
+        .meal-block-btn.blocked {
+            background: #f0e0d6;
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+            text-decoration: line-through;
+        }
 
         .field-error {
             border-color: #c45a1a !important;
@@ -706,7 +742,29 @@
                 <div class="form-hint">Anything visitors and volunteers should know</div>
             </div>
 
-            <!-- Visiting hours removed — not needed for care coordination setup -->
+            <div class="form-group">
+                <label for="dropOffInstructions">Drop-off Instructions for Meals <span class="optional">(optional)</span></label>
+                <textarea id="dropOffInstructions" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204..." rows="2"></textarea>
+                <div class="form-hint">Shown to confirmed volunteers only &mdash; not visible publicly.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="careStartDate">Start Date</label>
+                <input type="date" id="careStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="careEndDate">End Date</label>
+                <input type="date" id="careEndDate" required>
+                <div class="form-hint">You can extend this anytime.</div>
+            </div>
+
+            <!-- Meal Blocking Grid -->
+            <div class="form-group" id="mealBlockingSection" style="display: none;">
+                <label>Block Off Meals <span class="optional">(optional)</span></label>
+                <div class="form-hint" style="margin-bottom: 0.75rem;">Click any meal slot the family doesn't need covered. Blocked meals won't appear for volunteers.</div>
+                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
+            </div>
 
             <div class="form-error" id="step2Error"></div>
 
@@ -965,10 +1023,79 @@
                 .catch(function() {});
         }
 
-        // ── Visiting Hours (removed from form) ──────────
-        // Keeping stub so review/submit don't break
-        var noVisitingHours = { checked: true, addEventListener: function() {} };
-        if (false) { // disabled
+        // ── Meal Blocking Grid ──────────────────────────
+        var blockedMeals = [];
+
+        function buildMealBlockingGrid() {
+            var startVal = document.getElementById('careStartDate').value;
+            var endVal = document.getElementById('careEndDate').value;
+            var section = document.getElementById('mealBlockingSection');
+            var grid = document.getElementById('mealBlockingGrid');
+
+            if (!startVal || !endVal) { section.style.display = 'none'; return; }
+
+            var start = new Date(startVal + 'T12:00:00');
+            var end = new Date(endVal + 'T12:00:00');
+            if (isNaN(start) || isNaN(end) || end < start) { section.style.display = 'none'; return; }
+
+            section.style.display = '';
+            grid.innerHTML = '';
+            var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            var current = new Date(start);
+            while (current <= end) {
+                var dateStr = current.toISOString().split('T')[0];
+                var label = days[current.getDay()] + ', ' + months[current.getMonth()] + ' ' + current.getDate();
+
+                var row = document.createElement('div');
+                row.className = 'meal-block-row';
+
+                var dayLabel = document.createElement('div');
+                dayLabel.className = 'meal-block-day';
+                dayLabel.textContent = label;
+                row.appendChild(dayLabel);
+
+                ['Lunch', 'Dinner'].forEach(function(mealType) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'meal-block-btn';
+                    btn.textContent = mealType;
+                    btn.dataset.date = dateStr;
+                    btn.dataset.meal = mealType;
+
+                    var isBlocked = blockedMeals.some(function(bm) { return bm.date === dateStr && bm.meal_type === mealType; });
+                    if (isBlocked) btn.classList.add('blocked');
+
+                    btn.addEventListener('click', function() {
+                        var d = this.dataset.date;
+                        var m = this.dataset.meal;
+                        var idx = blockedMeals.findIndex(function(bm) { return bm.date === d && bm.meal_type === m; });
+                        if (idx >= 0) { blockedMeals.splice(idx, 1); this.classList.remove('blocked'); }
+                        else { blockedMeals.push({ date: d, meal_type: m }); this.classList.add('blocked'); }
+                    });
+                    row.appendChild(btn);
+                });
+
+                grid.appendChild(row);
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        // Set default dates (today + 14 days) and wire up listeners
+        var today = new Date();
+        var twoWeeks = new Date(today);
+        twoWeeks.setDate(twoWeeks.getDate() + 14);
+        document.getElementById('careStartDate').value = today.toISOString().split('T')[0];
+        document.getElementById('careEndDate').value = twoWeeks.toISOString().split('T')[0];
+
+        document.getElementById('careStartDate').addEventListener('change', buildMealBlockingGrid);
+        document.getElementById('careEndDate').addEventListener('change', buildMealBlockingGrid);
+        buildMealBlockingGrid();
+
+        // Dead stub for old visiting hours references
+        var noVisitingHours = { checked: true };
+        if (false) {
             var startInput = document.getElementById('visitingStart');
             var endInput = document.getElementById('visitingEnd');
             startInput.disabled = this.checked;
