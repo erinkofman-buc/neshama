@@ -953,7 +953,8 @@
             document.getElementById('searchSection').style.display = 'none';
             document.getElementById('standaloneCallout').style.display = '';
             document.getElementById('stepper').style.display = '';
-            document.getElementById('step1').style.display = '';
+            document.getElementById('step1').classList.add('active');
+            currentStep = 1;
         };
 
         function loadObituaryContextById(obitId) {
@@ -990,7 +991,7 @@
             if (!obituaryId) {
                 document.getElementById('searchSection').style.display = '';
                 document.getElementById('stepper').style.display = 'none';
-                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step1').classList.remove('active');
                 initSearch();
                 return;
             }
