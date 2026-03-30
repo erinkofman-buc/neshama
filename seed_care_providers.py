@@ -276,13 +276,94 @@ CARE_PROVIDERS = [
 ]
 
 
+def slugify(name):
+    """Generate a URL-safe slug from a provider name."""
+    import re
+    slug = name.lower().strip()
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'[\s-]+', '-', slug)
+    return slug.strip('-')[:100]
+
+
+def seed_providers(db_path='neshama.db'):
+    """Seed care providers into the database."""
+    import sqlite3
+    from datetime import datetime
+
+    conn = sqlite3.connect(db_path, timeout=30)
+    conn.execute('PRAGMA busy_timeout=30000')
+    cursor = conn.cursor()
+
+    # Ensure table exists
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS care_providers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            provider_type TEXT NOT NULL,
+            description TEXT,
+            city TEXT,
+            neighbourhood TEXT,
+            phone TEXT,
+            email TEXT,
+            website TEXT,
+            instagram TEXT,
+            services TEXT,
+            price_range TEXT,
+            image_url TEXT,
+            featured INTEGER DEFAULT 0,
+            virtual_available INTEGER DEFAULT 0,
+            created_at TEXT NOT NULL
+        )
+    ''')
+
+    now = datetime.now().isoformat()
+    inserted = 0
+    skipped = 0
+
+    for p in CARE_PROVIDERS:
+        slug = slugify(p['name'])
+        try:
+            cursor.execute('''
+                INSERT OR IGNORE INTO care_providers
+                (name, slug, provider_type, description, city, neighbourhood,
+                 phone, email, website, instagram, services, price_range,
+                 image_url, featured, virtual_available, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                p['name'], slug, p['provider_type'],
+                p.get('description', ''), p.get('city', ''),
+                p.get('neighbourhood', ''), p.get('phone', ''),
+                p.get('email', ''), p.get('website', ''),
+                p.get('instagram', ''), p.get('services', ''),
+                p.get('price_range', ''), p.get('image_url', ''),
+                0, 1 if p.get('virtual_available') else 0, now
+            ))
+            if cursor.rowcount > 0:
+                inserted += 1
+            else:
+                skipped += 1
+        except Exception as e:
+            print(f"  Error seeding {p['name']}: {e}")
+            skipped += 1
+
+    conn.commit()
+    conn.close()
+    print(f"Seeded {inserted} providers ({skipped} skipped/existing)")
+
+
 if __name__ == '__main__':
+    import sys
+    db_path = sys.argv[1] if len(sys.argv) > 1 else 'neshama.db'
+    print(f"Seeding care providers into {db_path}...")
+    seed_providers(db_path)
+
     toronto_doulas = [p for p in CARE_PROVIDERS if p['city'] == 'Toronto' and p['provider_type'] == 'death_doula']
     montreal_doulas = [p for p in CARE_PROVIDERS if p['city'] == 'Montreal' and p['provider_type'] == 'death_doula']
     toronto_hc = [p for p in CARE_PROVIDERS if p['city'] == 'Toronto' and p['provider_type'] == 'home_care']
     montreal_hc = [p for p in CARE_PROVIDERS if p['city'] == 'Montreal' and p['provider_type'] == 'home_care']
 
-    print(f"Total providers: {len(CARE_PROVIDERS)}")
+    print(f"\nTotal providers: {len(CARE_PROVIDERS)}")
     print(f"  Toronto death doulas:  {len(toronto_doulas)}")
     print(f"  Montreal death doulas: {len(montreal_doulas)}")
     print(f"  Toronto home care:     {len(toronto_hc)}")
