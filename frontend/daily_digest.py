@@ -537,16 +537,20 @@ ERRORS
 {error_summary}
 """
 
-            message = Mail(
-                from_email=Email(self.from_email, self.from_name),
-                to_emails=To('contact@neshama.ca'),
-                subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
-                plain_text_content=Content(MimeType.text, plain_text)
-            )
+            # Only send health summary on Mondays (reduce inbox noise)
+            if datetime.now().weekday() == 0:  # Monday
+                message = Mail(
+                    from_email=Email(self.from_email, self.from_name),
+                    to_emails=To('contact@neshama.ca'),
+                    subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                    plain_text_content=Content(MimeType.text, plain_text)
+                )
 
-            sg = SendGridAPIClient(self.sendgrid_api_key)
-            sg.send(message)
-            logging.info("[DailyDigest] Health summary sent to contact@neshama.ca")
+                sg = SendGridAPIClient(self.sendgrid_api_key)
+                sg.send(message)
+                logging.info("[DailyDigest] Weekly health summary sent to contact@neshama.ca")
+            else:
+                logging.info(f"[DailyDigest] Health: {obit_count} obits, {sent} sent, {failed} failed (email suppressed — Monday only)")
 
         except Exception as e:
             logging.error(f"[DailyDigest] Failed to send health summary: {e}")

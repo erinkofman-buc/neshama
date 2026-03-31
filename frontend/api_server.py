@@ -6131,14 +6131,15 @@ def run_server(port=None):
         except Exception as e:
             logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
 
-        # Add weekly offsite backup (Sunday 3 AM ET — emails backup JSON)
+        # Add weekly offsite backup (Sunday 3 AM ET — runs backup, email disabled to reduce noise)
         try:
             def _run_offsite_backup():
                 try:
                     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
                     admin_email = os.environ.get('ADMIN_EMAIL', 'contact@neshama.ca')
-                    if not sendgrid_key:
-                        logging.info("[OffsiteBackup] No SendGrid key — skipping email backup")
+                    send_email = os.environ.get('BACKUP_EMAIL_ENABLED', 'false').lower() == 'true'
+                    if not sendgrid_key or not send_email:
+                        logging.info("[OffsiteBackup] Backup email disabled (set BACKUP_EMAIL_ENABLED=true to re-enable)")
                         return
                     if not SHIVA_AVAILABLE:
                         logging.error("[OffsiteBackup] Shiva manager unavailable — cannot backup")
