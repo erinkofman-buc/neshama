@@ -976,6 +976,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
         SELECT email FROM subscribers
         WHERE confirmed = TRUE
           AND unsubscribed_at IS NULL
+          AND email NOT LIKE 'smoketest%@neshama.ca'
           AND DATE(confirmed_at) = ?
     ''', (day3_target,))
     day3_subs = cursor.fetchall()
@@ -1006,6 +1007,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
         SELECT email FROM subscribers
         WHERE confirmed = TRUE
           AND unsubscribed_at IS NULL
+          AND email NOT LIKE 'smoketest%@neshama.ca'
           AND DATE(confirmed_at) = ?
     ''', (day7_target,))
     day7_subs = cursor.fetchall()
