@@ -904,30 +904,37 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
 # ── Welcome drip emails ──────────────────────────────────────
 
 def _welcome_drip_day3_html():
-    """Day 3: Three ways to help when someone is grieving."""
+    """Day 3: Four ways to help when someone is grieving."""
     return _email_wrapper("""
     <div style="text-align:center;margin-bottom:1.5rem;">
-        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Three ways to help when someone is grieving</h1>
+        <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Four ways to show up when someone is grieving</h1>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">When you don't know what to say, showing up says everything. Here are three things you can do through Neshama.</p>
+    <p style="font-size:1rem;line-height:1.7;">When you don't know what to say, showing up says everything. Here are four things you can do through Neshama.</p>
 
     <div style="background:#FFF8F0;border-radius:12px;padding:1.25rem;margin:1.25rem 0;">
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">1. Organize meals</strong><br>Coordinate who brings what, on which day, so the family is taken care of.</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">1. Organize meals</strong><br>Coordinate who brings what, on which day, so the family is taken care of all week.</p>
         <div style="margin:0 0 16px 0;">
-            <a href="https://neshama.ca/shiva/organize" style="color:#D2691E;font-size:0.95rem;">Set up a meal page</a>
+            <a href="https://neshama.ca/shiva/organize" style="color:#D2691E;font-size:0.95rem;">Set up a meal page &rarr;</a>
         </div>
 
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">2. Browse local vendors</strong><br>Find caterers, bakeries, and gift options across Toronto and Montreal.</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">2. Learn what to bring</strong><br>Not sure what's appropriate? Our guide covers food, gifts, and what to avoid.</p>
         <div style="margin:0 0 16px 0;">
-            <a href="https://neshama.ca/directory" style="color:#D2691E;font-size:0.95rem;">Browse the directory</a>
+            <a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color:#D2691E;font-size:0.95rem;">Read the guide &rarr;</a>
         </div>
 
-        <p style="font-size:1rem;line-height:1.7;margin:0 0 8px 0;"><strong style="color:#D2691E;">3. Set yahrzeit reminders</strong><br>A quiet reminder each year so you can reach out to the family when it matters.</p>
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 16px 0;"><strong style="color:#D2691E;">3. Browse trusted caterers</strong><br>Find local caterers, bakeries, and gift vendors across Toronto and Montreal.</p>
+        <div style="margin:0 0 16px 0;">
+            <a href="https://neshama.ca/directory" style="color:#D2691E;font-size:0.95rem;">Browse the directory &rarr;</a>
+        </div>
+
+        <p style="font-size:1rem;line-height:1.7;margin:0 0 8px 0;"><strong style="color:#D2691E;">4. Set a yahrzeit reminder</strong><br>A gentle reminder each year so you never forget to reach out.</p>
         <div style="margin:0;">
-            <a href="https://neshama.ca/feed" style="color:#D2691E;font-size:0.95rem;">Browse obituaries and set reminders</a>
+            <a href="https://neshama.ca/yahrzeit" style="color:#D2691E;font-size:0.95rem;">Set a reminder &rarr;</a>
         </div>
     </div>
+
+    <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">New on Neshama: <a href="https://neshama.ca/shiva-dos-and-donts" style="color:#D2691E;">The Do's and Don'ts of Shiva</a> &middot; <a href="https://neshama.ca/grief-support" style="color:#D2691E;">Grief Support Resources</a></p>
 
     <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">Built by two women in Toronto who believe showing up for each other shouldn't be this hard.</p>
 
@@ -942,17 +949,19 @@ def _welcome_drip_day7_html():
         <h1 style="font-size:1.5rem;font-weight:400;color:#3E2723;margin:0;">Know someone who could use Neshama?</h1>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;">You have been part of Neshama for a week now. Thank you for being here.</p>
+    <p style="font-size:1rem;line-height:1.7;">You've been part of Neshama for a week now. Thank you for being here.</p>
 
-    <p style="font-size:1rem;line-height:1.7;">If you know someone who would benefit from receiving obituary updates, shiva meal coordination, or yahrzeit reminders, we would be grateful if you shared Neshama with them.</p>
+    <p style="font-size:1rem;line-height:1.7;">If you know someone who would benefit from obituary updates, shiva meal coordination, or our community guides, we'd be grateful if you shared Neshama with them.</p>
 
     <p style="font-size:1rem;line-height:1.7;">Every family deserves this kind of support.</p>
 
     <div style="text-align:center;margin:1.5rem 0;">
-        <a href="https://api.whatsapp.com/send?text=Neshama%20sends%20daily%20obituary%20updates%20from%20Toronto%20and%20Montreal%20funeral%20homes%2C%20with%20funeral%20times%2C%20shiva%20details%2C%20and%20meal%20coordination.%20Free%20to%20use.%20https%3A%2F%2Fneshama.ca" style="display:inline-block;background:#3E2723;color:white;padding:11px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Share via WhatsApp</a>
+        <a href="https://api.whatsapp.com/send?text=Neshama%20%E2%80%94%20obituary%20updates%2C%20shiva%20meal%20coordination%2C%20and%20community%20support%20for%20Jewish%20families%20in%20Toronto%20and%20Montreal.%20Free.%20https%3A%2F%2Fneshama.ca" style="display:inline-block;background:#3E2723;color:white;padding:11px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:0.95rem;">Share via WhatsApp</a>
     </div>
 
-    <p style="font-size:1rem;line-height:1.7;text-align:center;margin:1rem 0 0.5rem;">Or share the link directly: <a href="https://neshama.ca/demo" style="color:#D2691E;">neshama.ca/demo</a></p>
+    <p style="font-size:1rem;line-height:1.7;text-align:center;margin:1rem 0 0.5rem;">Or share the link directly: <a href="https://neshama.ca" style="color:#D2691E;">neshama.ca</a></p>
+
+    <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">Helpful resources on Neshama: <a href="https://neshama.ca/shiva-dos-and-donts" style="color:#D2691E;">Shiva Do's &amp; Don'ts</a> &middot; <a href="https://neshama.ca/what-to-bring-to-a-shiva" style="color:#D2691E;">What to Bring</a> &middot; <a href="https://neshama.ca/grief-support" style="color:#D2691E;">Grief Support</a></p>
 
     <p style="font-size:0.9rem;color:#5c534a;line-height:1.6;">Built by two women in Toronto who believe showing up for each other shouldn't be this hard.</p>
 
