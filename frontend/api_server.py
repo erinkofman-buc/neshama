@@ -7176,6 +7176,10 @@ def run_server(port=None):
             cursor.execute(sql)
             total_changed += cursor.rowcount
 
+        # Migration 2026-03-31: Clean smoketest subscribers from production
+        cursor.execute("DELETE FROM subscribers WHERE email LIKE 'smoketest%@neshama.ca'")
+        total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:

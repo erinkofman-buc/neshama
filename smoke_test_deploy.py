@@ -172,11 +172,11 @@ class SmokeTest:
                 bool(shiva.get("shiva_start_date")),
                 "missing start date",
             )
-            # Check access level — should be public (not limited) after migration
-            access = data.get("access", "")
+            # Check access level — public shivas omit "access" key (only private ones return it)
+            access = data.get("access", "public")
             self.check(
                 f"Shiva access level: {access}",
-                access in ("full", "public", "limited"),
+                access in ("full", "public", "limited", "granted"),
                 f"unexpected access={access}",
             )
 
