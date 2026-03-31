@@ -583,6 +583,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_add_subscriber(body)
         elif path == '/admin/delete-subscribers':
             self.handle_admin_delete_subscribers(body)
+        elif path == '/admin/send-passover-email':
+            self.handle_send_passover_email(body)
         elif path == '/admin/delete-obituary':
             self.handle_admin_delete_obituary(body)
         elif path == '/admin/hide-obituary':
@@ -1998,6 +2000,88 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except Exception as e:
             logging.error(f"[Admin] Error adding subscriber: {e}")
             self.send_error_response(f'Error: {str(e)}', 500)
+
+    def handle_send_passover_email(self, body):
+        """One-time Passover subscriber email blast."""
+        if not self._check_admin_auth():
+            return
+        try:
+            sendgrid_key = os.environ.get('SENDGRID_API_KEY', '')
+            if not sendgrid_key:
+                self.send_json_response({'status': 'error', 'message': 'SendGrid not configured'}, 500)
+                return
+
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+            sg = SendGridAPIClient(sendgrid_key)
+
+            db_path = self.get_db_path()
+            conn = _connect_db(db_path)
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT email FROM subscribers
+                WHERE confirmed = TRUE AND unsubscribed_at IS NULL
+                AND email NOT LIKE 'smoketest%@neshama.ca'
+            """)
+            subscribers = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            html = '''<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#FFF8F0;font-family:Georgia,serif;">
+<div style="max-width:600px;margin:0 auto;padding:2rem 1.5rem;">
+    <div style="background:white;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(62,39,35,0.06);">
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">Good afternoon.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">Passover begins tomorrow evening. For many in our community, this is a season of warmth &mdash; family around the table, familiar melodies, food that connects us to memory.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">For those carrying grief, the seder can feel different. An empty chair. A recipe no one else makes quite the same way. A voice missing from the songs.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">If this Pesach feels heavier than usual &mdash; or if you know someone for whom it might &mdash; we wrote something that may help:</p>
+        <div style="text-align:center;margin:1.5rem 0;">
+            <a href="https://neshama.ca/first-passover-after-loss" style="display:inline-block;background:#D2691E;color:white;padding:12px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:1rem;">Your First Passover After a Loss &rarr;</a>
+        </div>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">It is okay to hold both things at the table: the gratitude and the ache.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 0 0;">Wishing you a meaningful Pesach.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:4px 0 0 0;">&mdash; Neshama</p>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+        <p style="font-size:0.85rem;color:#8a7e75;margin:0;">Neshama &middot; Community support when it matters most</p>
+        <p style="font-size:0.85rem;color:#8a7e75;margin:4px 0 0 0;"><a href="https://neshama.ca" style="color:#D2691E;">neshama.ca</a></p>
+        <p style="font-size:0.8rem;color:#aaa;margin:8px 0 0 0;"><a href="https://neshama.ca/unsubscribe?email=UNSUB_EMAIL" style="color:#aaa;">Unsubscribe</a></p>
+    </div>
+</div></body></html>'''
+
+            sent = 0
+            failed = 0
+            results = []
+            for email in subscribers:
+                try:
+                    email_html = html.replace('UNSUB_EMAIL', email)
+                    message = Mail(
+                        from_email=Email('updates@neshama.ca', 'Neshama'),
+                        to_emails=To(email),
+                        subject='Before the first seder',
+                        html_content=Content('text/html', email_html)
+                    )
+                    response = sg.client.mail.send.post(request_body=message.get())
+                    if response.status_code in (200, 201, 202):
+                        sent += 1
+                        results.append({'email': email, 'status': 'sent'})
+                    else:
+                        failed += 1
+                        results.append({'email': email, 'status': f'failed ({response.status_code})'})
+                except Exception as e:
+                    failed += 1
+                    results.append({'email': email, 'status': f'error: {str(e)[:50]}'})
+
+            logging.info(f"[Passover Email] Sent: {sent}, Failed: {failed}, Total: {len(subscribers)}")
+            self.send_json_response({
+                'status': 'success',
+                'sent': sent,
+                'failed': failed,
+                'total': len(subscribers),
+                'results': results
+            })
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_admin_delete_subscribers(self, body):
         """Delete subscribers matching a pattern (e.g. smoketest addresses)"""
