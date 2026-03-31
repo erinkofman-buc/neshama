@@ -128,7 +128,7 @@ def draw_dots(draw, current, total=5, y=None):
 def graphic1():
     img, draw = new_canvas()
 
-    fnt_main = heading_font(60)
+    fnt_main = heading_font(68)
     fnt_second = heading_font(48)
 
     # Center the two lines as a block
@@ -156,8 +156,8 @@ def graphic1():
 def graphic2():
     img, draw = new_canvas()
 
-    fnt_main = heading_font(58)
-    fnt_sub = body_font(30)
+    fnt_main = heading_font(68)
+    fnt_sub = body_font(32)
 
     h1 = text_bbox_size(draw, "The in-between.", fnt_main)[1]
     subtitle = "After the holiday ends, the quiet returns."
@@ -210,8 +210,8 @@ def graphic3():
     for i, slide in enumerate(slides):
         img, draw = new_canvas()
 
-        fnt_heading = heading_font(50)
-        fnt_body = body_font(28)
+        fnt_heading = heading_font(68)
+        fnt_body = body_font(32)
 
         # Heading
         heading_h = draw_wrapped_centered(draw, slide["heading"], 200, fnt_heading, DARK_BROWN, max_width=850)
@@ -240,7 +240,7 @@ def graphic3():
 def graphic4():
     img, draw = new_canvas()
 
-    fnt_main = heading_font(62)
+    fnt_main = heading_font(68)
     fnt_sub = heading_font(44)
 
     # Very faint terracotta line above text

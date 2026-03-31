@@ -156,8 +156,8 @@ for i, slide in enumerate(slides):
         # Cover slide — human-centric framing
         draw_divider(draw, 260)
         y = 290
-        y += draw_centered_text(draw, slide["title"], y, heading_font(56), DARK_BROWN) + 8
-        y += draw_centered_text(draw, slide["title2"], y, heading_font(56), DARK_BROWN) + 35
+        y += draw_centered_text(draw, slide["title"], y, heading_font(68), DARK_BROWN) + 8
+        y += draw_centered_text(draw, slide["title2"], y, heading_font(68), DARK_BROWN) + 35
         for line in slide["subtitle"].split("\n"):
             y += draw_centered_text(draw, line, y, body_font(32), MUTED_BROWN) + 10
         y += 50
@@ -172,8 +172,8 @@ for i, slide in enumerate(slides):
         y += draw_step_number(draw, slide["num"], y) + 10
         draw_divider(draw, y)
         y += 28
-        # Step headings at 62pt (meeting 60+ target from Jordana feedback)
-        y += draw_centered_text(draw, slide["title"], y, heading_font(62), DARK_BROWN) + 28
+        # Step headings at 68pt minimum (Jordana feedback: must be 68+)
+        y += draw_centered_text(draw, slide["title"], y, heading_font(68), DARK_BROWN) + 28
         y = draw_wrapped_centered(draw, slide["body"], y, body_font(32), MUTED_BROWN, max_width=880)
         y += 20
         # Detail text at 32pt minimum

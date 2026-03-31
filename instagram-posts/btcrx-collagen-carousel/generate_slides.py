@@ -42,9 +42,9 @@ def load_font(bold=False, size=54):
 
 
 FONT_HEADING_LG = load_font(bold=True, size=68)
-FONT_HEADING = load_font(bold=True, size=58)
+FONT_HEADING = load_font(bold=True, size=68)
 FONT_BODY = load_font(bold=False, size=32)
-FONT_BODY_SM = load_font(bold=False, size=28)
+FONT_BODY_SM = load_font(bold=False, size=32)
 FONT_WATERMARK = load_font(bold=False, size=22)
 FONT_DISCLAIMER = load_font(bold=False, size=22)
 FONT_SUBTEXT = load_font(bold=False, size=38)

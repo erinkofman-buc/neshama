@@ -57,18 +57,18 @@ def load_font(bold=False, size=48):
 
 def get_fonts():
     return {
-        "heading": load_font(bold=True, size=54),
-        "heading_large": load_font(bold=True, size=60),
-        "body": load_font(bold=False, size=30),
+        "heading": load_font(bold=True, size=68),
+        "heading_large": load_font(bold=True, size=68),
+        "body": load_font(bold=False, size=32),
         "body_large": load_font(bold=False, size=34),
         "subtext": load_font(bold=False, size=36),
         "watermark": load_font(bold=False, size=18),
         "footer": load_font(bold=False, size=24),
         "small": load_font(bold=False, size=20),
-        "slide1_heading": load_font(bold=True, size=52),
+        "slide1_heading": load_font(bold=True, size=68),
         "slide1_sub": load_font(bold=False, size=38),
         "slide2_heading": load_font(bold=True, size=72),
-        "slide2_body": load_font(bold=False, size=30),
+        "slide2_body": load_font(bold=False, size=32),
     }
 
 
