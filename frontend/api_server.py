@@ -1278,11 +1278,92 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         self.wfile.write(content_bytes)
 
     def serve_memorial_page(self):
-        """Serve the memorial page template (JS handles data loading)"""
+        """Serve the memorial page with dynamic meta tags for social sharing.
+
+        WhatsApp/Facebook/iMessage crawlers don't execute JS, so we inject
+        og:title, og:description, og:image, and canonical URL server-side.
+        This makes shared memorial links show the person's name and photo
+        in the preview card instead of the generic Neshama logo.
+        """
         filepath = os.path.join(FRONTEND_DIR, 'memorial.html')
         try:
-            with open(filepath, 'rb') as f:
-                content = f.read()
+            with open(filepath, 'r', encoding='utf-8') as f:
+                html = f.read()
+
+            # Extract obituary ID from URL path
+            parsed_path = urlparse(self.path).path
+            parts = parsed_path.strip('/').split('/')
+            obit_id = parts[1] if len(parts) > 1 else None
+
+            if obit_id:
+                # Look up obituary data for meta tag injection
+                try:
+                    db_path = self.get_db_path()
+                    conn = _connect_db(db_path)
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT deceased_name, obituary_text, photo_url, source FROM obituaries WHERE id = ?', (obit_id,))
+                    row = cursor.fetchone()
+                    conn.close()
+
+                    if row:
+                        name = html_mod.escape(row['deceased_name'] or 'Memorial')
+                        # Build a short description from obituary text
+                        obit_text = row['obituary_text'] or ''
+                        # Strip HTML tags for meta description
+                        clean_text = re.sub(r'<[^>]+>', '', obit_text).strip()
+                        desc = clean_text[:160] + '...' if len(clean_text) > 160 else clean_text
+                        desc = html_mod.escape(desc) if desc else f'Remembering {name}. Leave a tribute, light a candle, and share memories with family and community on Neshama.'
+                        photo = row['photo_url'] or 'https://neshama.ca/og-image.png'
+                        memorial_url = f'https://neshama.ca/memorial/{obit_id}'
+
+                        # Replace generic meta tags with person-specific ones
+                        html = html.replace(
+                            '<title>Memorial - Neshama</title>',
+                            f'<title>{name} — Memorial | Neshama</title>'
+                        )
+                        html = html.replace(
+                            '<meta property="og:title" content="Memorial - Neshama">',
+                            f'<meta property="og:title" content="Remembering {name} — Neshama">'
+                        )
+                        html = html.replace(
+                            '<meta name="twitter:title" content="Memorial - Neshama">',
+                            f'<meta name="twitter:title" content="Remembering {name} — Neshama">'
+                        )
+                        html = html.replace(
+                            '<meta property="og:description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta property="og:description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta name="twitter:description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta name="twitter:description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta name="description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta name="description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta property="og:url" content="https://neshama.ca/memorial">',
+                            f'<meta property="og:url" content="{memorial_url}">'
+                        )
+                        html = html.replace(
+                            '<link rel="canonical" href="https://neshama.ca/memorial">',
+                            f'<link rel="canonical" href="{memorial_url}">'
+                        )
+                        # Only replace og:image if the person has a photo
+                        if row['photo_url']:
+                            html = html.replace(
+                                '<meta property="og:image" content="https://neshama.ca/og-image.png">',
+                                f'<meta property="og:image" content="{html_mod.escape(photo)}">'
+                            )
+                            html = html.replace(
+                                '<meta name="twitter:image" content="https://neshama.ca/og-image.png">',
+                                f'<meta name="twitter:image" content="{html_mod.escape(photo)}">'
+                            )
+                except Exception:
+                    pass  # If DB lookup fails, serve with generic meta tags
+
+            content = html.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
