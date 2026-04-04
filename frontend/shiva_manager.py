@@ -363,6 +363,12 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN blocked_meals TEXT')
 
+        # V6: dietary_restrictions (JSON array of strings like ["kosher","nut_free"])
+        try:
+            cursor.execute('SELECT dietary_restrictions FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN dietary_restrictions TEXT')
+
         # V5: additional_contributors on meal_signups (JSON array of {name, email})
         try:
             cursor.execute('SELECT additional_contributors FROM meal_signups LIMIT 1')
@@ -533,6 +539,15 @@ class ShivaManager:
             if clean_blocked:
                 blocked_meals = json.dumps(clean_blocked)
 
+        # V6: Validate dietary_restrictions (JSON array of allowed strings)
+        dietary_restrictions = None
+        raw_dietary = data.get('dietary_restrictions')
+        if raw_dietary and isinstance(raw_dietary, list):
+            allowed = {'kosher', 'vegetarian', 'vegan', 'gluten_free', 'nut_free', 'dairy_free'}
+            clean_dietary = [str(d).strip().lower() for d in raw_dietary if str(d).strip().lower() in allowed]
+            if clean_dietary:
+                dietary_restrictions = json.dumps(clean_dietary)
+
         # V2 fields
         drop_off = self._sanitize_text(data.get('drop_off_instructions', ''), self.MAX_TEXT_LENGTH) or None
         source = data.get('source', 'web_standalone')
@@ -553,8 +568,8 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals, dietary_restrictions
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -586,6 +601,7 @@ class ShivaManager:
                 verification_token,
                 share_token,
                 blocked_meals,
+                dietary_restrictions,
             ))
             conn.commit()
             return {
@@ -616,7 +632,7 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at
+                   organizer_update, family_notes, dietary_restrictions, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -656,7 +672,8 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at, share_token, blocked_meals
+                   organizer_update, family_notes, dietary_restrictions,
+                   created_at, share_token, blocked_meals
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -752,6 +769,7 @@ class ShivaManager:
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
             'recommended_vendors', 'organizer_update', 'family_notes',
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
+            'dietary_restrictions',
         ]
 
         sets = []
@@ -796,6 +814,13 @@ class ShivaManager:
                         for item in val[:100]:
                             if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
                                 clean.append({'date': str(item['date']).strip()[:10], 'meal_type': item['meal_type']})
+                        val = json.dumps(clean) if clean else None
+                    else:
+                        val = None
+                elif field == 'dietary_restrictions':
+                    if isinstance(val, list):
+                        allowed = {'kosher', 'vegetarian', 'vegan', 'gluten_free', 'nut_free', 'dairy_free'}
+                        clean = [str(d).strip().lower() for d in val if str(d).strip().lower() in allowed]
                         val = json.dumps(clean) if clean else None
                     else:
                         val = None

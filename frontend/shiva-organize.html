@@ -390,6 +390,54 @@
             text-decoration: line-through;
         }
 
+        /* ── Dietary Checkboxes ──────────────────────────── */
+
+        .dietary-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.75rem;
+            background: white;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .dietary-option:hover {
+            border-color: var(--terracotta);
+            background: var(--cream);
+        }
+
+        .dietary-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--terracotta);
+            flex-shrink: 0;
+        }
+
+        .dietary-option:has(input:checked) {
+            border-color: var(--terracotta);
+            background: rgba(210, 105, 30, 0.08);
+        }
+
+        /* ── Step Confirmation ───────────────────────────── */
+
+        .step-saved-note {
+            display: none;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-saved-note.visible {
+            display: flex;
+        }
+
         /* ── Consent Checkbox ────────────────────────────── */
 
         .consent-group {
@@ -931,6 +979,7 @@
 
         <!-- Step 2: Shiva Details -->
         <div class="step-card" id="step2">
+            <div class="step-saved-note" id="step1SavedNote">&#x2713; Your information saved</div>
             <p class="step-indicator">Step 2 of 3</p>
             <h2 class="step-title">Shiva Details</h2>
             <p class="step-reassurance">Don't worry about getting everything perfect — you can update these details anytime.</p>
@@ -999,8 +1048,21 @@
             </div>
 
             <div class="form-group">
-                <label for="dietaryNotes">Dietary Notes <span class="optional">(optional)</span></label>
-                <textarea id="dietaryNotes" placeholder="e.g., Strictly kosher, nut allergy, vegetarian options welcome..."></textarea>
+                <label>Dietary Requirements <span class="optional">(optional)</span></label>
+                <div class="form-hint" style="margin-bottom: 0.75rem;">Select all that apply. This helps volunteers and caterers know what to prepare.</div>
+                <div class="dietary-checkboxes" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="kosher"> Kosher</label>
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegetarian"> Vegetarian</label>
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegan"> Vegan</label>
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="gluten_free"> Gluten-free</label>
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="nut_free"> Nut-free</label>
+                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="dairy_free"> Dairy-free</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dietaryNotes">Other Dietary Notes <span class="optional">(optional)</span></label>
+                <input type="text" id="dietaryNotes" placeholder="e.g., No shellfish, soy allergy..." maxlength="80">
             </div>
 
             <div class="form-group">
@@ -1042,6 +1104,7 @@
 
         <!-- Step 3: Optional Extras + Review -->
         <div class="step-card" id="step3">
+            <div class="step-saved-note" id="step2SavedNote">&#x2713; Shiva details saved</div>
             <p class="step-indicator">Step 3 of 3</p>
             <h2 class="step-title">Review &amp; Submit</h2>
             <p class="step-reassurance">Almost done. Review the details below and you're all set.</p>
@@ -1546,6 +1609,15 @@
 
             currentStep = step;
 
+            // Show "saved" confirmation on the new step
+            if (step === 2) {
+                var note1 = document.getElementById('step1SavedNote');
+                if (note1) note1.classList.add('visible');
+            } else if (step === 3) {
+                var note2 = document.getElementById('step2SavedNote');
+                if (note2) note2.classList.add('visible');
+            }
+
             // Build review on step 3
             if (step === 3) buildReview();
 
@@ -1618,8 +1690,15 @@
                 ['Guests per meal', document.getElementById('guestsPerMeal').value],
             ];
 
+            // Dietary checkboxes
+            var dietaryChecked = [];
+            var dietaryLabels = { kosher: 'Kosher', vegetarian: 'Vegetarian', vegan: 'Vegan', gluten_free: 'Gluten-free', nut_free: 'Nut-free', dairy_free: 'Dairy-free' };
+            document.querySelectorAll('input[name="dietaryRestriction"]:checked').forEach(function(cb) {
+                dietaryChecked.push(dietaryLabels[cb.value] || cb.value);
+            });
+            if (dietaryChecked.length) items.push(['Dietary', dietaryChecked.join(', ')]);
             var diet = document.getElementById('dietaryNotes').value.trim();
-            if (diet) items.push(['Dietary', diet.substring(0, 80) + (diet.length > 80 ? '...' : '')]);
+            if (diet) items.push(['Other dietary', diet.substring(0, 80) + (diet.length > 80 ? '...' : '')]);
             var famNotes = document.getElementById('familyNotes').value.trim();
             if (famNotes) items.push(['Family note', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
             if (selectedVendors.length) items.push(['Recommended caterers', selectedVendors.length + ' selected']);
@@ -1658,6 +1737,13 @@
                 pause_shabbat: false,
                 guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
                 dietary_notes: document.getElementById('dietaryNotes').value.trim(),
+                dietary_restrictions: (function() {
+                    var checked = [];
+                    document.querySelectorAll('input[name="dietaryRestriction"]:checked').forEach(function(cb) {
+                        checked.push(cb.value);
+                    });
+                    return checked.length ? checked : undefined;
+                })(),
                 special_instructions: document.getElementById('specialInstructions').value.trim(),
                 drop_off_instructions: document.getElementById('dropOffInstructions').value.trim(),
                 family_notes: document.getElementById('familyNotes').value.trim(),
