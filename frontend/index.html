@@ -1842,6 +1842,106 @@
         }
 
         /* ══════════════════════════════════════════════════════
+           HERO SECTION
+           ══════════════════════════════════════════════════════ */
+
+        .hero {
+            text-align: center;
+            padding: 3rem 1.5rem 2.5rem;
+            max-width: 720px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-headline {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            line-height: 1.25;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .hero-subline {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.25rem;
+            color: var(--sage-dark);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-cta {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.75rem 1.75rem;
+            border-radius: 2rem;
+            transition: all 0.2s ease;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .hero-cta-primary {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .hero-cta-primary:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.25);
+        }
+
+        .hero-cta-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 1.5px solid var(--light-taupe);
+        }
+
+        .hero-cta-secondary:hover {
+            border-color: var(--dark-brown);
+            background: rgba(62, 39, 35, 0.04);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 2rem 1.25rem 1.75rem;
+            }
+
+            .hero-headline {
+                font-size: 1.85rem;
+            }
+
+            .hero-subline {
+                font-size: 1.1rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .hero-cta {
+                width: 100%;
+                max-width: 320px;
+                justify-content: center;
+            }
+        }
+
+        /* ══════════════════════════════════════════════════════
            ANIMATIONS
            ══════════════════════════════════════════════════════ */
 
@@ -2162,6 +2262,20 @@
     </nav>
 
     <main id="main-content">
+
+    <!-- ════════════════════════════════════════════════════
+         HERO SECTION
+         ════════════════════════════════════════════════════ -->
+    <section class="hero" aria-label="What Neshama does">
+        <h1 class="hero-headline">Jewish obituaries, shiva meals, and memorial pages for Toronto and Montreal</h1>
+        <p class="hero-subline">Supporting your community through loss — one meal, one memory at a time.</p>
+        <div class="hero-actions">
+            <a href="/feed" class="hero-cta hero-cta-primary">Find an obituary</a>
+            <a href="/shiva/organize" class="hero-cta hero-cta-secondary">Coordinate shiva meals</a>
+            <a href="/help/supplies" class="hero-cta hero-cta-secondary">Browse shiva essentials</a>
+        </div>
+    </section>
+
     <!-- ════════════════════════════════════════════════════
          FILTER BAR
          ════════════════════════════════════════════════════ -->

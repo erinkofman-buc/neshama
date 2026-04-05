@@ -75,11 +75,18 @@ class NeshamaDatabase:
             ('hidden', 'INTEGER DEFAULT 0'),
             ('country', "TEXT DEFAULT 'CA'"),
             ('region', 'TEXT'),
+            ('first_seen', 'TEXT'),
         ]:
             try:
                 self.cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')
             except sqlite3.OperationalError:
                 pass  # Column already exists
+
+        # Backfill first_seen from last_updated for any records missing it
+        try:
+            self.cursor.execute('UPDATE obituaries SET first_seen = last_updated WHERE first_seen IS NULL')
+        except sqlite3.OperationalError:
+            pass
 
         # Comments table - linked to obituaries
         self.cursor.execute('''
@@ -194,8 +201,10 @@ class NeshamaDatabase:
 
     def generate_obituary_id(self, source, deceased_name, date_of_death):
         """Generate unique ID for obituary using hash"""
-        # Normalize name: strip whitespace, collapse spaces, lowercase
-        name = ' '.join(deceased_name.strip().split()).lower()
+        # Normalize name: strip zero-width chars, whitespace, collapse spaces, lowercase
+        import unicodedata
+        clean_name = ''.join(c for c in deceased_name if unicodedata.category(c) != 'Cf')
+        name = ' '.join(clean_name.strip().split()).lower()
         source_norm = source.strip().lower()
         dod = (date_of_death or '').strip()
         key = f"{source_norm}_{name}_{dod}"

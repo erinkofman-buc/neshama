@@ -38,7 +38,7 @@ class ShivaManager:
                 organizer_phone TEXT,
                 organizer_relationship TEXT NOT NULL,
                 family_name TEXT NOT NULL,
-                shiva_address TEXT NOT NULL,
+                shiva_address TEXT,
                 shiva_city TEXT,
                 shiva_sub_area TEXT,
                 shiva_start_date TEXT NOT NULL,
@@ -459,7 +459,7 @@ class ShivaManager:
         Returns: {status, id, magic_token} or {status, error}
         """
         required = ['organizer_name', 'organizer_email',
-                     'organizer_relationship', 'family_name', 'shiva_address',
+                     'family_name',
                      'shiva_start_date', 'shiva_end_date']
 
         for field in required:
@@ -601,9 +601,9 @@ class ShivaManager:
                 self._sanitize_text(data['organizer_name'], 200),
                 clean_email,
                 self._sanitize_text(data.get('organizer_phone', ''), 30) or None,
-                self._sanitize_text(data['organizer_relationship'], 50),
+                self._sanitize_text(data.get('organizer_relationship', ''), 50) or 'Friend',
                 self._sanitize_text(data['family_name'], 200),
-                self._sanitize_text(data['shiva_address']),
+                self._sanitize_text(data.get('shiva_address', '')) or '',
                 self._sanitize_text(data.get('shiva_city', ''), 100) or None,
                 self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
@@ -797,6 +797,7 @@ class ShivaManager:
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
             'dietary_restrictions',
             'meal_schedule',
+            'obituary_id',
         ]
 
         sets = []
@@ -1359,11 +1360,12 @@ class ShivaManager:
 
         now = datetime.now().isoformat()
         try:
-            num_servings = 4
+            # Servings are controlled by the organizer's guests_per_meal setting.
+            # Volunteers cannot override this — prevents mismatched portion sizes.
             try:
-                num_servings = max(1, min(50, int(data.get('num_servings', 4))))
+                num_servings = 0 if is_alternative else max(1, int(support.get('guests_per_meal') or 20))
             except (ValueError, TypeError):
-                pass
+                num_servings = 0 if is_alternative else 20
 
             will_serve = 1 if data.get('will_serve') else 0
 
@@ -2537,12 +2539,7 @@ class ShivaManager:
         if 'meal_description' in data:
             sets.append('meal_description = ?')
             vals.append(self._sanitize_text(data['meal_description'], self.MAX_TEXT_LENGTH))
-        if 'num_servings' in data:
-            sets.append('num_servings = ?')
-            try:
-                vals.append(max(1, min(50, int(data['num_servings']))))
-            except (ValueError, TypeError):
-                vals.append(4)
+        # num_servings is NOT editable by volunteers — controlled by organizer's guests_per_meal
         if 'will_serve' in data:
             sets.append('will_serve = ?')
             vals.append(1 if data['will_serve'] else 0)

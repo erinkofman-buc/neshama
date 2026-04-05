@@ -22,7 +22,9 @@ def _normalize_name(name):
     then lowercases and collapses whitespace."""
     if not name:
         return ''
-    n = name
+    import unicodedata as _ud
+    # Strip zero-width characters (funeral homes inject these, causes false duplicates)
+    n = ''.join(c for c in name if _ud.category(c) != 'Cf')
     # Remove ALL parenthesized content: nicknames "(Jerry)", née "(née Smith)", etc.
     n = _re.sub(r'\s*\([^)]*\)', '', n)
     # Remove ז״ל / ז"ל honorific specifically (not all Hebrew text)
@@ -157,13 +159,9 @@ class DailyDigestSender:
     }
 
     def get_new_obituaries(self, hours=24, location=None):
-        """Get obituaries FIRST SEEN in the last N hours, optionally filtered by location.
-
-        Uses first_seen (not last_updated) to prevent obituaries from
-        re-appearing in the digest when scrapers update content (e.g., shiva
-        details added, typo corrected). An obituary should only appear in
-        the digest ONCE — the day it is first scraped.
-        """
+        """Get obituaries first seen in the last N hours, optionally filtered by location.
+        Uses COALESCE(first_seen, last_updated) so name corrections by funeral homes
+        don't cause repeats, with fallback for records missing first_seen."""
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -175,17 +173,17 @@ class DailyDigestSender:
             placeholders = ','.join('?' for _ in sources)
             cursor.execute(f'''
                 SELECT * FROM obituaries
-                WHERE first_seen >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND source IN ({placeholders})
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY first_seen DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', [cutoff_time] + sources)
         else:
             cursor.execute('''
                 SELECT * FROM obituaries
-                WHERE first_seen >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY first_seen DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', (cutoff_time,))
 
         obituaries = [dict(row) for row in cursor.fetchall()]
@@ -423,14 +421,14 @@ class DailyDigestSender:
                 if 'montreal' in loc_list:
                     subscriber_obits.extend(montreal_obits)
 
-                # Deduplicate by id and sort by last_updated desc
+                # Deduplicate by id and sort by first_seen desc
                 seen = set()
                 unique_obits = []
                 for o in subscriber_obits:
                     if o['id'] not in seen:
                         seen.add(o['id'])
                         unique_obits.append(o)
-                unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
+                unique_obits.sort(key=lambda x: x.get('first_seen') or x.get('last_updated', ''), reverse=True)
 
                 if not unique_obits:
                     # No obits for this subscriber's location, but other locations have obits.

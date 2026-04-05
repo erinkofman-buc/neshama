@@ -93,6 +93,12 @@ class SteelesScraper:
                 paragraphs = [p.get_text() for p in obit_content.find_all('p')]
                 data['obituary_text'] = self.clean_text('\n\n'.join(paragraphs))
 
+            # Fallback: use og:description if main content divs not found
+            if not data.get('obituary_text'):
+                og_desc = soup.find('meta', property='og:description')
+                if og_desc and og_desc.get('content'):
+                    data['obituary_text'] = self.clean_text(og_desc['content'])
+
                 # Try to extract structured data from text
                 full_text = data['obituary_text']
 
@@ -160,7 +166,10 @@ class SteelesScraper:
             if shiva_info:
                 parent = shiva_info.find_parent()
                 if parent:
-                    data['shiva_info'] = self.clean_text(parent.get_text())
+                    text = self.clean_text(parent.get_text())
+                    # Skip heading-only values like "Shiva Details" with no actual content
+                    if text and text.lower() not in ('shiva details', 'shiva', 'shiva information'):
+                        data['shiva_info'] = text
 
             # Check for livestream
             livestream_link = soup.find('a', href=re.compile(r'smclive|livestream', re.IGNORECASE))
