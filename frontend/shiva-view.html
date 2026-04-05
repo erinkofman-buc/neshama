@@ -2868,9 +2868,32 @@
                     escapeHtml(String(supportData.guests_per_meal)) +
                     ' people expected</p></div>';
             }
-            if (supportData.dietary_notes) {
-                html += '<div class="info-card"><h3>Dietary Notes</h3><p>' +
-                    escapeHtml(supportData.dietary_notes) + '</p></div>';
+            // Structured dietary restrictions (V6)
+            var dietaryLabels = { kosher: 'Kosher', vegetarian: 'Vegetarian', vegan: 'Vegan', gluten_free: 'Gluten-free', nut_free: 'Nut-free', dairy_free: 'Dairy-free' };
+            var dietaryList = [];
+            if (supportData.dietary_restrictions) {
+                try {
+                    var restrictions = typeof supportData.dietary_restrictions === 'string'
+                        ? JSON.parse(supportData.dietary_restrictions)
+                        : supportData.dietary_restrictions;
+                    if (Array.isArray(restrictions)) {
+                        dietaryList = restrictions.map(function(r) { return dietaryLabels[r] || r; });
+                    }
+                } catch(e) {}
+            }
+            if (dietaryList.length || supportData.dietary_notes) {
+                html += '<div class="info-card"><h3>Dietary Requirements</h3>';
+                if (dietaryList.length) {
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:' + (supportData.dietary_notes ? '0.5rem' : '0') + ';">';
+                    dietaryList.forEach(function(label) {
+                        html += '<span style="display:inline-block;padding:0.25rem 0.65rem;background:rgba(210,105,30,0.1);border:1px solid rgba(210,105,30,0.3);border-radius:1rem;font-size:0.85rem;color:#3E2723;font-weight:500;">' + escapeHtml(label) + '</span>';
+                    });
+                    html += '</div>';
+                }
+                if (supportData.dietary_notes) {
+                    html += '<p style="margin:0;font-size:0.92rem;color:#556258;">' + escapeHtml(supportData.dietary_notes) + '</p>';
+                }
+                html += '</div>';
             }
             if (supportData.donation_url && /^https?:\/\//i.test(supportData.donation_url)) {
                 html += '<div class="info-card"><h3>' +

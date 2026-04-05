@@ -363,6 +363,18 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN blocked_meals TEXT')
 
+        # V6: dietary_restrictions (JSON array of strings like ["kosher","nut_free"])
+        try:
+            cursor.execute('SELECT dietary_restrictions FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN dietary_restrictions TEXT')
+
+        # V6: meal_schedule (JSON object with per-meal overrides)
+        try:
+            cursor.execute('SELECT meal_schedule FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN meal_schedule TEXT')
+
         # V5: additional_contributors on meal_signups (JSON array of {name, email})
         try:
             cursor.execute('SELECT additional_contributors FROM meal_signups LIMIT 1')
@@ -533,6 +545,34 @@ class ShivaManager:
             if clean_blocked:
                 blocked_meals = json.dumps(clean_blocked)
 
+        # V6: Validate dietary_restrictions (JSON array of allowed strings)
+        dietary_restrictions = None
+        raw_dietary = data.get('dietary_restrictions')
+        if raw_dietary and isinstance(raw_dietary, list):
+            allowed = {'kosher', 'vegetarian', 'vegan', 'gluten_free', 'nut_free', 'dairy_free'}
+            clean_dietary = [str(d).strip().lower() for d in raw_dietary if str(d).strip().lower() in allowed]
+            if clean_dietary:
+                dietary_restrictions = json.dumps(clean_dietary)
+
+        # V6: Validate meal_schedule (JSON object)
+        meal_schedule = None
+        raw_schedule = data.get('meal_schedule')
+        if raw_schedule and isinstance(raw_schedule, dict):
+            clean_schedule = {}
+            for key, val in list(raw_schedule.items())[:100]:
+                if isinstance(val, dict):
+                    entry = {}
+                    if val.get('guests'):
+                        entry['guests'] = max(1, min(200, int(val['guests'])))
+                    if val.get('note'):
+                        entry['note'] = str(val['note']).strip()[:80]
+                    if val.get('serving_time'):
+                        entry['serving_time'] = str(val['serving_time']).strip()[:10]
+                    if entry:
+                        clean_schedule[str(key).strip()[:30]] = entry
+            if clean_schedule:
+                meal_schedule = json.dumps(clean_schedule)
+
         # V2 fields
         drop_off = self._sanitize_text(data.get('drop_off_instructions', ''), self.MAX_TEXT_LENGTH) or None
         source = data.get('source', 'web_standalone')
@@ -553,8 +593,8 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals, dietary_restrictions, meal_schedule
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -586,6 +626,8 @@ class ShivaManager:
                 verification_token,
                 share_token,
                 blocked_meals,
+                dietary_restrictions,
+                meal_schedule,
             ))
             conn.commit()
             return {
@@ -616,7 +658,7 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at
+                   organizer_update, family_notes, dietary_restrictions, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -656,7 +698,8 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at, share_token, blocked_meals
+                   organizer_update, family_notes, dietary_restrictions,
+                   meal_schedule, created_at, share_token, blocked_meals
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -752,6 +795,8 @@ class ShivaManager:
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
             'recommended_vendors', 'organizer_update', 'family_notes',
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
+            'dietary_restrictions',
+            'meal_schedule',
         ]
 
         sets = []
@@ -796,6 +841,26 @@ class ShivaManager:
                         for item in val[:100]:
                             if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
                                 clean.append({'date': str(item['date']).strip()[:10], 'meal_type': item['meal_type']})
+                        val = json.dumps(clean) if clean else None
+                    else:
+                        val = None
+                elif field == 'dietary_restrictions':
+                    if isinstance(val, list):
+                        allowed = {'kosher', 'vegetarian', 'vegan', 'gluten_free', 'nut_free', 'dairy_free'}
+                        clean = [str(d).strip().lower() for d in val if str(d).strip().lower() in allowed]
+                        val = json.dumps(clean) if clean else None
+                    else:
+                        val = None
+                elif field == 'meal_schedule':
+                    if isinstance(val, dict):
+                        clean = {}
+                        for k, v in list(val.items())[:100]:
+                            if isinstance(v, dict):
+                                entry = {}
+                                if v.get('guests'): entry['guests'] = max(1, min(200, int(v['guests'])))
+                                if v.get('note'): entry['note'] = str(v['note']).strip()[:80]
+                                if v.get('serving_time'): entry['serving_time'] = str(v['serving_time']).strip()[:10]
+                                if entry: clean[str(k).strip()[:30]] = entry
                         val = json.dumps(clean) if clean else None
                     else:
                         val = None
