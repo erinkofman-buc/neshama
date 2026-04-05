@@ -157,7 +157,13 @@ class DailyDigestSender:
     }
 
     def get_new_obituaries(self, hours=24, location=None):
-        """Get obituaries posted in the last N hours, optionally filtered by location"""
+        """Get obituaries FIRST SEEN in the last N hours, optionally filtered by location.
+
+        Uses first_seen (not last_updated) to prevent obituaries from
+        re-appearing in the digest when scrapers update content (e.g., shiva
+        details added, typo corrected). An obituary should only appear in
+        the digest ONCE — the day it is first scraped.
+        """
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -169,17 +175,17 @@ class DailyDigestSender:
             placeholders = ','.join('?' for _ in sources)
             cursor.execute(f'''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE first_seen >= ?
                 AND source IN ({placeholders})
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY first_seen DESC
             ''', [cutoff_time] + sources)
         else:
             cursor.execute('''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE first_seen >= ?
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY first_seen DESC
             ''', (cutoff_time,))
 
         obituaries = [dict(row) for row in cursor.fetchall()]
