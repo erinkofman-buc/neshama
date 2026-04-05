@@ -2150,6 +2150,11 @@
         var accessToken = null;
         var isPrivateLimited = false;
         var lastSignupAddress = null;
+        var mealOverrides = {};
+
+        function getMealOverride(date, mealType) {
+            return mealOverrides[date + '_' + mealType] || {};
+        }
 
         // ── URL Parsing ─────────────────────────────────
 
@@ -2270,7 +2275,16 @@
 
                 renderPage();
             })
-            .catch(function() {
+            .catch(function(err) {
+                console.error('Shiva page load error:', err);
+                var errDetail = document.getElementById('errorDetail');
+                if (!errDetail) {
+                    errDetail = document.createElement('pre');
+                    errDetail.id = 'errorDetail';
+                    errDetail.style.cssText = 'color:red;font-size:12px;padding:1rem;max-width:90vw;overflow:auto;';
+                    document.getElementById('errorState').appendChild(errDetail);
+                }
+                errDetail.textContent = String(err) + '\n' + (err && err.stack ? err.stack : '');
                 hide('pageLoading');
                 show('errorState');
             });
@@ -3050,15 +3064,11 @@
             }
 
             // Parse per-meal overrides (guests, notes, serving_time)
-            var mealOverrides = {};
+            mealOverrides = {};
             try {
                 mealOverrides = supportData.meal_schedule ? JSON.parse(supportData.meal_schedule) : {};
                 if (typeof mealOverrides !== 'object') mealOverrides = {};
             } catch(e) { mealOverrides = {}; }
-
-            function getMealOverride(date, mealType) {
-                return mealOverrides[date + '_' + mealType] || {};
-            }
 
             var html = '';
             var current = new Date(start);
