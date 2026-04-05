@@ -7261,6 +7261,12 @@ def run_server(port=None):
         cursor.execute("DELETE FROM subscribers WHERE email LIKE 'smoketest%@neshama.ca'")
         total_changed += cursor.rowcount
 
+        # Migration 2026-04-05: Feature Linny's Luncheonette and Jem Salads (Amanda beta vendors)
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'linnys-luncheonette' AND featured != 1")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'jem-salads' AND featured != 1")
+        total_changed += cursor.rowcount
+
         conn.commit()
         conn.close()
         if total_changed > 0:
