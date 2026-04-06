@@ -126,8 +126,8 @@
         }
 
         .stepper-dot {
-            width: 14px;
-            height: 14px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--light-taupe);
             transition: all 0.3s ease;
@@ -135,7 +135,8 @@
 
         .stepper-dot.active {
             background: var(--terracotta);
-            transform: scale(1.2);
+            width: 24px;
+            height: 24px;
         }
 
         .stepper-dot.completed {
@@ -157,7 +158,7 @@
         .step-card {
             background: white;
             border-radius: 1rem;
-            padding: 2.5rem;
+            padding: 48px 40px;
             box-shadow: 0 4px 20px var(--soft-shadow);
             display: none;
         }
@@ -190,7 +191,7 @@
 
         /* ── Form Elements ───────────────────────────────── */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
 
         .form-group label {
@@ -770,15 +771,21 @@
         }
 
         .quick-setup-trigger a {
-            color: var(--terracotta);
-            font-size: 1rem;
+            color: var(--sage-dark);
+            font-size: 0.95rem;
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            border: 1.5px solid var(--sage);
+            border-radius: 2rem;
+            transition: all 0.2s ease;
         }
 
         .quick-setup-trigger a:hover {
-            text-decoration: underline;
+            background: rgba(85, 98, 88, 0.08);
+            border-color: var(--sage-dark);
         }
 
         .quick-setup-panel {
@@ -1141,7 +1148,7 @@
         }
 
         @media (max-width: 600px) {
-            .step-card { padding: 1.5rem; }
+            .step-card { padding: 32px 24px; }
             .quick-setup-panel { padding: 1.5rem; }
             .btn-row { flex-direction: column; }
             .review-item { flex-direction: column; gap: 0.25rem; }
@@ -1245,9 +1252,6 @@
                     <option value="">Select a city</option>
                     <option value="Toronto">Toronto</option>
                     <option value="Montreal">Montreal</option>
-                    <option value="Ottawa">Ottawa</option>
-                    <option value="Vancouver">Vancouver</option>
-                    <option value="Other">Other</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1306,6 +1310,11 @@
                 <label for="familyName">Family name</label>
                 <input type="text" id="familyName" placeholder="e.g., Goldstein" autocomplete="off" oninput="searchFamilyDebounced()">
                 <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="deceasedName">Name of the person who passed <span class="optional">(optional)</span></label>
+                <input type="text" id="deceasedName" placeholder="e.g., Sarah" autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -1376,6 +1385,9 @@
             <div class="step-indicator">Step 2 of 4</div>
             <h2 class="step-title">When and where?</h2>
             <p class="step-reassurance">We will use these details to build the meal calendar.</p>
+            <p class="reassurance" style="font-size: 16px; color: #888; font-style: italic; margin-bottom: 24px;">
+              Don't worry about getting everything perfect — you can edit all of this later from your dashboard.
+            </p>
 
             <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
                 <div style="flex:1; min-width:140px;">
@@ -1399,9 +1411,6 @@
                     <option value="">Select a city</option>
                     <option value="Toronto">Toronto</option>
                     <option value="Montreal">Montreal</option>
-                    <option value="Ottawa">Ottawa</option>
-                    <option value="Vancouver">Vancouver</option>
-                    <option value="Other">Other</option>
                 </select>
             </div>
 
@@ -1716,6 +1725,7 @@
         var currentStep = 1;
         var formData = {
             familyName: '',
+            deceasedName: '',
             burialDate: null,
             burialNotConfirmed: false,
             organizerName: '',
@@ -1843,11 +1853,13 @@
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Update family name display in step 3
+            // Update family note label in step 3
             if (step === 3) {
                 var display = document.getElementById('familyNameDisplay');
-                if (formData.familyName) {
-                    display.textContent = 'the ' + formData.familyName + ' family';
+                if (formData.deceasedName) {
+                    display.textContent = formData.deceasedName;
+                } else {
+                    display.textContent = 'your loved one';
                 }
             }
         };
@@ -1911,6 +1923,7 @@
         function saveStepData(step) {
             if (step === 1) {
                 formData.familyName = document.getElementById('familyName').value.trim();
+                formData.deceasedName = document.getElementById('deceasedName').value.trim();
                 formData.burialDate = document.getElementById('burialNotConfirmed').checked ? null : document.getElementById('burialDate').value;
                 formData.burialNotConfirmed = document.getElementById('burialNotConfirmed').checked;
                 formData.organizerName = document.getElementById('organizerName').value.trim();
@@ -2382,6 +2395,7 @@
 
             var payload = {
                 family_name: formData.familyName,
+                deceased_name: formData.deceasedName,
                 burial_date: formData.burialDate,
                 shiva_start: formData.shivaStart,
                 shiva_end: formData.shivaEnd,
@@ -2442,7 +2456,7 @@
             document.getElementById('progressStepper').style.display = 'none';
 
             var familyName = formData.familyName || data.family_name || 'the family';
-            var volunteerLink = data.volunteer_link || data.volunteer_url || ('https://neshama.ca/shiva/' + (data.share_token || ''));
+            var volunteerLink = data.volunteer_link || data.volunteer_url || (window.location.origin + '/shiva/' + (data.share_token || ''));
             var dashboardLink = data.dashboard_link || data.dashboard_url || data.magic_link || '';
             var email = formData.organizerEmail || data.organizer_email || '';
 
