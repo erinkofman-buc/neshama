@@ -349,8 +349,8 @@
 
         .toggle-switch {
             position: relative;
-            width: 56px;
-            height: 30px;
+            width: 72px;
+            height: 48px;
             flex-shrink: 0;
         }
 
@@ -366,17 +366,17 @@
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
             background: var(--light-taupe);
-            border-radius: 30px;
+            border-radius: 48px;
             transition: 0.3s;
         }
 
         .toggle-slider::before {
             content: '';
             position: absolute;
-            height: 24px;
-            width: 24px;
-            left: 3px;
-            bottom: 3px;
+            height: 40px;
+            width: 40px;
+            left: 4px;
+            bottom: 4px;
             background: white;
             border-radius: 50%;
             transition: 0.3s;
@@ -387,7 +387,7 @@
         }
 
         .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(26px);
+            transform: translateX(24px);
         }
 
         .toggle-label {
@@ -1643,6 +1643,9 @@
             <div class="form-error" id="step4Error"></div>
             <div class="btn-row">
                 <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+                <p class="privacy-note" style="font-size: 14px; color: #888; margin-top: 16px;">
+                  By creating this page, you agree to share the information above with volunteers who receive the link.
+                </p>
                 <button class="btn-primary" id="createBtn" onclick="submitForm()">Create Shiva Page</button>
             </div>
         </div>

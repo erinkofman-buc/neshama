@@ -3763,9 +3763,39 @@ button:hover{background:#c45a1a}</style></head>
             data = json.loads(body)
             # V2 wizard handles consent in the UI
             data['privacy_consent'] = 1
-            # V2 wizard handles duplicate search in earlier step
-            if data.get('force_create') or data.get('_skip_similar'):
-                data['_skip_similar'] = True
+            # V2 wizard already does duplicate search in Step 1
+            data['_skip_similar'] = True
+
+            # Map V2 frontend field names to create_support() field names
+            field_map = {
+                'shiva_start': 'shiva_start_date',
+                'shiva_end': 'shiva_end_date',
+                'address': 'shiva_address',
+                'lunch_start': 'lunch_dropoff_start',
+                'lunch_end': 'lunch_dropoff_end',
+                'dinner_start': 'dinner_dropoff_start',
+                'dinner_end': 'dinner_dropoff_end',
+                'family_note': 'family_notes',
+                'suggestions': 'custom_suggestions',
+                'adults': 'num_adults',
+                'kids': 'num_kids',
+                'relationship': 'organizer_relationship',
+                'dropoff_instructions': 'drop_off_instructions',
+            }
+            for frontend_name, backend_name in field_map.items():
+                if frontend_name in data and backend_name not in data:
+                    data[backend_name] = data[frontend_name]
+
+            # Kosher field: frontend sends JS boolean, backend expects integer
+            if 'kosher' in data:
+                data['kosher'] = 1 if data.get('kosher') in (True, 'true', '1', 1) else 0
+
+            # Dietary restrictions: frontend sends array of strings, backend uses dietary_notes
+            if 'dietary_restrictions' in data:
+                restrictions = data.get('dietary_restrictions', [])
+                if isinstance(restrictions, list):
+                    data['dietary_notes'] = ', '.join(restrictions)
+
             obit_id = data.get('obituary_id')
             shiva_mgr.track_event('organize_v2_start', obit_id)
             result = shiva_mgr.create_support(data)

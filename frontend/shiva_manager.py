@@ -626,9 +626,9 @@ class ShivaManager:
             except ValueError:
                 pass
 
-        v7_kosher = data.get('kosher')  # TEXT column, e.g. 'COR', 'MK', 'not_certified'
-        if v7_kosher:
-            v7_kosher = self._sanitize_text(str(v7_kosher), 50) or None
+        v7_kosher = data.get('kosher')
+        if v7_kosher is not None:
+            v7_kosher = 1 if v7_kosher in (True, 'true', '1', 1) else 0
 
         v7_num_adults = None
         if data.get('num_adults') is not None:

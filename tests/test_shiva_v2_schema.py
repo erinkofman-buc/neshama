@@ -174,7 +174,7 @@ class TestV2CreateWithV7Fields(unittest.TestCase):
             '_skip_similar': True,
             # V7 fields
             'burial_date': '2026-04-09',
-            'kosher': 'COR',
+            'kosher': True,
             'num_adults': 15,
             'num_kids': 5,
             'lunch_dropoff_start': '11:30',
@@ -205,7 +205,7 @@ class TestV2CreateWithV7Fields(unittest.TestCase):
 
         self.assertIsNotNone(row)
         self.assertEqual(row[0], '2026-04-09')       # burial_date
-        self.assertEqual(row[1], 'COR')               # kosher
+        self.assertEqual(row[1], 1)                     # kosher (integer: 1=yes, 0=no)
         self.assertEqual(row[2], 15)                   # num_adults
         self.assertEqual(row[3], 5)                    # num_kids
         self.assertEqual(row[4], '11:30')              # lunch_dropoff_start
