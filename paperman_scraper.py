@@ -308,9 +308,14 @@ class PapermanScraper:
             stats['found'] = len(funeral_listings)
             logging.info(f"Found {stats['found']} obituary listings\n")
 
-            # Process each funeral listing
+            # Process each funeral listing (deduplicate by id)
+            seen_ids = set()
             for i, funeral_data in enumerate(funeral_listings, 1):
                 try:
+                    dedup_key = funeral_data.get('id') or funeral_data.get('slug', '')
+                    if dedup_key in seen_ids:
+                        continue
+                    seen_ids.add(dedup_key)
                     display_name = funeral_data.get('name', 'Unknown')
                     funeral_id = funeral_data.get('id')
                     logging.info(f"[{i}/{stats['found']}] Processing: {display_name}...")

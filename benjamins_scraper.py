@@ -48,12 +48,20 @@ class BenjaminsScraper:
         """Extract all ServiceDetails links from homepage"""
         soup = BeautifulSoup(html, 'html.parser')
         links = []
+        seen_snums = set()
 
         for link in soup.find_all('a', href=True):
             href = link['href']
             if 'ServiceDetails.aspx' in href:
                 full_url = href if href.startswith('http') else self.base_url + '/' + href.lstrip('../').lstrip('/')
-                if full_url not in links:
+                # Deduplicate by service number, not full URL
+                snum_match = re.search(r'[?&]snum=(\d+)', full_url)
+                if snum_match:
+                    snum = snum_match.group(1)
+                    if snum not in seen_snums:
+                        seen_snums.add(snum)
+                        links.append(full_url)
+                elif full_url not in links:
                     links.append(full_url)
 
         return links

@@ -37,16 +37,21 @@ class SteelesScraper:
         return None
 
     def extract_obituary_links(self, html):
-        """Extract all obituary links from homepage"""
+        """Extract all condolence page links"""
         soup = BeautifulSoup(html, 'html.parser')
         links = []
+        seen_slugs = set()
 
-        # Find all condolence links
         for link in soup.find_all('a', href=True):
             href = link['href']
             if '/condolence/' in href:
                 full_url = href if href.startswith('http') else self.base_url + href
-                if full_url not in links:
+                # Deduplicate by slug, not full URL
+                slug = full_url.rstrip('/').split('/condolence/')[-1].split('?')[0].split('#')[0].lower()
+                if slug and slug not in seen_slugs:
+                    seen_slugs.add(slug)
+                    links.append(full_url)
+                elif not slug and full_url not in links:
                     links.append(full_url)
 
         return links
@@ -176,11 +181,44 @@ class SteelesScraper:
             if livestream_link:
                 data['livestream_url'] = livestream_link['href']
 
-            # Extract photo
-            photo = soup.find('img', class_=re.compile(r'obituary|deceased|memorial', re.IGNORECASE))
-            if photo and photo.get('src'):
-                photo_url = photo['src']
-                data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
+            # Extract photo — multi-strategy approach
+            photo = None
+
+            # Strategy 1: class-based match (expanded regex)
+            photo = soup.find('img', class_=re.compile(
+                r'obituary|deceased|memorial|portrait|photo|tribute|condolence',
+                re.IGNORECASE
+            ))
+
+            # Strategy 2: src-based match (upload paths, photo keywords)
+            if not photo:
+                photo = soup.find('img', src=re.compile(
+                    r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait|memorial.*\.(jpg|jpeg|png|webp)',
+                    re.IGNORECASE
+                ))
+
+            # Strategy 3: data-src for lazy-loaded images
+            if not photo:
+                photo = soup.find('img', attrs={'data-src': re.compile(
+                    r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait',
+                    re.IGNORECASE
+                )})
+
+            # Strategy 4: first large image inside the obituary content area
+            if not photo:
+                content_area = soup.find('div', class_=re.compile(r'entry-content|obituary|condolence-content', re.IGNORECASE))
+                if content_area:
+                    for img in content_area.find_all('img'):
+                        src = img.get('src', '') or img.get('data-src', '')
+                        # Skip logos, icons, badges, and placeholder SVGs
+                        if src and not re.search(r'logo|icon|badge|star|bao|\.svg|data:image', src, re.IGNORECASE):
+                            photo = img
+                            break
+
+            if photo:
+                photo_url = photo.get('src') or photo.get('data-src', '')
+                if photo_url and not photo_url.startswith('data:'):
+                    data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
 
             return data
 
