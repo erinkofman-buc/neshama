@@ -1162,6 +1162,10 @@
                 <div class="form-group">
                     <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
                     <div class="form-hint">Help visitors find comforting meals to send your family</div>
+                    <div id="selectedCatererChips" style="display:none; margin-bottom:0.75rem;">
+                        <p style="font-size:0.9rem; font-weight:600; color:var(--dark-brown); margin-bottom:0.4rem;">Your recommended caterers:</p>
+                        <div id="selectedChipsList" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+                    </div>
                     <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
                     <div class="caterer-browser" id="catererBrowser" style="display:none;">
                         <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
@@ -2389,7 +2393,9 @@
             .then(function(result) {
                 if (result.status === 'success' && result.data) {
                     vendorData = result.data;
+                    window._allVendors = result.data;
                     renderVendorCards();
+                    renderSelectedChips();
                 }
             })
             .catch(function() {
@@ -2443,8 +2449,44 @@
                 selectedVendors.push(slug);
             }
             document.getElementById('catererCount').textContent = selectedVendors.length;
+            renderSelectedChips();
             renderVendorCards();
         });
+
+        // Render selected caterer chips above the browser
+        function renderSelectedChips() {
+            var container = document.getElementById('selectedCatererChips');
+            var list = document.getElementById('selectedChipsList');
+            if (!container || !list) return;
+            if (selectedVendors.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            var html = '';
+            selectedVendors.forEach(function(slug) {
+                // Find vendor name from allVendors
+                var name = slug;
+                if (window._allVendors) {
+                    for (var i = 0; i < window._allVendors.length; i++) {
+                        if (window._allVendors[i].slug === slug) {
+                            name = window._allVendors[i].name;
+                            break;
+                        }
+                    }
+                }
+                html += '<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.4rem 0.8rem;background:rgba(210,105,30,0.1);border:1px solid var(--terracotta);border-radius:2rem;font-size:0.9rem;color:var(--dark-brown);">' + escapeHtml(name) + ' <span onclick="removeSelectedVendor(\'' + escapeHtml(slug) + '\')" style="cursor:pointer;font-size:1.1rem;color:var(--terracotta);">&times;</span></span>';
+            });
+            list.innerHTML = html;
+        }
+
+        window.removeSelectedVendor = function(slug) {
+            var idx = selectedVendors.indexOf(slug);
+            if (idx !== -1) selectedVendors.splice(idx, 1);
+            document.getElementById('catererCount').textContent = selectedVendors.length;
+            renderSelectedChips();
+            renderVendorCards();
+        };
 
         // Set city and re-filter caterers
         window.setWizardCity = function(city, btn) {
