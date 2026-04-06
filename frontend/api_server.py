@@ -476,6 +476,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/shiva/organize')
             self.end_headers()
+        elif path.startswith('/shiva/v2/'):
+            self.serve_shiva_v2_page()
         elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
         # Care coordination pages
@@ -3666,6 +3668,26 @@ button:hover{background:#c45a1a}</style></head>
                 path = urlparse(self.path).path
                 support_id = path[len('/shiva/'):] if path.startswith('/shiva/') else None
                 shiva_mgr.track_event('page_view', support_id)
+        except FileNotFoundError:
+            self.send_404()
+
+    def serve_shiva_v2_page(self):
+        """Serve the V2 volunteer view page"""
+        filepath = os.path.join(FRONTEND_DIR, 'shiva-view-v2.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+            # Track page view
+            if SHIVA_AVAILABLE:
+                path = urlparse(self.path).path
+                support_id = path[len('/shiva/v2/'):] if path.startswith('/shiva/v2/') else None
+                shiva_mgr.track_event('page_view_v2', support_id)
         except FileNotFoundError:
             self.send_404()
 

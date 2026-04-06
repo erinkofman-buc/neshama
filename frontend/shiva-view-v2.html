@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiva Support - Neshama</title>
+    <meta name="description" content="Sign up to bring a meal or offer support for a family sitting shiva. Community care, coordinated with warmth through Neshama.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta property="og:title" content="Shiva Support - Neshama">
+    <meta property="og:description" content="Sign up to bring a meal or offer support for a family sitting shiva. Community care, coordinated with warmth through Neshama.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shiva Support - Neshama">
+    <meta name="twitter:description" content="Sign up to bring a meal or offer support for a family sitting shiva.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --terracotta: #C2621A;
+            --terracotta-hover: #A8541A;
+            --cream: #FFF8F0;
+            --warm-beige: #F5F0E8;
+            --dark-brown: #3E2723;
+            --sage: #8A9A8C;
+            --sage-dark: #4A5E4D;
+            --gold: #B8943E;
+            --light-taupe: #D4C5B9;
+            --open-slot-bg: #FFF0ED;
+            --open-slot-border: #C2621A;
+            --open-slot-text: #8B4513;
+            --taken-slot-bg: #F5F5F2;
+            --taken-slot-border: #D4CFC8;
+            --taken-slot-text: #6B6560;
+            --success-bg: #F0F5ED;
+            --success-border: #7BA87E;
+            --success-text: #3D6B40;
+            --shabbat-bg: #F8F5EF;
+            --shabbat-accent: #B8943E;
+            --shadow-sm: 0 1px 4px rgba(62, 39, 35, 0.06);
+            --shadow-md: 0 4px 16px rgba(62, 39, 35, 0.08);
+            --shadow-lg: 0 8px 32px rgba(62, 39, 35, 0.12);
+            --shadow-modal: 0 20px 60px rgba(62, 39, 35, 0.2);
+            --font-heading: 'Cormorant Garamond', 'Georgia', serif;
+            --font-body: 'Crimson Pro', 'Georgia', serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-pill: 999px;
+        }
+
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 17px; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(194, 98, 26, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+            font-size: 20px;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* -- Nav -- */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: var(--font-body); font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-link-help { font-size: 0.95rem; color: var(--terracotta); font-weight: 500; opacity: 1; }
+        .nav-link-help:hover { color: var(--terracotta-hover); }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: var(--terracotta-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; font-size: 0.72rem; font-weight: 400; opacity: 0.9; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* -- Footer -- */
+        footer { text-align: center; padding: 3rem 1.5rem 2rem; border-top: 1px solid rgba(212, 197, 185, 0.3); margin-top: 4rem; }
+        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-bottom: 1rem; }
+        .footer-links a { font-family: var(--font-body); font-size: 17px; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 17px; color: var(--sage); }
+
+        /* -- Page Container -- */
+        .page-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        /* -- Loading / Error -- */
+        .page-loading { text-align: center; padding: 6rem 2rem; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--light-taupe); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .page-loading p { font-size: 20px; color: var(--sage-dark); font-style: italic; }
+        .error-state { text-align: center; padding: 6rem 2rem; }
+        .error-state h2 { font-family: var(--font-heading); font-size: clamp(28px, 6vw, 40px); font-weight: 400; margin-bottom: 1rem; }
+        .error-state p { font-size: 20px; color: var(--sage-dark); margin-bottom: 2rem; }
+        .error-state a { display: inline-block; background: var(--terracotta); color: white; padding: 0.75rem 2rem; border-radius: var(--radius-pill); text-decoration: none; font-size: 20px; transition: all 0.3s ease; }
+        .error-state a:hover { background: var(--terracotta-hover); transform: translateY(-2px); }
+
+        /* -- Hero -- */
+        .shiva-hero {
+            text-align: center;
+            padding: 2.5rem 0 1.5rem;
+        }
+        .candle-icon { display: block; margin: 0 auto 1rem; width: 28px; height: 40px; }
+        .shiva-hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(28px, 6vw, 40px);
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: 0.01em;
+            margin-bottom: 0.5rem;
+        }
+        .family-note {
+            font-style: italic;
+            font-size: 20px;
+            color: var(--sage-dark);
+            line-height: 1.6;
+            margin: 0.75rem auto 1rem;
+            max-width: 540px;
+            padding: 1rem 1.25rem;
+            background: rgba(194, 98, 26, 0.04);
+            border-left: 3px solid var(--terracotta);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+        .shiva-dates {
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin-bottom: 0.5rem;
+        }
+        .organizer-info {
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin-bottom: 0.5rem;
+        }
+        .organizer-info a {
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+        .organizer-info a:hover { text-decoration: underline; }
+
+        /* -- Address -- */
+        .address-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin: 0.75rem 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .copy-btn {
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 500;
+            background: none;
+            border: 1.5px solid var(--light-taupe);
+            color: var(--sage-dark);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 36px;
+        }
+        .copy-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+        .copy-btn.copied { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+        .dropoff-instructions {
+            font-size: 17px;
+            font-style: italic;
+            color: var(--sage-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* -- Dietary Banner -- */
+        .dietary-banner {
+            background: var(--warm-beige);
+            border: 1.5px solid var(--light-taupe);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.25rem;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 20px;
+        }
+        .dietary-banner strong { font-weight: 600; }
+
+        /* -- Guest Count -- */
+        .guest-count {
+            text-align: center;
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin: 0.5rem 0 1rem;
+        }
+
+        /* -- Coverage Bar -- */
+        .coverage-strip {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0 2rem;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            cursor: pointer;
+        }
+        .coverage-strip:hover { box-shadow: var(--shadow-md); }
+        .coverage-text {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .coverage-bar-track {
+            height: 8px;
+            background: var(--light-taupe);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+        }
+        .coverage-bar-fill {
+            height: 100%;
+            background: var(--terracotta);
+            border-radius: var(--radius-pill);
+            transition: width 0.6s ease;
+        }
+        .coverage-nudge {
+            font-size: 17px;
+            color: var(--open-slot-text);
+            margin-top: 0.5rem;
+        }
+
+        /* -- Day Cards -- */
+        .meal-calendar { display: flex; flex-direction: column; gap: 1.25rem; }
+        .day-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border-left: 4px solid var(--open-slot-border);
+        }
+        .day-card.all-covered { border-left-color: var(--success-border); }
+        .day-card.partial { border-left-color: var(--sage); }
+        .day-card.shabbat { background: var(--shabbat-bg); border-left-color: var(--shabbat-accent); }
+        .day-header {
+            padding: 0.75rem 1.25rem;
+            background: rgba(245, 240, 232, 0.5);
+            border-bottom: 1px solid rgba(212, 197, 185, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .day-header h3 {
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+        .shabbat-badge {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--shabbat-accent);
+        }
+        .day-check {
+            color: var(--success-text);
+            font-size: 20px;
+        }
+        .meal-slots {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .meal-slots { flex-direction: row; }
+            .meal-slot { flex: 1; }
+        }
+
+        /* -- Meal Slot (Open) -- */
+        .meal-slot {
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border-left: 4px solid transparent;
+        }
+        .meal-slot.open {
+            background: var(--open-slot-bg);
+            border-left-color: var(--open-slot-border);
+        }
+        .meal-slot.taken {
+            background: var(--taken-slot-bg);
+            border-left-color: var(--taken-slot-border);
+        }
+        .meal-slot.shabbat-empty {
+            background: transparent;
+            border-left-color: transparent;
+            text-align: center;
+            font-style: italic;
+            color: var(--sage-dark);
+            font-size: 17px;
+            padding: 1.5rem 1rem;
+        }
+        .slot-label {
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.15rem;
+        }
+        .meal-slot.open .slot-label { color: var(--open-slot-text); }
+        .meal-slot.taken .slot-label { color: var(--taken-slot-text); }
+        .slot-time {
+            font-size: 17px;
+            margin-bottom: 0.75rem;
+        }
+        .meal-slot.open .slot-time { color: var(--open-slot-text); }
+        .meal-slot.taken .slot-time { color: var(--taken-slot-text); }
+        .signup-btn {
+            display: block;
+            width: 100%;
+            min-height: 52px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .signup-btn:hover { background: var(--terracotta-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25); }
+        @keyframes pulseBtn {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .signup-btn.pulse { animation: pulseBtn 3s ease-in-out infinite; }
+        .taken-group {
+            margin-bottom: 0.5rem;
+        }
+        .taken-group:last-child { margin-bottom: 0; }
+        .taken-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+        .taken-desc {
+            font-size: 17px;
+            color: var(--sage-dark);
+        }
+
+        /* -- Modal Overlay -- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(62, 39, 35, 0.5);
+            z-index: 500;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-overlay.active { display: flex; }
+        @media (min-width: 640px) {
+            .modal-overlay.active { align-items: center; }
+        }
+        .modal-sheet {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            max-height: 92vh;
+            overflow-y: auto;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            box-shadow: var(--shadow-modal);
+            padding: 1.5rem;
+            animation: slideUp 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .modal-sheet {
+                border-radius: var(--radius-lg);
+                animation: fadeIn 0.2s ease;
+            }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .drag-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--light-taupe);
+            border-radius: 2px;
+            margin: 0 auto 1rem;
+        }
+        @media (min-width: 640px) { .drag-handle { display: none; } }
+
+        .modal-header h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+        .modal-header p {
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+        .modal-divider {
+            height: 1px;
+            background: var(--light-taupe);
+            margin: 0 0 1.25rem;
+        }
+
+        /* -- Form elements -- */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--dark-brown);
+        }
+        .form-group .helper {
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-bottom: 0.35rem;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            min-height: 52px;
+            padding: 14px 16px;
+            border: 2px solid var(--light-taupe);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 20px;
+            color: var(--dark-brown);
+            background: white;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--terracotta);
+        }
+        .form-group input.error, .form-group textarea.error {
+            border-color: #c62828;
+        }
+        .form-error {
+            font-size: 17px;
+            color: #c62828;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .form-error.visible { display: block; }
+
+        /* -- Chips -- */
+        .chips-section { margin-bottom: 1.25rem; }
+        .chips-section .chips-label {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .chips-suggested-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--sage-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.35rem;
+        }
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 48px;
+            padding: 12px 20px;
+            border: 2px solid var(--light-taupe);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark-brown);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .chip:hover { border-color: var(--terracotta); }
+        .chip.selected {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+            color: white;
+        }
+        .custom-chip-input {
+            display: none;
+            margin-top: 0.5rem;
+        }
+        .custom-chip-input.visible { display: block; }
+
+        /* -- Privacy Consent -- */
+        .consent-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1.25rem 0;
+        }
+        .consent-row input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            margin-top: 2px;
+            accent-color: var(--terracotta);
+            cursor: pointer;
+        }
+        .consent-row label {
+            font-size: 17px;
+            color: var(--sage-dark);
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        /* -- Modal Buttons -- */
+        .modal-submit-btn {
+            display: block;
+            width: 100%;
+            min-height: 56px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .modal-submit-btn:hover { background: var(--terracotta-hover); }
+        .modal-submit-btn:disabled { background: var(--light-taupe); cursor: not-allowed; }
+        .modal-cancel {
+            display: block;
+            text-align: center;
+            font-family: var(--font-body);
+            font-size: 17px;
+            color: var(--sage-dark);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 100%;
+        }
+        .modal-cancel:hover { color: var(--dark-brown); }
+
+        /* -- Confirmation State -- */
+        .confirmation-view { text-align: center; }
+        .confirm-check {
+            width: 56px;
+            height: 56px;
+            background: var(--success-bg);
+            border: 2px solid var(--success-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .confirm-check svg { width: 28px; height: 28px; stroke: var(--success-text); fill: none; stroke-width: 2.5; }
+        .confirm-title {
+            font-family: var(--font-heading);
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+        }
+        .confirm-subtitle {
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin-bottom: 1.25rem;
+        }
+        .dropoff-card {
+            background: var(--success-bg);
+            border: 1.5px solid var(--success-border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+        .dropoff-card-label {
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--success-text);
+            margin-bottom: 0.5rem;
+        }
+        .dropoff-card p { font-size: 20px; margin-bottom: 0.25rem; }
+        .dropoff-card .italic { font-style: italic; color: var(--sage-dark); font-size: 17px; }
+        .confirm-reminder {
+            font-size: 17px;
+            color: var(--sage-dark);
+            font-style: italic;
+            margin: 1rem 0;
+        }
+        .confirm-done-btn {
+            display: block;
+            width: 100%;
+            min-height: 52px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .confirm-done-btn:hover { background: var(--terracotta-hover); }
+        .confirm-calendar-btn {
+            display: block;
+            width: 100%;
+            min-height: 52px;
+            background: white;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+            line-height: 48px;
+        }
+        .confirm-calendar-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+        /* -- Caterer Suggestions -- */
+        .caterer-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        .caterer-section h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .caterer-section > p {
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+        .caterer-card {
+            background: white;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .caterer-card h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+        .caterer-card p { font-size: 17px; color: var(--sage-dark); margin-bottom: 0.5rem; }
+        .caterer-card a {
+            font-size: 17px;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .caterer-card a:hover { text-decoration: underline; }
+
+        /* -- Print Styles -- */
+        @media print {
+            .top-nav, footer, .modal-overlay, .signup-btn, .coverage-strip, .copy-btn, .caterer-section { display: none !important; }
+            body { background: white; }
+            .day-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+        }
+
+        /* -- Mobile Responsive -- */
+        @media (max-width: 768px) {
+            .nav-center { display: none; }
+            .nav-hamburger { display: block; }
+            .nav-center.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 56px;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                padding: 1rem 2rem 1.5rem;
+                border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+                box-shadow: var(--shadow-md);
+                gap: 0.5rem;
+            }
+            .nav-center.open .nav-group-primary,
+            .nav-center.open .nav-group-secondary { flex-direction: column; gap: 0.75rem; }
+            .nav-center.open .nav-divider { display: none; }
+            .page-container { padding: 0 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main-content">
+    <div class="page-container">
+
+        <!-- Loading State -->
+        <div class="page-loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Loading shiva details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <h2>Page Not Found</h2>
+            <p>This shiva support page may have been removed or the link may be incorrect.</p>
+            <a href="/">Return Home</a>
+        </div>
+
+        <!-- Content (hidden until loaded) -->
+        <div id="pageContent" style="display: none;">
+
+            <!-- Hero -->
+            <div class="shiva-hero">
+                <svg class="candle-icon" viewBox="0 0 28 40" aria-hidden="true">
+                    <ellipse cx="14" cy="6" rx="4" ry="5.5" fill="#C2621A" opacity="0.8"/>
+                    <ellipse cx="14" cy="5.5" rx="2" ry="3.5" fill="#E8A94A"/>
+                    <rect x="12.5" y="10" width="3" height="26" rx="1.5" fill="#F5F0E8" stroke="#D4C5B9" stroke-width="0.75"/>
+                    <rect x="10" y="35" width="8" height="4" rx="2" fill="#D4C5B9"/>
+                </svg>
+                <h1 id="familyNameTitle"></h1>
+                <div class="family-note" id="familyNote" style="display: none;"></div>
+                <div class="shiva-dates" id="shivaDates"></div>
+                <div class="organizer-info" id="organizerInfo"></div>
+            </div>
+
+            <!-- Address -->
+            <div class="address-bar" id="addressBar" style="display: none;">
+                <span id="addressText"></span>
+                <button class="copy-btn" id="copyAddressBtn" onclick="copyAddress()" aria-label="Copy address to clipboard">Copy</button>
+            </div>
+            <div class="dropoff-instructions" id="dropoffInstructions" style="display: none;"></div>
+
+            <!-- Dietary Banner -->
+            <div class="dietary-banner" id="dietaryBanner" style="display: none;"></div>
+
+            <!-- Guest Count -->
+            <div class="guest-count" id="guestCount" style="display: none;"></div>
+
+            <!-- Coverage Bar -->
+            <div class="coverage-strip" id="coverageStrip" onclick="scrollToFirstOpen()" role="button" tabindex="0" aria-label="Scroll to first open meal slot">
+                <div class="coverage-text" id="coverageText"></div>
+                <div class="coverage-bar-track">
+                    <div class="coverage-bar-fill" id="coverageFill" style="width: 0%;"></div>
+                </div>
+                <div class="coverage-nudge" id="coverageNudge" style="display: none;"></div>
+            </div>
+
+            <!-- Meal Calendar -->
+            <div class="meal-calendar" id="mealCalendar"></div>
+
+            <!-- Caterer Suggestions -->
+            <div class="caterer-section" id="catererSection" style="display: none;"></div>
+        </div>
+
+    </div>
+    </main>
+
+    <!-- Signup Modal -->
+    <div class="modal-overlay" id="signupModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-sheet" id="modalSheet">
+            <!-- Form View -->
+            <div id="modalFormView">
+                <div class="drag-handle"></div>
+                <div class="modal-header">
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalSubtitle"></p>
+                </div>
+                <div class="modal-divider"></div>
+
+                <div class="form-group">
+                    <label for="groupName">Your name or group name</label>
+                    <input type="text" id="groupName" placeholder="e.g., Bonnie's friends" autocomplete="off" required>
+                    <div class="form-error" id="groupNameError">Please enter a name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactName">Contact person</label>
+                    <input type="text" id="contactName" placeholder="Your full name" autocomplete="name">
+                    <div class="form-error" id="contactNameError">Please enter a contact name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="volunteerEmail">Email</label>
+                    <div class="helper">For a reminder the day before -- optional</div>
+                    <input type="email" id="volunteerEmail" placeholder="you@example.com" autocomplete="email">
+                    <div class="form-error" id="emailError">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="volunteerPhone">Phone</label>
+                    <div class="helper">Or phone -- at least one of email or phone required</div>
+                    <input type="tel" id="volunteerPhone" placeholder="416-555-1234" autocomplete="tel">
+                    <div class="form-error" id="phoneError">Please provide at least one: email or phone</div>
+                </div>
+
+                <div class="chips-section">
+                    <div class="chips-label">What are you bringing?</div>
+                    <div id="suggestedChipsLabel" class="chips-suggested-label" style="display: none;">Suggested by the family</div>
+                    <div id="suggestedChips" class="chips-row"></div>
+                    <div class="chips-row" id="defaultChips">
+                        <button type="button" class="chip" data-value="Deli platter">Deli platter</button>
+                        <button type="button" class="chip" data-value="Soup">Soup</button>
+                        <button type="button" class="chip" data-value="Salad">Salad</button>
+                        <button type="button" class="chip" data-value="Bread/challah">Bread/challah</button>
+                        <button type="button" class="chip" data-value="Dessert">Dessert</button>
+                        <button type="button" class="chip" data-value="Full meal">Full meal</button>
+                        <button type="button" class="chip" data-value="Something else">Something else</button>
+                    </div>
+                    <div class="custom-chip-input" id="customChipInput">
+                        <input type="text" id="customFoodInput" placeholder="What are you bringing?" style="width: 100%; min-height: 52px; padding: 14px 16px; border: 2px solid var(--light-taupe); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 20px; color: var(--dark-brown);">
+                    </div>
+                    <div class="form-error" id="chipsError">Please select at least one item</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mealNotes">Notes (optional)</label>
+                    <input type="text" id="mealNotes" placeholder="e.g., 3 trays, feeds 15" maxlength="200">
+                </div>
+
+                <div class="consent-row">
+                    <input type="checkbox" id="privacyConsent">
+                    <label for="privacyConsent">I agree to share my name and contact info with the organizer</label>
+                </div>
+                <div class="form-error" id="consentError">Please accept to continue</div>
+
+                <button class="modal-submit-btn" id="submitSignupBtn" onclick="submitSignup()">Sign Me Up</button>
+                <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+                <div class="form-error" id="submitError" style="text-align: center; margin-top: 0.5rem;"></div>
+            </div>
+
+            <!-- Confirmation View -->
+            <div id="modalConfirmView" class="confirmation-view" style="display: none;">
+                <div class="drag-handle"></div>
+                <div class="confirm-check">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h2 class="confirm-title">Thank you for showing up.</h2>
+                <p class="confirm-subtitle" id="confirmSubtitle"></p>
+                <div class="dropoff-card" id="confirmDropoff">
+                    <div class="dropoff-card-label">Drop-off details</div>
+                    <p id="confirmAddress"></p>
+                    <p id="confirmTime"></p>
+                    <p class="italic" id="confirmInstructions"></p>
+                </div>
+                <div class="confirm-reminder" id="confirmReminder" style="display: none;">You will get a reminder the day before.</div>
+                <a class="confirm-calendar-btn" id="confirmCalendarBtn" style="display: none;">Add to Calendar</a>
+                <button class="confirm-done-btn" onclick="closeModalAndRefresh()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/help">How Can I Help?</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // -- State --
+        var supportId = null;
+        var supportData = null;
+        var mealsData = [];
+        var selectedDate = null;
+        var selectedMealType = null;
+        var accessToken = null;
+        var lastSignupResult = null;
+        var blockedMealsSet = {};
+        var mealSchedule = {};
+
+        // -- URL Parsing --
+        function getSupportIdFromUrl() {
+            var path = window.location.pathname;
+            // /shiva/v2/{id}
+            if (path.startsWith('/shiva/v2/')) {
+                return decodeURIComponent(path.substring('/shiva/v2/'.length));
+            }
+            return null;
+        }
+
+        function getQueryParam(name) {
+            var params = new URLSearchParams(window.location.search);
+            return params.get(name) || null;
+        }
+
+        // -- Utilities --
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatDateLong(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr + 'T12:00:00');
+                return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            } catch (e) { return dateStr; }
+        }
+
+        function formatDateRange(start, end) {
+            try {
+                var s = new Date(start + 'T12:00:00');
+                var e = new Date(end + 'T12:00:00');
+                return s.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) + ' \u2013 ' +
+                    e.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            } catch (err) { return start + ' - ' + end; }
+        }
+
+        function formatTime24to12(t) {
+            if (!t) return '';
+            var parts = t.split(':');
+            var h = parseInt(parts[0], 10);
+            var m = parts[1] || '00';
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            if (h > 12) h -= 12;
+            if (h === 0) h = 12;
+            return h + ':' + m + ' ' + ampm;
+        }
+
+        function getDaysBetween(startStr, endStr) {
+            var days = [];
+            var s = new Date(startStr + 'T12:00:00');
+            var e = new Date(endStr + 'T12:00:00');
+            var cur = new Date(s);
+            while (cur <= e) {
+                var y = cur.getFullYear();
+                var m = String(cur.getMonth() + 1).padStart(2, '0');
+                var d = String(cur.getDate()).padStart(2, '0');
+                days.push(y + '-' + m + '-' + d);
+                cur.setDate(cur.getDate() + 1);
+            }
+            return days;
+        }
+
+        function isShabbat(dateStr) {
+            var d = new Date(dateStr + 'T12:00:00');
+            var day = d.getDay();
+            return day === 5 || day === 6; // Friday or Saturday
+        }
+
+        function isMealBlocked(dateStr, mealType) {
+            return !!blockedMealsSet[dateStr + '_' + mealType];
+        }
+
+        function isMealDisabledInSchedule(dateStr, mealType) {
+            var daySchedule = mealSchedule[dateStr];
+            if (!daySchedule) return false;
+            var key = mealType.toLowerCase();
+            return daySchedule[key] === false;
+        }
+
+        // -- Data Loading --
+        function loadPage() {
+            supportId = getSupportIdFromUrl();
+            accessToken = getQueryParam('access') || getQueryParam('key');
+
+            if (!supportId) {
+                showError();
+                return;
+            }
+
+            var apiUrl = '/api/shiva/' + encodeURIComponent(supportId);
+            if (accessToken) apiUrl += '?access=' + encodeURIComponent(accessToken);
+
+            fetch(apiUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.status !== 'success' || !result.data) {
+                        showError();
+                        return;
+                    }
+                    supportData = result.data;
+
+                    // Parse blocked meals
+                    if (supportData.blocked_meals) {
+                        try {
+                            var blocked = JSON.parse(supportData.blocked_meals);
+                            blocked.forEach(function(bm) {
+                                blockedMealsSet[bm.date + '_' + bm.meal_type] = true;
+                            });
+                        } catch (e) {}
+                    }
+
+                    // Parse meal schedule
+                    if (supportData.meal_schedule) {
+                        try {
+                            mealSchedule = JSON.parse(supportData.meal_schedule);
+                        } catch (e) {}
+                    }
+
+                    // Load meals
+                    var mealsUrl = '/api/shiva/' + encodeURIComponent(supportId) + '/meals';
+                    if (accessToken) mealsUrl += '?access=' + encodeURIComponent(accessToken);
+
+                    return fetch(mealsUrl).then(function(r) { return r.json(); });
+                })
+                .then(function(mealsResult) {
+                    if (!mealsResult) return;
+                    mealsData = (mealsResult.status === 'success' && mealsResult.data) ? mealsResult.data : [];
+                    renderPage();
+                })
+                .catch(function() {
+                    showError();
+                });
+        }
+
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = '';
+        }
+
+        // -- Render --
+        function renderPage() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('pageContent').style.display = '';
+
+            var d = supportData;
+
+            // Title
+            var title = escapeHtml(d.family_name || 'Shiva Support');
+            document.getElementById('familyNameTitle').textContent = 'Support the ' + (d.family_name || 'Family');
+            document.title = title + ' - Shiva Support - Neshama';
+
+            // Family note
+            if (d.family_notes) {
+                var noteEl = document.getElementById('familyNote');
+                noteEl.textContent = d.family_notes;
+                noteEl.style.display = '';
+            }
+
+            // Dates
+            if (d.shiva_start_date && d.shiva_end_date) {
+                document.getElementById('shivaDates').textContent = formatDateRange(d.shiva_start_date, d.shiva_end_date);
+            }
+
+            // Organizer
+            var orgParts = [];
+            if (d.organizer_name) orgParts.push('Coordinated by ' + escapeHtml(d.organizer_name));
+            var contactVisible = d.organizer_contact_visible || 'both';
+            var orgHtml = orgParts.join('');
+            var contactLinks = [];
+            if ((contactVisible === 'email' || contactVisible === 'both') && d.organizer_email) {
+                contactLinks.push('<a href="mailto:' + escapeHtml(d.organizer_email) + '">' + escapeHtml(d.organizer_email) + '</a>');
+            }
+            if ((contactVisible === 'phone' || contactVisible === 'both') && d.organizer_phone) {
+                contactLinks.push('<a href="tel:' + escapeHtml(d.organizer_phone) + '">' + escapeHtml(d.organizer_phone) + '</a>');
+            }
+            if (contactLinks.length > 0) {
+                orgHtml += '<br>' + contactLinks.join(' &middot; ');
+            }
+            document.getElementById('organizerInfo').innerHTML = orgHtml;
+
+            // Address
+            if (d.shiva_address) {
+                document.getElementById('addressBar').style.display = '';
+                document.getElementById('addressText').textContent = d.shiva_address;
+            }
+
+            // Drop-off instructions
+            if (d.drop_off_instructions) {
+                var instrEl = document.getElementById('dropoffInstructions');
+                instrEl.textContent = d.drop_off_instructions;
+                instrEl.style.display = '';
+            }
+
+            // Dietary banner
+            var dietaryParts = [];
+            if (d.kosher) dietaryParts.push('This family keeps kosher');
+            if (d.dietary_notes) dietaryParts.push(d.dietary_notes);
+            if (d.dietary_restrictions) {
+                try {
+                    var restr = typeof d.dietary_restrictions === 'string' ? JSON.parse(d.dietary_restrictions) : d.dietary_restrictions;
+                    if (Array.isArray(restr) && restr.length > 0) {
+                        var formatted = restr.map(function(r) { return r.replace(/_/g, ' '); });
+                        dietaryParts.push(formatted.join(', '));
+                    }
+                } catch (e) {}
+            }
+            if (dietaryParts.length > 0) {
+                var bannerEl = document.getElementById('dietaryBanner');
+                bannerEl.innerHTML = '<strong>' + escapeHtml(dietaryParts[0]) + '</strong>' +
+                    (dietaryParts.length > 1 ? ' &middot; ' + escapeHtml(dietaryParts.slice(1).join(', ')) : '');
+                bannerEl.style.display = '';
+            }
+
+            // Guest count
+            var adults = d.num_adults;
+            var kids = d.num_kids;
+            if (adults || kids) {
+                var countParts = [];
+                if (adults) countParts.push(adults + ' adult' + (adults !== 1 ? 's' : ''));
+                if (kids) countParts.push(kids + ' kid' + (kids !== 1 ? 's' : ''));
+                var gcEl = document.getElementById('guestCount');
+                gcEl.textContent = 'Meals for ' + countParts.join(' and ');
+                gcEl.style.display = '';
+            }
+
+            // Build calendar
+            renderCalendar();
+
+            // Caterer suggestions
+            renderCaterers();
+        }
+
+        function renderCalendar() {
+            var d = supportData;
+            if (!d.shiva_start_date || !d.shiva_end_date) return;
+
+            var days = getDaysBetween(d.shiva_start_date, d.shiva_end_date);
+            var pauseShabbat = d.pause_shabbat;
+
+            // Organize signups by date+type
+            var signupMap = {};
+            mealsData.forEach(function(s) {
+                var key = s.meal_date + '_' + s.meal_type;
+                if (!signupMap[key]) signupMap[key] = [];
+                signupMap[key].push(s);
+            });
+
+            // Default drop-off times
+            var lunchStart = formatTime24to12(d.lunch_dropoff_start || '11:30');
+            var lunchEnd = formatTime24to12(d.lunch_dropoff_end || '12:30');
+            var dinnerStart = formatTime24to12(d.dinner_dropoff_start || '16:30');
+            var dinnerEnd = formatTime24to12(d.dinner_dropoff_end || '17:30');
+
+            var totalSlots = 0;
+            var coveredSlots = 0;
+            var calHtml = '';
+
+            days.forEach(function(dateStr) {
+                var shabbatDay = isShabbat(dateStr);
+                var dayName = formatDateLong(dateStr);
+
+                var mealTypes = ['Lunch', 'Dinner'];
+                var slotsHtml = '';
+                var dayOpen = 0;
+                var dayCovered = 0;
+                var dayTotal = 0;
+
+                mealTypes.forEach(function(type) {
+                    var blocked = isMealBlocked(dateStr, type);
+                    var disabled = isMealDisabledInSchedule(dateStr, type);
+                    var shabbatPause = shabbatDay && pauseShabbat;
+
+                    if (blocked || disabled) return;
+
+                    if (shabbatPause) {
+                        slotsHtml += '<div class="meal-slot shabbat-empty">Shiva pauses for Shabbat</div>';
+                        return;
+                    }
+
+                    dayTotal++;
+                    totalSlots++;
+
+                    var key = dateStr + '_' + type;
+                    var signups = signupMap[key] || [];
+                    var timeStr = type === 'Lunch' ? (lunchStart + ' \u2013 ' + lunchEnd) : (dinnerStart + ' \u2013 ' + dinnerEnd);
+
+                    if (signups.length > 0) {
+                        dayCovered++;
+                        coveredSlots++;
+                        var groupsHtml = '';
+                        signups.forEach(function(su) {
+                            groupsHtml += '<div class="taken-group">' +
+                                '<div class="taken-name">' + escapeHtml(su.volunteer_name || su.group_name || 'Someone') + '</div>' +
+                                (su.meal_description ? '<div class="taken-desc">Bringing: ' + escapeHtml(su.meal_description) + '</div>' : '') +
+                                '</div>';
+                        });
+                        slotsHtml += '<div class="meal-slot taken">' +
+                            '<div class="slot-label">' + escapeHtml(type) + '</div>' +
+                            '<div class="slot-time">' + timeStr + '</div>' +
+                            groupsHtml +
+                            '</div>';
+                    } else {
+                        dayOpen++;
+                        var dayIsFullyEmpty = (dayOpen === dayTotal && dayCovered === 0);
+                        slotsHtml += '<div class="meal-slot open">' +
+                            '<div class="slot-label">' + escapeHtml(type) + ' &middot; ' + timeStr + '</div>' +
+                            '<button class="signup-btn' + (dayIsFullyEmpty ? ' pulse' : '') + '" onclick="openSignup(\'' + dateStr + '\', \'' + type + '\')" data-date="' + dateStr + '" data-type="' + type + '">Sign Up</button>' +
+                            '</div>';
+                    }
+                });
+
+                if (!slotsHtml) return; // Day has no active slots
+
+                var dayClass = 'day-card';
+                if (shabbatDay && pauseShabbat) dayClass += ' shabbat';
+                else if (dayTotal > 0 && dayCovered === dayTotal) dayClass += ' all-covered';
+                else if (dayCovered > 0) dayClass += ' partial';
+
+                var headerRight = '';
+                if (shabbatDay && pauseShabbat) {
+                    headerRight = '<span class="shabbat-badge">Shabbat</span>';
+                } else if (dayTotal > 0 && dayCovered === dayTotal) {
+                    headerRight = '<span class="day-check" aria-label="All meals covered">&#10003;</span>';
+                }
+
+                calHtml += '<div class="' + dayClass + '">' +
+                    '<div class="day-header"><h3>' + dayName + '</h3>' + headerRight + '</div>' +
+                    '<div class="meal-slots">' + slotsHtml + '</div>' +
+                    '</div>';
+            });
+
+            document.getElementById('mealCalendar').innerHTML = calHtml;
+
+            // Coverage bar
+            var pct = totalSlots > 0 ? Math.round((coveredSlots / totalSlots) * 100) : 0;
+            document.getElementById('coverageText').textContent = coveredSlots + ' of ' + totalSlots + ' meals covered';
+            document.getElementById('coverageFill').style.width = pct + '%';
+            if (pct < 50 && totalSlots > 0) {
+                var nudge = document.getElementById('coverageNudge');
+                nudge.textContent = 'The family still needs help';
+                nudge.style.display = '';
+            }
+        }
+
+        function renderCaterers() {
+            var d = supportData;
+            // Suggested caterers from custom_suggestions
+            var suggestions = [];
+            if (d.custom_suggestions) {
+                try {
+                    suggestions = JSON.parse(d.custom_suggestions);
+                } catch (e) {}
+            }
+            // Recommended vendors
+            var vendors = [];
+            if (d.recommended_vendors) {
+                try {
+                    vendors = JSON.parse(d.recommended_vendors);
+                } catch (e) {}
+            }
+
+            if (suggestions.length === 0 && vendors.length === 0) return;
+
+            var html = '<h2>Ways to Nourish the Family</h2>';
+            html += '<p>The family has suggested these trusted local options:</p>';
+
+            vendors.forEach(function(v) {
+                html += '<div class="caterer-card">' +
+                    '<h4>' + escapeHtml(v.name || v) + '</h4>' +
+                    (v.certification ? '<p>' + escapeHtml(v.certification) + (v.city ? ' &middot; ' + escapeHtml(v.city) : '') + '</p>' : '') +
+                    (v.slug ? '<a href="/help/food/' + escapeHtml(v.slug) + '">Learn more</a>' : '') +
+                    '</div>';
+            });
+
+            if (suggestions.length > 0) {
+                suggestions.forEach(function(s) {
+                    html += '<div class="caterer-card"><h4>' + escapeHtml(s) + '</h4></div>';
+                });
+            }
+
+            html += '<p style="margin-top: 1rem;"><a href="/help/food" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse more trusted partners</a></p>';
+
+            var section = document.getElementById('catererSection');
+            section.innerHTML = html;
+            section.style.display = '';
+        }
+
+        // -- Signup Modal --
+        window.openSignup = function(dateStr, mealType) {
+            selectedDate = dateStr;
+            selectedMealType = mealType;
+
+            var dayName = formatDateLong(dateStr);
+            var shortDay = dayName.split(',')[0]; // "Tuesday"
+            document.getElementById('modalTitle').textContent = shortDay + ' ' + mealType;
+
+            var d = supportData;
+            var timeStr = '';
+            if (mealType === 'Lunch') {
+                timeStr = formatTime24to12(d.lunch_dropoff_start || '11:30') + ' \u2013 ' + formatTime24to12(d.lunch_dropoff_end || '12:30');
+            } else {
+                timeStr = formatTime24to12(d.dinner_dropoff_start || '16:30') + ' \u2013 ' + formatTime24to12(d.dinner_dropoff_end || '17:30');
+            }
+
+            var subtitleParts = ['Drop-off: ' + timeStr];
+            var adults = d.num_adults;
+            var kids = d.num_kids;
+            if (adults || kids) {
+                var parts = [];
+                if (adults) parts.push(adults + ' adults');
+                if (kids) parts.push(kids + ' kids');
+                subtitleParts.push('Household: ' + parts.join(', '));
+            }
+            document.getElementById('modalSubtitle').innerHTML = subtitleParts.join('<br>');
+
+            // Populate suggested chips
+            var suggestedEl = document.getElementById('suggestedChips');
+            suggestedEl.innerHTML = '';
+            var suggestions = [];
+            if (d.custom_suggestions) {
+                try { suggestions = JSON.parse(d.custom_suggestions); } catch (e) {}
+            }
+            if (suggestions.length > 0) {
+                document.getElementById('suggestedChipsLabel').style.display = '';
+                suggestions.forEach(function(s) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'chip';
+                    btn.setAttribute('data-value', s);
+                    btn.textContent = s;
+                    btn.addEventListener('click', function() { toggleChip(this); });
+                    suggestedEl.appendChild(btn);
+                });
+            } else {
+                document.getElementById('suggestedChipsLabel').style.display = 'none';
+            }
+
+            // Reset form
+            document.getElementById('groupName').value = '';
+            document.getElementById('contactName').value = '';
+            document.getElementById('volunteerEmail').value = '';
+            document.getElementById('volunteerPhone').value = '';
+            document.getElementById('mealNotes').value = '';
+            document.getElementById('customFoodInput').value = '';
+            document.getElementById('privacyConsent').checked = false;
+            document.getElementById('customChipInput').classList.remove('visible');
+
+            // Deselect all chips
+            document.querySelectorAll('#defaultChips .chip, #suggestedChips .chip').forEach(function(c) {
+                c.classList.remove('selected');
+            });
+
+            // Clear errors
+            document.querySelectorAll('.form-error').forEach(function(e) { e.classList.remove('visible'); });
+            document.querySelectorAll('.form-group input.error').forEach(function(i) { i.classList.remove('error'); });
+
+            // Show form, hide confirm
+            document.getElementById('modalFormView').style.display = '';
+            document.getElementById('modalConfirmView').style.display = 'none';
+            document.getElementById('submitSignupBtn').disabled = false;
+            document.getElementById('submitSignupBtn').textContent = 'Sign Me Up';
+
+            // Show modal
+            document.getElementById('signupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Focus first field
+            setTimeout(function() { document.getElementById('groupName').focus(); }, 300);
+        };
+
+        // Chip toggling
+        document.querySelectorAll('#defaultChips .chip').forEach(function(chip) {
+            chip.addEventListener('click', function() { toggleChip(this); });
+        });
+
+        function toggleChip(chip) {
+            chip.classList.toggle('selected');
+            // Handle "Something else" chip
+            if (chip.getAttribute('data-value') === 'Something else') {
+                if (chip.classList.contains('selected')) {
+                    document.getElementById('customChipInput').classList.add('visible');
+                    document.getElementById('customFoodInput').focus();
+                } else {
+                    document.getElementById('customChipInput').classList.remove('visible');
+                }
+            }
+        }
+
+        window.closeModal = function() {
+            document.getElementById('signupModal').classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        window.closeModalAndRefresh = function() {
+            closeModal();
+            // Refetch data to show updated signups
+            loadPage();
+        };
+
+        // Close modal on overlay click
+        document.getElementById('signupModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // -- Submit Signup --
+        window.submitSignup = function() {
+            // Clear errors
+            document.querySelectorAll('.form-error').forEach(function(e) { e.classList.remove('visible'); });
+            document.querySelectorAll('.form-group input.error').forEach(function(i) { i.classList.remove('error'); });
+
+            var groupName = document.getElementById('groupName').value.trim();
+            var contactName = document.getElementById('contactName').value.trim();
+            var email = document.getElementById('volunteerEmail').value.trim();
+            var phone = document.getElementById('volunteerPhone').value.trim();
+            var notes = document.getElementById('mealNotes').value.trim();
+            var consent = document.getElementById('privacyConsent').checked;
+
+            // Collect selected chips
+            var selected = [];
+            document.querySelectorAll('#defaultChips .chip.selected, #suggestedChips .chip.selected').forEach(function(c) {
+                var val = c.getAttribute('data-value');
+                if (val !== 'Something else') selected.push(val);
+            });
+            var customText = document.getElementById('customFoodInput').value.trim();
+            if (customText) selected.push(customText);
+
+            // Validation
+            var valid = true;
+
+            if (!groupName) {
+                document.getElementById('groupNameError').classList.add('visible');
+                document.getElementById('groupName').classList.add('error');
+                valid = false;
+            }
+
+            if (!email && !phone) {
+                document.getElementById('phoneError').classList.add('visible');
+                valid = false;
+            }
+
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('emailError').classList.add('visible');
+                document.getElementById('volunteerEmail').classList.add('error');
+                valid = false;
+            }
+
+            if (selected.length === 0) {
+                document.getElementById('chipsError').classList.add('visible');
+                valid = false;
+            }
+
+            if (!consent) {
+                document.getElementById('consentError').classList.add('visible');
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            // Disable button
+            var btn = document.getElementById('submitSignupBtn');
+            btn.disabled = true;
+            btn.textContent = 'Signing up...';
+
+            var mealDescription = selected.join(', ') + (notes ? ' (' + notes + ')' : '');
+
+            var payload = {
+                shiva_support_id: supportId,
+                volunteer_name: groupName,
+                volunteer_email: email || (phone + '@noreply.neshama.ca'), // Backend requires email
+                meal_date: selectedDate,
+                meal_type: selectedMealType,
+                meal_description: mealDescription,
+                privacy_consent: 1,
+                group_name: groupName,
+                contact_person: contactName,
+                contact_phone: phone,
+                notes: notes
+            };
+
+            if (accessToken) payload.access_token = accessToken;
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    lastSignupResult = result;
+                    showConfirmation(result);
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Sign Me Up';
+                    var errEl = document.getElementById('submitError');
+                    errEl.textContent = result.message || 'Something went wrong. Please try again.';
+                    errEl.classList.add('visible');
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Sign Me Up';
+                var errEl = document.getElementById('submitError');
+                errEl.textContent = 'Network error. Please check your connection and try again.';
+                errEl.classList.add('visible');
+            });
+        };
+
+        function showConfirmation(result) {
+            document.getElementById('modalFormView').style.display = 'none';
+            document.getElementById('modalConfirmView').style.display = '';
+
+            var d = supportData;
+            var dayName = formatDateLong(selectedDate);
+            var shortDay = dayName.split(',')[0];
+            document.getElementById('confirmSubtitle').textContent = shortDay + ' ' + selectedMealType + ' \u2014 ' +
+                new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+            // Address from result or supportData
+            var addr = result.shiva_address || d.shiva_address || '';
+            document.getElementById('confirmAddress').textContent = addr;
+
+            var timeStr = '';
+            if (selectedMealType === 'Lunch') {
+                timeStr = 'Drop-off: ' + formatTime24to12(d.lunch_dropoff_start || '11:30') + ' \u2013 ' + formatTime24to12(d.lunch_dropoff_end || '12:30');
+            } else {
+                timeStr = 'Drop-off: ' + formatTime24to12(d.dinner_dropoff_start || '16:30') + ' \u2013 ' + formatTime24to12(d.dinner_dropoff_end || '17:30');
+            }
+            document.getElementById('confirmTime').textContent = timeStr;
+            document.getElementById('confirmInstructions').textContent = d.drop_off_instructions || '';
+
+            // Reminder note
+            var email = document.getElementById('volunteerEmail').value.trim();
+            if (email && email.indexOf('@noreply') === -1) {
+                document.getElementById('confirmReminder').style.display = '';
+            }
+
+            // Calendar button (ICS link, may 404 for now)
+            if (result.signup_id) {
+                var calBtn = document.getElementById('confirmCalendarBtn');
+                calBtn.href = '/api/shiva/' + encodeURIComponent(supportId) + '/calendar/' + result.signup_id + '.ics';
+                calBtn.style.display = '';
+            }
+        }
+
+        // -- Copy Address --
+        window.copyAddress = function() {
+            var text = document.getElementById('addressText').textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    var btn = document.getElementById('copyAddressBtn');
+                    btn.textContent = 'Copied';
+                    btn.classList.add('copied');
+                    setTimeout(function() {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        };
+
+        // -- Scroll to first open slot --
+        window.scrollToFirstOpen = function() {
+            var first = document.querySelector('.meal-slot.open');
+            if (first) {
+                first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        };
+
+        // -- Mobile Nav --
+        var hamburger = document.getElementById('hamburgerBtn');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                var nav = document.getElementById('navLinks');
+                var isOpen = nav.classList.toggle('open');
+                hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+        }
+
+        // -- Init --
+        loadPage();
+    })();
+    </script>
+</body>
+</html>

@@ -813,11 +813,18 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
+                   organizer_email, organizer_phone,
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
+                   shiva_address,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
                    organizer_update, family_notes, dietary_restrictions,
-                   meal_schedule, created_at, share_token, blocked_meals
+                   meal_schedule, created_at, share_token, blocked_meals,
+                   kosher, num_adults, num_kids,
+                   lunch_dropoff_start, lunch_dropoff_end,
+                   dinner_dropoff_start, dinner_dropoff_end,
+                   custom_suggestions, organizer_contact_visible,
+                   drop_off_instructions
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -870,6 +877,18 @@ class ShivaManager:
 
         # Never expose share_token to non-organizer visitors
         data.pop('share_token', None)
+
+        # Respect organizer_contact_visible for public responses
+        contact_pref = data.get('organizer_contact_visible', 'both')
+        if contact_pref == 'email':
+            data.pop('organizer_phone', None)
+        elif contact_pref == 'phone':
+            data.pop('organizer_email', None)
+        elif contact_pref == 'none':
+            data.pop('organizer_email', None)
+            data.pop('organizer_phone', None)
+        # 'both' keeps both fields
+
         conn.close()
         return {'status': 'success', 'data': data}
 
