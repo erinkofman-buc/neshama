@@ -381,6 +381,39 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE meal_signups ADD COLUMN additional_contributors TEXT')
 
+        # ── V7 Migrations (Meal Planner Redesign) ────────────────
+
+        # V7: shiva_support — meal planner columns
+        for col, defn in [
+            ('burial_date', 'TEXT'),
+            ('kosher', 'INTEGER DEFAULT 0'),
+            ('num_adults', 'INTEGER DEFAULT 10'),
+            ('num_kids', 'INTEGER DEFAULT 0'),
+            ('lunch_dropoff_start', "TEXT DEFAULT '11:30'"),
+            ('lunch_dropoff_end', "TEXT DEFAULT '12:30'"),
+            ('dinner_dropoff_start', "TEXT DEFAULT '16:30'"),
+            ('dinner_dropoff_end', "TEXT DEFAULT '17:30'"),
+            ('suggested_caterers', 'TEXT'),
+            ('custom_suggestions', 'TEXT'),
+            ('organizer_contact_visible', "TEXT DEFAULT 'both'"),
+            ('enabled_meals', 'TEXT'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM shiva_support LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE shiva_support ADD COLUMN {col} {defn}')
+
+        # V7: meal_signups — group and walk-in columns
+        for col, defn in [
+            ('group_name', 'TEXT'),
+            ('contact_phone', 'TEXT'),
+            ('is_walkin', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM meal_signups LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE meal_signups ADD COLUMN {col} {defn}')
+
         conn.commit()
         conn.close()
 
