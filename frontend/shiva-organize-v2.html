@@ -662,12 +662,27 @@
             background: rgba(194, 98, 26, 0.08);
         }
 
-        /* ── Vendor Browser ──────────────────────────────── */
-        .vendor-browser {
+        /* ── Directory Link ──────────────────────────────── */
+        .directory-link-section {
             margin-top: 1.5rem;
         }
 
-        .vendor-toggle-btn {
+        .directory-link-warm {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.25rem;
+        }
+
+        .directory-link-subtitle {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .directory-link-btn {
             display: inline-block;
             background: transparent;
             color: var(--terracotta);
@@ -680,88 +695,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             min-height: 48px;
+            text-decoration: none;
+            line-height: 48px;
         }
 
-        .vendor-toggle-btn:hover {
+        .directory-link-btn:hover {
             background: var(--terracotta);
             color: white;
-        }
-
-        .vendor-list {
-            display: none;
-            margin-top: 1rem;
-            border: 1px solid var(--light-taupe);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            background: var(--cream);
-            max-height: 360px;
-            overflow-y: auto;
-        }
-
-        .vendor-list.active { display: block; }
-
-        .vendor-list-header {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-            color: var(--dark-brown);
-        }
-
-        .vendor-card {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: white;
-            border: 2px solid var(--light-taupe);
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 0.5rem;
-            min-height: 56px;
-        }
-
-        .vendor-card:last-child { margin-bottom: 0; }
-
-        .vendor-card:hover {
-            border-color: var(--terracotta);
-        }
-
-        .vendor-card.selected {
-            border-color: var(--terracotta);
-            background: rgba(194, 98, 26, 0.06);
-        }
-
-        .vendor-card-check {
-            font-size: 1.3rem;
-            flex-shrink: 0;
-            width: 24px;
-            text-align: center;
-        }
-
-        .vendor-card-info { flex: 1; }
-
-        .vendor-card-name {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--dark-brown);
-        }
-
-        .vendor-card-detail {
-            font-size: 0.9rem;
-            color: var(--sage-dark);
-        }
-
-        .vendor-badge-kosher {
-            display: inline-block;
-            font-size: 0.8rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 1rem;
-            background: rgba(178, 190, 181, 0.3);
-            color: var(--sage-dark);
-            font-weight: 500;
-            margin-left: 0.5rem;
         }
 
         /* ── Quick Setup ─────────────────────────────────── */
@@ -1313,11 +1253,6 @@
             </div>
 
             <div class="form-group">
-                <label for="deceasedName">Name of the person who passed <span class="optional">(optional)</span></label>
-                <input type="text" id="deceasedName" placeholder="e.g., Sarah" autocomplete="off">
-            </div>
-
-            <div class="form-group">
                 <label for="burialDate">Date of burial</label>
                 <input type="date" id="burialDate">
                 <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; font-weight:400; font-size:0.95rem; cursor:pointer;">
@@ -1555,7 +1490,7 @@
 
             <!-- Family Note -->
             <div class="form-group">
-                <label for="familyNote">What would you like people to know about <span id="familyNameDisplay">the family</span>? <span class="optional">(optional)</span></label>
+                <label for="familyNote">What would you like people to know about your loved one? <span class="optional">(optional)</span></label>
                 <input type="text" id="familyNote" placeholder="She made the best rugelach and she'd want you to eat.">
                 <p class="form-hint">This appears at the top of the meal page. A personal touch goes a long way.</p>
             </div>
@@ -1573,15 +1508,11 @@
                 <div class="chips-container" id="suggestionsChips"></div>
             </div>
 
-            <!-- Vendor Browser -->
-            <div class="vendor-browser">
-                <button type="button" class="vendor-toggle-btn" onclick="toggleVendorBrowser()">Browse local options</button>
-                <div class="vendor-list" id="vendorList">
-                    <div class="vendor-list-header">Local options the community trusts</div>
-                    <div id="vendorCards">
-                        <p style="color:var(--sage-dark); font-size:0.95rem; padding:0.5rem;">Loading...</p>
-                    </div>
-                </div>
+            <!-- Directory Link -->
+            <div class="directory-link-section">
+                <p class="directory-link-warm">Suggest caterers for your volunteers</p>
+                <p class="directory-link-subtitle">Browse our directory to find trusted local options, then add them above.</p>
+                <a href="/help/food" target="_blank" class="directory-link-btn">Browse the directory</a>
             </div>
 
             <div class="form-error" id="step3Error"></div>
@@ -1725,7 +1656,6 @@
         var currentStep = 1;
         var formData = {
             familyName: '',
-            deceasedName: '',
             burialDate: null,
             burialNotConfirmed: false,
             organizerName: '',
@@ -1751,12 +1681,10 @@
             dietaryRestrictions: [],
             otherDietary: '',
             familyNote: '',
-            suggestions: [],     // array of strings (custom + vendor names)
-            selectedVendors: []  // vendor objects
+            suggestions: []      // array of strings (custom suggestions)
         };
 
         var searchTimeout = null;
-        var vendorData = [];
         var createdVolunteerLink = '';
         var createdDashboardLink = '';
 
@@ -1853,15 +1781,6 @@
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Update family note label in step 3
-            if (step === 3) {
-                var display = document.getElementById('familyNameDisplay');
-                if (formData.deceasedName) {
-                    display.textContent = formData.deceasedName;
-                } else {
-                    display.textContent = 'your loved one';
-                }
-            }
         };
 
         // ── Validation ──────────────────────────────────────
@@ -1923,7 +1842,6 @@
         function saveStepData(step) {
             if (step === 1) {
                 formData.familyName = document.getElementById('familyName').value.trim();
-                formData.deceasedName = document.getElementById('deceasedName').value.trim();
                 formData.burialDate = document.getElementById('burialNotConfirmed').checked ? null : document.getElementById('burialDate').value;
                 formData.burialNotConfirmed = document.getElementById('burialNotConfirmed').checked;
                 formData.organizerName = document.getElementById('organizerName').value.trim();
@@ -2169,72 +2087,7 @@
             }).join('');
         }
 
-        // ── Vendor Browser ──────────────────────────────────
-        window.toggleVendorBrowser = function() {
-            var list = document.getElementById('vendorList');
-            var isOpen = list.classList.toggle('active');
-            if (isOpen && vendorData.length === 0) {
-                loadVendors();
-            }
-        };
-
-        function loadVendors() {
-            var city = formData.city || document.getElementById('shivaCity').value || '';
-            var url = '/api/vendors' + (city ? '?city=' + encodeURIComponent(city) : '');
-
-            fetch(url)
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    vendorData = data.vendors || data || [];
-                    renderVendorCards();
-                })
-                .catch(function() {
-                    document.getElementById('vendorCards').innerHTML =
-                        '<p style="color:var(--sage-dark); font-size:0.95rem; padding:0.5rem;">Could not load vendors. You can add custom suggestions above.</p>';
-                });
-        }
-
-        function renderVendorCards() {
-            var container = document.getElementById('vendorCards');
-            if (!vendorData.length) {
-                container.innerHTML = '<p style="color:var(--sage-dark); font-size:0.95rem; padding:0.5rem;">No local options found for this city yet.</p>';
-                return;
-            }
-
-            container.innerHTML = vendorData.map(function(v, i) {
-                var isSelected = formData.selectedVendors.some(function(sv) { return sv.name === v.name; });
-                return '<div class="vendor-card ' + (isSelected ? 'selected' : '') + '" onclick="toggleVendor(' + i + ')" role="button" tabindex="0" aria-pressed="' + isSelected + '">' +
-                    '<span class="vendor-card-check">' + (isSelected ? '&#10003;' : '') + '</span>' +
-                    '<div class="vendor-card-info">' +
-                    '<div class="vendor-card-name">' + escapeHtml(v.name || '') +
-                    (v.kosher_certified ? '<span class="vendor-badge-kosher">Kosher</span>' : '') +
-                    '</div>' +
-                    '<div class="vendor-card-detail">' + escapeHtml(v.cuisine_type || v.category || '') + '</div>' +
-                    '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        window.toggleVendor = function(idx) {
-            var vendor = vendorData[idx];
-            if (!vendor) return;
-
-            var existingIdx = formData.selectedVendors.findIndex(function(sv) { return sv.name === vendor.name; });
-            if (existingIdx > -1) {
-                formData.selectedVendors.splice(existingIdx, 1);
-                // Also remove from suggestions
-                var sugIdx = formData.suggestions.indexOf(vendor.name);
-                if (sugIdx > -1) formData.suggestions.splice(sugIdx, 1);
-            } else {
-                formData.selectedVendors.push(vendor);
-                if (formData.suggestions.indexOf(vendor.name) === -1) {
-                    formData.suggestions.push(vendor.name);
-                }
-            }
-
-            renderVendorCards();
-            renderSuggestionChips();
-        };
+        // Vendor browser removed — directory link replaces it
 
         // ── Review ──────────────────────────────────────────
         function populateReview() {
@@ -2395,7 +2248,6 @@
 
             var payload = {
                 family_name: formData.familyName,
-                deceased_name: formData.deceasedName,
                 burial_date: formData.burialDate,
                 shiva_start: formData.shivaStart,
                 shiva_end: formData.shivaEnd,
