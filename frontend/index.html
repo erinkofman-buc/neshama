@@ -75,7 +75,7 @@
             --sage-dark: #556258;
             --terracotta: #D2691E;
             --warm-beige: #F5F5DC;
-            --cream: #FAF9F6;
+            --cream: #FFF8F0;
             --dark-brown: #3E2723;
             --light-taupe: #D4C5B9;
             --gold: #C9A96E;
@@ -421,14 +421,14 @@
         }
 
         .city-btn:hover {
-            border-color: var(--gold);
-            color: var(--dark-brown);
+            border-color: var(--terracotta);
+            color: var(--terracotta);
         }
 
         .city-btn.active {
-            background: var(--dark-brown);
+            background: var(--terracotta);
             color: white;
-            border-color: var(--dark-brown);
+            border-color: var(--terracotta);
             font-weight: 500;
         }
 
@@ -453,14 +453,14 @@
         }
 
         .source-btn:hover {
-            border-color: var(--gold);
-            color: var(--dark-brown);
+            border-color: var(--terracotta);
+            color: var(--terracotta);
         }
 
         .source-btn.active {
-            background: var(--dark-brown);
+            background: var(--terracotta);
             color: white;
-            border-color: var(--dark-brown);
+            border-color: var(--terracotta);
             font-weight: 500;
         }
 
@@ -1111,8 +1111,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            opacity: 0.5;
+            background: linear-gradient(135deg, #FFF8F0 0%, #F5EDE3 50%, #E8DDD3 100%);
+        }
+
+        .card-placeholder-initials {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 400;
+            color: var(--sage-dark);
+            letter-spacing: 0.08em;
+            opacity: 0.7;
         }
 
         .card-body {
@@ -1185,9 +1193,7 @@
         .card-meta {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.4rem;
+            justify-content: center;
             padding-top: 0.75rem;
             border-top: 1px solid rgba(212, 197, 185, 0.3);
             margin-top: auto;
@@ -1298,6 +1304,22 @@
 
         .card-link:hover {
             color: var(--gold);
+        }
+
+        .card-link-primary {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--terracotta);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            transition: color 0.2s ease;
+        }
+
+        .card-link-primary:hover {
+            color: #c45a1a;
         }
 
         /* card-support-nudge removed — vendor links moved to memorial page Support the Family section */
@@ -2246,7 +2268,7 @@
         <a href="/" class="nav-logo">Neshama</a>
         <div class="nav-center" id="navLinks">
             <div class="nav-group-primary">
-                <a href="/feed" class="nav-link active">Listings</a>
+                <a href="/feed" class="nav-link active">Obituaries</a>
                 <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
                 <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
             </div>
@@ -2267,12 +2289,11 @@
          HERO SECTION
          ════════════════════════════════════════════════════ -->
     <section class="hero" aria-label="What Neshama does">
-        <h1 class="hero-headline">Jewish obituaries, shiva meals, and memorial pages for Toronto and Montreal</h1>
-        <p class="hero-subline">Supporting your community through loss — one meal, one memory at a time.</p>
+        <h1 class="hero-headline">Honouring our community's loved ones</h1>
+        <p class="hero-subline">Obituaries, shiva meals, and memorial pages for Toronto and Montreal.</p>
         <div class="hero-actions">
             <a href="/feed" class="hero-cta hero-cta-primary">Find an obituary</a>
             <a href="/shiva/organize" class="hero-cta hero-cta-secondary">Coordinate shiva meals</a>
-            <a href="/help/supplies" class="hero-cta hero-cta-secondary">Browse shiva essentials</a>
         </div>
     </section>
 
@@ -2317,13 +2338,7 @@
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════
-         FRESHNESS INDICATOR
-         ════════════════════════════════════════════════════ -->
-    <div class="freshness-bar" id="freshnessBar" style="display:none;">
-        <span>Data refreshed every 20 minutes</span>
-        <span id="lastChecked"></span>
-    </div>
+    <!-- Freshness bar removed — too technical for a grief-focused site -->
 
     <!-- ════════════════════════════════════════════════════
          OBITUARY FEED
@@ -2450,7 +2465,7 @@
 
             <!-- Success View -->
             <div id="successView" class="success-message">
-                <div class="success-icon">&#x2709;&#xFE0F;</div>
+                <div class="success-icon" style="font-size:2.5rem;color:var(--sage-dark);">&#10003;</div>
                 <h2 class="popup-title">Check your email!</h2>
                 <p class="popup-description success-description">
                     We sent a confirmation to <strong id="confirmedEmail"></strong>.

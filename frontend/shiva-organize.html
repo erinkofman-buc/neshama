@@ -1070,8 +1070,6 @@
             <div class="stepper-dot" data-step="2"></div>
             <div class="stepper-line" data-line="2"></div>
             <div class="stepper-dot" data-step="3"></div>
-            <div class="stepper-line" data-line="3"></div>
-            <div class="stepper-dot" data-step="4"></div>
         </div>
 
         <!-- Duplicate Warning -->
@@ -1091,7 +1089,7 @@
 
         <!-- Step 1: Who is the shiva for? -->
         <div class="step-card active" id="step1">
-            <p class="step-indicator">Step 1 of 4</p>
+            <p class="step-indicator">Step 1 of 3</p>
             <h2 class="step-title">Who is the shiva for?</h2>
 
             <div class="form-group">
@@ -1109,7 +1107,7 @@
         <!-- Step 2: When -->
         <div class="step-card" id="step2">
             <div class="step-saved-note" id="step1SavedNote">&#x2713; Got it</div>
-            <p class="step-indicator">Step 2 of 4</p>
+            <p class="step-indicator">Step 2 of 3</p>
             <h2 class="step-title">When is the shiva?</h2>
 
             <div class="form-group">
@@ -1123,6 +1121,57 @@
                 <div class="form-hint">Typically 7 days from the start. You can change this later.</div>
             </div>
 
+            <!-- Shiva Address section -->
+            <div style="border-top: 1px solid var(--light-taupe); margin-top: 1.5rem; padding-top: 1.25rem;">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Where should meals be delivered?</h3>
+
+                <div class="form-group">
+                    <label>City</label>
+                    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+                        <button type="button" class="city-toggle-btn active" data-city="Toronto" onclick="setWizardCity('Toronto',this)" style="flex:1;padding:0.6rem;border:2px solid var(--terracotta);border-radius:0.5rem;background:var(--terracotta);color:white;font-family:'Source Serif 4',serif;font-size:0.95rem;cursor:pointer;">Toronto</button>
+                        <button type="button" class="city-toggle-btn" data-city="Montreal" onclick="setWizardCity('Montreal',this)" style="flex:1;padding:0.6rem;border:2px solid var(--light-taupe);border-radius:0.5rem;background:white;color:var(--dark-brown);font-family:'Source Serif 4',serif;font-size:0.95rem;cursor:pointer;">Montreal</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="shivaAddressInput">Address <span class="optional">(optional — you can add this later)</span></label>
+                    <input type="text" id="shivaAddressInput" placeholder="e.g., 123 Bathurst St, Toronto">
+                </div>
+            </div>
+
+            <!-- Dietary Preferences section -->
+            <div style="border-top: 1px solid var(--light-taupe); margin-top: 1.5rem; padding-top: 1.25rem;">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Dietary Preferences</h3>
+
+                <div class="form-group">
+                    <label>Dietary Requirements <span class="optional">(optional)</span></label>
+                    <div class="dietary-checkboxes" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="kosher"> Kosher</label>
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegetarian"> Vegetarian</label>
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegan"> Vegan</label>
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="gluten_free"> Gluten-free</label>
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="nut_free"> Nut-free</label>
+                        <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="dairy_free"> Dairy-free</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dietaryNotes">Other Dietary Notes <span class="optional">(optional)</span></label>
+                    <input type="text" id="dietaryNotes" placeholder="e.g., No shellfish, soy allergy..." maxlength="80">
+                </div>
+
+                <div class="form-group">
+                    <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
+                    <div class="form-hint">Help visitors find comforting meals to send your family</div>
+                    <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
+                    <div class="caterer-browser" id="catererBrowser" style="display:none;">
+                        <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
+                        <div class="caterer-grid" id="catererGrid">
+                            <p style="color:var(--sage-dark);text-align:center;padding:1rem;">Loading caterers...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-error" id="step2Error"></div>
 
             <div class="btn-row">
@@ -1134,7 +1183,7 @@
         <!-- Step 3: Your info -->
         <div class="step-card" id="step3">
             <div class="step-saved-note" id="step2SavedNote">&#x2713; Dates saved</div>
-            <p class="step-indicator">Step 3 of 4</p>
+            <p class="step-indicator">Step 3 of 3</p>
             <h2 class="step-title">Your information</h2>
             <p class="step-reassurance">So the family knows who set this up. We'll also email you a link to manage the page.</p>
 
@@ -1164,98 +1213,28 @@
             </div>
         </div>
 
-        <!-- Step 4: Optional details (shown after page is created, or skippable) -->
-        <div class="step-card" id="step4">
-            <div class="step-saved-note" id="step3SavedNote">&#x2713; Page created! Add details below, or skip and share now.</div>
-            <p class="step-indicator">Step 4 of 4 &mdash; optional</p>
-            <h2 class="step-title">Add Details</h2>
-            <p class="step-reassurance">You can always update these from your management link. Skip anything you don't know yet.</p>
+        <!-- Hidden fields for backward compat -->
+        <input type="hidden" id="shivaAddress" value="">
+        <input type="hidden" id="shivaCity" value="Toronto">
+        <input type="hidden" id="guestsPerMeal" value="20">
+        <input type="hidden" id="familyNotes" value="">
+        <input type="hidden" id="organizerPhone" value="">
+        <input type="hidden" id="organizerRelationship" value="Friend">
+        <input type="hidden" id="privacyToggle" value="">
+        <input type="hidden" id="specialInstructions" value="">
+        <input type="hidden" id="dropOffInstructions" value="">
+        <input type="hidden" id="buzzerUnit" value="">
 
-            <div class="form-group">
-                <label for="shivaAddress">Shiva Address <span class="optional">(add now or later)</span></label>
-                <input type="text" id="shivaAddress" placeholder="123 Main Street, Apt 4B">
-                <div class="privacy-notice">Only shared with confirmed volunteers. You can add this later.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="shivaCity">City</label>
-                <select id="shivaCity" onchange="updateSubAreas()">
-                    <option value="" disabled selected>Select city</option>
-                    <option value="Toronto">Toronto (GTA)</option>
-                    <option value="Montreal">Montreal</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>How many people per meal?</label>
-                <div class="stepper" style="display: inline-flex;">
-                    <button type="button" class="stepper-btn" onclick="adjustGlobalGuests(-1)">&minus;</button>
-                    <span class="stepper-value" id="guestsPerMealDisplay">20</span>
-                    <button type="button" class="stepper-btn" onclick="adjustGlobalGuests(1)">+</button>
-                </div>
-                <input type="hidden" id="guestsPerMeal" value="20">
-            </div>
-
-            <div class="form-group">
-                <label>Dietary Requirements <span class="optional">(optional)</span></label>
-                <div class="dietary-checkboxes" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="kosher"> Kosher</label>
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegetarian"> Vegetarian</label>
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="vegan"> Vegan</label>
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="gluten_free"> Gluten-free</label>
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="nut_free"> Nut-free</label>
-                    <label class="dietary-option"><input type="checkbox" name="dietaryRestriction" value="dairy_free"> Dairy-free</label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="dietaryNotes">Other Dietary Notes <span class="optional">(optional)</span></label>
-                <input type="text" id="dietaryNotes" placeholder="e.g., No shellfish, soy allergy..." maxlength="80">
-            </div>
-
-            <div class="form-group">
-                <label for="familyNotes">Note from the Family <span class="optional">(optional)</span></label>
-                <input type="text" id="familyNotes" placeholder="e.g., Home-cooked meals preferred" maxlength="150">
-            </div>
-
-            <div class="form-group">
-                <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
-                <div class="form-hint">Help visitors find comforting meals to send your family</div>
-                <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
-                <div class="caterer-browser" id="catererBrowser" style="display:none;">
-                    <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
-                    <div class="caterer-grid" id="catererGrid">
-                        <p style="color:var(--sage-dark);text-align:center;padding:1rem;">Loading caterers...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hidden fields for backward compat -->
-            <input type="hidden" id="organizerPhone" value="">
-            <input type="hidden" id="organizerRelationship" value="Friend">
-            <input type="hidden" id="privacyToggle" value="">
-            <input type="hidden" id="specialInstructions" value="">
-            <input type="hidden" id="dropOffInstructions" value="">
-            <input type="hidden" id="buzzerUnit" value="">
-
-            <div class="form-error" id="step4Error"></div>
-
-            <div class="btn-row">
-                <button class="btn-secondary" id="skipDetailsBtn" onclick="showSuccess()">Skip &mdash; Share Now</button>
-                <button class="btn-primary" onclick="saveDetailsAndShow()">Save &amp; Share</button>
-            </div>
-        </div>
-
-        <!-- Old review step removed — page is created at step 3→4 -->
+        <!-- Step 4 removed — dietary & caterer moved to Step 2; remaining fields available via manage link -->
 
         <!-- Success State -->
         <div class="success-state" id="successState">
             <h2 id="successHeadline" style="margin-bottom:0.5rem;">Meal page is ready.</h2>
             <p style="margin-bottom:1.5rem; font-size:1.05rem; color:var(--sage-dark);">Share the link and friends can start signing up for meals.</p>
 
-            <button onclick="shareWhatsApp()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; max-width:340px; margin:0 auto 0.75rem; padding:0.85rem 1.5rem; border-radius:2rem; border:none; background:#25D366; color:white; font-family:'Source Serif 4',serif; font-size:1.1rem; font-weight:600; cursor:pointer;">
+            <button onclick="shareWhatsApp()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; max-width:340px; margin:0 auto 0.75rem; padding:0.85rem 1.5rem; border-radius:2rem; border:none; background:var(--terracotta); color:white; font-family:'Source Serif 4',serif; font-size:1.1rem; font-weight:600; cursor:pointer;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Send via WhatsApp
+                Share via WhatsApp
             </button>
 
             <div style="display:flex; gap:0.5rem; justify-content:center; margin-bottom:1.5rem;">
@@ -1263,7 +1242,7 @@
                 <button onclick="shareSMS()" style="padding:0.6rem 1.25rem; border-radius:2rem; border:1px solid var(--light-taupe); background:white; color:var(--dark-brown); font-family:'Source Serif 4',serif; font-size:0.95rem; cursor:pointer;">Text</button>
             </div>
 
-            <div style="background:var(--cream); border-radius:0.6rem; padding:1rem 1.25rem; max-width:380px; margin:0 auto 1.5rem; text-align:left; font-size:0.92rem; color:var(--dark-brown); line-height:1.7;">
+            <div style="background:var(--cream); border:1px solid var(--light-taupe); border-radius:0.75rem; padding:1rem 1.25rem; max-width:380px; margin:0 auto 1.5rem; text-align:left; font-size:0.92rem; color:var(--dark-brown); line-height:1.7;">
                 <strong>What happens next:</strong><br>
                 1. Friends click the link and sign up for a day<br>
                 2. You get notified as people sign up
@@ -1271,7 +1250,7 @@
 
             <a id="viewPageLink" href="#" style="display:inline-block; padding:0.65rem 1.75rem; border-radius:2rem; background:var(--terracotta); color:white; font-family:'Source Serif 4',serif; font-size:1rem; text-decoration:none; font-weight:500;">Open Your Page</a>
 
-            <p style="margin-top:1rem; font-size:0.88rem; color:var(--sage-dark);">Want to add the address or dietary needs? You can do that from your page anytime.</p>
+            <p style="margin-top:1rem; font-size:0.88rem; color:var(--sage-dark);">Want to add the address or other details? You can do that from your page anytime.</p>
 
             <p style="margin-top:1.25rem; font-size:0.85rem; color:var(--sage-dark);">Your management link is in your email. You won't lose it.</p>
 
@@ -1590,7 +1569,7 @@
             var display = document.getElementById('guestsPerMealDisplay');
             var val = Math.max(1, Math.min(200, (parseInt(input.value) || 20) + delta));
             input.value = val;
-            display.textContent = val;
+            if (display) display.textContent = val;
             buildMealSchedule(); // refresh badges
         };
 
@@ -1884,6 +1863,12 @@
                 if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
                 var errEl = document.getElementById('step3Error');
 
+                var restrictions = [];
+                document.querySelectorAll('input[name="dietaryRestriction"]:checked').forEach(function(cb) {
+                    restrictions.push(cb.value);
+                });
+                var dietNotes = (document.getElementById('dietaryNotes').value || '').trim();
+
                 var payload = {
                     family_name: document.getElementById('familyName').value.trim(),
                     shiva_start_date: document.getElementById('shivaStartDate').value,
@@ -1893,6 +1878,11 @@
                     privacy_consent: true,
                     guests_per_meal: 20,
                 };
+                var addrVal = (document.getElementById('shivaAddressInput').value || '').trim();
+                if (addrVal) payload.shiva_address = addrVal;
+                if (restrictions.length) payload.dietary_restrictions = restrictions;
+                if (dietNotes) payload.dietary_notes = dietNotes;
+                if (selectedVendors.length) payload.recommended_vendors = selectedVendors;
                 if (forceCreate) payload._skip_similar = true;
 
                 createSupport(payload, btn, errEl);
@@ -1904,7 +1894,7 @@
 
         function showStep(step) {
             // Hide all steps
-            for (var i = 1; i <= 4; i++) {
+            for (var i = 1; i <= 3; i++) {
                 var el = document.getElementById('step' + i);
                 if (el) el.classList.remove('active');
             }
@@ -1931,7 +1921,7 @@
             currentStep = step;
 
             // Show saved notes
-            var noteMap = {1: null, 2: 'step1SavedNote', 3: 'step2SavedNote', 4: 'step3SavedNote'};
+            var noteMap = {1: null, 2: 'step1SavedNote', 3: 'step2SavedNote'};
             var noteId = noteMap[step];
             if (noteId) {
                 var note = document.getElementById(noteId);
@@ -1976,7 +1966,7 @@
             if (restrictions.length) updateData.dietary_restrictions = restrictions;
 
             // Recommended vendors
-            if (selectedVendors.length) updateData.recommended_vendors = JSON.stringify(selectedVendors);
+            if (selectedVendors.length) updateData.recommended_vendors = selectedVendors;
 
             fetch('/api/shiva/' + encodeURIComponent(createdId), {
                 method: 'PUT',
@@ -2198,7 +2188,7 @@
         // ── Show Success State ──────────────────────────
         function showSuccess() {
             // Hide all steps and stepper
-            for (var i = 1; i <= 4; i++) {
+            for (var i = 1; i <= 3; i++) {
                 var el = document.getElementById('step' + i);
                 if (el) el.classList.remove('active');
             }
@@ -2340,21 +2330,42 @@
 
         function getFilteredVendors() {
             var city = document.getElementById('shivaCity').value;
-            if (!city || !cityKeywords[city] || !vendorData.length) {
-                return { vendors: vendorData, isFiltered: false };
-            }
-            var keywords = cityKeywords[city];
-            var filtered = vendorData.filter(function(v) {
-                var haystack = ((v.neighborhood || '') + ' ' + (v.delivery_area || '')).toLowerCase();
-                for (var i = 0; i < keywords.length; i++) {
-                    if (haystack.indexOf(keywords[i]) !== -1) return true;
+            var vendors = vendorData.slice();
+            var isFiltered = false;
+
+            // Filter by city
+            if (city && cityKeywords[city] && cityKeywords[city].length > 0) {
+                var keywords = cityKeywords[city];
+                var cityFiltered = vendors.filter(function(v) {
+                    var haystack = ((v.neighborhood || '') + ' ' + (v.delivery_area || '')).toLowerCase();
+                    for (var i = 0; i < keywords.length; i++) {
+                        if (haystack.indexOf(keywords[i]) !== -1) return true;
+                    }
+                    return false;
+                });
+                if (cityFiltered.length > 0) {
+                    vendors = cityFiltered;
+                    isFiltered = true;
                 }
-                return false;
-            });
-            if (filtered.length === 0) {
-                return { vendors: vendorData, isFiltered: false };
             }
-            return { vendors: filtered, isFiltered: true };
+
+            // Sort by dietary match — kosher-certified first if kosher is checked
+            var dietaryChecked = [];
+            document.querySelectorAll('input[name="dietaryRestriction"]:checked').forEach(function(cb) {
+                dietaryChecked.push(cb.value);
+            });
+            if (dietaryChecked.indexOf('kosher') >= 0) {
+                vendors.sort(function(a, b) {
+                    var aKosher = (a.kosher_status && a.kosher_status !== 'not_certified') ? 1 : 0;
+                    var bKosher = (b.kosher_status && b.kosher_status !== 'not_certified') ? 1 : 0;
+                    if (aKosher !== bKosher) return bKosher - aKosher;
+                    // Featured vendors next
+                    return (b.featured || 0) - (a.featured || 0);
+                });
+                isFiltered = true;
+            }
+
+            return { vendors: vendors, isFiltered: isFiltered };
         }
 
         window.toggleCatererBrowser = function() {
@@ -2433,6 +2444,30 @@
             }
             document.getElementById('catererCount').textContent = selectedVendors.length;
             renderVendorCards();
+        });
+
+        // Set city and re-filter caterers
+        window.setWizardCity = function(city, btn) {
+            document.getElementById('shivaCity').value = city;
+            // Update button styles
+            document.querySelectorAll('.city-toggle-btn').forEach(function(b) {
+                b.style.background = 'white';
+                b.style.color = 'var(--dark-brown)';
+                b.style.borderColor = 'var(--light-taupe)';
+                b.classList.remove('active');
+            });
+            btn.style.background = 'var(--terracotta)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--terracotta)';
+            btn.classList.add('active');
+            if (vendorData.length) renderVendorCards();
+        };
+
+        // Re-render caterer list when dietary checkboxes change
+        document.querySelectorAll('input[name="dietaryRestriction"]').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                if (vendorData.length) renderVendorCards();
+            });
         });
 
         // ── Initialize ──────────────────────────────────

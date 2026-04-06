@@ -1115,7 +1115,9 @@
             #thankYouSection,
             #donationPromptSection,
             #passHostSection,
-            #extendDatesSection {
+            #dietaryEditSection,
+            #extendDatesSection,
+            #recommendCaterersSection {
                 order: 10;
             }
             /* Tighten calendar section */
@@ -1266,6 +1268,7 @@
             #thankYouSection,
             #donationPromptSection,
             #passHostSection,
+            #dietaryEditSection,
             #extendDatesSection,
             #updatesFeed,
             #privateNotice,
@@ -1675,16 +1678,11 @@
             <p id="organizerUpdateText" style="font-size: 0.95rem; color: var(--dark-brown); line-height: 1.5;"></p>
         </div>
 
-        <!-- Organizer Edit Section (organizer only) -->
-        <div id="organizerEditSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Post an Update or Thank You</h3>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share a note with visitors - a thank you, meal preference update, or any message.</p>
-            <textarea id="organizerUpdateInput" placeholder="e.g., Thank you so much for the outpouring of support. The family is truly grateful..." maxlength="280" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                <span id="updateCharCount" style="font-size: 0.8rem; color: var(--sage-dark);">0 / 280</span>
-                <button id="saveUpdateBtn" onclick="saveOrganizerUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Save Update</button>
-            </div>
-            <div id="updateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update saved!</div>
+        <!-- Organizer Edit Section — hidden, functionality merged into postUpdateSection -->
+        <div id="organizerEditSection" style="display: none;">
+            <textarea id="organizerUpdateInput" style="display:none;"></textarea>
+            <span id="updateCharCount" style="display:none;"></span>
+            <div id="updateSuccess" style="display:none;"></div>
         </div>
 
         <!-- V2: Drop-off Instructions (organizer only) -->
@@ -1757,6 +1755,39 @@
             <div id="passHostError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
         </div>
 
+        <!-- Dietary Preferences Edit (organizer only) -->
+        <div id="dietaryEditSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Dietary Preferences</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Update dietary needs so volunteers know what to bring.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryKosher" value="kosher" style="width: 1.1rem; height: 1.1rem;"> Kosher
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryVegetarian" value="vegetarian" style="width: 1.1rem; height: 1.1rem;"> Vegetarian
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryVegan" value="vegan" style="width: 1.1rem; height: 1.1rem;"> Vegan
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryGlutenFree" value="gluten_free" style="width: 1.1rem; height: 1.1rem;"> Gluten-free
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryNutFree" value="nut_free" style="width: 1.1rem; height: 1.1rem;"> Nut-free
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="dietaryDairyFree" value="dairy_free" style="width: 1.1rem; height: 1.1rem;"> Dairy-free
+                </label>
+            </div>
+            <label style="display: block; font-size: 0.92rem; color: var(--dark-brown); font-weight: 500; margin-bottom: 0.4rem;">Other Dietary Notes</label>
+            <input type="text" id="dietaryNotesInput" placeholder="e.g., 3 lactose intolerant, no shellfish" style="width: 100%; padding: 0.6rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); box-sizing: border-box;">
+            <div style="text-align: right; margin-top: 0.75rem;">
+                <button id="saveDietaryBtn" onclick="saveDietaryPreferences()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save</button>
+            </div>
+            <div id="dietarySuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dietary preferences saved!</div>
+            <div id="dietaryError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
         <!-- V5: Extend Shiva Dates (organizer only) -->
         <div id="extendDatesSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Extend Meal Coordination</h3>
@@ -1769,6 +1800,24 @@
             <p id="extendDatesCurrentInfo" style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.6rem;"></p>
             <div id="extendDatesSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
             <div id="extendDatesError" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
+        <!-- V6: Recommend Caterers (organizer only) -->
+        <div id="recommendCaterersSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.25rem;">Recommend Caterers</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5;">Help visitors find meals to send your family</p>
+            <div id="selectedCatererTags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
+            <button id="browseCaterersBtn" onclick="toggleCatererBrowser()" style="background: none; border: 2px solid var(--terracotta); color: var(--terracotta); padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.92rem; cursor: pointer; transition: all 0.2s;">Browse Caterers</button>
+            <div id="catererBrowserGrid" style="display: none; margin-top: 1rem;">
+                <div id="catererBrowserLoading" style="text-align: center; color: var(--sage-dark); font-size: 0.9rem; padding: 1rem;">Loading caterers...</div>
+                <div id="catererBrowserCards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem;"></div>
+                <p id="catererLimitMsg" style="display: none; font-size: 0.82rem; color: var(--terracotta); margin-top: 0.5rem; text-align: center;">Maximum 5 caterers selected</p>
+            </div>
+            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <button id="saveCaterersBtn" onclick="saveRecommendedCaterers()" style="display: none; background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Save Recommendations</button>
+                <span id="saveCaterersSuccess" style="display: none; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Saved!</span>
+                <span id="saveCaterersError" style="display: none; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></span>
+            </div>
         </div>
 
         <!-- V3: Updates Feed (visible to all visitors) -->
@@ -1862,13 +1911,13 @@
             <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--sage-dark); text-align: center; margin-bottom: 0.75rem;">Can't cook or too far away?</p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;">
                 <a id="cantCookDirectoryLink" href="/help/food" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#127869;</span> Send a meal from a local vendor
+                    Order a meal from a local caterer
                 </a>
                 <a href="/help/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#127873;</span> Send a gift card
+                    Send a gift card
                 </a>
                 <a href="/help/gifts" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#10084;&#65039;</span> Send something thoughtful
+                    Send something thoughtful
                 </a>
             </div>
         </div>
@@ -1940,10 +1989,6 @@
             <div id="signupFormView">
                 <h2>Sign Up to Bring a Meal</h2>
                 <p class="modal-subtitle" id="modalSubtitle"></p>
-                <div style="background: var(--cream); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
-                    When you sign up, the family and the organizer will see your name and what you're bringing — so meals don't overlap and every day is covered.
-                    <strong style="display:block; margin-top:0.5rem; color: var(--dark-brown);">You can't break anything — just fill in what you know.</strong>
-                </div>
 
                 <div class="form-group">
                     <label for="volName">Your Name</label>
@@ -1963,16 +2008,8 @@
                     <input type="text" id="mealCustom" placeholder="Or describe what you're bringing..." style="margin-top: 0.5rem;">
                 </div>
 
-                <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
-                    Need ideas? <a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse local caterers</a> or explore our <a href="/help/food" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">trusted food partners</a> for shiva meals.
-                </div>
-
-                <div class="form-group" id="servingsDisplay">
-                    <label>Servings requested by family</label>
-                    <div class="servings-row">
-                        <span class="servings-value" id="servingsValue" style="font-weight:600;">Loading...</span>
-                    </div>
-                    <p style="font-size:0.82rem; color:var(--sage-dark); margin:0.3rem 0 0 0;">Set by the organizer — please prepare this many servings.</p>
+                <div class="form-group" id="servingsDisplay" style="font-size:0.9rem;color:var(--sage-dark);margin-bottom:0.75rem;">
+                    <span id="servingsValue" style="font-weight:600;"></span> requested
                 </div>
 
                 <div class="form-group">
@@ -1985,51 +2022,36 @@
                     <input type="tel" id="volPhone" placeholder="(416) 555-0123" autocomplete="tel">
                 </div>
 
-                <!-- Additional Families -->
-                <div id="addFamilySection" style="margin-bottom: 1rem;">
-                    <button type="button" id="addFamilyBtn" style="display: inline-flex; align-items: center; gap: 0.3rem; background: none; border: none; color: var(--terracotta); font-size: 0.9rem; font-weight: 500; cursor: pointer; padding: 0.25rem 0; font-family: inherit;">
-                        + Add another family to this meal
-                    </button>
-                    <div id="additionalFamilies" style="margin-top: 0.5rem;"></div>
+                <!-- Hidden: additional families (keep DOM for JS compatibility) -->
+                <div id="addFamilySection" style="display:none;">
+                    <button type="button" id="addFamilyBtn">+ Add another family</button>
+                    <div id="additionalFamilies"></div>
                 </div>
 
-                <!-- Alternative Contribution Toggle -->
-                <div id="altContribSection" style="background: var(--cream); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--light-taupe);">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <input type="checkbox" id="volAlternative" style="width: 1.1rem; height: 1.1rem; accent-color: var(--terracotta);">
-                        <label for="volAlternative" style="font-size: 0.95rem; font-weight: 600; color: var(--dark-brown); cursor: pointer;">
-                            I'd rather send something thoughtful instead of cooking
+                <!-- Alternative: not cooking -->
+                <div id="altContribSection" style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="volAlternative" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
+                        <label for="volAlternative" style="font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
+                            Not cooking — I'll order or send something instead
                         </label>
                     </div>
-                    <div id="altOptions" style="display: none; margin-top: 0.75rem;">
-                        <div class="form-group" style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.85rem;">What would you like to send?</label>
-                            <select id="altType" style="width: 100%; padding: 0.6rem 0.75rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; background: white; color: var(--dark-brown);">
-                                <option value="vendor_meal">Vendor meal delivery</option>
-                                <option value="gift_card">Gift card</option>
-                                <option value="gift_basket">Gift basket</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0.5rem;">
-                            <label style="font-size: 0.85rem;">Note <span class="optional">(optional)</span></label>
-                            <input type="text" id="altNote" placeholder="e.g., Uber Eats gift card, $50">
-                        </div>
-                        <a href="/help/gifts" target="_blank" style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">
-                            Browse gift options &#8594;
-                        </a>
+                    <div id="altOptions" style="display: none; margin-top: 0.5rem; padding-left: 1.5rem;">
+                        <input type="text" id="altNote" placeholder="e.g., Ordering from Nortown, sending a DoorDash card" style="width:100%;font-size:0.9rem;">
+                        <select id="altType" style="display:none;"><option value="vendor_meal">vendor_meal</option><option value="gift_card">gift_card</option><option value="gift_basket">gift_basket</option></select>
                     </div>
                 </div>
 
-                <div class="consent-row" style="margin-bottom: 0.75rem;">
+                <div class="consent-row" style="margin-bottom: 0.5rem;">
                     <input type="checkbox" id="volWillServe">
-                    <label for="volWillServe" style="color: var(--dark-brown);">
-                        I can also help serve this meal <span style="color: var(--sage-dark); font-size: 0.88rem;">(set up, serve guests, clean up)</span>
+                    <label for="volWillServe" style="color: var(--sage-dark); font-size: 0.88rem;">
+                        I can also help serve (set up, clean up)
                     </label>
                 </div>
 
                 <div class="consent-row">
                     <input type="checkbox" id="volConsent">
-                    <label for="volConsent">
+                    <label for="volConsent" style="font-size: 0.88rem;">
                         I consent to sharing my details with the family.
                         <a href="/privacy" target="_blank">Privacy Policy</a>
                     </label>
@@ -2057,7 +2079,7 @@
                     </div>
 
                     <a class="calendar-link" id="googleCalLink" href="#" target="_blank" rel="noopener noreferrer">
-                        &#x1F4C5; Add to Google Calendar
+                        Add to Google Calendar
                     </a>
 
                     <p style="text-align:center;margin-top:1.25rem;font-size:0.95rem;color:var(--sage-dark);font-style:italic;">
@@ -2072,7 +2094,12 @@
                     <div id="subscribeOptIn" style="margin-top:1.25rem; padding:1rem; background:var(--cream); border-radius:0.6rem; text-align:left;">
                         <label style="display:flex; align-items:flex-start; gap:0.6rem; cursor:pointer; font-size:0.9rem; color:var(--dark-brown); line-height:1.5;">
                             <input type="checkbox" id="volSubscribe" style="margin-top:0.25rem; min-width:18px; min-height:18px;">
-                            <span>Get notified about obituaries and shiva listings in your community. You can unsubscribe anytime.</span>
+                            <span>Get notified about obituaries and shiva listings in
+                                <select id="volSubscribeCity" style="font-family:'Source Serif 4',serif; font-size:0.9rem; border:1px solid var(--light-taupe); border-radius:0.25rem; padding:0.15rem 0.3rem; color:var(--dark-brown); background:white;">
+                                    <option value="Toronto">Toronto</option>
+                                    <option value="Montreal">Montreal</option>
+                                </select>.
+                                You can unsubscribe anytime.</span>
                         </label>
                     </div>
 
@@ -2151,6 +2178,7 @@
         var isPrivateLimited = false;
         var lastSignupAddress = null;
         var mealOverrides = {};
+        var blockedMealsSet = {};
 
         function getMealOverride(date, mealType) {
             return mealOverrides[date + '_' + mealType] || {};
@@ -2495,6 +2523,32 @@
                     document.getElementById('passHostSection').style.display = '';
                 }
 
+                // Dietary Preferences section
+                document.getElementById('dietaryEditSection').style.display = '';
+                try {
+                    var dietaryRaw = supportData.dietary_restrictions;
+                    var dietaryArr = [];
+                    if (typeof dietaryRaw === 'string' && dietaryRaw) {
+                        dietaryArr = JSON.parse(dietaryRaw);
+                    } else if (Array.isArray(dietaryRaw)) {
+                        dietaryArr = dietaryRaw;
+                    }
+                    var dietaryMap = {
+                        'kosher': 'dietaryKosher',
+                        'vegetarian': 'dietaryVegetarian',
+                        'vegan': 'dietaryVegan',
+                        'gluten_free': 'dietaryGlutenFree',
+                        'nut_free': 'dietaryNutFree',
+                        'dairy_free': 'dietaryDairyFree'
+                    };
+                    for (var key in dietaryMap) {
+                        var el = document.getElementById(dietaryMap[key]);
+                        if (el) el.checked = dietaryArr.indexOf(key) !== -1;
+                    }
+                } catch(e) { console.error('Error parsing dietary_restrictions:', e); }
+                var dietaryNotesEl = document.getElementById('dietaryNotesInput');
+                if (dietaryNotesEl) dietaryNotesEl.value = supportData.dietary_notes || '';
+
                 // V5: Extend Dates section
                 document.getElementById('extendDatesSection').style.display = '';
                 var extendPicker = document.getElementById('extendDatePicker');
@@ -2515,6 +2569,9 @@
                 } catch(e) {}
                 document.getElementById('extendDatesCurrentInfo').textContent =
                     'Currently ends: ' + formatDate(supportData.shiva_end_date) + '. You may extend up to 30 days.';
+
+                // V6: Recommend Caterers section
+                initRecommendCaterersSection();
             }
 
             // Address for organizer
@@ -2615,6 +2672,84 @@
             .catch(function() {
                 btn.disabled = false;
                 btn.textContent = 'Save Update';
+            });
+        };
+
+        // ── Global Guests Per Meal ────────────────────────
+        var _globalGuests = 20;
+        window.adjustGlobalGuests = function(delta) {
+            var el = document.getElementById('globalGuestsDisplay');
+            if (!el) return;
+            _globalGuests = Math.max(1, Math.min(200, (parseInt(el.textContent) || 20) + delta));
+            el.textContent = _globalGuests;
+        };
+        window.saveGlobalGuests = function() {
+            var el = document.getElementById('globalGuestsDisplay');
+            var val = parseInt(el.textContent) || 20;
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: organizerToken, guests_per_meal: val })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.status === 'success') {
+                    supportData.guests_per_meal = val;
+                    currentServings = val;
+                    var s = document.getElementById('globalGuestsSuccess');
+                    if (s) { s.style.display = ''; setTimeout(function() { s.style.display = 'none'; }, 2000); }
+                }
+            })
+            .catch(function(e) { console.error('Failed to save guests:', e); });
+        };
+
+        // ── Save Dietary Preferences ─────────────────────
+        window.saveDietaryPreferences = function() {
+            var btn = document.getElementById('saveDietaryBtn');
+            var successEl = document.getElementById('dietarySuccess');
+            var errorEl = document.getElementById('dietaryError');
+            var checkboxIds = ['dietaryKosher', 'dietaryVegetarian', 'dietaryVegan', 'dietaryGlutenFree', 'dietaryNutFree', 'dietaryDairyFree'];
+            var selected = [];
+            for (var i = 0; i < checkboxIds.length; i++) {
+                var cb = document.getElementById(checkboxIds[i]);
+                if (cb && cb.checked) selected.push(cb.value);
+            }
+            var notes = document.getElementById('dietaryNotesInput').value.trim();
+
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: organizerToken,
+                    dietary_restrictions: selected,
+                    dietary_notes: notes
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Save';
+                if (result.status === 'success') {
+                    successEl.style.display = '';
+                    setTimeout(function() { successEl.style.display = 'none'; }, 3000);
+                    supportData.dietary_restrictions = selected;
+                    supportData.dietary_notes = notes;
+                } else {
+                    errorEl.textContent = result.message || 'Could not save dietary preferences.';
+                    errorEl.style.display = '';
+                }
+            })
+            .catch(function(err) {
+                console.error('Error saving dietary preferences:', err);
+                btn.disabled = false;
+                btn.textContent = 'Save';
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = '';
             });
         };
 
@@ -2864,10 +2999,10 @@
             shareMenu.id = 'shareMenu';
             shareMenu.style.cssText = 'display:none; position:absolute; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(62,39,35,0.15); padding:0.5rem; margin-top:0.5rem; z-index:50; min-width:200px;';
             var shareOptions = [
-                { label: 'WhatsApp', icon: '\uD83D\uDCAC', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppMessage), '_blank'); } },
-                { label: 'Email', icon: '\u2709\uFE0F', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody); } },
-                { label: 'Text Message', icon: '\uD83D\uDCF1', action: function() { var ua = navigator.userAgent; var sep = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?'; window.location.href = 'sms:' + sep + 'body=' + encodeURIComponent(smsMessage); } },
-                { label: 'Copy Link', icon: '\uD83D\uDD17', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
+                { label: 'WhatsApp', icon: '', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppMessage), '_blank'); } },
+                { label: 'Email', icon: '', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody); } },
+                { label: 'Text Message', icon: '', action: function() { var ua = navigator.userAgent; var sep = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?'; window.location.href = 'sms:' + sep + 'body=' + encodeURIComponent(smsMessage); } },
+                { label: 'Copy Link', icon: '', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
             ];
             shareOptions.forEach(function(opt) {
                 var btn = document.createElement('button');
@@ -2904,12 +3039,19 @@
             if (!link || !supportData) return;
             var city = supportData.shiva_city;
             var subArea = supportData.shiva_sub_area;
-            if (city || subArea) {
-                var params = [];
-                if (city) params.push('city=' + encodeURIComponent(city));
-                if (subArea) params.push('area=' + encodeURIComponent(subArea));
-                link.href = '/help/food?' + params.join('&');
+            var params = [];
+            if (city) params.push('city=' + encodeURIComponent(city));
+            if (subArea) params.push('area=' + encodeURIComponent(subArea));
+            if (supportData.dietary_restrictions) {
+                try {
+                    var restrictions = typeof supportData.dietary_restrictions === 'string'
+                        ? JSON.parse(supportData.dietary_restrictions) : supportData.dietary_restrictions;
+                    if (Array.isArray(restrictions) && restrictions.indexOf('kosher') >= 0) {
+                        params.push('kosher=1');
+                    }
+                } catch(e) {}
             }
+            if (params.length) link.href = '/help/food?' + params.join('&');
         }
 
         // ── Render Info Cards ───────────────────────────
@@ -2919,7 +3061,17 @@
             if (supportData.guests_per_meal) {
                 html += '<div class="info-card"><h3>Guests per Meal</h3><p>' +
                     escapeHtml(String(supportData.guests_per_meal)) +
-                    ' people expected</p></div>';
+                    ' people expected</p>';
+                if (isOrganizerMode) {
+                    html += '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">' +
+                        '<button type="button" onclick="adjustGlobalGuests(-1)" style="width:32px;height:32px;border:1px solid var(--light-taupe);border-radius:50%;background:white;font-size:1.1rem;cursor:pointer;color:var(--dark-brown);">-</button>' +
+                        '<span id="globalGuestsDisplay" style="font-weight:600;min-width:2rem;text-align:center;">' + (supportData.guests_per_meal || 20) + '</span>' +
+                        '<button type="button" onclick="adjustGlobalGuests(1)" style="width:32px;height:32px;border:1px solid var(--light-taupe);border-radius:50%;background:white;font-size:1.1rem;cursor:pointer;color:var(--dark-brown);">+</button>' +
+                        '<button type="button" onclick="saveGlobalGuests()" style="margin-left:0.5rem;padding:0.3rem 0.8rem;border:none;border-radius:1rem;background:var(--terracotta);color:white;font-size:0.8rem;cursor:pointer;">Save</button>' +
+                        '<span id="globalGuestsSuccess" style="display:none;font-size:0.8rem;color:var(--green-text);">Saved</span>' +
+                        '</div>';
+                }
+                html += '</div>';
             }
             // Structured dietary restrictions (V6)
             var dietaryLabels = { kosher: 'Kosher', vegetarian: 'Vegetarian', vegan: 'Vegan', gluten_free: 'Gluten-free', nut_free: 'Nut-free', dairy_free: 'Dairy-free' };
@@ -2969,15 +3121,110 @@
             }
 
             if (!slugs || !slugs.length) {
-                // Show generic fallback
-                section.className = 'caterer-section';
+                // Auto-surface featured vendors from the family's city
                 var catererLink = '/help/food' + (supportData.shiva_city ? '?city=' + encodeURIComponent(supportData.shiva_city) : '');
-                section.innerHTML =
-                    '<h2 class="section-heading">Need Meal Ideas?</h2>' +
-                    '<div class="caterer-fallback">' +
-                    '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
-                    '</div>';
-                section.style.display = '';
+
+                if (!supportData.shiva_city) {
+                    // No city — show generic fallback
+                    section.className = 'caterer-section';
+                    section.innerHTML =
+                        '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                        '<div class="caterer-fallback">' +
+                        '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
+                        '</div>';
+                    section.style.display = '';
+                    return;
+                }
+
+                var featuredUrl = '/api/vendors?city=' + encodeURIComponent(supportData.shiva_city);
+                fetch(featuredUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (!result || result.status !== 'success' || !result.data) {
+                        // No data — show generic fallback
+                        section.className = 'caterer-section';
+                        section.innerHTML =
+                            '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                            '<div class="caterer-fallback">' +
+                            '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
+                            '</div>';
+                        section.style.display = '';
+                        return;
+                    }
+
+                    var featured = result.data.filter(function(v) { return v.featured === 1; });
+                    if (!featured.length) {
+                        // No featured vendors — show generic fallback
+                        section.className = 'caterer-section';
+                        section.innerHTML =
+                            '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                            '<div class="caterer-fallback">' +
+                            '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
+                            '</div>';
+                        section.style.display = '';
+                        return;
+                    }
+
+                    // If dietary restrictions exist, prioritize matching vendors
+                    var dietary = supportData.dietary_restrictions;
+                    if (dietary) {
+                        var dietaryLower = dietary.toLowerCase();
+                        featured.sort(function(a, b) {
+                            var aMatch = 0;
+                            var bMatch = 0;
+                            if (dietaryLower.indexOf('kosher') !== -1) {
+                                if (a.kosher_status && a.kosher_status !== 'not_certified') aMatch = 1;
+                                if (b.kosher_status && b.kosher_status !== 'not_certified') bMatch = 1;
+                            }
+                            return bMatch - aMatch;
+                        });
+                    }
+
+                    // Show up to 4 featured vendor cards
+                    var toShow = featured.slice(0, 4);
+
+                    var html = '<h2 class="section-heading">Local Caterers Ready to Help</h2>';
+                    html += '<p style="text-align:center;color:var(--sage-dark);font-size:0.95rem;margin-top:-0.75rem;">Featured caterers in ' + escapeHtml(supportData.shiva_city) + '</p>';
+                    html += '<div class="caterer-grid">';
+
+                    toShow.forEach(function(v) {
+                        var dest = v.website || ('/directory/' + encodeURIComponent(v.slug));
+                        var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
+                            '&dest=' + encodeURIComponent(dest);
+
+                        html += '<a class="caterer-rec-card" href="' + escapeHtml(trackUrl) +
+                            '" target="_blank" rel="noopener noreferrer">';
+                        html += '<div class="caterer-rec-name">' + escapeHtml(v.name) + '</div>';
+                        if (v.neighborhood) {
+                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
+                        }
+                        if (v.kosher_status && v.kosher_status !== 'not_certified') {
+                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
+                        }
+                        if (v.phone) {
+                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.phone) + '</div>';
+                        }
+                        html += '</a>';
+                    });
+
+                    html += '</div>';
+                    html += '<div class="caterer-fallback"><a href="' + catererLink + '">Browse all caterers &#8594;</a></div>';
+
+                    section.className = 'caterer-section';
+                    section.innerHTML = html;
+                    section.style.display = '';
+                })
+                .catch(function(err) {
+                    console.error('Failed to load featured caterers:', err);
+                    // On error — show generic fallback
+                    section.className = 'caterer-section';
+                    section.innerHTML =
+                        '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                        '<div class="caterer-fallback">' +
+                        '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
+                        '</div>';
+                    section.style.display = '';
+                });
                 return;
             }
 
@@ -3012,7 +3259,7 @@
                     if (v.neighborhood) {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
                     }
-                    if (v.kosher_status) {
+                    if (v.kosher_status && v.kosher_status !== 'not_certified') {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
                     }
                     if (v.phone) {
@@ -3030,6 +3277,199 @@
             })
             .catch(function() {
                 // Silently fail - not critical
+            });
+        }
+
+        // ── Recommend Caterers (Organizer) ──────────────
+
+        var selectedCatererSlugs = [];
+        var availableCaterers = [];
+        var catererBrowserOpen = false;
+
+        window.toggleCatererBrowser = function() {
+            var grid = document.getElementById('catererBrowserGrid');
+            catererBrowserOpen = !catererBrowserOpen;
+            grid.style.display = catererBrowserOpen ? '' : 'none';
+            document.getElementById('browseCaterersBtn').textContent =
+                catererBrowserOpen ? 'Hide Caterers' : 'Browse Caterers';
+
+            if (catererBrowserOpen && availableCaterers.length === 0) {
+                loadAvailableCaterers();
+            }
+        };
+
+        function loadAvailableCaterers() {
+            var url = '/api/vendors';
+            if (supportData.shiva_city) {
+                url += '?city=' + encodeURIComponent(supportData.shiva_city);
+            }
+            document.getElementById('catererBrowserLoading').style.display = '';
+            document.getElementById('catererBrowserCards').innerHTML = '';
+
+            fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                document.getElementById('catererBrowserLoading').style.display = 'none';
+                if (!result || result.status !== 'success' || !result.data || !result.data.length) {
+                    document.getElementById('catererBrowserCards').innerHTML =
+                        '<p style="grid-column: 1/-1; text-align: center; color: var(--sage-dark); font-size: 0.9rem;">No caterers found in this area yet.</p>';
+                    return;
+                }
+                availableCaterers = result.data;
+                renderCatererBrowserCards();
+            })
+            .catch(function(err) {
+                console.error('Failed to load caterers:', err);
+                document.getElementById('catererBrowserLoading').style.display = 'none';
+                document.getElementById('catererBrowserCards').innerHTML =
+                    '<p style="grid-column: 1/-1; text-align: center; color: #d32f2f; font-size: 0.9rem;">Could not load caterers. Please try again.</p>';
+            });
+        }
+
+        function renderCatererBrowserCards() {
+            var container = document.getElementById('catererBrowserCards');
+            var html = '';
+            availableCaterers.forEach(function(v) {
+                var isSelected = selectedCatererSlugs.indexOf(v.slug) !== -1;
+                html += '<div onclick="toggleCatererSelection(\'' + escapeHtml(v.slug) + '\')"' +
+                    ' style="border: 2px solid ' + (isSelected ? 'var(--terracotta)' : 'var(--light-taupe)') +
+                    '; background: ' + (isSelected ? 'rgba(210,105,30,0.06)' : 'var(--cream)') +
+                    '; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s;' +
+                    ((!isSelected && selectedCatererSlugs.length >= 5) ? ' opacity: 0.4; pointer-events: none;' : '') +
+                    '">';
+                html += '<div style="font-family: \'Cormorant Garamond\', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.25rem;">' + escapeHtml(v.name) + '</div>';
+                if (v.neighborhood) {
+                    html += '<div style="font-size: 0.82rem; color: var(--sage-dark);">' + escapeHtml(v.neighborhood) + '</div>';
+                }
+                if (v.kosher_status && v.kosher_status !== 'not_certified') {
+                    html += '<div style="font-size: 0.82rem; color: var(--sage-dark);">' + escapeHtml(v.kosher_status) + '</div>';
+                }
+                if (isSelected) {
+                    html += '<div style="font-size: 0.78rem; color: var(--terracotta); font-weight: 600; margin-top: 0.3rem;">&#10003; Selected</div>';
+                }
+                html += '</div>';
+            });
+            container.innerHTML = html;
+            document.getElementById('catererLimitMsg').style.display =
+                selectedCatererSlugs.length >= 5 ? '' : 'none';
+        }
+
+        window.toggleCatererSelection = function(slug) {
+            var idx = selectedCatererSlugs.indexOf(slug);
+            if (idx !== -1) {
+                selectedCatererSlugs.splice(idx, 1);
+            } else {
+                if (selectedCatererSlugs.length >= 5) return;
+                selectedCatererSlugs.push(slug);
+            }
+            renderSelectedCatererTags();
+            renderCatererBrowserCards();
+            document.getElementById('saveCaterersBtn').style.display = '';
+            document.getElementById('saveCaterersSuccess').style.display = 'none';
+            document.getElementById('saveCaterersError').style.display = 'none';
+        };
+
+        window.removeCatererTag = function(slug) {
+            var idx = selectedCatererSlugs.indexOf(slug);
+            if (idx !== -1) selectedCatererSlugs.splice(idx, 1);
+            renderSelectedCatererTags();
+            if (catererBrowserOpen) renderCatererBrowserCards();
+            document.getElementById('saveCaterersBtn').style.display = '';
+            document.getElementById('saveCaterersSuccess').style.display = 'none';
+        };
+
+        function renderSelectedCatererTags() {
+            var container = document.getElementById('selectedCatererTags');
+            if (!selectedCatererSlugs.length) {
+                container.innerHTML = '<span style="font-size: 0.85rem; color: var(--sage-dark); font-style: italic;">No caterers selected yet</span>';
+                return;
+            }
+            var html = '';
+            selectedCatererSlugs.forEach(function(slug) {
+                var name = slug;
+                for (var i = 0; i < availableCaterers.length; i++) {
+                    if (availableCaterers[i].slug === slug) {
+                        name = availableCaterers[i].name;
+                        break;
+                    }
+                }
+                html += '<span style="display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(210,105,30,0.08); border: 1px solid var(--terracotta); border-radius: 2rem; padding: 0.3rem 0.75rem; font-size: 0.85rem; color: var(--dark-brown);">' +
+                    escapeHtml(name) +
+                    ' <span onclick="removeCatererTag(\'' + escapeHtml(slug) + '\')" style="cursor: pointer; color: var(--terracotta); font-weight: 700; font-size: 1rem; line-height: 1;">&times;</span>' +
+                    '</span>';
+            });
+            container.innerHTML = html;
+        }
+
+        window.saveRecommendedCaterers = function() {
+            var btn = document.getElementById('saveCaterersBtn');
+            var successEl = document.getElementById('saveCaterersSuccess');
+            var errorEl = document.getElementById('saveCaterersError');
+
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: organizerToken,
+                    recommended_vendors: selectedCatererSlugs
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Save Recommendations';
+                if (result.status === 'success') {
+                    successEl.style.display = '';
+                    btn.style.display = 'none';
+                    // Update local data and re-render volunteer view
+                    supportData.recommended_vendors = JSON.stringify(selectedCatererSlugs);
+                    renderRecommendedCaterers();
+                } else {
+                    errorEl.textContent = result.message || 'Could not save. Please try again.';
+                    errorEl.style.display = '';
+                }
+            })
+            .catch(function(err) {
+                console.error('Failed to save recommended caterers:', err);
+                btn.disabled = false;
+                btn.textContent = 'Save Recommendations';
+                errorEl.textContent = 'Could not save. Please try again.';
+                errorEl.style.display = '';
+            });
+        };
+
+        function initRecommendCaterersSection() {
+            // Parse existing selections
+            var raw = supportData.recommended_vendors;
+            selectedCatererSlugs = [];
+            if (raw) {
+                try { selectedCatererSlugs = JSON.parse(raw); } catch(e) {}
+            }
+            if (!Array.isArray(selectedCatererSlugs)) selectedCatererSlugs = [];
+
+            document.getElementById('recommendCaterersSection').style.display = '';
+            renderSelectedCatererTags();
+
+            // Pre-load caterers so tag names resolve even before browser is opened
+            var url = '/api/vendors';
+            if (supportData.shiva_city) {
+                url += '?city=' + encodeURIComponent(supportData.shiva_city);
+            }
+            fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result && result.status === 'success' && result.data) {
+                    availableCaterers = result.data;
+                    renderSelectedCatererTags();
+                }
+            })
+            .catch(function(err) {
+                console.error('Failed to pre-load caterers:', err);
             });
         }
 
@@ -3051,7 +3491,7 @@
             });
 
             // Parse blocked meals
-            var blockedMealsSet = {};
+            blockedMealsSet = {};
             try {
                 var blockedList = supportData.blocked_meals ? JSON.parse(supportData.blocked_meals) : [];
                 blockedList.forEach(function(bm) {
@@ -3247,6 +3687,14 @@
                         }
                     } catch(e) {}
                 }
+                // Show contact info to organizer
+                if (isOrganizerMode && (signup.volunteer_email || signup.volunteer_phone)) {
+                    h += '<div style="font-size:0.75rem;color:var(--sage-dark);margin-top:0.15rem;">';
+                    if (signup.volunteer_email) h += escapeHtml(signup.volunteer_email);
+                    if (signup.volunteer_email && signup.volunteer_phone) h += ' &middot; ';
+                    if (signup.volunteer_phone) h += escapeHtml(signup.volunteer_phone);
+                    h += '</div>';
+                }
                 if (signup.will_serve) {
                     h += '<div class="vol-desc" style="color: var(--green-text); font-weight: 500;">will serve \u2713</div>';
                 }
@@ -3329,7 +3777,8 @@
         function openSignup(date, mealType) {
             selectedDate = date;
             selectedMealType = mealType;
-            currentServings = supportData.guests_per_meal || 20;
+            var ov = getMealOverride(date, mealType);
+            currentServings = ov.guests || supportData.guests_per_meal || 20;
 
             document.getElementById('modalSubtitle').textContent =
                 mealType + ' \u00b7 ' + formatDate(date);
@@ -3422,13 +3871,15 @@
             if (subBox && subBox.checked) {
                 var volEmail = document.getElementById('volEmail').value.trim().toLowerCase();
                 if (volEmail) {
+                    var subCity = document.getElementById('volSubscribeCity');
+                    var subLocation = (subCity && subCity.value) ? subCity.value.toLowerCase() : 'toronto';
                     fetch('/api/subscribe', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: volEmail,
                             frequency: 'daily',
-                            locations: 'toronto,montreal',
+                            locations: subLocation,
                             consent: true
                         })
                     }).catch(function() {}); // silent — don't block the close
@@ -3577,8 +4028,14 @@
             }
             document.getElementById('confirmSubtitle').textContent = confirmText;
 
-            document.getElementById('confirmAddrText').textContent = addrText;
-            document.getElementById('confirmInstructions').textContent = data.special_instructions || '';
+            var confirmAddr = document.getElementById('confirmAddress');
+            if (addrText && addrText.trim()) {
+                document.getElementById('confirmAddrText').textContent = addrText;
+                document.getElementById('confirmInstructions').textContent = data.special_instructions || '';
+                confirmAddr.style.display = '';
+            } else {
+                confirmAddr.style.display = 'none';
+            }
 
             // Calendar link
             document.getElementById('googleCalLink').href =
@@ -3654,6 +4111,22 @@
             html += '<h3 style="font-family:Cormorant Garamond,serif;font-size:1.3rem;color:#3E2723;margin:0 0 0.25rem 0;">' + mealType + ' &mdash; ' + formatDateShort(dateStr) + '</h3>';
             html += '<p style="font-size:0.85rem;color:#556258;margin:0 0 1rem 0;">Adjust this specific meal. Changes only affect this slot.</p>';
 
+            // Check if this meal is currently blocked
+            var blockedKey = dateStr + '_' + mealType;
+            var isCurrentlyBlocked = !!(blockedMealsSet && blockedMealsSet[blockedKey]);
+
+            html += '<div style="margin-bottom:1rem;padding:0.75rem;background:#f9f6f2;border-radius:0.5rem;border:1px solid #e8e0d8;">';
+            html += '<label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;font-size:0.9rem;font-weight:600;color:#3E2723;">';
+            html += '<input type="checkbox" id="mealEditNoNeed" onchange="toggleMealNeeded()" ' + (isCurrentlyBlocked ? 'checked' : '') + ' style="width:18px;height:18px;accent-color:#D2691E;cursor:pointer;">';
+            html += 'No meal needed for this slot';
+            html += '</label>';
+            html += '<p style="font-size:0.8rem;color:#556258;margin:0.3rem 0 0 2.1rem;">When checked, volunteers won\'t be able to sign up for this meal.</p>';
+            html += '</div>';
+
+            var fieldsDisabled = isCurrentlyBlocked ? 'opacity:0.4;pointer-events:none;' : '';
+
+            html += '<div id="mealEditFields" style="' + fieldsDisabled + '">';
+
             html += '<div style="margin-bottom:1rem;">';
             html += '<label style="font-size:0.9rem;font-weight:600;color:#3E2723;display:block;margin-bottom:0.3rem;">Guests for this meal</label>';
             html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
@@ -3677,6 +4150,8 @@
             });
             html += '</select></div>';
 
+            html += '</div>'; // close #mealEditFields
+
             html += '<div style="display:flex;gap:0.5rem;justify-content:flex-end;">';
             html += '<button type="button" onclick="closeMealEdit()" style="padding:0.5rem 1rem;border:1px solid #ddd;border-radius:2rem;background:white;cursor:pointer;font-size:0.9rem;">Cancel</button>';
             html += '<button type="button" onclick="saveMealEdit(\'' + dateStr + '\',\'' + mealType + '\')" style="padding:0.5rem 1.25rem;border:none;border-radius:2rem;background:#D2691E;color:white;cursor:pointer;font-size:0.9rem;font-weight:500;">Save</button>';
@@ -3684,6 +4159,19 @@
 
             document.body.insertAdjacentHTML('beforeend', html);
         }
+
+        window.toggleMealNeeded = function() {
+            var cb = document.getElementById('mealEditNoNeed');
+            var fields = document.getElementById('mealEditFields');
+            if (!cb || !fields) return;
+            if (cb.checked) {
+                fields.style.opacity = '0.4';
+                fields.style.pointerEvents = 'none';
+            } else {
+                fields.style.opacity = '1';
+                fields.style.pointerEvents = 'auto';
+            }
+        };
 
         window._mealEditGuests = 20;
         window.adjustMealEditGuests = function(delta) {
@@ -3700,6 +4188,9 @@
 
         window.saveMealEdit = function(dateStr, mealType) {
             var key = dateStr + '_' + mealType;
+            var noNeedChecked = document.getElementById('mealEditNoNeed') && document.getElementById('mealEditNoNeed').checked;
+
+            // Update meal overrides (guests, note, time) regardless
             var guests = parseInt(document.getElementById('mealEditGuests').textContent) || 20;
             var note = (document.getElementById('mealEditNote').value || '').trim();
             var servingTime = document.getElementById('mealEditTime').value || '';
@@ -3711,13 +4202,31 @@
 
             mealOverrides[key] = entry;
 
+            // Update blocked_meals list
+            var blockedList = [];
+            try {
+                blockedList = supportData.blocked_meals ? JSON.parse(supportData.blocked_meals) : [];
+                if (!Array.isArray(blockedList)) blockedList = [];
+            } catch(e) { blockedList = []; }
+
+            // Remove any existing entry for this date+meal_type
+            blockedList = blockedList.filter(function(bm) {
+                return !(bm.date === dateStr && bm.meal_type === mealType);
+            });
+
+            // Add it back if "no meal needed" is checked
+            if (noNeedChecked) {
+                blockedList.push({ date: dateStr, meal_type: mealType });
+            }
+
             // Save to server
             fetch('/api/shiva/' + encodeURIComponent(supportId), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     magic_token: organizerToken,
-                    meal_schedule: mealOverrides
+                    meal_schedule: mealOverrides,
+                    blocked_meals: blockedList
                 })
             })
             .then(function(r) { return r.json(); })
@@ -3726,6 +4235,12 @@
                 if (data.status === 'success') {
                     // Update local supportData and re-render
                     supportData.meal_schedule = JSON.stringify(mealOverrides);
+                    supportData.blocked_meals = JSON.stringify(blockedList);
+                    // Rebuild local blockedMealsSet
+                    blockedMealsSet = {};
+                    blockedList.forEach(function(bm) {
+                        blockedMealsSet[bm.date + '_' + bm.meal_type] = true;
+                    });
                     refreshMeals();
                 } else {
                     alert(data.message || 'Could not save. Please try again.');
@@ -3938,6 +4453,23 @@
                 btn.disabled = false;
                 btn.textContent = 'Post Update';
                 if (result.status === 'success') {
+                    // Also save as pinned organizer update (visible to all visitors)
+                    fetch('/api/shiva/' + encodeURIComponent(supportId), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: organizerToken, organizer_update: message })
+                    }).then(function(r) { return r.json(); }).then(function(d) {
+                        if (d.status === 'success') {
+                            supportData.organizer_update = message;
+                            var updateBox = document.getElementById('organizerUpdateBox');
+                            var updateText = document.getElementById('organizerUpdateText');
+                            if (updateBox && updateText) {
+                                updateText.textContent = message;
+                                updateBox.style.display = '';
+                            }
+                        }
+                    }).catch(function(e) { console.error('Failed to pin update:', e); });
+
                     input.value = '';
                     document.getElementById('emailUpdateCheckbox').checked = false;
                     successEl.textContent = emailVols ? 'Update posted and emailed to volunteers!' : 'Update posted!';
@@ -3946,7 +4478,8 @@
                     loadUpdatesFeed();
                 }
             })
-            .catch(function() {
+            .catch(function(e) {
+                console.error('Failed to post update:', e);
                 btn.disabled = false;
                 btn.textContent = 'Post Update';
             });

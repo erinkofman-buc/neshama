@@ -319,7 +319,6 @@ class NeshamaApp {
 
     renderCard(obit) {
         const timeAgo = this.getTimeAgo(obit.first_seen || obit.last_updated);
-        const tributeCount = this.tributeCounts[obit.id] || 0;
         const memorialUrl = this.getMemorialUrl(obit.id);
 
         const name = this.searchQuery
@@ -330,60 +329,32 @@ class NeshamaApp {
             ? this.highlightText(obit.hebrew_name, this.searchQuery)
             : obit.hebrew_name;
 
-        // Image area: rectangular photo or warm candle placeholder
+        // Image area: photo or warm initials placeholder
+        const initials = this.getInitials(obit.deceased_name);
         let imageArea = '';
         if (obit.photo_url) {
-            imageArea = '<div class="card-image"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML=\'<div class=card-placeholder>\ud83d\udd6f\ufe0f</div>\'"></div>';
+            imageArea = '<div class="card-image"><img src="' + this.escapeAttr(obit.photo_url) + '" alt="' + this.escapeAttr(obit.deceased_name) + '" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML=\'<div class=card-placeholder><span class=card-placeholder-initials>' + this.escapeAttr(initials) + '</span></div>\'"></div>';
         } else {
-            imageArea = '<div class="card-image"><div class="card-placeholder">\ud83d\udd6f\ufe0f</div></div>';
+            imageArea = '<div class="card-image"><div class="card-placeholder"><span class="card-placeholder-initials">' + this.escapeHtml(initials) + '</span></div></div>';
         }
 
-        // Funeral info line
+        // Funeral info line (no emoji)
         let funeralLine = '';
         if (obit.funeral_datetime) {
-            funeralLine = '<p class="card-funeral">\ud83d\udd4a\ufe0f ' + this.escapeHtml(obit.funeral_datetime) +
-                (obit.funeral_location ? ' \u00b7 ' + this.escapeHtml(obit.funeral_location) : '') + '</p>';
-        }
-
-        // Tribute count
-        let tributeText = tributeCount > 0
-            ? '<span class="card-tributes">' + this.svgIconHeart() + ' ' + tributeCount + '</span>'
-            : '<span class="card-tributes"></span>';
-
-        // Shiva support page button
-        let shivaBadge = '';
-        if (obit.has_shiva) {
-            var shivaUrl = '/shiva/' + (obit.shiva_id || obit.id);
-            shivaBadge = '<a href="' + shivaUrl + '" class="card-shiva-btn" onclick="event.stopPropagation()" title="Active shiva support page">' + this.svgIconShiva() + ' View Shiva Support Page \u2192</a>';
-        }
-
-        // Organize Shiva link (only when no active shiva page)
-        let organizeLink = '';
-        if (!obit.has_shiva) {
-            organizeLink = '<a href="/shiva/organize?obit=' + obit.id + '" class="card-organize-link" onclick="event.stopPropagation()" title="Set up meal coordination for this family">' + this.svgIconShiva() + ' Organize Shiva \u2192</a>';
+            funeralLine = '<p class="card-funeral">' + this.escapeHtml(obit.funeral_datetime) +
+                (obit.funeral_location ? ' &middot; ' + this.escapeHtml(obit.funeral_location) : '') + '</p>';
         }
 
         return '' +
             '<div class="obituary-card" data-id="' + obit.id + '">' +
                 imageArea +
                 '<div class="card-body">' +
-                    '<div class="card-source">' + this.escapeHtml(obit.source) + ' \u00b7 ' + timeAgo + '</div>' +
+                    '<div class="card-source">' + this.escapeHtml(obit.source) + ' &middot; ' + timeAgo + '</div>' +
                     '<h2 class="deceased-name">' + name + '</h2>' +
                     (hebrewName ? '<div class="hebrew-name">' + hebrewName + '</div>' : '') +
                     funeralLine +
                     '<div class="card-meta">' +
-                        tributeText +
-                        shivaBadge +
-                        organizeLink +
-                        '<div class="share-wrapper" onclick="event.stopPropagation()">' +
-                            '<button class="card-link share-toggle" onclick="window.app.toggleShareMenu(this)" type="button">Share &#x2197;</button>' +
-                            '<div class="share-menu">' +
-                                '<button class="share-option" data-action="whatsapp" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'whatsapp\')" type="button">\ud83d\udcac WhatsApp</button>' +
-                                '<button class="share-option" data-action="copy" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'copy\')" type="button">\ud83d\udd17 Copy Link</button>' +
-                                '<button class="share-option" data-action="email" onclick="window.app.handleShareAction(\'' + obit.id + '\', \'email\')" type="button">\u2709\ufe0f Email</button>' +
-                            '</div>' +
-                        '</div>' +
-                        '<a href="' + memorialUrl + '" class="card-link" onclick="event.stopPropagation()">View Memorial \u2192</a>' +
+                        '<a href="' + memorialUrl + '" class="card-link card-link-primary" onclick="event.stopPropagation()">View Memorial &rarr;</a>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -452,7 +423,6 @@ class NeshamaApp {
         if (this.searchQuery) {
             return '\
                 <div class="empty-state">\
-                    <div class="empty-state-icon">\ud83d\udd0d</div>\
                     <p class="empty-state-title">No results for "' + this.escapeHtml(this.searchQuery) + '"</p>\
                     <p class="empty-state-hint">Try a different spelling or check the other time tabs above.</p>\
                 </div>';
@@ -460,14 +430,12 @@ class NeshamaApp {
         if (this.currentTab === 'today') {
             return '\
                 <div class="empty-state">\
-                    <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
                     <p class="empty-state-title">The community is at rest.</p>\
                     <p class="empty-state-hint">Check back soon, or browse <strong>"This Week"</strong> or <strong>"This Month"</strong> above.</p>\
                 </div>';
         }
         return '\
             <div class="empty-state">\
-                <div class="empty-state-icon">\ud83d\udd4a\ufe0f</div>\
                 <p class="empty-state-title">The community is at rest.</p>\
                 <p class="empty-state-hint">Check back soon.</p>\
             </div>';
@@ -594,7 +562,7 @@ class NeshamaApp {
                 var btn = document.querySelector('.obituary-card[data-id="' + id + '"] .share-option[data-action="copy"]');
                 if (btn) {
                     var original = btn.textContent;
-                    btn.textContent = '\u2705 Copied!';
+                    btn.textContent = 'Copied!';
                     setTimeout(function() { btn.textContent = original; }, 2000);
                 }
             });
@@ -614,8 +582,7 @@ class NeshamaApp {
         var feed = document.getElementById('feed');
         feed.innerHTML = '\
             <div class="empty-state">\
-                <div class="empty-state-icon">\u26a0\ufe0f</div>\
-                <p>' + message + '</p>\
+                <p class="empty-state-title">' + message + '</p>\
                 <button onclick="window.app.loadData()" class="btn btn-secondary" style="margin-top:1rem;display:inline-block;">Try Again</button>\
             </div>';
     }

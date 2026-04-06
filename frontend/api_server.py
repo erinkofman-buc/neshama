@@ -867,10 +867,21 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             obituaries = [dict(row) for row in cursor.fetchall()]
             conn.close()
 
+            # Deduplicate same-source obituaries (same name + same funeral home).
+            # Keep the first occurrence (earliest in the result set, which is sorted by last_updated DESC).
+            # Cross-source duplicates (different funeral homes) are intentionally kept.
+            seen = set()
+            deduped = []
+            for obit in obituaries:
+                key = (obit.get('deceased_name', ''), obit.get('source', ''))
+                if key not in seen:
+                    seen.add(key)
+                    deduped.append(obit)
+
             self.send_json_response({
                 'status': 'success',
-                'data': obituaries,
-                'meta': {'total': len(obituaries)}
+                'data': deduped,
+                'meta': {'total': len(deduped)}
             })
         except Exception as e:
             self.send_error_response(str(e))
@@ -7266,6 +7277,16 @@ def run_server(port=None):
         total_changed += cursor.rowcount
         cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'jem-salads' AND featured != 1")
         total_changed += cursor.rowcount
+        # Migration 2026-04-05b: Feature Montreal vendors — Nosherz + Snowdon Deli
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'nosherz' AND featured != 1")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'snowdon-deli' AND featured != 1")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-04-05c: Same-source dedup DEFERRED
+        # Risk: scraper IDs are hash-based. Deleting by name match could cause
+        # re-insertion on next scrape run. Using API-level dedup instead (safe).
+        # TODO: Fix scraper to normalize names before hashing, then clean DB.
 
         conn.commit()
         conn.close()
