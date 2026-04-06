@@ -1701,6 +1701,26 @@ class ShivaManager:
 
         return matches[:5]  # Return at most 5 matches
 
+    def search_active_shivas(self, query):
+        """Search active shivas by family name (LIKE match).
+        Used for duplicate-family search endpoint."""
+        if not query or len(query.strip()) < 2:
+            return []
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, family_name, shiva_start_date, shiva_end_date, shiva_city
+            FROM shiva_support
+            WHERE status = 'active' AND family_name LIKE ?
+            ORDER BY created_at DESC
+            LIMIT 10
+        ''', (f'%{query.strip()}%',))
+        rows = cursor.fetchall()
+        conn.close()
+
+        return [dict(row) for row in rows]
+
     # ── Auto-Archive ──────────────────────────────────────────
 
     def archive_expired(self):

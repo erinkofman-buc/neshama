@@ -457,6 +457,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):-len('/updates')]
             self.handle_get_updates(support_id)
+        # V2: Duplicate family search
+        elif path == '/api/shiva/search':
+            self.handle_shiva_search()
         elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
@@ -3991,6 +3994,23 @@ button:hover{background:#c45a1a}</style></head>
             self.send_error_response(str(e))
 
     # ── API: V3 — Updates Feed + Thank-You Notes ──────────────
+
+    def handle_shiva_search(self):
+        """Search active shivas by family name."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            query = params.get('q', [''])[0]
+            if not query or len(query.strip()) < 2:
+                self.send_json_response([])
+                return
+            results = shiva_mgr.search_active_shivas(query)
+            self.send_json_response(results)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_get_updates(self, support_id):
         """Get updates for a shiva page (public)."""
