@@ -274,6 +274,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/icon-512.png': ('icon-512.png', 'image/png'),
         '/apple-touch-icon.png': ('apple-touch-icon.png', 'image/png'),
         '/og-image.png': ('og-image.png', 'image/png'),
+        '/shiva/organize-v2': ('shiva-organize-v2.html', 'text/html'),
         '/shiva/organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
@@ -639,6 +640,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_care_add_task(care_id, body)
         elif path == '/api/care-task/claim':
             self.handle_care_claim_task(body)
+        elif path == '/api/shiva-v2/create':
+            self.handle_create_shiva_v2(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         # V5: Extend shiva dates
@@ -3734,6 +3737,40 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.create_support(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
+                shiva_mgr._trigger_backup()
+                # Send welcome email with share links
+                self._send_welcome_email(result)
+            status_code = 200 if result['status'] in ('success', 'duplicate', 'similar_found') else 400
+            # Don't expose verification_token to client
+            safe_result = dict(result)
+            safe_result.pop('verification_token', None)
+            safe_result.pop('organizer_email', None)
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_create_shiva_v2(self, body):
+        """Create a new shiva support page via V2 wizard.
+        V2 wizard handles consent in the UI, so we set privacy_consent automatically.
+        Accepts all V7 meal planner fields.
+        """
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            # V2 wizard handles consent in the UI
+            data['privacy_consent'] = 1
+            # V2 wizard handles duplicate search in earlier step
+            if data.get('force_create') or data.get('_skip_similar'):
+                data['_skip_similar'] = True
+            obit_id = data.get('obituary_id')
+            shiva_mgr.track_event('organize_v2_start', obit_id)
+            result = shiva_mgr.create_support(data)
+            if result['status'] == 'success':
+                shiva_mgr.track_event('organize_v2_complete', obit_id)
                 shiva_mgr._trigger_backup()
                 # Send welcome email with share links
                 self._send_welcome_email(result)

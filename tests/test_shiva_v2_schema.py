@@ -4,6 +4,7 @@ Verifies that ShivaManager.setup_database() adds all new columns
 to shiva_support and meal_signups tables.
 """
 
+import json
 import os
 import sys
 import sqlite3
@@ -146,6 +147,103 @@ class TestSearchActiveShivas(unittest.TestCase):
     def test_search_short_query_returns_empty(self):
         results = self.manager.search_active_shivas('G')
         self.assertEqual(len(results), 0)
+
+
+class TestV2CreateWithV7Fields(unittest.TestCase):
+    """Verify create_support stores V7 meal planner fields."""
+
+    def setUp(self):
+        self.tmp = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
+        self.tmp.close()
+        self.manager = ShivaManager(db_path=self.tmp.name)
+
+    def tearDown(self):
+        os.unlink(self.tmp.name)
+
+    def test_v7_fields_persisted(self):
+        """Create a shiva with all V7 fields and verify they are stored."""
+        import json
+        data = {
+            'privacy_consent': 1,
+            'organizer_name': 'Sarah Cohen',
+            'organizer_email': 'sarah@example.com',
+            'family_name': 'Cohen',
+            'shiva_start_date': '2026-04-10',
+            'shiva_end_date': '2026-04-16',
+            'shiva_city': 'Toronto',
+            '_skip_similar': True,
+            # V7 fields
+            'burial_date': '2026-04-09',
+            'kosher': 'COR',
+            'num_adults': 15,
+            'num_kids': 5,
+            'lunch_dropoff_start': '11:30',
+            'lunch_dropoff_end': '12:30',
+            'dinner_dropoff_start': '17:00',
+            'dinner_dropoff_end': '18:00',
+            'suggested_caterers': ['koshers-r-us', 'toronto-catering'],
+            'custom_suggestions': ['Please bring paper plates', 'Nut-free preferred'],
+            'organizer_contact_visible': True,
+            'enabled_meals': ['Lunch', 'Dinner'],
+            'family_notes': 'The family prefers vegetarian options.',
+        }
+        result = self.manager.create_support(data)
+        self.assertEqual(result['status'], 'success')
+        shiva_id = result['id']
+
+        # Query DB directly to verify V7 fields
+        conn = sqlite3.connect(self.tmp.name)
+        cursor = conn.execute(
+            'SELECT burial_date, kosher, num_adults, num_kids, '
+            'lunch_dropoff_start, lunch_dropoff_end, dinner_dropoff_start, dinner_dropoff_end, '
+            'suggested_caterers, custom_suggestions, organizer_contact_visible, enabled_meals, '
+            'family_notes FROM shiva_support WHERE id = ?',
+            (shiva_id,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+
+        self.assertIsNotNone(row)
+        self.assertEqual(row[0], '2026-04-09')       # burial_date
+        self.assertEqual(row[1], 'COR')               # kosher
+        self.assertEqual(row[2], 15)                   # num_adults
+        self.assertEqual(row[3], 5)                    # num_kids
+        self.assertEqual(row[4], '11:30')              # lunch_dropoff_start
+        self.assertEqual(row[5], '12:30')              # lunch_dropoff_end
+        self.assertEqual(row[6], '17:00')              # dinner_dropoff_start
+        self.assertEqual(row[7], '18:00')              # dinner_dropoff_end
+        self.assertEqual(json.loads(row[8]), ['koshers-r-us', 'toronto-catering'])
+        self.assertEqual(json.loads(row[9]), ['Please bring paper plates', 'Nut-free preferred'])
+        self.assertEqual(int(row[10]), 1)               # organizer_contact_visible
+        self.assertEqual(json.loads(row[11]), ['Lunch', 'Dinner'])
+        self.assertIn('vegetarian', row[12])           # family_notes
+
+    def test_v7_fields_optional(self):
+        """Create a shiva WITHOUT V7 fields — should still succeed with defaults."""
+        data = {
+            'privacy_consent': 1,
+            'organizer_name': 'David Levi',
+            'organizer_email': 'david@example.com',
+            'family_name': 'Levi',
+            'shiva_start_date': '2026-04-10',
+            'shiva_end_date': '2026-04-16',
+            '_skip_similar': True,
+        }
+        result = self.manager.create_support(data)
+        self.assertEqual(result['status'], 'success')
+
+        # V7 columns should be NULL
+        conn = sqlite3.connect(self.tmp.name)
+        cursor = conn.execute(
+            'SELECT burial_date, kosher, num_adults, num_kids FROM shiva_support WHERE id = ?',
+            (result['id'],)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        self.assertIsNone(row[0])
+        self.assertIsNone(row[1])
+        self.assertIsNone(row[2])
+        self.assertIsNone(row[3])
 
 
 class TestMultipleSignups(unittest.TestCase):

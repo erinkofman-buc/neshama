@@ -616,6 +616,75 @@ class ShivaManager:
         verification_token = secrets.token_urlsafe(32)
         verification_status = 'verified'
 
+        # V7: Optional meal planner redesign fields
+        v7_burial_date = None
+        raw_burial = data.get('burial_date', '').strip()[:10] if data.get('burial_date') else None
+        if raw_burial:
+            try:
+                datetime.strptime(raw_burial, '%Y-%m-%d')
+                v7_burial_date = raw_burial
+            except ValueError:
+                pass
+
+        v7_kosher = data.get('kosher')  # TEXT column, e.g. 'COR', 'MK', 'not_certified'
+        if v7_kosher:
+            v7_kosher = self._sanitize_text(str(v7_kosher), 50) or None
+
+        v7_num_adults = None
+        if data.get('num_adults') is not None:
+            try:
+                v7_num_adults = max(0, min(500, int(data['num_adults'])))
+            except (ValueError, TypeError):
+                pass
+
+        v7_num_kids = None
+        if data.get('num_kids') is not None:
+            try:
+                v7_num_kids = max(0, min(500, int(data['num_kids'])))
+            except (ValueError, TypeError):
+                pass
+
+        # Dropoff time windows (HH:MM strings)
+        def _clean_time(val):
+            if not val:
+                return None
+            t = str(val).strip()[:5]
+            if len(t) == 5 and t[2] == ':':
+                return t
+            return None
+
+        v7_lunch_dropoff_start = _clean_time(data.get('lunch_dropoff_start'))
+        v7_lunch_dropoff_end = _clean_time(data.get('lunch_dropoff_end'))
+        v7_dinner_dropoff_start = _clean_time(data.get('dinner_dropoff_start'))
+        v7_dinner_dropoff_end = _clean_time(data.get('dinner_dropoff_end'))
+
+        # JSON fields
+        v7_suggested_caterers = None
+        raw_caterers = data.get('suggested_caterers')
+        if raw_caterers and isinstance(raw_caterers, list):
+            clean_caterers = [self._sanitize_text(str(c), 200) for c in raw_caterers if c][:10]
+            if clean_caterers:
+                v7_suggested_caterers = json.dumps(clean_caterers)
+
+        v7_custom_suggestions = None
+        raw_suggestions = data.get('custom_suggestions')
+        if raw_suggestions and isinstance(raw_suggestions, list):
+            clean_suggestions = [self._sanitize_text(str(s), 500) for s in raw_suggestions if s][:20]
+            if clean_suggestions:
+                v7_custom_suggestions = json.dumps(clean_suggestions)
+
+        v7_organizer_contact_visible = None
+        if data.get('organizer_contact_visible') is not None:
+            v7_organizer_contact_visible = 1 if data['organizer_contact_visible'] else 0
+
+        v7_enabled_meals = None
+        raw_enabled = data.get('enabled_meals')
+        if raw_enabled and isinstance(raw_enabled, list):
+            allowed_meals = {'Lunch', 'Dinner'}
+            clean_enabled = [str(m) for m in raw_enabled if str(m) in allowed_meals]
+            if clean_enabled:
+                v7_enabled_meals = json.dumps(clean_enabled)
+
         try:
             cursor.execute('''
                 INSERT INTO shiva_support (
@@ -626,8 +695,12 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals, dietary_restrictions, meal_schedule
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals, dietary_restrictions, meal_schedule,
+                    burial_date, kosher, num_adults, num_kids,
+                    lunch_dropoff_start, lunch_dropoff_end, dinner_dropoff_start, dinner_dropoff_end,
+                    suggested_caterers, custom_suggestions, organizer_contact_visible, enabled_meals
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -661,6 +734,18 @@ class ShivaManager:
                 blocked_meals,
                 dietary_restrictions,
                 meal_schedule,
+                v7_burial_date,
+                v7_kosher,
+                v7_num_adults,
+                v7_num_kids,
+                v7_lunch_dropoff_start,
+                v7_lunch_dropoff_end,
+                v7_dinner_dropoff_start,
+                v7_dinner_dropoff_end,
+                v7_suggested_caterers,
+                v7_custom_suggestions,
+                v7_organizer_contact_visible,
+                v7_enabled_meals,
             ))
             conn.commit()
             return {
