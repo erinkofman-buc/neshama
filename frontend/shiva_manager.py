@@ -1526,8 +1526,8 @@ class ShivaManager:
                     meal_date, meal_type, meal_description, num_servings,
                     will_serve, privacy_consent, created_at, signup_group_id,
                     status, alternative_type, alternative_note, additional_contributors,
-                    group_name, contact_phone
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    group_name, contact_phone, is_walkin
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -1547,6 +1547,7 @@ class ShivaManager:
                 additional_contributors,
                 group_name or None,
                 contact_phone or None,
+                1 if data.get('is_walkin') else 0,
             ))
             conn.commit()
 
