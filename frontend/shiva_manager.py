@@ -935,14 +935,18 @@ class ShivaManager:
             'dietary_restrictions',
             'meal_schedule',
             'obituary_id',
+            'status',
         ]
 
         sets = []
         vals = []
         for field in updatable:
             if field in data:
-                sets.append(f'{field} = ?')
                 val = data[field]
+                # Only allow valid status transitions
+                if field == 'status' and val not in ('active', 'archived'):
+                    continue
+                sets.append(f'{field} = ?')
                 if field == 'privacy':
                     val = val if val in ('public', 'private') else 'public'
                 elif field == 'pause_shabbat':
@@ -1440,7 +1444,13 @@ class ShivaManager:
         support = dict(support)
 
         # Check privacy: private shivas require a valid access token OR share token
-        if support.get('privacy') == 'private':
+        # Bypass: walk-in signups from the organizer dashboard include a valid magic_token
+        walkin_bypass = (
+            data.get('is_walkin')
+            and data.get('magic_token')
+            and data.get('magic_token') == support.get('magic_token')
+        )
+        if support.get('privacy') == 'private' and not walkin_bypass:
             share_token_valid = (access_token and access_token == support.get('share_token'))
             access_request_valid = False
             if access_token and not share_token_valid:

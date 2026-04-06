@@ -1334,8 +1334,9 @@
                             slotsHtml += '</div>';
 
                             // Contact info (organizer view)
+                            // Filter out internal placeholder emails (e.g. walkin@neshama.ca used for walk-in signups that don't have a real email)
                             var contactParts = [];
-                            if (su.volunteer_email) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
+                            if (su.volunteer_email && su.volunteer_email.indexOf('@neshama.ca') === -1) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
                             if (su.volunteer_phone) contactParts.push('<a href="tel:' + escapeHtml(su.volunteer_phone) + '">' + escapeHtml(su.volunteer_phone) + '</a>');
                             if (contactParts.length > 0) {
                                 slotsHtml += '<div class="signup-contact">' + contactParts.join(' &middot; ') + '</div>';
@@ -1405,8 +1406,9 @@
                 var isWalkin = su.is_walkin || (su.meal_description && su.meal_description.indexOf('(walk-in)') !== -1);
                 if (isWalkin) name += ' <span class="walkin-badge">walk-in</span>';
 
+                // Filter out internal placeholder emails (e.g. walkin@neshama.ca) from contact display
                 var contactParts = [];
-                if (su.volunteer_email) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
+                if (su.volunteer_email && su.volunteer_email.indexOf('@neshama.ca') === -1) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
                 if (su.volunteer_phone) contactParts.push('<a href="tel:' + escapeHtml(su.volunteer_phone) + '">' + escapeHtml(su.volunteer_phone) + '</a>');
                 var contact = contactParts.length > 0 ? contactParts.join('<br>') : '<span style="color:var(--sage)">--</span>';
 
@@ -1548,7 +1550,8 @@
                 meal_description: description + ' (walk-in)',
                 privacy_consent: true,
                 is_walkin: 1,
-                access_token: magicToken
+                access_token: magicToken,
+                magic_token: magicToken
             };
 
             fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/signup', {
@@ -1630,7 +1633,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     magic_token: magicToken,
-                    privacy: 'private'
+                    status: 'archived'
                 })
             })
             .then(function(r) { return r.json(); })
