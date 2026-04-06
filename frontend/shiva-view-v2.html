@@ -821,7 +821,7 @@
 
             <!-- Coverage Bar -->
             <div class="coverage-strip" id="coverageStrip" onclick="scrollToFirstOpen()" role="button" tabindex="0" aria-label="Scroll to first open meal slot">
-                <div class="coverage-text" id="coverageText"></div>
+                <div class="coverage-text" id="coverageText" aria-live="polite"></div>
                 <div class="coverage-bar-track">
                     <div class="coverage-bar-fill" id="coverageFill" style="width: 0%;"></div>
                 </div>
@@ -1265,10 +1265,12 @@
                                 (su.meal_description ? '<div class="taken-desc">Bringing: ' + escapeHtml(su.meal_description) + '</div>' : '') +
                                 '</div>';
                         });
+                        // V2: Multiple groups can always sign up — show button even when slot has signups
                         slotsHtml += '<div class="meal-slot taken">' +
                             '<div class="slot-label">' + escapeHtml(type) + '</div>' +
                             '<div class="slot-time">' + timeStr + '</div>' +
                             groupsHtml +
+                            '<button class="signup-btn" onclick="openSignup(\'' + dateStr + '\', \'' + type + '\')" data-date="' + dateStr + '" data-type="' + type + '">+ Sign Up</button>' +
                             '</div>';
                     } else {
                         dayOpen++;
@@ -1542,13 +1544,16 @@
             var payload = {
                 shiva_support_id: supportId,
                 volunteer_name: groupName,
-                volunteer_email: email || (phone + '@noreply.neshama.ca'), // Backend requires email
+                // WORKAROUND: Backend requires a valid email for volunteer_email (used as unique identifier
+                // and for SendGrid confirmation emails). When the user only provides a phone number,
+                // we generate a placeholder email so validation passes. These @noreply.neshama.ca
+                // addresses are never actually emailed — the confirmation flow skips them.
+                volunteer_email: email || (phone + '@noreply.neshama.ca'),
                 meal_date: selectedDate,
                 meal_type: selectedMealType,
                 meal_description: mealDescription,
                 privacy_consent: 1,
                 group_name: groupName,
-                contact_person: contactName,
                 contact_phone: phone,
                 notes: notes
             };

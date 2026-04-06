@@ -1517,13 +1517,17 @@ class ShivaManager:
                 if clean_contributors:
                     additional_contributors = json.dumps(clean_contributors)
 
+            group_name = data.get('group_name', '').strip()[:200]
+            contact_phone = data.get('contact_phone', '').strip()[:20]
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
                     will_serve, privacy_consent, created_at, signup_group_id,
-                    status, alternative_type, alternative_note, additional_contributors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    status, alternative_type, alternative_note, additional_contributors,
+                    group_name, contact_phone
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -1541,6 +1545,8 @@ class ShivaManager:
                 alt_type,
                 alt_note,
                 additional_contributors,
+                group_name or None,
+                contact_phone or None,
             ))
             conn.commit()
 
