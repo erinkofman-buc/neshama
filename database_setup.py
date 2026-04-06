@@ -236,29 +236,20 @@ class NeshamaDatabase:
         self.cursor.execute('SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,))
         existing = self.cursor.fetchone()
 
-        # Also check for same funeral home + same funeral datetime (name may have been corrected)
-        if not existing and obituary_data.get('funeral_datetime'):
-            source_norm = obituary_data['source'].strip()
-            funeral_dt = obituary_data['funeral_datetime'].strip()
-            self.cursor.execute('''
-                SELECT id, content_hash, deceased_name FROM obituaries
-                WHERE source = ? AND funeral_datetime = ? AND funeral_datetime != ''
-                LIMIT 1
-            ''', (source_norm, funeral_dt))
-            name_corrected = self.cursor.fetchone()
-            if name_corrected:
-                # Same funeral home, same funeral time — this is a name correction, not a new person
-                obit_id = name_corrected[0]
-                existing = name_corrected
-                # Update the name to the corrected version
-                self.cursor.execute('UPDATE obituaries SET deceased_name = ? WHERE id = ?',
-                    (obituary_data['deceased_name'], obit_id))
+        # REMOVED: funeral_datetime fallback matching (caused name overwrite bug — two different
+        # people at the same funeral home with similar times got merged into one record).
+        # Funeral homes often post preliminary listings then update them, so we rely on the
+        # name-based ID hash as the sole matching key. Duplicates from name typo corrections
+        # are preferable to silently merging two different people's records.
 
         if existing:
             # Update if content changed
             if existing[1] != content_hash:
                 self.cursor.execute('''
                     UPDATE obituaries SET
+                        deceased_name = ?,
+                        source_url = ?,
+                        condolence_url = ?,
                         hebrew_name = ?,
                         date_of_death = ?,
                         yahrzeit_date = ?,
@@ -279,6 +270,9 @@ class NeshamaDatabase:
                         shiva_private = ?
                     WHERE id = ?
                 ''', (
+                    obituary_data['deceased_name'],
+                    obituary_data['source_url'],
+                    obituary_data.get('condolence_url', obituary_data['source_url']),
                     obituary_data.get('hebrew_name'),
                     obituary_data.get('date_of_death'),
                     obituary_data.get('yahrzeit_date'),
