@@ -1377,19 +1377,9 @@ class ShivaManager:
             except (json.JSONDecodeError, TypeError):
                 pass
 
-        # Alternative contributions skip the duplicate check
+        # Multiple groups can sign up for the same meal slot (V2).
+        # Alternative contributions are still tracked separately.
         is_alternative = bool(data.get('alternative_type'))
-
-        if not is_alternative:
-            # Check for duplicate signup (same date + meal type)
-            cursor.execute('''
-                SELECT id FROM meal_signups
-                WHERE shiva_support_id = ? AND meal_date = ? AND meal_type = ?
-                  AND (status IS NULL OR status NOT IN ('alternative', 'cancelled'))
-            ''', (support_id, meal_date, data['meal_type']))
-            if cursor.fetchone():
-                conn.close()
-                return {'status': 'error', 'message': 'Someone has already signed up for this meal slot'}
 
         now = datetime.now().isoformat()
         try:

@@ -148,5 +148,80 @@ class TestSearchActiveShivas(unittest.TestCase):
         self.assertEqual(len(results), 0)
 
 
+class TestMultipleSignups(unittest.TestCase):
+    """Verify multiple groups can sign up for the same meal slot."""
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix='.db')
+        self.manager = ShivaManager(self.db_path)
+
+    def tearDown(self):
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _create_test_shiva(self):
+        result = self.manager.create_support({
+            'family_name': 'TestFamily',
+            'organizer_name': 'Test Org',
+            'organizer_email': 'test@test.com',
+            'organizer_relationship': 'Friend',
+            'shiva_start_date': '2026-04-06',
+            'shiva_end_date': '2026-04-12',
+            'shiva_address': '1 Main St',
+            'shiva_city': 'Toronto',
+            'privacy_consent': 1,
+            '_skip_similar': True
+        })
+        return result['id']
+
+    def test_multiple_groups_same_meal(self):
+        shiva_id = self._create_test_shiva()
+        # First signup
+        r1 = self.manager.signup_meal({
+            'shiva_support_id': shiva_id,
+            'volunteer_name': 'Sarah',
+            'volunteer_email': 'sarah@test.com',
+            'meal_date': '2026-04-07',
+            'meal_type': 'Dinner',
+            'meal_description': 'Chicken soup',
+            'privacy_consent': 1
+        })
+        self.assertEqual(r1['status'], 'success')
+        # Second signup for SAME slot
+        r2 = self.manager.signup_meal({
+            'shiva_support_id': shiva_id,
+            'volunteer_name': 'Rachel',
+            'volunteer_email': 'rachel@test.com',
+            'meal_date': '2026-04-07',
+            'meal_type': 'Dinner',
+            'meal_description': 'Salad and bread',
+            'privacy_consent': 1
+        })
+        self.assertEqual(r2['status'], 'success')
+
+    def test_multiple_signups_different_types_still_work(self):
+        shiva_id = self._create_test_shiva()
+        r1 = self.manager.signup_meal({
+            'shiva_support_id': shiva_id,
+            'volunteer_name': 'Sarah',
+            'volunteer_email': 'sarah@test.com',
+            'meal_date': '2026-04-07',
+            'meal_type': 'Lunch',
+            'meal_description': 'Sandwiches',
+            'privacy_consent': 1
+        })
+        self.assertEqual(r1['status'], 'success')
+        r2 = self.manager.signup_meal({
+            'shiva_support_id': shiva_id,
+            'volunteer_name': 'Rachel',
+            'volunteer_email': 'rachel@test.com',
+            'meal_date': '2026-04-07',
+            'meal_type': 'Dinner',
+            'meal_description': 'Pasta',
+            'privacy_consent': 1
+        })
+        self.assertEqual(r2['status'], 'success')
+
+
 if __name__ == '__main__':
     unittest.main()
