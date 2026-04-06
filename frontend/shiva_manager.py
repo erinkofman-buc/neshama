@@ -1697,15 +1697,18 @@ class ShivaManager:
         if not query or len(query.strip()) < 2:
             return []
 
+        # Escape LIKE wildcards to prevent unintended matches
+        safe_query = query.strip().replace('%', '\\%').replace('_', '\\_')
+
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, family_name, shiva_start_date, shiva_end_date, shiva_city
             FROM shiva_support
-            WHERE status = 'active' AND family_name LIKE ?
+            WHERE status = 'active' AND family_name LIKE ? ESCAPE '\\'
             ORDER BY created_at DESC
             LIMIT 10
-        ''', (f'%{query.strip()}%',))
+        ''', (f'%{safe_query}%',))
         rows = cursor.fetchall()
         conn.close()
 
