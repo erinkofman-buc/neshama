@@ -2041,7 +2041,7 @@
                     </div>
                     <div id="altOptions" style="display: none; margin-top: 0.5rem; padding-left: 1.5rem;">
                         <input type="text" id="altNote" placeholder="e.g., Ordering from Nortown, sending a DoorDash card" style="width:100%;font-size:0.9rem;">
-                        <select id="altType" style="display:none;"><option value="vendor_meal">vendor_meal</option><option value="gift_card">gift_card</option><option value="gift_basket">gift_basket</option></select>
+                        <select id="altType" style="display:none;"><option value="vendor_meal">Vendor Meal</option><option value="gift_card">Gift Card</option><option value="gift_basket">Gift Basket</option></select>
                     </div>
                 </div>
 
@@ -3691,7 +3691,20 @@
                 h += '<div class="vol-name">' + escapeHtml(signup.volunteer_name);
                 // Show meal description inline with servings count
                 if (signup.meal_description) {
-                    h += ' &mdash; ' + escapeHtml(signup.meal_description);
+                    var descText = signup.meal_description;
+                    var labelMap = {'vendor_meal': 'Vendor Meal', 'gift_card': 'Gift Card', 'gift_basket': 'Gift Basket'};
+                    var descLower = descText.toLowerCase();
+                    if (labelMap[descLower]) {
+                        descText = labelMap[descLower];
+                    } else {
+                        for (var k in labelMap) {
+                            if (descLower.indexOf(k + ' - ') === 0) {
+                                descText = labelMap[k] + descText.substring(k.length);
+                                break;
+                            }
+                        }
+                    }
+                    h += ' &mdash; ' + escapeHtml(descText);
                 }
                 if (signup.num_servings && signup.num_servings > 0) {
                     h += ' <span style="font-size:0.78rem;color:var(--sage-dark);font-weight:400;">(' + signup.num_servings + ' servings)</span>';

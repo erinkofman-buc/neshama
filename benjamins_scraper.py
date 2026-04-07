@@ -66,6 +66,56 @@ class BenjaminsScraper:
 
         return links
 
+    def _find_additional_listing_pages(self, html):
+        """
+        Look for non-postback links to additional listing pages.
+
+        ASP.NET WebForms postback pagination (__doPostBack) is NOT feasible
+        without maintaining ViewState across requests. Instead, look for
+        standard <a href> links to archive or past-services pages.
+
+        Returns a list of URLs (max 10 pages as safety valve).
+        """
+        soup = BeautifulSoup(html, 'html.parser')
+        additional = []
+        max_pages = 10
+
+        # Patterns for archive/past listing pages
+        archive_patterns = re.compile(
+            r'(?:archive|past|previous|history|older|all)',
+            re.IGNORECASE
+        )
+
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            text = link.get_text(strip=True).lower()
+
+            # Skip postback links (these need ViewState)
+            if 'javascript:' in href or '__doPostBack' in href:
+                continue
+
+            # Skip the homepage itself and service detail pages
+            if 'Home.aspx' in href and '?' not in href:
+                continue
+            if 'ServiceDetails.aspx' in href:
+                continue
+
+            # Look for archive-type pages by link text or href
+            if archive_patterns.search(text) or archive_patterns.search(href):
+                full_url = href if href.startswith('http') else self.base_url + '/' + href.lstrip('/')
+                if full_url not in additional:
+                    additional.append(full_url)
+
+            if len(additional) >= max_pages:
+                break
+
+        if additional:
+            logging.info(f"Found {len(additional)} additional listing page(s)")
+        else:
+            logging.info("No additional listing pages found (ASP.NET postback pagination not supported)")
+
+        return additional
+
     def get_span_text(self, soup, span_id):
         """Extract text from ASP.NET span by ID"""
         elem = soup.find('span', id=span_id)
@@ -245,8 +295,38 @@ class BenjaminsScraper:
             if not html:
                 raise Exception("Failed to fetch listings page")
 
-            # Extract service detail links
+            # Extract service detail links from homepage
             obituary_links = self.extract_obituary_links(html)
+
+            # Pagination: Benjamin's uses ASP.NET WebForms with __doPostBack
+            # for pagination, which requires maintaining ViewState and
+            # EventValidation tokens across requests. Standard GET-based
+            # pagination is not available.
+            #
+            # Best-effort: check for any additional listing pages linked from
+            # the homepage (e.g. Archive.aspx, PastServices.aspx) that don't
+            # require postback. These would be standard <a href> links.
+            additional_pages = self._find_additional_listing_pages(html)
+            for page_url in additional_pages:
+                logging.info(f"Fetching additional listing page: {page_url}")
+                page_html = self.fetch_page(page_url)
+                if page_html:
+                    extra_links = self.extract_obituary_links(page_html)
+                    # Merge, deduplicating by snum
+                    existing_snums = set()
+                    for link in obituary_links:
+                        snum_match = re.search(r'[?&]snum=(\d+)', link)
+                        if snum_match:
+                            existing_snums.add(snum_match.group(1))
+                    for link in extra_links:
+                        snum_match = re.search(r'[?&]snum=(\d+)', link)
+                        if snum_match and snum_match.group(1) not in existing_snums:
+                            obituary_links.append(link)
+                            existing_snums.add(snum_match.group(1))
+                        elif not snum_match and link not in obituary_links:
+                            obituary_links.append(link)
+                    time.sleep(2)  # Rate limit between page fetches
+
             stats['found'] = len(obituary_links)
             logging.info(f"Found {stats['found']} obituary links\n")
 

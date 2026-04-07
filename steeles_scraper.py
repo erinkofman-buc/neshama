@@ -104,30 +104,32 @@ class SteelesScraper:
                 if og_desc and og_desc.get('content'):
                     data['obituary_text'] = self.clean_text(og_desc['content'])
 
-                # Try to extract structured data from text
-                full_text = data['obituary_text']
-
+            # Extract structured data from obituary text (regardless of source)
+            full_text = data.get('obituary_text')
+            if full_text:
                 # Hebrew name pattern
                 hebrew_match = re.search(r'[\u0590-\u05FF\s]+', full_text)
-                if hebrew_match:
+                if hebrew_match and not data.get('hebrew_name'):
                     data['hebrew_name'] = hebrew_match.group(0).strip()
 
-                # Date of death
-                death_date_patterns = [
-                    r'passed away.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
-                    r'died.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
-                    r'peacefully.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
-                ]
-                for pattern in death_date_patterns:
-                    match = re.search(pattern, full_text, re.IGNORECASE)
-                    if match:
-                        data['date_of_death'] = match.group(1)
-                        break
+                # Date of death — contextual phrases prevent false matches
+                if not data.get('date_of_death'):
+                    death_date_patterns = [
+                        r'passed away.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
+                        r'died.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
+                        r'peacefully.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
+                    ]
+                    for pattern in death_date_patterns:
+                        match = re.search(pattern, full_text, re.IGNORECASE)
+                        if match:
+                            data['date_of_death'] = match.group(1)
+                            break
 
                 # Yahrzeit
-                yahrzeit_match = re.search(r'Yahrzeit:?\s*([^\n.]+)', full_text, re.IGNORECASE)
-                if yahrzeit_match:
-                    data['yahrzeit_date'] = self.clean_text(yahrzeit_match.group(1))
+                if not data.get('yahrzeit_date'):
+                    yahrzeit_match = re.search(r'Yahrzeit:?\s*([^\n.]+)', full_text, re.IGNORECASE)
+                    if yahrzeit_match:
+                        data['yahrzeit_date'] = self.clean_text(yahrzeit_match.group(1))
 
             # Extract structured shiva info from obituary text
             if data.get('obituary_text'):
