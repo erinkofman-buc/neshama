@@ -228,6 +228,10 @@ class BenjaminsScraper:
                 photo_url = photo_elem['src']
                 data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + '/' + photo_url.lstrip('/')
 
+            # Filter out placeholder candle image (shown when no portrait uploaded)
+            if data.get('photo_url') and 'candle-big.jpg' in data['photo_url'].lower():
+                data['photo_url'] = None
+
             return data
 
         except Exception as e:

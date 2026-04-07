@@ -13,6 +13,14 @@ from datetime import datetime
 from database_setup import NeshamaDatabase
 from shiva_parser import extract_shiva_info
 
+# Photo delivery: Steeles uses CSS background-image on <figure>, NOT <img> tags.
+# See HQ/01-Projects/Neshama/scraper-photo-fix-plan.md for details.
+PHOTO_EXCLUSION_RE = re.compile(
+    r'logo|icon|badge|star|bao|bereavement|\.svg|data:image|placeholder|banner',
+    re.IGNORECASE
+)
+
+
 class SteelesScraper:
     def __init__(self):
         self.source_name = "Steeles Memorial Chapel"
@@ -91,12 +99,22 @@ class SteelesScraper:
             if not data.get('deceased_name'):
                 return None  # Skip if no name found
 
-            # Extract full obituary text
-            obit_content = soup.find('div', class_='entry-content') or soup.find('div', class_='obituary')
-            if obit_content:
-                # Get all paragraphs
-                paragraphs = [p.get_text() for p in obit_content.find_all('p')]
-                data['obituary_text'] = self.clean_text('\n\n'.join(paragraphs))
+            # Extract full obituary text — try post-content first (Steeles page structure)
+            post_content = soup.find('div', class_='post-content')
+            if post_content:
+                paragraphs = [self.clean_text(p.get_text()) for p in post_content.find_all('p')]
+                text = '\n\n'.join(p for p in paragraphs if p)
+                if text:
+                    data['obituary_text'] = text
+
+            # Fallback: entry-content or obituary div (other WordPress themes)
+            if not data.get('obituary_text'):
+                obit_content = soup.find('div', class_='entry-content') or soup.find('div', class_='obituary')
+                if obit_content:
+                    paragraphs = [self.clean_text(p.get_text()) for p in obit_content.find_all('p')]
+                    text = '\n\n'.join(p for p in paragraphs if p)
+                    if text:
+                        data['obituary_text'] = text
 
             # Fallback: use og:description if main content divs not found
             if not data.get('obituary_text'):
@@ -183,44 +201,64 @@ class SteelesScraper:
             if livestream_link:
                 data['livestream_url'] = livestream_link['href']
 
-            # Extract photo — multi-strategy approach
-            photo = None
+            # Extract photo — Strategy 0: background-image CSS (Steeles uses this)
+            photo_div = soup.find('div', class_='description-photo')
+            if photo_div:
+                fig = photo_div.find(style=re.compile(r'background-image'))
+                if fig:
+                    style = fig.get('style', '')
+                    bg_match = re.search(
+                        r'background-image:\s*url\(\s*["\']?([^"\')\s]+)["\']?\s*\)', style
+                    )
+                    if bg_match:
+                        bg_url = bg_match.group(1)
+                        if not PHOTO_EXCLUSION_RE.search(bg_url):
+                            data['photo_url'] = bg_url if bg_url.startswith('http') else self.base_url + bg_url
 
-            # Strategy 1: class-based match (expanded regex)
-            photo = soup.find('img', class_=re.compile(
-                r'obituary|deceased|memorial|portrait|photo|tribute|condolence',
-                re.IGNORECASE
-            ))
+            # Fallback: <img> tag strategies (for future-proofing if Steeles changes theme)
+            if not data.get('photo_url'):
+                photo = None
 
-            # Strategy 2: src-based match (upload paths, photo keywords)
-            if not photo:
-                photo = soup.find('img', src=re.compile(
-                    r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait|memorial.*\.(jpg|jpeg|png|webp)',
+                # Strategy 1: class-based match
+                photo = soup.find('img', class_=re.compile(
+                    r'obituary|deceased|memorial|portrait|photo|tribute|condolence',
                     re.IGNORECASE
                 ))
 
-            # Strategy 3: data-src for lazy-loaded images
-            if not photo:
-                photo = soup.find('img', attrs={'data-src': re.compile(
-                    r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait',
-                    re.IGNORECASE
-                )})
+                # Strategy 2: src-based match (upload paths, photo keywords)
+                if not photo:
+                    photo = soup.find('img', src=re.compile(
+                        r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait|memorial.*\.(jpg|jpeg|png|webp)',
+                        re.IGNORECASE
+                    ))
 
-            # Strategy 4: first large image inside the obituary content area
-            if not photo:
-                content_area = soup.find('div', class_=re.compile(r'entry-content|obituary|condolence-content', re.IGNORECASE))
-                if content_area:
-                    for img in content_area.find_all('img'):
-                        src = img.get('src', '') or img.get('data-src', '')
-                        # Skip logos, icons, badges, and placeholder SVGs
-                        if src and not re.search(r'logo|icon|badge|star|bao|\.svg|data:image', src, re.IGNORECASE):
-                            photo = img
-                            break
+                # Strategy 3: data-src for lazy-loaded images
+                if not photo:
+                    photo = soup.find('img', attrs={'data-src': re.compile(
+                        r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait',
+                        re.IGNORECASE
+                    )})
 
-            if photo:
-                photo_url = photo.get('src') or photo.get('data-src', '')
-                if photo_url and not photo_url.startswith('data:'):
-                    data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
+                # Strategy 4: first large image inside the obituary content area
+                if not photo:
+                    content_area = soup.find('div', class_=re.compile(r'entry-content|obituary|condolence-content|post-content', re.IGNORECASE))
+                    if content_area:
+                        for img in content_area.find_all('img'):
+                            src = img.get('src', '') or img.get('data-src', '')
+                            if src and not PHOTO_EXCLUSION_RE.search(src):
+                                photo = img
+                                break
+
+                # Global exclusion: reject known-bad images
+                if photo:
+                    photo_url = photo.get('src') or photo.get('data-src', '')
+                    if photo_url and PHOTO_EXCLUSION_RE.search(photo_url):
+                        photo = None
+
+                if photo:
+                    photo_url = photo.get('src') or photo.get('data-src', '')
+                    if photo_url and not photo_url.startswith('data:'):
+                        data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
 
             return data
 
