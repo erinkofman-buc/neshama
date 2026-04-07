@@ -1656,12 +1656,15 @@
         </div>
 
         <!-- Organizer Banner (compact) -->
-        <div class="organizer-banner" id="organizerBanner" style="display: none; padding: 0.6rem 1rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
-                <span style="font-weight:600; font-size:0.9rem;">Organizer view</span>
+        <div class="organizer-banner" id="organizerBanner" style="display: none; padding: 0.75rem 1rem;">
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-weight:600; font-size:0.9rem;">You're managing this page</span>
+                </div>
+                <p style="font-size:0.82rem; margin:0; opacity:0.9;">Share this link with friends so they can sign up for meals:</p>
                 <div style="display:flex; gap:0.4rem; align-items:center;">
-                    <input type="text" id="shareableLink" readonly aria-label="Shareable volunteer link" style="width:180px; padding:0.35rem 0.6rem; border:1px solid rgba(255,255,255,0.5); border-radius:0.3rem; font-size:0.78rem; color:#3E2723; background:rgba(255,255,255,0.85);">
-                    <button type="button" id="copyShareLink" style="padding:0.35rem 0.75rem; background:white; color:var(--terracotta); border:1px solid var(--terracotta); border-radius:0.3rem; cursor:pointer; font-size:0.78rem; white-space:nowrap; font-weight:500;">Copy Share Link</button>
+                    <input type="text" id="shareableLink" readonly aria-label="Link to share with volunteers" style="flex:1; padding:0.35rem 0.6rem; border:1px solid rgba(255,255,255,0.5); border-radius:0.3rem; font-size:0.78rem; color:#3E2723; background:rgba(255,255,255,0.85);">
+                    <button type="button" id="copyShareLink" style="padding:0.35rem 0.75rem; background:white; color:var(--terracotta); border:1px solid var(--terracotta); border-radius:0.3rem; cursor:pointer; font-size:0.78rem; white-space:nowrap; font-weight:500;">Copy Link</button>
                 </div>
             </div>
         </div>
@@ -1685,184 +1688,184 @@
             <div id="updateSuccess" style="display:none;"></div>
         </div>
 
-        <!-- V2: Drop-off Instructions (organizer only) -->
-        <div id="dropOffSection" style="display: none; background: white; border: 2px solid #a5d6a7; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Drop-off Instructions</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Shared with confirmed meal volunteers in their reminder emails.</p>
-            <textarea id="dropOffInput" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
-            <div style="text-align: right; margin-top: 0.5rem;">
-                <button onclick="saveDropOff()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save</button>
-            </div>
-            <div id="dropOffSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Drop-off instructions saved!</div>
-        </div>
-
-        <!-- V2: Notification Preferences (organizer only) -->
-        <div id="notifSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Email Notifications</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Choose which email updates you'd like to receive.</p>
-            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="notifInstant" checked style="width: 1.1rem; height: 1.1rem;">
-                    Instant notification when someone signs up
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="notifDailySummary" checked style="width: 1.1rem; height: 1.1rem;">
-                    Daily summary (8 PM)
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="notifUncovered" checked style="width: 1.1rem; height: 1.1rem;">
-                    Alert for uncovered meal dates
-                </label>
-            </div>
-            <div style="text-align: right; margin-top: 0.75rem;">
-                <button onclick="saveNotifPrefs()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save Preferences</button>
-            </div>
-            <div id="notifSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Notification preferences saved!</div>
-        </div>
-
-        <!-- V2: Co-Organizer Management (organizer only) -->
-        <div id="coOrgSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Co-Organizers</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Invite someone to help manage this shiva page.</p>
-            <div id="coOrgList" style="margin-bottom: 0.75rem;"></div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <input type="text" id="coOrgName" placeholder="Name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
-                <input type="email" id="coOrgEmail" placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
-                <button onclick="inviteCoOrganizer()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Invite</button>
-            </div>
-            <div id="coOrgSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
-            <div id="coOrgError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
-        </div>
-
-        <!-- V4: Pass Host Section (primary organizer only) -->
-        <div id="passHostSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Transfer Host Authority</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem; line-height: 1.5;">Hand over primary organizer control to someone else. You will remain as a co-organizer with view access. This cannot be undone once accepted.</p>
-            <div id="passHostForm">
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
-                    <input type="text" id="passHostName" placeholder="New host's name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
-                    <input type="email" id="passHostEmail" placeholder="New host's email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
-                </div>
-                <div style="display: flex; justify-content: flex-end;">
-                    <button id="passHostBtn" onclick="initiatePassHost()" style="background: var(--dark-brown); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Transfer Host</button>
-                </div>
-            </div>
-            <div id="passHostPending" style="display: none; background: rgba(210,105,30,0.06); border-radius: 0.5rem; padding: 0.75rem; margin-top: 0.5rem;">
-                <p style="font-size: 0.88rem; color: var(--dark-brown); margin-bottom: 0.4rem;">Transfer pending &mdash; waiting for <span id="passHostPendingEmail" style="font-weight: 600;"></span> to accept.</p>
-                <button id="cancelTransferBtn" onclick="cancelTransfer()" style="font-size: 0.8rem; color: var(--dark-brown); background: none; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 0.2rem 0.6rem; cursor: pointer; font-family: inherit;">Cancel Transfer</button>
-            </div>
-            <div id="passHostSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
-            <div id="passHostError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
-        </div>
-
-        <!-- Dietary Preferences Edit (organizer only) -->
-        <div id="dietaryEditSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Dietary Preferences</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Update dietary needs so volunteers know what to bring.</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; margin-bottom: 1rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryKosher" value="kosher" style="width: 1.1rem; height: 1.1rem;"> Kosher
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryVegetarian" value="vegetarian" style="width: 1.1rem; height: 1.1rem;"> Vegetarian
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryVegan" value="vegan" style="width: 1.1rem; height: 1.1rem;"> Vegan
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryGlutenFree" value="gluten_free" style="width: 1.1rem; height: 1.1rem;"> Gluten-free
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryNutFree" value="nut_free" style="width: 1.1rem; height: 1.1rem;"> Nut-free
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
-                    <input type="checkbox" id="dietaryDairyFree" value="dairy_free" style="width: 1.1rem; height: 1.1rem;"> Dairy-free
-                </label>
-            </div>
-            <label style="display: block; font-size: 0.92rem; color: var(--dark-brown); font-weight: 500; margin-bottom: 0.4rem;">Other Dietary Notes</label>
-            <input type="text" id="dietaryNotesInput" placeholder="e.g., 3 lactose intolerant, no shellfish" style="width: 100%; padding: 0.6rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); box-sizing: border-box;">
-            <div style="text-align: right; margin-top: 0.75rem;">
-                <button id="saveDietaryBtn" onclick="saveDietaryPreferences()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save</button>
-            </div>
-            <div id="dietarySuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dietary preferences saved!</div>
-            <div id="dietaryError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
-        </div>
-
-        <!-- V5: Extend Shiva Dates (organizer only) -->
-        <div id="extendDatesSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Extend Meal Coordination</h3>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5;">Need more time? Extend the meal coordination schedule. All existing signups will be preserved.</p>
-            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <label style="font-size: 0.92rem; color: var(--dark-brown); font-weight: 500;">New end date:</label>
-                <input type="date" id="extendDatePicker" style="padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown);">
-                <button id="extendDatesBtn" onclick="extendShivaDates()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;">Extend Dates</button>
-            </div>
-            <p id="extendDatesCurrentInfo" style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.6rem;"></p>
-            <div id="extendDatesSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
-            <div id="extendDatesError" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
-        </div>
-
-        <!-- V6: Recommend Caterers (organizer only) -->
-        <div id="recommendCaterersSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.25rem;">Recommend Caterers</h3>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5;">Help visitors find meals to send your family</p>
-            <div id="selectedCatererTags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
-            <button id="browseCaterersBtn" onclick="toggleCatererBrowser()" style="background: none; border: 2px solid var(--terracotta); color: var(--terracotta); padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.92rem; cursor: pointer; transition: all 0.2s;">Browse Caterers</button>
-            <div id="catererBrowserGrid" style="display: none; margin-top: 1rem;">
-                <div id="catererBrowserLoading" style="text-align: center; color: var(--sage-dark); font-size: 0.9rem; padding: 1rem;">Loading caterers...</div>
-                <div id="catererBrowserCards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem;"></div>
-                <p id="catererLimitMsg" style="display: none; font-size: 0.82rem; color: var(--terracotta); margin-top: 0.5rem; text-align: center;">Maximum 5 caterers selected</p>
-            </div>
-            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <button id="saveCaterersBtn" onclick="saveRecommendedCaterers()" style="display: none; background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Save Recommendations</button>
-                <span id="saveCaterersSuccess" style="display: none; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Saved!</span>
-                <span id="saveCaterersError" style="display: none; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></span>
-            </div>
-        </div>
-
         <!-- V3: Updates Feed (visible to all visitors) -->
         <div id="updatesFeed" style="display: none; margin: 1.5rem 0;">
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem; text-align: center;">Updates</h3>
             <div id="updatesList"></div>
         </div>
 
-        <!-- V3: Post Update (organizer only) -->
-        <div id="postUpdateSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Post an Update</h3>
-            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share an update with all visitors. You can also email it to signed-up volunteers.</p>
-            <textarea id="newUpdateInput" placeholder="e.g., The family prefers dairy-free meals. Thank you for the outpouring of support..." maxlength="500" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--sage-dark); cursor: pointer;">
-                    <input type="checkbox" id="emailUpdateCheckbox" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
-                    Also email to volunteers
-                </label>
-                <button id="postUpdateBtn" onclick="postUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Post Update</button>
-            </div>
-            <div id="postUpdateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update posted!</div>
-        </div>
+        <!-- ═══ Organizer Tools (collapsible) ═══ -->
+        <div id="organizerToolsWrapper" style="display: none; margin: 1.5rem 0;">
+            <button type="button" id="organizerToolsToggle" onclick="toggleOrganizerTools()" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; cursor: pointer; font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; color: var(--dark-brown); transition: all 0.2s;">
+                <span id="organizerToolsLabel">Manage Page (tap to expand)</span>
+                <svg id="organizerToolsArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="organizerToolsPanel" style="display: none; margin-top: 0.5rem;">
 
-        <!-- V3: Thank-You Notes Button (organizer only) -->
-        <div id="thankYouSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
-            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Thank-You Notes</h3>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">Send a personalized thank-you email to every volunteer who signed up.</p>
-            <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.75rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Send Thank-You Notes</button>
-            <div id="thankYouSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.95rem; color: var(--green-text); font-weight: 500;"></div>
-            <div id="thankYouAlready" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--sage-dark); font-style: italic;">Thank-you notes have already been sent.</div>
-        </div>
+                <!-- Drop-off Instructions -->
+                <div id="dropOffSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Drop-off Instructions</h3>
+                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem;">Shared with volunteers in their reminder emails.</p>
+                    <textarea id="dropOffInput" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204..." rows="2" style="width: 100%; padding: 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+                    <div style="text-align: right; margin-top: 0.4rem;">
+                        <button onclick="saveDropOff()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
+                    </div>
+                    <div id="dropOffSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
+                </div>
 
-        <!-- V4: Donation Prompt (organizer, after thank-yous sent) -->
-        <div id="donationPromptSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
-            <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;" id="donationPromptText">
-                Neshama helped coordinate meals for this family, and it always will be free.
-            </p>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">
-                If it made things a little easier, a $18 chai contribution helps us keep the lights on for the next family.
-            </p>
-            <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-                <a href="/sustain?ref=shiva_thankyou" target="_blank" style="display: inline-block; background: var(--gold); color: white; border: none; padding: 0.65rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer;">Give $18</a>
-                <button onclick="dismissDonationPrompt()" style="background: none; border: none; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.88rem; cursor: pointer; text-decoration: underline; padding: 0.5rem;">Not now</button>
-            </div>
-        </div>
+                <!-- Post Update -->
+                <div id="postUpdateSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Post an Update</h3>
+                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem;">Visible to all visitors. Optionally email to volunteers.</p>
+                    <textarea id="newUpdateInput" placeholder="e.g., The family prefers dairy-free meals..." maxlength="500" rows="2" style="width: 100%; padding: 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; flex-wrap: wrap; gap: 0.4rem;">
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--sage-dark); cursor: pointer;">
+                            <input type="checkbox" id="emailUpdateCheckbox" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
+                            Also email volunteers
+                        </label>
+                        <button id="postUpdateBtn" onclick="postUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Post</button>
+                    </div>
+                    <div id="postUpdateSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Posted!</div>
+                </div>
+
+                <!-- Dietary Preferences -->
+                <div id="dietaryEditSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Dietary Preferences</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 0.75rem; margin-bottom: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryKosher" value="kosher" style="width: 1rem; height: 1rem;"> Kosher
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryVegetarian" value="vegetarian" style="width: 1rem; height: 1rem;"> Vegetarian
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryVegan" value="vegan" style="width: 1rem; height: 1rem;"> Vegan
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryGlutenFree" value="gluten_free" style="width: 1rem; height: 1rem;"> Gluten-free
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryNutFree" value="nut_free" style="width: 1rem; height: 1rem;"> Nut-free
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="dietaryDairyFree" value="dairy_free" style="width: 1rem; height: 1rem;"> Dairy-free
+                        </label>
+                    </div>
+                    <input type="text" id="dietaryNotesInput" placeholder="e.g., 3 lactose intolerant, no shellfish" style="width: 100%; padding: 0.5rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; color: var(--dark-brown); box-sizing: border-box;">
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <button id="saveDietaryBtn" onclick="saveDietaryPreferences()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
+                    </div>
+                    <div id="dietarySuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
+                    <div id="dietaryError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
+                </div>
+
+                <!-- Extend Dates -->
+                <div id="extendDatesSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Extend Dates</h3>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <input type="date" id="extendDatePicker" style="padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; color: var(--dark-brown);">
+                        <button id="extendDatesBtn" onclick="extendShivaDates()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Extend</button>
+                    </div>
+                    <p id="extendDatesCurrentInfo" style="font-size: 0.8rem; color: var(--sage-dark); margin-top: 0.4rem;"></p>
+                    <div id="extendDatesSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
+                    <div id="extendDatesError" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
+                </div>
+
+                <!-- Recommend Caterers -->
+                <div id="recommendCaterersSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Recommend Caterers</h3>
+                    <div id="selectedCatererTags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
+                    <button id="browseCaterersBtn" onclick="toggleCatererBrowser()" style="background: none; border: 1.5px solid var(--terracotta); color: var(--terracotta); padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Browse Caterers</button>
+                    <div id="catererBrowserGrid" style="display: none; margin-top: 0.75rem;">
+                        <div id="catererBrowserLoading" style="text-align: center; color: var(--sage-dark); font-size: 0.85rem; padding: 0.75rem;">Loading...</div>
+                        <div id="catererBrowserCards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.5rem;"></div>
+                        <p id="catererLimitMsg" style="display: none; font-size: 0.8rem; color: var(--terracotta); margin-top: 0.4rem; text-align: center;">Max 5 selected</p>
+                    </div>
+                    <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="saveCaterersBtn" onclick="saveRecommendedCaterers()" style="display: none; background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
+                        <span id="saveCaterersSuccess" style="display: none; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</span>
+                        <span id="saveCaterersError" style="display: none; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></span>
+                    </div>
+                </div>
+
+                <!-- Co-Organizers -->
+                <div id="coOrgSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Co-Organizers</h3>
+                    <div id="coOrgList" style="margin-bottom: 0.5rem;"></div>
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                        <input type="text" id="coOrgName" placeholder="Name" style="flex: 1; min-width: 100px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
+                        <input type="email" id="coOrgEmail" placeholder="Email" style="flex: 2; min-width: 150px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
+                        <button onclick="inviteCoOrganizer()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Invite</button>
+                    </div>
+                    <div id="coOrgSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
+                    <div id="coOrgError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
+                </div>
+
+                <!-- Notification Preferences -->
+                <div id="notifSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Email Notifications</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="notifInstant" checked style="width: 1rem; height: 1rem;">
+                            When someone signs up
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="notifDailySummary" checked style="width: 1rem; height: 1rem;">
+                            Daily summary (8 PM)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
+                            <input type="checkbox" id="notifUncovered" checked style="width: 1rem; height: 1rem;">
+                            Uncovered meal alerts
+                        </label>
+                    </div>
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <button onclick="saveNotifPrefs()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
+                    </div>
+                    <div id="notifSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
+                </div>
+
+                <!-- Thank-You Notes -->
+                <div id="thankYouSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem; text-align: center;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Thank-You Notes</h3>
+                    <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Email a thank-you to every volunteer.</p>
+                    <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Send Thank-You Notes</button>
+                    <div id="thankYouSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
+                    <div id="thankYouAlready" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--sage-dark); font-style: italic;">Already sent.</div>
+                </div>
+
+                <!-- Transfer Host -->
+                <div id="passHostSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Transfer Host</h3>
+                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem; line-height: 1.4;">Hand over organizer control. You'll remain as co-organizer.</p>
+                    <div id="passHostForm">
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.4rem;">
+                            <input type="text" id="passHostName" placeholder="Name" style="flex: 1; min-width: 100px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
+                            <input type="email" id="passHostEmail" placeholder="Email" style="flex: 2; min-width: 150px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
+                        </div>
+                        <div style="text-align: right;">
+                            <button id="passHostBtn" onclick="initiatePassHost()" style="background: var(--dark-brown); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Transfer</button>
+                        </div>
+                    </div>
+                    <div id="passHostPending" style="display: none; background: rgba(210,105,30,0.06); border-radius: 0.5rem; padding: 0.5rem; margin-top: 0.4rem;">
+                        <p style="font-size: 0.82rem; color: var(--dark-brown); margin-bottom: 0.3rem;">Pending &mdash; waiting for <span id="passHostPendingEmail" style="font-weight: 600;"></span></p>
+                        <button id="cancelTransferBtn" onclick="cancelTransfer()" style="font-size: 0.78rem; color: var(--dark-brown); background: none; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 0.15rem 0.5rem; cursor: pointer; font-family: inherit;">Cancel</button>
+                    </div>
+                    <div id="passHostSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
+                    <div id="passHostError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
+                </div>
+
+                <!-- Donation Prompt -->
+                <div id="donationPromptSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem; text-align: center;">
+                    <p style="font-size: 0.95rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;" id="donationPromptText">Neshama is free, always.</p>
+                    <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">A $18 chai contribution helps us serve the next family.</p>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                        <a href="/sustain?ref=shiva_thankyou" target="_blank" style="display: inline-block; background: var(--gold); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; text-decoration: none;">Give $18</a>
+                        <button onclick="dismissDonationPrompt()" style="background: none; border: none; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">Not now</button>
+                    </div>
+                </div>
+
+            </div><!-- end organizerToolsPanel -->
+        </div><!-- end organizerToolsWrapper -->
 
         <!-- Info Cards -->
         <div class="info-cards" id="infoCards"></div>
@@ -2236,6 +2239,21 @@
         }
 
         function show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
+
+        window.toggleOrganizerTools = function() {
+            var panel = document.getElementById('organizerToolsPanel');
+            var arrow = document.getElementById('organizerToolsArrow');
+            var label = document.getElementById('organizerToolsLabel');
+            if (panel.style.display === 'none') {
+                panel.style.display = '';
+                arrow.style.transform = 'rotate(180deg)';
+                if (label) label.textContent = 'Manage Page (tap to collapse)';
+            } else {
+                panel.style.display = 'none';
+                arrow.style.transform = '';
+                if (label) label.textContent = 'Manage Page (tap to expand)';
+            }
+        };
         function hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
         // ── Load Support Data ───────────────────────────
@@ -2572,6 +2590,9 @@
 
                 // V6: Recommend Caterers section
                 initRecommendCaterersSection();
+
+                // Show the collapsible organizer tools wrapper
+                document.getElementById('organizerToolsWrapper').style.display = '';
             }
 
             // Address for organizer

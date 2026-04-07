@@ -608,7 +608,7 @@ class ShivaManager:
                 self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
                 data['shiva_end_date'].strip()[:10],
-                1 if data.get('pause_shabbat', True) else 0,
+                1 if data.get('pause_shabbat', False) else 0,
                 max(1, min(200, int(data.get('guests_per_meal', 20)))),
                 self._sanitize_text(data.get('dietary_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 self._sanitize_text(data.get('special_instructions', ''), self.MAX_TEXT_LENGTH) or None,
