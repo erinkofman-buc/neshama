@@ -213,7 +213,8 @@ class NeshamaDatabase:
     def generate_content_hash(self, obituary_data):
         """Generate hash of content to detect changes"""
         # Combine key fields that might change
-        content = f"{obituary_data.get('funeral_datetime', '')}_" \
+        content = f"{obituary_data.get('deceased_name', '')}_" \
+                  f"{obituary_data.get('funeral_datetime', '')}_" \
                   f"{obituary_data.get('shiva_info', '')}_" \
                   f"{obituary_data.get('livestream_url', '')}"
         return hashlib.md5(content.encode()).hexdigest()
