@@ -375,9 +375,6 @@
             border-radius: 0.5rem;
             border: 1px solid var(--light-taupe);
         }
-        .meal-block-row.shabbat {
-            opacity: 0.5;
-        }
         .meal-block-day {
             font-size: 0.85rem;
             font-weight: 600;
@@ -889,15 +886,6 @@
                 </select>
             </div>
 
-            <div class="toggle-group" style="margin-top: 1rem;">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="privacyToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Keep this shiva page private</span>
-            </div>
-            <p class="toggle-hint">Only people you approve can see the address, dietary details, and meal signup. The family name and shiva dates will still be visible.</p>
-
             <div class="form-group">
                 <label for="shivaStartDate">Start Date</label>
                 <input type="date" id="shivaStartDate" required>
@@ -960,7 +948,7 @@
             </div>
         </div>
 
-        <!-- Step 2: Your Information -->
+        <!-- Step 2: Organizer Information -->
         <div class="step-card" id="step2">
             <h2 class="step-title">Organizer Information</h2>
 
@@ -1090,46 +1078,12 @@
         var obituaryId = null;
         var createdId = null;
         var createdToken = null;
-        var createdShareToken = null;
-        var createdPrivacy = null;
         var forceCreate = false;
 
-        // ── Location Hierarchy ────────────────────────────
-        var subAreas = {
-            'Toronto': [
-                'North York',
-                'Thornhill/Vaughan',
-                'Etobicoke',
-                'Scarborough',
-                'Midtown',
-                'Downtown'
-            ],
-            'Montreal': [
-                'C\u00f4te-Saint-Luc',
-                'NDG/Westmount',
-                'Hampstead',
-                'Dollard-des-Ormeaux',
-                'Laval'
-            ]
-        };
-
+        // Called on city select change. Sub-area/neighbourhood UI removed in V3 —
+        // this now exists only to re-filter the recommended-caterer list when the
+        // organizer picks a city.
         window.updateSubAreas = function() {
-            var city = document.getElementById('shivaCity').value;
-            var group = document.getElementById('subAreaGroup');
-            var select = document.getElementById('shivaSubArea');
-
-            if (city && subAreas[city]) {
-                var html = '<option value="">All areas</option>';
-                subAreas[city].forEach(function(area) {
-                    html += '<option value="' + area + '">' + area + '</option>';
-                });
-                select.innerHTML = html;
-                group.style.display = '';
-            } else {
-                group.style.display = 'none';
-                select.innerHTML = '<option value="">All areas</option>';
-            }
-
             // Re-filter caterer list when city changes
             if (vendorData.length) {
                 // Remove selections no longer in filtered set
@@ -1399,7 +1353,6 @@
 
             section.style.display = '';
             grid.innerHTML = '';
-            var pauseShabbat = document.getElementById('pauseShabbat').checked;
             var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -1408,53 +1361,45 @@
                 var dateStr = current.toISOString().split('T')[0];
                 var dayName = days[current.getDay()];
                 var label = dayName + ', ' + months[current.getMonth()] + ' ' + current.getDate();
-                var isShabbat = pauseShabbat && (current.getDay() === 5 || current.getDay() === 6);
 
                 var row = document.createElement('div');
-                row.className = 'meal-block-row' + (isShabbat ? ' shabbat' : '');
+                row.className = 'meal-block-row';
 
                 var dayLabel = document.createElement('div');
                 dayLabel.className = 'meal-block-day';
                 dayLabel.textContent = label;
                 row.appendChild(dayLabel);
 
-                if (isShabbat) {
-                    var note = document.createElement('span');
-                    note.style.cssText = 'font-size: 0.8rem; color: var(--sage-dark); font-style: italic;';
-                    note.textContent = 'Shabbat — paused';
-                    row.appendChild(note);
-                } else {
-                    ['Lunch', 'Dinner'].forEach(function(mealType) {
-                        var btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'meal-block-btn';
-                        btn.textContent = mealType;
-                        btn.dataset.date = dateStr;
-                        btn.dataset.meal = mealType;
+                ['Lunch', 'Dinner'].forEach(function(mealType) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'meal-block-btn';
+                    btn.textContent = mealType;
+                    btn.dataset.date = dateStr;
+                    btn.dataset.meal = mealType;
 
-                        // Check if already blocked
-                        var isBlocked = blockedMeals.some(function(bm) {
-                            return bm.date === dateStr && bm.meal_type === mealType;
-                        });
-                        if (isBlocked) btn.classList.add('blocked');
-
-                        btn.addEventListener('click', function() {
-                            var d = this.dataset.date;
-                            var m = this.dataset.meal;
-                            var idx = blockedMeals.findIndex(function(bm) {
-                                return bm.date === d && bm.meal_type === m;
-                            });
-                            if (idx >= 0) {
-                                blockedMeals.splice(idx, 1);
-                                this.classList.remove('blocked');
-                            } else {
-                                blockedMeals.push({ date: d, meal_type: m });
-                                this.classList.add('blocked');
-                            }
-                        });
-                        row.appendChild(btn);
+                    // Check if already blocked
+                    var isBlocked = blockedMeals.some(function(bm) {
+                        return bm.date === dateStr && bm.meal_type === mealType;
                     });
-                }
+                    if (isBlocked) btn.classList.add('blocked');
+
+                    btn.addEventListener('click', function() {
+                        var d = this.dataset.date;
+                        var m = this.dataset.meal;
+                        var idx = blockedMeals.findIndex(function(bm) {
+                            return bm.date === d && bm.meal_type === m;
+                        });
+                        if (idx >= 0) {
+                            blockedMeals.splice(idx, 1);
+                            this.classList.remove('blocked');
+                        } else {
+                            blockedMeals.push({ date: d, meal_type: m });
+                            this.classList.add('blocked');
+                        }
+                    });
+                    row.appendChild(btn);
+                });
 
                 grid.appendChild(row);
                 current.setDate(current.getDate() + 1);
@@ -1472,7 +1417,6 @@
             buildMealBlockingGrid();
         });
         document.getElementById('shivaEndDate').addEventListener('change', buildMealBlockingGrid);
-        document.getElementById('pauseShabbat').addEventListener('change', buildMealBlockingGrid);
 
         // ── Step Navigation ─────────────────────────────
         window.goToStep = function(step) {
@@ -1567,23 +1511,31 @@
         }
 
         // ── Build Review Summary ────────────────────────
+        function getSelectedDietary() {
+            var chips = document.querySelectorAll('input[name="dietary"]:checked');
+            var list = [];
+            chips.forEach(function(cb) { list.push(cb.value); });
+            var other = (document.getElementById('dietaryOther').value || '').trim();
+            if (other) list.push(other);
+            return list;
+        }
+
         function buildReview() {
             var items = [
                 ['Organizer', document.getElementById('organizerName').value],
                 ['Email', document.getElementById('organizerEmail').value],
                 ['Relationship', document.getElementById('organizerRelationship').value],
                 ['Family', document.getElementById('familyName').value],
-                ['Location', (document.getElementById('shivaCity').value || '(not specified)') + (document.getElementById('shivaSubArea').value ? ' \u2014 ' + document.getElementById('shivaSubArea').value : '')],
+                ['Location', document.getElementById('shivaCity').value || '(not specified)'],
                 ['Start', document.getElementById('shivaStartDate').value],
                 ['End', document.getElementById('shivaEndDate').value],
-                ['Shabbat pause', document.getElementById('pauseShabbat').checked ? 'Yes' : 'No'],
                 ['Guests per meal', document.getElementById('guestsPerMeal').value],
             ];
 
-            var diet = document.getElementById('dietaryNotes').value.trim();
-            if (diet) items.push(['Dietary', diet.substring(0, 80) + (diet.length > 80 ? '...' : '')]);
+            var diet = getSelectedDietary();
+            if (diet.length) items.push(['Dietary', diet.join(', ')]);
             var famNotes = document.getElementById('familyNotes').value.trim();
-            if (famNotes) items.push(['Family note', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
+            if (famNotes) items.push(['Note to visitors', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
             if (selectedVendors.length) items.push(['Recommended caterers', selectedVendors.length + ' selected']);
 
             var html = '';
@@ -1605,6 +1557,7 @@
             btn.textContent = 'Setting up...';
             errEl.classList.remove('active');
 
+            var dietaryList = getSelectedDietary();
             var payload = {
                 obituary_id: obituaryId || null,
                 organizer_name: document.getElementById('organizerName').value.trim(),
@@ -1614,16 +1567,11 @@
                 family_name: document.getElementById('familyName').value.trim(),
                 shiva_address: document.getElementById('shivaAddress').value.trim(),
                 shiva_city: document.getElementById('shivaCity').value,
-                shiva_sub_area: document.getElementById('shivaSubArea').value || null,
                 shiva_start_date: document.getElementById('shivaStartDate').value,
                 shiva_end_date: document.getElementById('shivaEndDate').value,
-                pause_shabbat: document.getElementById('pauseShabbat').checked,
                 guests_per_meal: parseInt(document.getElementById('guestsPerMeal').value) || 20,
-                dietary_notes: document.getElementById('dietaryNotes').value.trim(),
-                special_instructions: document.getElementById('specialInstructions').value.trim(),
-                drop_off_instructions: document.getElementById('dropOffInstructions').value.trim(),
+                dietary_restrictions: dietaryList.length ? dietaryList : undefined,
                 family_notes: document.getElementById('familyNotes').value.trim(),
-                privacy: document.getElementById('privacyToggle').checked ? 'private' : 'public',
                 privacy_consent: true,
                 recommended_vendors: selectedVendors.length ? selectedVendors : undefined,
                 blocked_meals: blockedMeals.length ? blockedMeals : undefined
@@ -1647,8 +1595,6 @@
                 if (data.status === 'success') {
                     createdId = data.id;
                     createdToken = data.magic_token;
-                    createdShareToken = data.share_token || null;
-                    createdPrivacy = data.privacy || 'public';
                     showSuccess();
                 } else if (data.status === 'duplicate') {
                     btn.disabled = false;
@@ -1746,11 +1692,7 @@
         };
 
         function getShareUrl() {
-            var pageUrl = document.getElementById('viewPageLink').href;
-            if (createdPrivacy === 'private' && createdShareToken) {
-                pageUrl += '?access=' + encodeURIComponent(createdShareToken);
-            }
-            return pageUrl;
+            return document.getElementById('viewPageLink').href;
         }
 
         window.shareWhatsApp = function() {
