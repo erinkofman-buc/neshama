@@ -304,6 +304,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/yahrzeit': ('yahrzeit.html', 'text/html'),
         '/yahrzeit.html': ('yahrzeit.html', 'text/html'),
         '/find-my-page': ('find-my-page.html', 'text/html'),
+        '/shiva/dashboard': ('shiva-dashboard.html', 'text/html'),
+        '/shiva/dashboard.html': ('shiva-dashboard.html', 'text/html'),
         '/dashboard': ('dashboard.html', 'text/html'),
         '/cofounder': ('dashboard.html', 'text/html'),
         '/dashboard.html': ('dashboard.html', 'text/html'),
