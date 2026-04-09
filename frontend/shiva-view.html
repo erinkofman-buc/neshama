@@ -2934,8 +2934,8 @@
                     if (v.neighborhood) {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
                     }
-                    if (v.kosher_status) {
-                        html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
+                    if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                        html += '<div class="caterer-rec-detail">Kosher (' + v.kosher_status + ')</div>';
                     }
                     if (v.phone) {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.phone) + '</div>';

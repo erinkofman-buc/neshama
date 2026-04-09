@@ -556,10 +556,10 @@
             document.getElementById('vendorDesc').textContent = v.description || '';
 
             if (v.kosher_status === 'COR') {
-                document.getElementById('kosherBadge').textContent = 'COR Certified';
+                document.getElementById('kosherBadge').textContent = 'Kosher (COR)';
                 document.getElementById('kosherBadge').style.display = 'inline-block';
             } else if (v.kosher_status === 'MK') {
-                document.getElementById('kosherBadge').textContent = 'MK Certified';
+                document.getElementById('kosherBadge').textContent = 'Kosher (MK)';
                 document.getElementById('kosherBadge').style.display = 'inline-block';
             }
 
@@ -586,9 +586,9 @@
                 rows += '<div class="info-row"><span class="info-label">Instagram</span><span class="info-value"><a href="' + escapeHtml(igTrackUrl) + '" target="_blank" rel="noopener">@' + escapeHtml(ig) + '</a></span></div>';
             }
             if (v.kosher_status === 'COR') {
-                rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">COR Certified</span></div>';
+                rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">Kosher (COR)</span></div>';
             } else if (v.kosher_status === 'MK') {
-                rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">MK Certified</span></div>';
+                rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">Kosher (MK)</span></div>';
             }
             rows += '<div class="info-row"><span class="info-label">Delivery</span><span class="info-value">' + (v.delivery ? 'Delivery available' : 'Pickup only') + '</span></div>';
 

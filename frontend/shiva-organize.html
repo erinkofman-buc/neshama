@@ -1730,7 +1730,13 @@
                 if (data.status === 'success') {
                     createdId = data.id;
                     createdToken = data.magic_token;
-                    showSuccess();
+                    // V3: redirect to organizer dashboard instead of inline success state.
+                    // The dashboard becomes the post-creation landing experience and
+                    // the ongoing management surface.
+                    var dashUrl = '/shiva/dashboard?id=' + encodeURIComponent(createdId) +
+                                  '&token=' + encodeURIComponent(createdToken);
+                    window.location.href = dashUrl;
+                    return;
                 } else if (data.status === 'duplicate') {
                     btn.disabled = false;
                     btn.textContent = 'Set Up Support Page';
@@ -1960,7 +1966,7 @@
                     html += '<div class="caterer-card-name">' + escapeHtml(v.name) + '</div>';
                 }
                 if (v.neighborhood) html += '<div class="caterer-card-detail">' + escapeHtml(v.neighborhood) + '</div>';
-                if (v.kosher_status && v.kosher_status !== 'not_certified') html += '<div class="caterer-card-detail">' + escapeHtml(v.kosher_status) + '</div>';
+                if (v.kosher_status === 'COR' || v.kosher_status === 'MK') html += '<div class="caterer-card-detail">Kosher (' + v.kosher_status + ')</div>';
                 html += '</div></div>';
             });
             grid.innerHTML = html;

@@ -390,6 +390,93 @@
             margin-bottom: 0.5rem;
         }
 
+        /* -- Per-meal guest count -- */
+        .slot-guest-count-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .slot-guest-count-label {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            font-weight: 500;
+        }
+        .slot-guest-count {
+            width: 60px;
+            padding: 0.35rem 0.5rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.35rem;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--dark-brown);
+            text-align: center;
+            background: white;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .slot-guest-count::-webkit-outer-spin-button,
+        .slot-guest-count::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .slot-guest-count:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        /* -- Block / Unblock meal buttons -- */
+        .slot-block-btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            background: transparent;
+            color: var(--sage-dark);
+            border: 1px solid var(--light-taupe);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slot-block-btn:hover {
+            border-color: var(--sage-dark);
+            color: var(--dark-brown);
+            background: rgba(139, 120, 95, 0.05);
+        }
+        .meal-slot.blocked {
+            opacity: 0.7;
+            background: rgba(139, 120, 95, 0.06);
+            border-left-color: var(--sage-dark) !important;
+        }
+        .meal-slot.blocked .slot-label {
+            color: var(--sage-dark);
+            text-decoration: line-through;
+        }
+        .blocked-note {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            font-style: italic;
+            margin-top: 0.35rem;
+        }
+        .slot-unblock-btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            background: transparent;
+            color: var(--terracotta);
+            border: 1px solid var(--terracotta);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slot-unblock-btn:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
         .walkin-btn {
             display: inline-flex;
             align-items: center;
@@ -491,6 +578,35 @@
         .save-feedback.visible { opacity: 1; }
         .save-feedback.success { color: var(--success-text); }
         .save-feedback.error { color: var(--danger-text); }
+
+        /* -- Dietary Pill Chips (matches shiva-organize.html) -- */
+        .dietary-chip {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .dietary-chip input {
+            display: none;
+        }
+        .dietary-chip span {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 2rem;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--sage-dark);
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .dietary-chip:hover span {
+            border-color: var(--terracotta);
+            color: var(--dark-brown);
+        }
+        .dietary-chip input:checked + span {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+            color: white;
+        }
 
         /* -- Checkbox Row -- */
         .checkbox-row {
@@ -918,20 +1034,19 @@
                         <input type="number" id="editGuestsPerMeal" min="1" max="200" placeholder="20">
                     </div>
                     <div class="form-group">
-                        <label for="editDietaryNotes">Dietary notes</label>
-                        <textarea id="editDietaryNotes" placeholder="Any allergies or dietary preferences"></textarea>
+                        <label>Dietary requirements</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem;">
+                            <label class="dietary-chip"><input type="checkbox" name="editDietary" value="kosher"><span>Kosher</span></label>
+                            <label class="dietary-chip"><input type="checkbox" name="editDietary" value="nut-free"><span>Nut-free</span></label>
+                            <label class="dietary-chip"><input type="checkbox" name="editDietary" value="vegetarian"><span>Vegetarian</span></label>
+                            <label class="dietary-chip"><input type="checkbox" name="editDietary" value="dairy-free"><span>Dairy-free</span></label>
+                            <label class="dietary-chip"><input type="checkbox" name="editDietary" value="gluten-free"><span>Gluten-free</span></label>
+                        </div>
+                        <input type="text" id="editDietaryOther" placeholder="Other dietary needs..." style="margin-top: 0.75rem;">
                     </div>
                     <div class="form-group">
                         <label for="editFamilyNotes">Note to volunteers</label>
                         <textarea id="editFamilyNotes" placeholder="A message from the family to volunteers"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editSpecialInstructions">Special instructions</label>
-                        <textarea id="editSpecialInstructions" placeholder="Anything else volunteers should know"></textarea>
-                    </div>
-                    <div class="checkbox-row">
-                        <input type="checkbox" id="editPauseShabbat">
-                        <label for="editPauseShabbat">Pause meals for Shabbat (Friday sunset - Saturday sunset)</label>
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem;">
                         <button class="save-btn" id="saveDetailsBtn" onclick="saveDetails()">Save changes</button>
@@ -1036,6 +1151,9 @@
         var supportData = null;
         var mealsData = [];
         var blockedMealsSet = {};
+        // Map of "YYYY-MM-DD_Lunch" -> guest count override (only populated for
+        // meals that differ from supportData.guests_per_meal default).
+        var mealGuestOverridesMap = {};
         var mealSchedule = {};
         var walkinDate = null;
         var walkinType = null;
@@ -1160,6 +1278,22 @@
                         } catch (e) {}
                     }
 
+                    // Parse per-meal guest count overrides (V3)
+                    if (supportData.meal_guest_overrides) {
+                        try {
+                            var overrides = typeof supportData.meal_guest_overrides === 'string'
+                                ? JSON.parse(supportData.meal_guest_overrides)
+                                : supportData.meal_guest_overrides;
+                            if (Array.isArray(overrides)) {
+                                overrides.forEach(function(o) {
+                                    if (o.date && o.meal_type && o.guest_count) {
+                                        mealGuestOverridesMap[o.date + '_' + o.meal_type] = parseInt(o.guest_count, 10);
+                                    }
+                                });
+                            }
+                        } catch (e) {}
+                    }
+
                     // Parse meal schedule
                     if (supportData.meal_schedule) {
                         try {
@@ -1238,11 +1372,8 @@
             });
 
             days.forEach(function(dateStr) {
-                var shabbatDay = isShabbat(dateStr);
-                var shabbatPause = shabbatDay && d.pause_shabbat;
                 ['Lunch', 'Dinner'].forEach(function(type) {
                     if (isMealBlocked(dateStr, type) || isMealDisabledInSchedule(dateStr, type)) return;
-                    if (shabbatPause) return;
                     totalSlots++;
                     var key = dateStr + '_' + type;
                     if (signupMap[key] && signupMap[key].length > 0) {
@@ -1278,7 +1409,6 @@
             if (!d.shiva_start_date || !d.shiva_end_date) return;
 
             var days = getDaysBetween(d.shiva_start_date, d.shiva_end_date);
-            var pauseShabbat = d.pause_shabbat;
 
             var signupMap = {};
             mealsData.forEach(function(s) {
@@ -1295,7 +1425,6 @@
             var calHtml = '';
 
             days.forEach(function(dateStr) {
-                var shabbatDay = isShabbat(dateStr);
                 var dayName = formatDateLong(dateStr);
                 var mealTypes = ['Lunch', 'Dinner'];
                 var slotsHtml = '';
@@ -1305,12 +1434,16 @@
                 mealTypes.forEach(function(type) {
                     var blocked = isMealBlocked(dateStr, type);
                     var disabled = isMealDisabledInSchedule(dateStr, type);
-                    var shabbatPause = shabbatDay && pauseShabbat;
 
-                    if (blocked || disabled) return;
+                    if (disabled) return;
 
-                    if (shabbatPause) {
-                        slotsHtml += '<div class="meal-slot shabbat-empty">Shiva pauses for Shabbat</div>';
+                    if (blocked) {
+                        // Render blocked slot so organizer can unblock it
+                        slotsHtml += '<div class="meal-slot blocked">';
+                        slotsHtml += '<div class="slot-label">' + escapeHtml(type) + '</div>';
+                        slotsHtml += '<div class="blocked-note">Blocked — not shown to volunteers</div>';
+                        slotsHtml += '<button class="slot-unblock-btn" onclick="toggleBlockMeal(\'' + dateStr + '\', \'' + type + '\', false)">Unblock this meal</button>';
+                        slotsHtml += '</div>';
                         return;
                     }
 
@@ -1354,22 +1487,37 @@
                         slotsHtml += '<div class="open-slot-text">No one signed up yet</div>';
                     }
 
-                    // Walk-in button always present
-                    slotsHtml += '<button class="walkin-btn" onclick="openWalkinModal(\'' + dateStr + '\', \'' + type + '\')">+ Add walk-in</button>';
+                    // Per-meal guest count (inline editor). Default is the
+                    // shiva's guests_per_meal; override stored only if different.
+                    var defaultGuests = parseInt(supportData.guests_per_meal, 10) || 20;
+                    var currentGuests = mealGuestOverridesMap[dateStr + '_' + type];
+                    if (!currentGuests) currentGuests = defaultGuests;
+                    slotsHtml += '<div class="slot-guest-count-row">';
+                    slotsHtml += '<label class="slot-guest-count-label">Guests:</label>';
+                    slotsHtml += '<input type="number" class="slot-guest-count" min="1" max="200" ';
+                    slotsHtml += 'value="' + currentGuests + '" ';
+                    slotsHtml += 'data-date="' + dateStr + '" data-meal="' + type + '" ';
+                    slotsHtml += 'onchange="updateMealGuestCount(this)">';
+                    slotsHtml += '</div>';
+
+                    // Only allow blocking when no one has signed up. Blocking a
+                    // slot with a committed signup would leave the volunteer
+                    // stranded without their meal being on the schedule.
+                    if (signups.length === 0) {
+                        slotsHtml += '<button class="slot-block-btn" onclick="toggleBlockMeal(\'' + dateStr + '\', \'' + type + '\', true)">Block this meal</button>';
+                    }
+
                     slotsHtml += '</div>';
                 });
 
                 if (!slotsHtml) return;
 
                 var dayClass = 'day-card';
-                if (shabbatDay && pauseShabbat) dayClass += ' shabbat';
-                else if (dayTotal > 0 && dayCovered === dayTotal) dayClass += ' all-covered';
+                if (dayTotal > 0 && dayCovered === dayTotal) dayClass += ' all-covered';
                 else if (dayCovered > 0) dayClass += ' partial';
 
                 var headerRight = '';
-                if (shabbatDay && pauseShabbat) {
-                    headerRight = '<span class="shabbat-badge">Shabbat</span>';
-                } else if (dayTotal > 0 && dayCovered === dayTotal) {
+                if (dayTotal > 0 && dayCovered === dayTotal) {
                     headerRight = '<span class="day-check" aria-label="All meals covered">&#10003;</span>';
                 }
 
@@ -1438,10 +1586,44 @@
             document.getElementById('editCity').value = d.shiva_city || '';
             document.getElementById('editDropoff').value = d.drop_off_instructions || '';
             document.getElementById('editGuestsPerMeal').value = d.guests_per_meal || '';
-            document.getElementById('editDietaryNotes').value = d.dietary_notes || '';
             document.getElementById('editFamilyNotes').value = d.family_notes || '';
-            document.getElementById('editSpecialInstructions').value = d.special_instructions || '';
-            document.getElementById('editPauseShabbat').checked = !!d.pause_shabbat;
+
+            // V3: dietary_restrictions is a JSON array of chip values (+ optional
+            // free-text "other" entries). Legacy rows may have plain text in
+            // dietary_notes — fall back to putting that in the "Other" field.
+            var chips = [];
+            var other = '';
+            var raw = d.dietary_restrictions;
+            if (raw) {
+                try {
+                    var arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (Array.isArray(arr)) {
+                        var known = {kosher:1,'nut-free':1,vegetarian:1,'dairy-free':1,'gluten-free':1};
+                        arr.forEach(function(v) {
+                            var s = String(v).trim();
+                            if (known[s]) chips.push(s);
+                            else if (s) other = other ? other + ', ' + s : s;
+                        });
+                    }
+                } catch(e) { /* fall through */ }
+            }
+            if (!chips.length && !other && d.dietary_notes) {
+                other = d.dietary_notes;  // legacy fallback
+            }
+            document.querySelectorAll('input[name="editDietary"]').forEach(function(cb) {
+                cb.checked = chips.indexOf(cb.value) !== -1;
+            });
+            document.getElementById('editDietaryOther').value = other;
+        }
+
+        function getEditDietary() {
+            var list = [];
+            document.querySelectorAll('input[name="editDietary"]:checked').forEach(function(cb) {
+                list.push(cb.value);
+            });
+            var other = (document.getElementById('editDietaryOther').value || '').trim();
+            if (other) list.push(other);
+            return list;
         }
 
         // -- Save Details --
@@ -1452,6 +1634,7 @@
             feedback.className = 'save-feedback';
             feedback.textContent = '';
 
+            var dietaryList = getEditDietary();
             var payload = {
                 magic_token: magicToken,
                 family_name: document.getElementById('editFamilyName').value.trim(),
@@ -1461,10 +1644,8 @@
                 shiva_city: document.getElementById('editCity').value.trim(),
                 drop_off_instructions: document.getElementById('editDropoff').value.trim(),
                 guests_per_meal: parseInt(document.getElementById('editGuestsPerMeal').value) || 20,
-                dietary_notes: document.getElementById('editDietaryNotes').value.trim(),
-                family_notes: document.getElementById('editFamilyNotes').value.trim(),
-                special_instructions: document.getElementById('editSpecialInstructions').value.trim(),
-                pause_shabbat: document.getElementById('editPauseShabbat').checked ? 1 : 0
+                dietary_restrictions: dietaryList,
+                family_notes: document.getElementById('editFamilyNotes').value.trim()
             };
 
             fetch('/api/shiva/' + encodeURIComponent(shivaId), {
@@ -1486,10 +1667,8 @@
                     supportData.shiva_city = payload.shiva_city;
                     supportData.drop_off_instructions = payload.drop_off_instructions;
                     supportData.guests_per_meal = payload.guests_per_meal;
-                    supportData.dietary_notes = payload.dietary_notes;
+                    supportData.dietary_restrictions = JSON.stringify(payload.dietary_restrictions);
                     supportData.family_notes = payload.family_notes;
-                    supportData.special_instructions = payload.special_instructions;
-                    supportData.pause_shabbat = payload.pause_shabbat;
                     // Re-render affected sections
                     document.getElementById('heroTitle').textContent = "You're organizing meals for the " + (payload.family_name || 'Family') + ' family';
                     if (payload.shiva_start_date && payload.shiva_end_date) {
@@ -1615,6 +1794,117 @@
                 showToast('Network error');
             });
         }
+
+        // -- Per-meal guest count edit --
+        // Organizer can adjust the number of guests expected at a single meal
+        // (different from the shiva default). Saves immediately via PUT. Stored
+        // only when it differs from supportData.guests_per_meal.
+        window.updateMealGuestCount = function(inputEl) {
+            var dateStr = inputEl.getAttribute('data-date');
+            var mealType = inputEl.getAttribute('data-meal');
+            var defaultGuests = parseInt(supportData.guests_per_meal, 10) || 20;
+            var newVal = parseInt(inputEl.value, 10);
+            if (isNaN(newVal)) newVal = defaultGuests;
+            newVal = Math.max(1, Math.min(200, newVal));
+            inputEl.value = newVal;
+
+            // Rebuild the array from current map state, then upsert this entry.
+            var key = dateStr + '_' + mealType;
+            if (newVal === defaultGuests) {
+                delete mealGuestOverridesMap[key];
+            } else {
+                mealGuestOverridesMap[key] = newVal;
+            }
+
+            var arr = [];
+            Object.keys(mealGuestOverridesMap).forEach(function(k) {
+                var parts = k.split('_');
+                arr.push({
+                    date: parts[0],
+                    meal_type: parts[1],
+                    guest_count: mealGuestOverridesMap[k]
+                });
+            });
+
+            fetch('/api/shiva/' + encodeURIComponent(shivaId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: magicToken,
+                    meal_guest_overrides: arr
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    supportData.meal_guest_overrides = arr.length ? JSON.stringify(arr) : null;
+                    showToast('Guest count updated');
+                } else {
+                    showToast(result.message || 'Failed to save');
+                }
+            })
+            .catch(function() {
+                showToast('Network error');
+            });
+        };
+
+        // -- Block / Unblock Meal Slot --
+        // Organizer can block a meal that no volunteer has signed up for yet
+        // (so it doesn't appear on the volunteer view), or unblock a previously
+        // blocked meal. Updates blocked_meals on the shiva_support row.
+        window.toggleBlockMeal = function(dateStr, mealType, shouldBlock) {
+            var current = [];
+            if (supportData.blocked_meals) {
+                try {
+                    current = typeof supportData.blocked_meals === 'string'
+                        ? JSON.parse(supportData.blocked_meals)
+                        : supportData.blocked_meals;
+                    if (!Array.isArray(current)) current = [];
+                } catch (e) { current = []; }
+            }
+
+            var idx = current.findIndex(function(b) {
+                return b.date === dateStr && b.meal_type === mealType;
+            });
+
+            if (shouldBlock && idx === -1) {
+                current.push({ date: dateStr, meal_type: mealType });
+            } else if (!shouldBlock && idx !== -1) {
+                current.splice(idx, 1);
+            } else {
+                // no-op (already in desired state)
+                return;
+            }
+
+            fetch('/api/shiva/' + encodeURIComponent(shivaId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: magicToken,
+                    blocked_meals: current
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    supportData.blocked_meals = JSON.stringify(current);
+                    // Rebuild the cached blockedMealsSet so isMealBlocked()
+                    // returns fresh state when renderCalendar runs.
+                    blockedMealsSet = {};
+                    current.forEach(function(bm) {
+                        blockedMealsSet[bm.date + '_' + bm.meal_type] = true;
+                    });
+                    showToast(shouldBlock ? 'Meal blocked' : 'Meal unblocked');
+                    renderCalendar();
+                    calculateCoverage();
+                } else {
+                    showToast(result.message || 'Failed to update');
+                }
+            })
+            .catch(function() {
+                showToast('Network error');
+            });
+        };
 
         // -- Archive --
         window.confirmArchive = function() {
