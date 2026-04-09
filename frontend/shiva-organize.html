@@ -199,6 +199,34 @@
             margin-bottom: 1.25rem;
         }
 
+        .dietary-chip {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .dietary-chip input {
+            display: none;
+        }
+        .dietary-chip span {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            color: var(--sage-dark);
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .dietary-chip:hover span {
+            border-color: var(--terracotta);
+            color: var(--dark-brown);
+        }
+        .dietary-chip input:checked + span {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+            color: white;
+        }
+
         .form-group label {
             display: block;
             font-size: 0.95rem;
@@ -791,34 +819,6 @@
         <h1 class="page-title">Help Coordinate Support</h1>
         <p class="page-subtitle">Set up meal coordination for a family during their shiva</p>
 
-        <!-- How It Works Explainer -->
-        <div style="background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 12px rgba(62,39,35,0.06); border-left: 4px solid var(--gold);">
-            <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Are you organizing meals for the family?</p>
-            <p style="font-size: 0.92rem; color: var(--sage-dark); line-height: 1.6; margin-bottom: 0.75rem;">This page is for the <strong style="color: var(--dark-brown);">friend, neighbour, or family member</strong> setting up the meal schedule. Here's how it works:</p>
-            <ol style="font-size: 0.92rem; color: var(--sage-dark); line-height: 1.8; padding-left: 1.25rem; margin-bottom: 0.75rem;">
-                <li>You create a page with the shiva dates and dietary needs</li>
-                <li>Share the link with your community</li>
-                <li>Volunteers sign up for specific days — the family sees what's covered at a glance</li>
-            </ol>
-            <p style="font-size: 0.88rem; color: var(--sage-dark); font-style: italic;">Want to sign up to bring food instead? Ask the organizer for the link to the shiva support page.</p>
-            <details style="margin-top: 0.75rem;">
-                <summary style="font-size: 0.92rem; font-weight: 600; color: var(--dark-brown); cursor: pointer; padding: 0.25rem 0;">Why coordinate instead of just calling a caterer?</summary>
-                <div style="margin-top: 0.5rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.7;">
-                    <p style="margin-bottom: 0.5rem;">Coordination <em>works alongside</em> caterers — someone orders from Sonny's for Tuesday, someone else cooks for Wednesday:</p>
-                    <ul style="padding-left: 1.25rem; margin: 0;">
-                        <li>Prevent duplicates so every day is covered</li>
-                        <li>Cover all 7 days so the family is looked after</li>
-                        <li>Multiple friends contribute without stepping on each other</li>
-                        <li>Family sees what's covered at a glance</li>
-                    </ul>
-                </div>
-            </details>
-        </div>
-
-        <!-- Caterer callout -->
-        <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 1rem 1.25rem; border-radius: 0 0.5rem 0.5rem 0; margin: 1.25rem 0 1.5rem 0; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); line-height: 1.6;">
-            Need help arranging meals? <a href="/help/food" style="color: var(--terracotta); font-weight: 600; text-decoration: none;">Browse local caterers and restaurants</a> who deliver to shiva homes in Toronto and Montreal.
-        </div>
 
         <p class="memorial-context" id="memorialContext" style="display: none;"></p>
 
@@ -831,19 +831,15 @@
                 <div id="searchResults" style="margin-top: 0.75rem; max-height: 280px; overflow-y: auto;"></div>
                 <div id="recentFamilies" style="margin-top: 1rem;">
                     <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.5rem; font-weight: 500;">Or select from recent listings:</p>
-                    <div id="recentList" style="max-height: 320px; overflow-y: auto;"></div>
+                    <div id="recentList" style="max-height: 160px; overflow-y: auto;"></div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 1rem;">
                 <p style="font-size: 0.92rem; color: var(--sage-dark);">Don't see the family listed?</p>
-                <button type="button" onclick="skipSearch()" style="background: transparent; border: 2px solid var(--light-taupe); color: var(--dark-brown); padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;">Set up without a listing &rarr;</button>
+                <button type="button" onclick="skipSearch()" style="background: transparent; border: 2px solid var(--light-taupe); color: var(--dark-brown); padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.15rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;">Set up without a listing &rarr;</button>
             </div>
         </div>
 
-        <div id="standaloneCallout" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center; display: none;">
-            <strong>Don't see the family listed?</strong><br>
-            You can still set up a meal coordination page. Just enter the family name and shiva details below.
-        </div>
 
         <!-- Progress Stepper -->
         <div class="stepper" id="stepper">
@@ -869,9 +865,104 @@
             <button onclick="dismissSimilar()" class="btn-secondary" style="margin-top:0.75rem;font-size:0.9rem;">None of these — create new page</button>
         </div>
 
-        <!-- Step 1: Your Information -->
+        <!-- Step 1: Shiva Details -->
         <div class="step-card active" id="step1">
-            <h2 class="step-title">Your Information</h2>
+            <h2 class="step-title">Shiva Details</h2>
+
+            <div class="form-group">
+                <label for="familyName">Family Name</label>
+                <input type="text" id="familyName" placeholder="The Cohen Family" required>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaAddress">Shiva Address</label>
+                <input type="text" id="shivaAddress" placeholder="123 Main Street, Apt 4B" required>
+                <div class="privacy-notice">This address will only be shared with confirmed volunteers who sign up to bring a meal.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaCity">City</label>
+                <select id="shivaCity" onchange="updateSubAreas()">
+                    <option value="" disabled selected>Select city</option>
+                    <option value="Toronto">Toronto (GTA)</option>
+                    <option value="Montreal">Montreal</option>
+                </select>
+            </div>
+
+            <div class="toggle-group" style="margin-top: 1rem;">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="privacyToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Keep this shiva page private</span>
+            </div>
+            <p class="toggle-hint">Only people you approve can see the address, dietary details, and meal signup. The family name and shiva dates will still be visible.</p>
+
+            <div class="form-group">
+                <label for="shivaStartDate">Start Date</label>
+                <input type="date" id="shivaStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaEndDate">End Date</label>
+                <input type="date" id="shivaEndDate" required>
+                <div class="form-hint">Typically 7 days from the start</div>
+            </div>
+
+
+            <!-- V5: Meal Blocking Grid -->
+            <div class="form-group" id="mealBlockingSection" style="display: none;">
+                <label>Block Off Meals <span class="optional">(optional)</span></label>
+                <div class="form-hint" style="margin-bottom: 0.75rem;">Click any meal slot the family doesn't need covered. Blocked meals won't appear for volunteers.</div>
+                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="guestsPerMeal">Number of People to Feed per Meal</label>
+                <input type="number" id="guestsPerMeal" value="20" min="1" max="200">
+                <div class="form-hint">Approximate number of people expected at each meal</div>
+            </div>
+
+            <div class="form-group">
+                <label>Dietary Requirements <span class="optional">(select all that apply)</span></label>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.75rem;">
+                    <label class="dietary-chip"><input type="checkbox" name="dietary" value="kosher"><span>Kosher</span></label>
+                    <label class="dietary-chip"><input type="checkbox" name="dietary" value="nut-free"><span>Nut-free</span></label>
+                    <label class="dietary-chip"><input type="checkbox" name="dietary" value="vegetarian"><span>Vegetarian</span></label>
+                    <label class="dietary-chip"><input type="checkbox" name="dietary" value="dairy-free"><span>Dairy-free</span></label>
+                    <label class="dietary-chip"><input type="checkbox" name="dietary" value="gluten-free"><span>Gluten-free</span></label>
+                </div>
+                <input type="text" id="dietaryOther" placeholder="Other dietary needs..." style="margin-top: 0.75rem;">
+            </div>
+
+            <div class="form-group">
+                <label for="familyNotes">Note to Visitors <span class="optional">(optional)</span></label>
+                <textarea id="familyNotes" placeholder="e.g., Please use side entrance, lunch by 11:30am, dinner by 5pm, the family prefers home-cooked meals, children ages 3 and 7..." rows="3"></textarea>
+                <div class="form-hint">This will be shown to visitors and volunteers on the shiva page</div>
+            </div>
+
+            <div class="form-group">
+                <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
+                <div class="form-hint">Help visitors find comforting meals to send your family</div>
+                <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
+                <div class="caterer-browser" id="catererBrowser" style="display:none;">
+                    <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
+                    <div class="caterer-grid" id="catererGrid">
+                        <p style="color:var(--sage-dark);text-align:center;padding:1rem;">Loading caterers...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-error" id="step1Error"></div>
+
+            <div class="btn-row">
+                <button class="btn-primary" onclick="goToStep(2)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Your Information -->
+        <div class="step-card" id="step2">
+            <h2 class="step-title">Organizer Information</h2>
 
             <div class="form-group">
                 <label for="organizerName">Your Name</label>
@@ -904,120 +995,6 @@
                     My information will only be shared with the family and will be deleted 30 days after the shiva period ends.
                     <a href="/privacy" target="_blank">Privacy Policy</a>
                 </label>
-            </div>
-
-            <div class="form-error" id="step1Error"></div>
-
-            <div class="btn-row">
-                <button class="btn-primary" onclick="goToStep(2)">Continue</button>
-            </div>
-        </div>
-
-        <!-- Step 2: Shiva Details -->
-        <div class="step-card" id="step2">
-            <h2 class="step-title">Shiva Details</h2>
-
-            <div class="form-group">
-                <label for="familyName">Family Name</label>
-                <input type="text" id="familyName" placeholder="The Cohen Family" required>
-            </div>
-
-            <div class="form-group">
-                <label for="shivaAddress">Shiva Address</label>
-                <input type="text" id="shivaAddress" placeholder="123 Main Street, Apt 4B" required>
-                <div class="privacy-notice">This address will only be shared with confirmed volunteers who sign up to bring a meal.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="shivaCity">City</label>
-                <select id="shivaCity" onchange="updateSubAreas()">
-                    <option value="" disabled selected>Select city</option>
-                    <option value="Toronto">Toronto (GTA)</option>
-                    <option value="Montreal">Montreal</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="subAreaGroup" style="display: none;">
-                <label for="shivaSubArea">Neighbourhood <span class="optional">(optional — helps match local vendors)</span></label>
-                <select id="shivaSubArea">
-                    <option value="">All areas</option>
-                </select>
-            </div>
-
-            <div class="toggle-group" style="margin-top: 1rem;">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="privacyToggle">
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Keep this shiva page private</span>
-            </div>
-            <p class="toggle-hint">Only people you approve can see the address, dietary details, and meal signup. The family name and shiva dates will still be visible.</p>
-
-            <div class="form-group">
-                <label for="shivaStartDate">Start Date</label>
-                <input type="date" id="shivaStartDate" required>
-            </div>
-
-            <div class="form-group">
-                <label for="shivaEndDate">End Date</label>
-                <input type="date" id="shivaEndDate" required>
-                <div class="form-hint">Typically 7 days from the start</div>
-            </div>
-
-            <div class="toggle-group">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="pauseShabbat" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="toggle-label">Pause for Shabbat</span>
-            </div>
-            <p class="toggle-hint">Meal coordination will pause from Friday sunset to Saturday sunset</p>
-
-            <!-- V5: Meal Blocking Grid -->
-            <div class="form-group" id="mealBlockingSection" style="display: none;">
-                <label>Block Off Meals <span class="optional">(optional)</span></label>
-                <div class="form-hint" style="margin-bottom: 0.75rem;">Click any meal slot the family doesn't need covered. Blocked meals won't appear for volunteers.</div>
-                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="guestsPerMeal">Number of People to Feed per Meal</label>
-                <input type="number" id="guestsPerMeal" value="20" min="1" max="200">
-                <div class="form-hint">Approximate number of people expected at each meal</div>
-            </div>
-
-            <div class="form-group">
-                <label for="dietaryNotes">Dietary Notes <span class="optional">(optional)</span></label>
-                <textarea id="dietaryNotes" placeholder="e.g., Strictly kosher, nut allergy, vegetarian options welcome..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="specialInstructions">Special Instructions <span class="optional">(optional)</span></label>
-                <textarea id="specialInstructions" placeholder="e.g., Please use side entrance, ring doorbell twice..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="dropOffInstructions">Drop-off Instructions for Meals <span class="optional">(optional)</span></label>
-                <textarea id="dropOffInstructions" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204, call when arriving..." rows="2"></textarea>
-                <div class="form-hint">Specify meal times, entry instructions, or anything meal volunteers should know. Shown to confirmed volunteers only — not visible publicly.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="familyNotes">Anything else visitors should know? <span class="optional">(optional)</span></label>
-                <textarea id="familyNotes" placeholder="e.g., The family prefers home-cooked meals over catering, children in the house ages 3 and 7, visits welcome after 2pm..." rows="3"></textarea>
-                <div class="form-hint">This will appear as a "From the Family" note on the shiva page</div>
-            </div>
-
-            <div class="form-group">
-                <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
-                <div class="form-hint">Help visitors find comforting meals to send your family</div>
-                <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
-                <div class="caterer-browser" id="catererBrowser" style="display:none;">
-                    <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
-                    <div class="caterer-grid" id="catererGrid">
-                        <p style="color:var(--sage-dark);text-align:center;padding:1rem;">Loading caterers...</p>
-                    </div>
-                </div>
             </div>
 
             <div class="form-error" id="step2Error"></div>
@@ -1261,7 +1238,6 @@
 
         window.skipSearch = function() {
             document.getElementById('searchSection').style.display = 'none';
-            document.getElementById('standaloneCallout').style.display = '';
             document.getElementById('stepper').style.display = '';
             document.getElementById('step1').style.display = '';
             document.getElementById('foodDirectoryTip').style.display = '';
@@ -1541,11 +1517,32 @@
         // ── Validation ──────────────────────────────────
         function validateStep(step) {
             if (step === 1) {
+                var family = document.getElementById('familyName').value.trim();
+                var addr = document.getElementById('shivaAddress').value.trim();
+                var start = document.getElementById('shivaStartDate').value;
+                var end = document.getElementById('shivaEndDate').value;
+                var errEl = document.getElementById('step1Error');
+
+                if (!family || !addr || !start || !end) {
+                    errEl.textContent = 'Please fill in all required fields.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                if (new Date(end) < new Date(start)) {
+                    errEl.textContent = 'End date must be on or after start date.';
+                    errEl.classList.add('active');
+                    return false;
+                }
+                errEl.classList.remove('active');
+                return true;
+            }
+
+            if (step === 2) {
                 var name = document.getElementById('organizerName').value.trim();
                 var email = document.getElementById('organizerEmail').value.trim();
                 var rel = document.getElementById('organizerRelationship').value;
                 var consent = document.getElementById('privacyConsent1').checked;
-                var errEl = document.getElementById('step1Error');
+                var errEl = document.getElementById('step2Error');
 
                 if (!name || !email || !rel) {
                     errEl.textContent = 'Please fill in all required fields.';
@@ -1559,27 +1556,6 @@
                 }
                 if (!consent) {
                     errEl.textContent = 'Please accept the privacy consent to continue.';
-                    errEl.classList.add('active');
-                    return false;
-                }
-                errEl.classList.remove('active');
-                return true;
-            }
-
-            if (step === 2) {
-                var family = document.getElementById('familyName').value.trim();
-                var addr = document.getElementById('shivaAddress').value.trim();
-                var start = document.getElementById('shivaStartDate').value;
-                var end = document.getElementById('shivaEndDate').value;
-                var errEl = document.getElementById('step2Error');
-
-                if (!family || !addr || !start || !end) {
-                    errEl.textContent = 'Please fill in all required fields.';
-                    errEl.classList.add('active');
-                    return false;
-                }
-                if (new Date(end) < new Date(start)) {
-                    errEl.textContent = 'End date must be on or after start date.';
                     errEl.classList.add('active');
                     return false;
                 }
