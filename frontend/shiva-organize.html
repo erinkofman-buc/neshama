@@ -367,29 +367,37 @@
         /* ── Meal Blocking Grid ─────────────────────────── */
 
         .meal-block-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: 110px 1fr 1fr;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
             background: var(--cream);
-            border-radius: 0.5rem;
+            border-radius: 0.6rem;
             border: 1px solid var(--light-taupe);
         }
         .meal-block-day {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: var(--dark-brown);
-            min-width: 100px;
+        }
+        .meal-block-slot {
+            display: grid;
+            grid-template-columns: 72px 64px auto;
+            align-items: center;
+            gap: 0.5rem;
         }
         .meal-block-btn {
-            padding: 0.35rem 0.75rem;
+            padding: 0.4rem 0.5rem;
             border: 1.5px solid var(--sage);
             border-radius: 2rem;
             background: white;
             color: var(--sage-dark);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
+            text-align: center;
+            min-height: 36px;
         }
         .meal-block-btn:hover {
             background: var(--cream);
@@ -399,6 +407,48 @@
             border-color: var(--terracotta);
             color: var(--terracotta);
             text-decoration: line-through;
+        }
+        .meal-guest-count {
+            width: 64px;
+            padding: 0.4rem 0.4rem;
+            font-size: 0.95rem;
+            font-family: 'Source Serif 4', serif;
+            color: var(--dark-brown);
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.35rem;
+            text-align: center;
+            background: white;
+            box-sizing: border-box;
+            /* Hide native spinner arrows — they eat input width. Users can
+               still adjust via keyboard arrows, scroll wheel, or typing. */
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .meal-guest-count::-webkit-outer-spin-button,
+        .meal-guest-count::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .meal-guest-count:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+        .meal-guest-count-label {
+            font-size: 0.8rem;
+            color: var(--sage-dark);
+            white-space: nowrap;
+        }
+
+        /* Mobile: stack each row vertically — day label on top, meals below */
+        @media (max-width: 640px) {
+            .meal-block-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            .meal-block-slot {
+                grid-template-columns: 80px 64px auto;
+                padding-left: 0.25rem;
+            }
         }
 
         /* ── Consent Checkbox ────────────────────────────── */
@@ -845,6 +895,8 @@
             <div class="stepper-dot" data-step="2"></div>
             <div class="stepper-line" data-line="2"></div>
             <div class="stepper-dot" data-step="3"></div>
+            <div class="stepper-line" data-line="3"></div>
+            <div class="stepper-dot" data-step="4"></div>
         </div>
 
         <!-- Duplicate Warning -->
@@ -898,13 +950,6 @@
             </div>
 
 
-            <!-- V5: Meal Blocking Grid -->
-            <div class="form-group" id="mealBlockingSection" style="display: none;">
-                <label>Block Off Meals <span class="optional">(optional)</span></label>
-                <div class="form-hint" style="margin-bottom: 0.75rem;">Click any meal slot the family doesn't need covered. Blocked meals won't appear for volunteers.</div>
-                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
-            </div>
-
             <div class="form-group">
                 <label for="guestsPerMeal">Number of People to Feed per Meal</label>
                 <input type="number" id="guestsPerMeal" value="20" min="1" max="200">
@@ -924,14 +969,13 @@
             </div>
 
             <div class="form-group">
-                <label for="familyNotes">Note to Visitors <span class="optional">(optional)</span></label>
+                <label for="familyNotes">Note to Volunteers <span class="optional">(optional)</span></label>
                 <textarea id="familyNotes" placeholder="e.g., Please use side entrance, lunch by 11:30am, dinner by 5pm, the family prefers home-cooked meals, children ages 3 and 7..." rows="3"></textarea>
-                <div class="form-hint">This will be shown to visitors and volunteers on the shiva page</div>
+                <div class="form-hint">This will be shown to volunteers on the shiva page</div>
             </div>
 
             <div class="form-group">
-                <label>Help Visitors Send a Meal <span class="optional">(optional)</span></label>
-                <div class="form-hint">Help visitors find comforting meals to send your family</div>
+                <label style="color: #000; font-weight: 700;">Help volunteers find comforting meals to send the family (recommended)</label>
                 <button type="button" class="caterer-toggle" id="catererToggle" onclick="toggleCatererBrowser()">Browse Local Options &#8594;</button>
                 <div class="caterer-browser" id="catererBrowser" style="display:none;">
                     <p class="caterer-limit-note">Select up to 5 caterers to recommend. Selected: <span id="catererCount">0</span>/5</p>
@@ -993,8 +1037,29 @@
             </div>
         </div>
 
-        <!-- Step 3: Optional Extras + Review -->
+        <!-- Step 3: Plan the Meal Schedule -->
         <div class="step-card" id="step3">
+            <h2 class="step-title">Plan the Meal Schedule</h2>
+            <p style="font-size: 0.95rem; color: var(--sage-dark); line-height: 1.6; margin-bottom: 1rem;">
+                Here's the schedule of lunches and dinners for the shiva. Tap any meal you don't need help with to hide it from volunteers. You can always change this later from your dashboard.
+            </p>
+
+            <div class="form-group" id="mealBlockingSection">
+                <label>Meal Schedule</label>
+                <div class="form-hint" style="margin-bottom: 0.75rem;">Tap a meal to block it. Blocked meals won't appear for volunteers.</div>
+                <div id="mealBlockingGrid" style="display: grid; gap: 0.5rem;"></div>
+            </div>
+
+            <div class="form-error" id="step3Error"></div>
+
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                <button class="btn-primary" onclick="goToStep(4)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Review & Submit -->
+        <div class="step-card" id="step4">
             <h2 class="step-title">Review &amp; Submit</h2>
 
             <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;margin:1.5rem 0 1rem;">Summary</h3>
@@ -1002,17 +1067,12 @@
                 <!-- Populated by JS -->
             </div>
 
-            <div class="form-error" id="step3Error"></div>
+            <div class="form-error" id="step4Error"></div>
 
             <div class="btn-row">
-                <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                <button class="btn-secondary" onclick="goToStep(3)">Back</button>
                 <button class="btn-primary" id="submitBtn" onclick="submitForm()">Set Up Support Page</button>
             </div>
-        </div>
-
-        <div id="foodDirectoryTip" style="background: var(--cream); border: 2px solid var(--sage); border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; text-align: center; display: none;">
-            <p style="font-size: 1rem; color: var(--dark-brown); margin: 0 0 0.75rem 0; font-family: 'Cormorant Garamond', serif; font-weight: 500;">Looking for food options?</p>
-            <a href="/help/food" style="display: inline-block; background: var(--terracotta); color: white; text-decoration: none; padding: 0.65rem 1.75rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;">Browse Local Caterers &rarr;</a>
         </div>
 
         <!-- Success State -->
@@ -1185,7 +1245,6 @@
             // Show form sections
             document.getElementById('stepper').style.display = '';
             document.getElementById('step1').style.display = '';
-            document.getElementById('foodDirectoryTip').style.display = '';
             // Load obituary context to pre-fill
             loadObituaryContextById(obitId);
         };
@@ -1194,7 +1253,6 @@
             document.getElementById('searchSection').style.display = 'none';
             document.getElementById('stepper').style.display = '';
             document.getElementById('step1').style.display = '';
-            document.getElementById('foodDirectoryTip').style.display = '';
         };
 
         function loadObituaryContextById(obitId) {
@@ -1248,7 +1306,6 @@
                 document.getElementById('searchSection').style.display = '';
                 document.getElementById('stepper').style.display = 'none';
                 document.getElementById('step1').style.display = 'none';
-                document.getElementById('foodDirectoryTip').style.display = 'none';
                 initSearch();
                 return;
             }
@@ -1332,6 +1389,9 @@
 
         // ── Meal Blocking ──────────────────────────────
         var blockedMeals = [];
+        // V3: per-meal guest count overrides. Only entries that differ from
+        // the default guests_per_meal are stored. Shape: {date, meal_type, guest_count}
+        var mealGuestOverrides = [];
 
         function buildMealBlockingGrid() {
             var startVal = document.getElementById('shivaStartDate').value;
@@ -1355,53 +1415,121 @@
             grid.innerHTML = '';
             var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var defaultGuests = Math.max(1, Math.min(200, parseInt(document.getElementById('guestsPerMeal').value, 10) || 20));
 
             var current = new Date(start);
             while (current <= end) {
-                var dateStr = current.toISOString().split('T')[0];
-                var dayName = days[current.getDay()];
-                var label = dayName + ', ' + months[current.getMonth()] + ' ' + current.getDate();
+                (function(dateStr, dayName, monthIdx, dayOfMonth) {
+                    var label = dayName + ', ' + months[monthIdx] + ' ' + dayOfMonth;
 
-                var row = document.createElement('div');
-                row.className = 'meal-block-row';
+                    var row = document.createElement('div');
+                    row.className = 'meal-block-row';
 
-                var dayLabel = document.createElement('div');
-                dayLabel.className = 'meal-block-day';
-                dayLabel.textContent = label;
-                row.appendChild(dayLabel);
+                    var dayLabel = document.createElement('div');
+                    dayLabel.className = 'meal-block-day';
+                    dayLabel.textContent = label;
+                    row.appendChild(dayLabel);
 
-                ['Lunch', 'Dinner'].forEach(function(mealType) {
-                    var btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'meal-block-btn';
-                    btn.textContent = mealType;
-                    btn.dataset.date = dateStr;
-                    btn.dataset.meal = mealType;
+                    ['Lunch', 'Dinner'].forEach(function(mealType) {
+                        var slot = document.createElement('div');
+                        slot.className = 'meal-block-slot';
 
-                    // Check if already blocked
-                    var isBlocked = blockedMeals.some(function(bm) {
-                        return bm.date === dateStr && bm.meal_type === mealType;
-                    });
-                    if (isBlocked) btn.classList.add('blocked');
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'meal-block-btn';
+                        btn.textContent = mealType;
 
-                    btn.addEventListener('click', function() {
-                        var d = this.dataset.date;
-                        var m = this.dataset.meal;
-                        var idx = blockedMeals.findIndex(function(bm) {
-                            return bm.date === d && bm.meal_type === m;
+                        // Check if already blocked
+                        var isBlocked = blockedMeals.some(function(bm) {
+                            return bm.date === dateStr && bm.meal_type === mealType;
                         });
-                        if (idx >= 0) {
-                            blockedMeals.splice(idx, 1);
-                            this.classList.remove('blocked');
-                        } else {
-                            blockedMeals.push({ date: d, meal_type: m });
-                            this.classList.add('blocked');
-                        }
-                    });
-                    row.appendChild(btn);
-                });
+                        if (isBlocked) btn.classList.add('blocked');
 
-                grid.appendChild(row);
+                        // Per-meal guest count input — default is Step 1 guestsPerMeal,
+                        // only persisted when it differs.
+                        var existingOverride = mealGuestOverrides.find(function(o) {
+                            return o.date === dateStr && o.meal_type === mealType;
+                        });
+                        var numInput = document.createElement('input');
+                        numInput.type = 'number';
+                        numInput.min = '1';
+                        numInput.max = '200';
+                        numInput.className = 'meal-guest-count';
+                        numInput.value = existingOverride ? existingOverride.guest_count : defaultGuests;
+                        numInput.setAttribute('aria-label', mealType + ' guest count for ' + label);
+
+                        var guestLabel = document.createElement('span');
+                        guestLabel.className = 'meal-guest-count-label';
+                        guestLabel.textContent = 'guests';
+
+                        if (isBlocked) {
+                            numInput.style.display = 'none';
+                            guestLabel.style.display = 'none';
+                        }
+
+                        numInput.addEventListener('change', function() {
+                            var val = parseInt(this.value, 10);
+                            if (isNaN(val)) val = defaultGuests;
+                            val = Math.max(1, Math.min(200, val));
+                            this.value = val;
+
+                            var idx = mealGuestOverrides.findIndex(function(o) {
+                                return o.date === dateStr && o.meal_type === mealType;
+                            });
+                            if (val === defaultGuests) {
+                                if (idx >= 0) mealGuestOverrides.splice(idx, 1);
+                            } else if (idx >= 0) {
+                                mealGuestOverrides[idx].guest_count = val;
+                            } else {
+                                mealGuestOverrides.push({
+                                    date: dateStr,
+                                    meal_type: mealType,
+                                    guest_count: val
+                                });
+                            }
+                        });
+
+                        btn.addEventListener('click', function() {
+                            var idx = blockedMeals.findIndex(function(bm) {
+                                return bm.date === dateStr && bm.meal_type === mealType;
+                            });
+                            var nowBlocked;
+                            if (idx >= 0) {
+                                blockedMeals.splice(idx, 1);
+                                this.classList.remove('blocked');
+                                nowBlocked = false;
+                            } else {
+                                blockedMeals.push({ date: dateStr, meal_type: mealType });
+                                this.classList.add('blocked');
+                                nowBlocked = true;
+                            }
+
+                            // Toggle number input visibility with block state
+                            numInput.style.display = nowBlocked ? 'none' : '';
+                            guestLabel.style.display = nowBlocked ? 'none' : '';
+
+                            // When blocking, drop any existing guest-count override for this slot
+                            if (nowBlocked) {
+                                var ovIdx = mealGuestOverrides.findIndex(function(o) {
+                                    return o.date === dateStr && o.meal_type === mealType;
+                                });
+                                if (ovIdx >= 0) mealGuestOverrides.splice(ovIdx, 1);
+                            }
+                        });
+
+                        slot.appendChild(btn);
+                        slot.appendChild(numInput);
+                        slot.appendChild(guestLabel);
+                        row.appendChild(slot);
+                    });
+
+                    grid.appendChild(row);
+                })(
+                    current.toISOString().split('T')[0],
+                    days[current.getDay()],
+                    current.getMonth(),
+                    current.getDate()
+                );
                 current.setDate(current.getDate() + 1);
             }
         }
@@ -1417,6 +1545,9 @@
             buildMealBlockingGrid();
         });
         document.getElementById('shivaEndDate').addEventListener('change', buildMealBlockingGrid);
+        // When the default guest count changes, rebuild the meal grid so every
+        // slot reflects the new default. Existing overrides persist.
+        document.getElementById('guestsPerMeal').addEventListener('change', buildMealBlockingGrid);
 
         // ── Step Navigation ─────────────────────────────
         window.goToStep = function(step) {
@@ -1426,7 +1557,7 @@
             }
 
             // Hide all steps
-            for (var i = 1; i <= 3; i++) {
+            for (var i = 1; i <= 4; i++) {
                 var el = document.getElementById('step' + i);
                 if (el) el.classList.remove('active');
             }
@@ -1452,8 +1583,11 @@
 
             currentStep = step;
 
-            // Build review on step 3
-            if (step === 3) buildReview();
+            // Build meal grid when entering Step 3 (rebuilds from current dates)
+            if (step === 3) buildMealBlockingGrid();
+
+            // Build review summary when entering Step 4
+            if (step === 4) buildReview();
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
@@ -1535,7 +1669,7 @@
             var diet = getSelectedDietary();
             if (diet.length) items.push(['Dietary', diet.join(', ')]);
             var famNotes = document.getElementById('familyNotes').value.trim();
-            if (famNotes) items.push(['Note to visitors', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
+            if (famNotes) items.push(['Note to volunteers', famNotes.substring(0, 80) + (famNotes.length > 80 ? '...' : '')]);
             if (selectedVendors.length) items.push(['Recommended caterers', selectedVendors.length + ' selected']);
 
             var html = '';
@@ -1551,7 +1685,7 @@
         // ── Submit Form ─────────────────────────────────
         window.submitForm = function() {
             var btn = document.getElementById('submitBtn');
-            var errEl = document.getElementById('step3Error');
+            var errEl = document.getElementById('step4Error');
 
             btn.disabled = true;
             btn.textContent = 'Setting up...';
@@ -1574,7 +1708,8 @@
                 family_notes: document.getElementById('familyNotes').value.trim(),
                 privacy_consent: true,
                 recommended_vendors: selectedVendors.length ? selectedVendors : undefined,
-                blocked_meals: blockedMeals.length ? blockedMeals : undefined
+                blocked_meals: blockedMeals.length ? blockedMeals : undefined,
+                meal_guest_overrides: mealGuestOverrides.length ? mealGuestOverrides : undefined
             };
 
             if (forceCreate) {
@@ -1656,7 +1791,7 @@
         // ── Show Success State ──────────────────────────
         function showSuccess() {
             // Hide all steps and stepper
-            for (var i = 1; i <= 3; i++) {
+            for (var i = 1; i <= 4; i++) {
                 var el = document.getElementById('step' + i);
                 if (el) el.classList.remove('active');
             }

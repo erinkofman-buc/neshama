@@ -369,6 +369,22 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE meal_signups ADD COLUMN additional_contributors TEXT')
 
+        # V3 meal planner: dietary_restrictions column (JSON array of chip values).
+        # Replaces the free-text dietary_notes for new shivas. Legacy rows keep
+        # dietary_notes as plain text for backward compat.
+        try:
+            cursor.execute('SELECT dietary_restrictions FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN dietary_restrictions TEXT')
+
+        # V3 meal planner: per-meal guest count overrides.
+        # JSON array of {date, meal_type, guest_count} — only populated when a
+        # specific meal differs from the shiva's default guests_per_meal.
+        try:
+            cursor.execute('SELECT meal_guest_overrides FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN meal_guest_overrides TEXT')
+
         conn.commit()
         conn.close()
 
@@ -527,6 +543,38 @@ class ShivaManager:
             if clean_blocked:
                 blocked_meals = json.dumps(clean_blocked)
 
+        # V3: Validate dietary_restrictions (JSON array of chip values + optional free-text "other")
+        dietary_restrictions = None
+        raw_dietary = data.get('dietary_restrictions')
+        if raw_dietary and isinstance(raw_dietary, list):
+            clean_dietary = []
+            for item in raw_dietary[:20]:  # hard cap: 20 entries
+                s = str(item).strip()[:80]
+                if s:
+                    clean_dietary.append(s)
+            if clean_dietary:
+                dietary_restrictions = json.dumps(clean_dietary)
+
+        # V3: Validate meal_guest_overrides (JSON array of {date, meal_type, guest_count})
+        meal_guest_overrides = None
+        raw_overrides = data.get('meal_guest_overrides')
+        if raw_overrides and isinstance(raw_overrides, list):
+            clean_overrides = []
+            for item in raw_overrides[:100]:  # max 100 entries
+                if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
+                    try:
+                        gc = int(item.get('guest_count', 0))
+                    except (TypeError, ValueError):
+                        continue
+                    gc = max(1, min(200, gc))
+                    clean_overrides.append({
+                        'date': str(item['date']).strip()[:10],
+                        'meal_type': item['meal_type'],
+                        'guest_count': gc,
+                    })
+            if clean_overrides:
+                meal_guest_overrides = json.dumps(clean_overrides)
+
         # V2 fields
         drop_off = self._sanitize_text(data.get('drop_off_instructions', ''), self.MAX_TEXT_LENGTH) or None
         source = data.get('source', 'web_standalone')
@@ -547,8 +595,8 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals, dietary_restrictions, meal_guest_overrides
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -562,7 +610,7 @@ class ShivaManager:
                 self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
                 data['shiva_end_date'].strip()[:10],
-                1 if data.get('pause_shabbat', True) else 0,
+                0,  # pause_shabbat removed in V3 — hard-coded 0 for legacy column compat
                 max(1, min(200, int(data.get('guests_per_meal', 20)))),
                 self._sanitize_text(data.get('dietary_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 self._sanitize_text(data.get('special_instructions', ''), self.MAX_TEXT_LENGTH) or None,
@@ -580,6 +628,8 @@ class ShivaManager:
                 verification_token,
                 share_token,
                 blocked_meals,
+                dietary_restrictions,
+                meal_guest_overrides,
             ))
             conn.commit()
             return {
@@ -726,6 +776,7 @@ class ShivaManager:
         updatable = [
             'family_name', 'shiva_address', 'shiva_city', 'shiva_sub_area', 'shiva_start_date',
             'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
+            'dietary_restrictions', 'meal_guest_overrides',
             'special_instructions', 'donation_url', 'donation_label', 'privacy',
             'recommended_vendors', 'organizer_update', 'family_notes',
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
@@ -773,6 +824,37 @@ class ShivaManager:
                         for item in val[:100]:
                             if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
                                 clean.append({'date': str(item['date']).strip()[:10], 'meal_type': item['meal_type']})
+                        val = json.dumps(clean) if clean else None
+                    else:
+                        val = None
+                elif field == 'dietary_restrictions':
+                    if isinstance(val, list):
+                        clean = []
+                        for item in val[:20]:
+                            s = str(item).strip()[:80]
+                            if s:
+                                clean.append(s)
+                        val = json.dumps(clean) if clean else None
+                    elif isinstance(val, str) and val.strip():
+                        # Frontend may send pre-serialized JSON string
+                        val = val.strip()[:2000]
+                    else:
+                        val = None
+                elif field == 'meal_guest_overrides':
+                    if isinstance(val, list):
+                        clean = []
+                        for item in val[:100]:
+                            if isinstance(item, dict) and item.get('date') and item.get('meal_type') in ('Lunch', 'Dinner'):
+                                try:
+                                    gc = int(item.get('guest_count', 0))
+                                except (TypeError, ValueError):
+                                    continue
+                                gc = max(1, min(200, gc))
+                                clean.append({
+                                    'date': str(item['date']).strip()[:10],
+                                    'meal_type': item['meal_type'],
+                                    'guest_count': gc,
+                                })
                         val = json.dumps(clean) if clean else None
                     else:
                         val = None
