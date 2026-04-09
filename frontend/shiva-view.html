@@ -696,38 +696,103 @@
             color: var(--sage);
         }
 
-        /* ── Food Chips ──────────────────────────────────── */
+        /* ── Signup Caterer Cards (V3) ───────────────────── */
+        /* Inline cards inside the signup modal showing the organizer's
+           recommended caterers. Click to auto-fill the meal description. */
 
-        .food-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
+        .signup-caterer-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
-
-        .food-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 0.9rem;
+        .signup-caterer-card {
+            padding: 0.65rem 0.85rem;
             border: 2px solid var(--light-taupe);
-            border-radius: 2rem;
-            font-family: 'Source Serif 4', serif;
-            font-size: 0.9rem;
+            border-radius: 0.5rem;
             background: white;
-            color: var(--dark-brown);
             cursor: pointer;
             transition: all 0.15s;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
-
-        .food-chip:hover {
+        .signup-caterer-card:hover {
             border-color: var(--terracotta);
         }
+        .signup-caterer-card.selected {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+        }
+        .signup-caterer-card.selected .signup-caterer-name,
+        .signup-caterer-card.selected .signup-caterer-detail {
+            color: white;
+        }
+        .signup-caterer-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--dark-brown);
+            margin-bottom: 0.15rem;
+        }
+        .signup-caterer-detail {
+            font-size: 0.78rem;
+            color: var(--sage-dark);
+            line-height: 1.3;
+        }
+        .signup-caterer-fallback {
+            display: inline-block;
+            padding: 0.5rem 0;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+        .signup-caterer-helper {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin: 0.35rem 0 0.6rem;
+            font-style: italic;
+        }
+        .signup-custom-label {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin: 0.85rem 0 0.35rem;
+            font-style: italic;
+        }
 
-        .food-chip.selected {
+        /* V3: Vendor order CTA in the confirmation view */
+        .confirm-vendor-cta {
+            margin: 1.25rem 0 1rem;
+            padding: 1.1rem 1.25rem;
+            background: rgba(194, 98, 26, 0.08);
+            border: 1.5px solid var(--terracotta);
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+        .confirm-vendor-cta-label {
+            font-size: 0.92rem;
+            color: var(--dark-brown);
+            margin: 0 0 0.75rem;
+            font-weight: 500;
+        }
+        .confirm-vendor-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.75rem;
             background: var(--terracotta);
             color: white;
-            border-color: var(--terracotta);
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            min-height: 48px;
+            box-sizing: border-box;
+        }
+        .confirm-vendor-cta-btn:hover {
+            background: #A8541A;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25);
         }
 
         /* ── Servings Counter ────────────────────────────── */
@@ -1271,6 +1336,9 @@
             #privateNotice,
             #heroShare,
             #shivaShareBtn,
+            #shivaShareBar,
+            .neshama-share-bar,
+            .coverage-strip,
             .print-schedule-btn,
             .meal-slot.available .slot-action,
             .remove-btn,
@@ -1551,6 +1619,7 @@
         } catch(e) {}
     };
     </script>
+    <script src="/share-buttons.js"></script>
 </head>
 <body>
 
@@ -1603,13 +1672,8 @@
             <a class="memorial-link" id="memorialLink" href="#" style="display: none;">View Memorial &#x2197;</a>
             <div class="hero-divider"></div>
 
-            <!-- Share Button -->
-            <div id="shivaShareBtn" style="display: none; margin-top: 1.25rem;">
-                <button type="button" id="shivaShareTrigger" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--sage); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Share
-                </button>
-            </div>
+            <!-- V3: Share bar — same shared component as the dashboard for app-wide consistency -->
+            <div id="shivaShareBar" data-share-target="true" style="display: none; margin-top: 1.25rem;"></div>
         </section>
 
         <!-- Coverage Strip (above-the-fold mobile summary) -->
@@ -1934,8 +1998,13 @@
             <div id="signupFormView">
                 <h2>Sign Up to Bring a Meal</h2>
                 <p class="modal-subtitle" id="modalSubtitle"></p>
-                <div style="background: var(--cream); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
+                <div style="background: var(--cream); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.75rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
                     When you sign up, the family and the organizer will see your name and what you're bringing — so meals don't overlap and every day is covered.
+                </div>
+
+                <!-- V3: read-only servings count, set by the organizer -->
+                <div id="signupServingsInfo" style="font-size: 0.92rem; color: var(--dark-brown); margin-bottom: 1rem; padding: 0.65rem 0.9rem; background: rgba(194, 98, 26, 0.08); border-left: 3px solid var(--terracotta); border-radius: 0.35rem;">
+                    This meal serves <strong id="signupServingsCount">—</strong> guests
                 </div>
 
                 <div class="form-group">
@@ -1944,39 +2013,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label>What are you bringing?</label>
-                    <div class="food-chips" id="foodChips">
-                        <button type="button" class="food-chip" data-food="Main dish">Main dish</button>
-                        <button type="button" class="food-chip" data-food="Soup">Soup</button>
-                        <button type="button" class="food-chip" data-food="Salad">Salad</button>
-                        <button type="button" class="food-chip" data-food="Side dish">Side dish</button>
-                        <button type="button" class="food-chip" data-food="Dessert">Dessert</button>
-                        <button type="button" class="food-chip" data-food="Full meal">Full meal</button>
-                    </div>
-                    <input type="text" id="mealCustom" placeholder="Or describe what you're bringing..." style="margin-top: 0.5rem;">
-                </div>
-
-                <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
-                    Need ideas? <a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse local caterers</a> or explore our <a href="/help/food" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">trusted food partners</a> for shiva meals.
-                </div>
-
-                <div class="form-group">
-                    <label>Servings</label>
-                    <div class="servings-row">
-                        <button type="button" class="servings-btn" id="servMinus">&minus;</button>
-                        <span class="servings-value" id="servingsValue">4 servings</span>
-                        <button type="button" class="servings-btn" id="servPlus">+</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label for="volEmail">Your Email</label>
                     <input type="email" id="volEmail" placeholder="you@example.com" autocomplete="email">
                 </div>
 
                 <div class="form-group">
-                    <label for="volPhone">Phone <span class="optional">(optional)</span></label>
+                    <label for="volPhone">Your Phone</label>
                     <input type="tel" id="volPhone" placeholder="(416) 555-0123" autocomplete="tel">
+                </div>
+
+                <!-- V3: What are you bringing? — caterer cards (from organizer picks) inline + free text -->
+                <div class="form-group">
+                    <label>What are you bringing?</label>
+                    <p id="signupCatererHelper" class="signup-caterer-helper" style="display: none;">Select one of the preferred catering options.</p>
+                    <div id="signupCatererCards" class="signup-caterer-cards" style="margin-top: 0.5rem;"></div>
+                    <p id="signupCustomLabel" class="signup-custom-label" style="display: none;">Not using a caterer? Please fill in below what you'll be bringing.</p>
+                    <input type="text" id="mealCustom" placeholder="Or describe what you're bringing..." style="margin-top: 0.5rem;">
+                </div>
+
+                <div class="consent-row" style="margin-bottom: 0.75rem;">
+                    <input type="checkbox" id="volWillServe">
+                    <label for="volWillServe" style="color: var(--dark-brown);">
+                        I can also help serve this meal <span style="color: var(--sage-dark); font-size: 0.88rem;">(set up, serve guests, clean up)</span>
+                    </label>
                 </div>
 
                 <!-- Additional Families -->
@@ -1985,40 +2044,6 @@
                         + Add another family to this meal
                     </button>
                     <div id="additionalFamilies" style="margin-top: 0.5rem;"></div>
-                </div>
-
-                <!-- Alternative Contribution Toggle -->
-                <div id="altContribSection" style="background: var(--cream); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--light-taupe);">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <input type="checkbox" id="volAlternative" style="width: 1.1rem; height: 1.1rem; accent-color: var(--terracotta);">
-                        <label for="volAlternative" style="font-size: 0.95rem; font-weight: 600; color: var(--dark-brown); cursor: pointer;">
-                            I'd rather send something thoughtful instead of cooking
-                        </label>
-                    </div>
-                    <div id="altOptions" style="display: none; margin-top: 0.75rem;">
-                        <div class="form-group" style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.85rem;">What would you like to send?</label>
-                            <select id="altType" style="width: 100%; padding: 0.6rem 0.75rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; background: white; color: var(--dark-brown);">
-                                <option value="vendor_meal">Vendor meal delivery</option>
-                                <option value="gift_card">Gift card</option>
-                                <option value="gift_basket">Gift basket</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0.5rem;">
-                            <label style="font-size: 0.85rem;">Note <span class="optional">(optional)</span></label>
-                            <input type="text" id="altNote" placeholder="e.g., Uber Eats gift card, $50">
-                        </div>
-                        <a href="/help/gifts" target="_blank" style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--terracotta); text-decoration: none; font-weight: 500;">
-                            Browse gift options &#8594;
-                        </a>
-                    </div>
-                </div>
-
-                <div class="consent-row" style="margin-bottom: 0.75rem;">
-                    <input type="checkbox" id="volWillServe">
-                    <label for="volWillServe" style="color: var(--dark-brown);">
-                        I can also help serve this meal <span style="color: var(--sage-dark); font-size: 0.88rem;">(set up, serve guests, clean up)</span>
-                    </label>
                 </div>
 
                 <div class="consent-row">
@@ -2044,6 +2069,15 @@
                     <h2>Thank You!</h2>
                     <p class="modal-subtitle" id="confirmSubtitle"></p>
 
+                    <!-- V3: Vendor order CTA — appears when volunteer picked a caterer card during signup -->
+                    <div id="confirmVendorCta" class="confirm-vendor-cta" style="display: none;">
+                        <p class="confirm-vendor-cta-label" id="confirmVendorCtaLabel"></p>
+                        <a id="confirmVendorCtaBtn" href="#" target="_blank" rel="noopener noreferrer" class="confirm-vendor-cta-btn">
+                            <span id="confirmVendorCtaText"></span>
+                            <span aria-hidden="true">&nbsp;&#8594;</span>
+                        </a>
+                    </div>
+
                     <div class="confirm-address" id="confirmAddress">
                         <div class="addr-label">Shiva Location</div>
                         <div class="addr-text" id="confirmAddrText"></div>
@@ -2058,7 +2092,8 @@
                         May their memory be a blessing
                     </p>
 
-                    <p style="text-align:center;margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">
+                    <!-- V3: Generic caterers fallback — only shows when no vendor was picked -->
+                    <p id="confirmGenericCaterers" style="text-align:center;margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">
                         Need help with your meal? <a href="/shiva/caterers">Browse local caterers</a>
                     </p>
 
@@ -2130,7 +2165,8 @@
         var mealsData = [];
         var selectedDate = null;
         var selectedMealType = null;
-        var currentServings = 4;
+        // V3: currentServings removed — servings are now derived from the
+        // organizer's per-meal config via getMealServings(date, type).
         var isOrganizerMode = false;
         var organizerToken = null;
         var accessToken = null;
@@ -2787,59 +2823,26 @@
 
         // ── Share Button ────────────────────────────────
 
+        // V3: Share bar uses the shared share-buttons.js component for app-wide consistency.
+        // Same component renders on the dashboard so the visual treatment, options, and
+        // copy are identical no matter where someone shares from.
         function setupShareButton() {
-            var shareDiv = document.getElementById('shivaShareBtn');
-            var shareBtn = document.getElementById('shivaShareTrigger');
-            if (!shareDiv || !shareBtn) return;
+            var shareBar = document.getElementById('shivaShareBar');
+            if (!shareBar) return;
 
-            shareDiv.style.display = '';
             var pageUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
             // For private shivas, include share_token so recipients get direct access
             if (supportData.privacy === 'private' && supportData.share_token) {
                 pageUrl += '?access=' + encodeURIComponent(supportData.share_token);
             }
-            var familyName = supportData.family_name || 'the family';
-            var whatsAppMessage = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals \u2014 sign up for a day: ' + pageUrl;
-            var emailSubject = 'Shiva meals for the ' + familyName + ' family \u2014 sign up to help';
-            var emailBody = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals so the family is taken care of.\n\nIf you\u2019d like to sign up to bring a meal, you can do so here:\n' + pageUrl + '\n\nEvery meal makes a difference. Thank you for being part of this community.';
-            var smsMessage = 'The ' + familyName + ' family is sitting shiva. Sign up to bring a meal: ' + pageUrl;
 
-            // Build share menu with multiple options
-            var shareMenu = document.createElement('div');
-            shareMenu.id = 'shareMenu';
-            shareMenu.style.cssText = 'display:none; position:absolute; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(62,39,35,0.15); padding:0.5rem; margin-top:0.5rem; z-index:50; min-width:200px;';
-            var shareOptions = [
-                { label: 'WhatsApp', icon: '\uD83D\uDCAC', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppMessage), '_blank'); } },
-                { label: 'Email', icon: '\u2709\uFE0F', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody); } },
-                { label: 'Text Message', icon: '\uD83D\uDCF1', action: function() { var ua = navigator.userAgent; var sep = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?'; window.location.href = 'sms:' + sep + 'body=' + encodeURIComponent(smsMessage); } },
-                { label: 'Copy Link', icon: '\uD83D\uDD17', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
-            ];
-            shareOptions.forEach(function(opt) {
-                var btn = document.createElement('button');
-                btn.style.cssText = 'display:flex; align-items:center; gap:0.6rem; width:100%; padding:0.6rem 0.75rem; border:none; background:none; font-family:inherit; font-size:0.95rem; color:var(--dark-brown); cursor:pointer; border-radius:8px; text-align:left;';
-                btn.onmouseover = function() { this.style.background = 'var(--cream)'; };
-                btn.onmouseout = function() { this.style.background = 'none'; };
-                btn.textContent = opt.icon + '  ' + opt.label;
-                btn.addEventListener('click', function() { opt.action(); shareMenu.style.display = 'none'; });
-                shareMenu.appendChild(btn);
-            });
-            var copyConfirm = document.createElement('div');
-            copyConfirm.id = 'copyConfirm';
-            copyConfirm.style.cssText = 'display:none; text-align:center; padding:0.4rem; font-size:0.85rem; color:var(--sage-dark);';
-            copyConfirm.textContent = 'Link copied!';
-            shareMenu.appendChild(copyConfirm);
-            shareDiv.style.position = 'relative';
-            shareDiv.appendChild(shareMenu);
+            shareBar.setAttribute('data-share-url', pageUrl);
+            shareBar.setAttribute('data-share-family', supportData.family_name || '');
+            shareBar.style.display = '';
 
-            shareBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                var menu = document.getElementById('shareMenu');
-                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-            });
-            document.addEventListener('click', function() {
-                var menu = document.getElementById('shareMenu');
-                if (menu) menu.style.display = 'none';
-            });
+            if (window.NeshamaShare && window.NeshamaShare.renderInto) {
+                window.NeshamaShare.renderInto('#shivaShareBar');
+            }
         }
 
         // ── Update Directory Link with Location ─────────
@@ -3213,44 +3216,36 @@
         function openSignup(date, mealType) {
             selectedDate = date;
             selectedMealType = mealType;
-            currentServings = 4;
 
             document.getElementById('modalSubtitle').textContent =
                 mealType + ' \u00b7 ' + formatDate(date);
+
+            // V3: servings count comes from the organizer (default guests_per_meal,
+            // overridden per-meal if meal_guest_overrides has an entry for this slot).
+            var servingsCount = getMealServings(date, mealType);
+            document.getElementById('signupServingsCount').textContent = servingsCount;
 
             // Reset form
             document.getElementById('volName').value = '';
             document.getElementById('volEmail').value = '';
             document.getElementById('volPhone').value = '';
             document.getElementById('mealCustom').value = '';
-            document.getElementById('servingsValue').textContent = '4 servings';
             document.getElementById('volWillServe').checked = false;
             document.getElementById('volConsent').checked = false;
-            // Reset alternative contribution
-            document.getElementById('volAlternative').checked = false;
-            document.getElementById('altOptions').style.display = 'none';
-            document.getElementById('altNote').value = '';
-            // Re-show food/servings sections
-            var foodSection = document.getElementById('foodChips').parentElement;
-            var servingsSection = document.getElementById('servMinus').parentElement.parentElement;
-            var willServeRow = document.getElementById('volWillServe').parentElement;
-            foodSection.style.display = '';
-            servingsSection.style.display = '';
-            willServeRow.style.display = '';
-            if (document.getElementById('mealCustom').parentElement) {
-                document.getElementById('mealCustom').parentElement.style.display = '';
-            }
             document.getElementById('signupError').classList.remove('active');
             document.getElementById('signupSubmitBtn').disabled = false;
             document.getElementById('signupSubmitBtn').textContent = 'Sign Up';
 
-            // Reset chips
-            var chips = document.querySelectorAll('.food-chip');
-            for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
-
             // Reset additional families
             document.getElementById('additionalFamilies').innerHTML = '';
             additionalFamilyCount = 0;
+
+            // Reset any stashed vendor selection from a previous open
+            var catererContainer = document.getElementById('signupCatererCards');
+            if (catererContainer) catererContainer._selectedVendor = null;
+
+            // Render caterer cards from the organizer's recommended_vendors picks
+            renderSignupCatererCards();
 
             show('signupFormView');
             hide('signupConfirmView');
@@ -3259,6 +3254,143 @@
             document.body.style.overflow = 'hidden';
 
             setTimeout(function() { document.getElementById('volName').focus(); }, 150);
+        }
+
+        // V3: Look up servings count for a specific meal slot. Uses
+        // meal_guest_overrides if present, otherwise the shiva default.
+        function getMealServings(date, mealType) {
+            var defaultGuests = parseInt(supportData.guests_per_meal, 10) || 20;
+            try {
+                var raw = supportData.meal_guest_overrides;
+                if (raw) {
+                    var overrides = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (Array.isArray(overrides)) {
+                        for (var i = 0; i < overrides.length; i++) {
+                            var o = overrides[i];
+                            if (o.date === date && o.meal_type === mealType) {
+                                return parseInt(o.guest_count, 10) || defaultGuests;
+                            }
+                        }
+                    }
+                }
+            } catch (e) {}
+            return defaultGuests;
+        }
+
+        // V3: Render caterer cards inside the signup modal. Cards come from
+        // the organizer's recommended_vendors picks (set during shiva setup).
+        // Click a card to auto-fill the meal description with "Ordering from <name>".
+        // If the organizer didn't pick any, show a fallback link to the directory.
+        var _signupVendorsCache = null;
+        function renderSignupCatererCards() {
+            var container = document.getElementById('signupCatererCards');
+            var helperEl = document.getElementById('signupCatererHelper');
+            var customLabelEl = document.getElementById('signupCustomLabel');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Default: hide helper text + custom label. They only show if there
+            // are actually caterers to choose from.
+            if (helperEl) helperEl.style.display = 'none';
+            if (customLabelEl) customLabelEl.style.display = 'none';
+
+            var slugs = [];
+            try {
+                var raw = supportData.recommended_vendors;
+                if (raw) {
+                    var parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (Array.isArray(parsed)) slugs = parsed;
+                }
+            } catch (e) {}
+
+            if (!slugs.length) {
+                // No caterers picked — just show the free-text input. The text
+                // input is always present below, so nothing extra needed here.
+                // (We deliberately do NOT show a "Browse local caterers" link
+                // anymore — when the organizer didn't pick any, the volunteer
+                // just types what they're bringing.)
+                return;
+            }
+
+            // Fetch vendor data once per modal open
+            function paint(allVendors) {
+                var picks = [];
+                slugs.forEach(function(slug) {
+                    for (var i = 0; i < allVendors.length; i++) {
+                        if (allVendors[i].slug === slug) { picks.push(allVendors[i]); return; }
+                    }
+                });
+                if (!picks.length) {
+                    // Slugs exist but no matching vendors found in directory —
+                    // treat the same as no picks
+                    return;
+                }
+
+                var html = '';
+                picks.forEach(function(v) {
+                    html += '<div class="signup-caterer-card" data-slug="' + escapeHtml(v.slug) + '" data-name="' + escapeHtml(v.name) + '">';
+                    html += '<div class="signup-caterer-name">' + escapeHtml(v.name) + '</div>';
+                    if (v.neighborhood) html += '<div class="signup-caterer-detail">' + escapeHtml(v.neighborhood) + '</div>';
+                    if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                        html += '<div class="signup-caterer-detail">Kosher (' + v.kosher_status + ')</div>';
+                    }
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+
+                // Show helper text + "Not using a caterer" label since we have caterers
+                if (helperEl) helperEl.style.display = '';
+                if (customLabelEl) customLabelEl.style.display = '';
+
+                // Wire up click-to-select / auto-fill behavior. Stash the
+                // selected vendor's full record on the container so the submit
+                // handler can pass it through to showConfirmation for the
+                // post-signup vendor CTA.
+                container.querySelectorAll('.signup-caterer-card').forEach(function(card) {
+                    card.addEventListener('click', function() {
+                        var slug = this.getAttribute('data-slug');
+                        var name = this.getAttribute('data-name');
+                        var input = document.getElementById('mealCustom');
+                        var alreadySelected = this.classList.contains('selected');
+                        container.querySelectorAll('.signup-caterer-card').forEach(function(c) {
+                            c.classList.remove('selected');
+                        });
+                        if (alreadySelected) {
+                            // Toggle off — clear the auto-filled text + stashed selection
+                            if (input.value === 'Ordering from ' + name) input.value = '';
+                            container._selectedVendor = null;
+                        } else {
+                            this.classList.add('selected');
+                            input.value = 'Ordering from ' + name;
+                            // Find full vendor record for the post-signup CTA
+                            var picked = null;
+                            for (var i = 0; i < picks.length; i++) {
+                                if (picks[i].slug === slug) { picked = picks[i]; break; }
+                            }
+                            container._selectedVendor = picked;
+                        }
+                    });
+                });
+            }
+
+            if (_signupVendorsCache) {
+                paint(_signupVendorsCache);
+                return;
+            }
+
+            fetch('/api/vendors')
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.status === 'success' && result.data) {
+                        _signupVendorsCache = result.data;
+                        paint(result.data);
+                    } else {
+                        container.innerHTML = '<a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" class="signup-caterer-fallback">Browse local caterers &#8594;</a>';
+                    }
+                })
+                .catch(function() {
+                    container.innerHTML = '<a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" class="signup-caterer-fallback">Browse local caterers &#8594;</a>';
+                });
         }
 
         // ── Additional Families ───────────────────────────
@@ -3307,55 +3439,38 @@
             }
         }
 
-        // ── Food Chips ──────────────────────────────────
-
-        document.getElementById('foodChips').addEventListener('click', function(e) {
-            var chip = e.target.closest('.food-chip');
-            if (!chip) return;
-            chip.classList.toggle('selected');
-        });
-
-        function getSelectedFoods() {
-            var custom = document.getElementById('mealCustom').value.trim();
-            if (custom) return custom;
-            var chips = document.querySelectorAll('.food-chip.selected');
-            var foods = [];
-            for (var i = 0; i < chips.length; i++) {
-                foods.push(chips[i].getAttribute('data-food'));
-            }
-            return foods.join(', ');
-        }
-
-        // ── Servings Counter ────────────────────────────
-
-        document.getElementById('servMinus').addEventListener('click', function() {
-            currentServings = Math.max(1, currentServings - 1);
-            document.getElementById('servingsValue').textContent =
-                currentServings + ' serving' + (currentServings !== 1 ? 's' : '');
-        });
-
-        document.getElementById('servPlus').addEventListener('click', function() {
-            currentServings = Math.min(20, currentServings + 1);
-            document.getElementById('servingsValue').textContent =
-                currentServings + ' serving' + (currentServings !== 1 ? 's' : '');
-        });
+        // V3: Food chips and +/- servings counter removed.
+        // - Meal description: free-text or auto-filled by clicking a recommended caterer card
+        // - Servings: read-only, derived from supportData via getMealServings(date, type)
+        // - Alternative contribution toggle removed (caterer cards replace it)
 
         // ── Submit Signup ───────────────────────────────
 
         document.getElementById('signupSubmitBtn').addEventListener('click', function() {
             var name = document.getElementById('volName').value.trim();
             var email = document.getElementById('volEmail').value.trim();
+            var phone = document.getElementById('volPhone').value.trim();
             var consent = document.getElementById('volConsent').checked;
             var errEl = document.getElementById('signupError');
             var btn = document.getElementById('signupSubmitBtn');
 
-            if (!name || !email) {
-                errEl.textContent = 'Please fill in your name and email.';
+            if (!name) {
+                errEl.textContent = 'Please enter your name.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (!email) {
+                errEl.textContent = 'Please enter your email.';
                 errEl.classList.add('active');
                 return;
             }
             if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
                 errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (!phone) {
+                errEl.textContent = 'Please enter your phone number.';
                 errEl.classList.add('active');
                 return;
             }
@@ -3369,32 +3484,37 @@
             btn.textContent = 'Signing up...';
             errEl.classList.remove('active');
 
-            var mealDescription = getSelectedFoods();
+            // V3: meal description is whatever's in the free-text input
+            // (auto-filled by caterer card click, or hand-typed by the volunteer).
+            var mealDescription = document.getElementById('mealCustom').value.trim();
+            // Servings is set by the organizer, never the volunteer.
+            var servingsCount = getMealServings(selectedDate, selectedMealType);
 
-            var isAlt = document.getElementById('volAlternative').checked;
             var payload = {
                 volunteer_name: name,
                 volunteer_email: email,
-                volunteer_phone: document.getElementById('volPhone').value.trim(),
+                volunteer_phone: phone,
                 meal_date: selectedDate,
                 meal_type: selectedMealType,
-                meal_description: isAlt ? '' : mealDescription,
-                num_servings: isAlt ? 0 : currentServings,
-                will_serve: isAlt ? false : document.getElementById('volWillServe').checked,
+                meal_description: mealDescription,
+                num_servings: servingsCount,
+                will_serve: document.getElementById('volWillServe').checked,
                 privacy_consent: true,
                 access_token: accessToken || ''
             };
-            if (isAlt) {
-                payload.alternative_type = document.getElementById('altType').value;
-                payload.alternative_note = document.getElementById('altNote').value.trim();
-                payload.meal_description = document.getElementById('altType').selectedOptions[0].text +
-                    (payload.alternative_note ? ' - ' + payload.alternative_note : '');
-            }
 
             // Additional contributors (multiple families)
             var contributors = getAdditionalContributors();
             if (contributors.length > 0) {
                 payload.additional_contributors = contributors;
+            }
+
+            // V3: capture the vendor the volunteer picked (if any) before submit,
+            // so the confirmation view can show a "Place your order" CTA.
+            var pickedVendor = null;
+            var catContainer = document.getElementById('signupCatererCards');
+            if (catContainer && catContainer._selectedVendor) {
+                pickedVendor = catContainer._selectedVendor;
             }
 
             fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup', {
@@ -3405,7 +3525,7 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.status === 'success') {
-                    showConfirmation(data, name, mealDescription);
+                    showConfirmation(data, name, mealDescription, pickedVendor);
                     refreshMeals();
                 } else {
                     throw new Error(data.message || 'We weren\'t able to complete your signup. Please try again.');
@@ -3421,10 +3541,37 @@
 
         // ── Show Confirmation ───────────────────────────
 
-        function showConfirmation(data, volunteerName, mealDescription) {
+        function showConfirmation(data, volunteerName, mealDescription, pickedVendor) {
             var addrText = data.shiva_address || '';
             if (data.shiva_city) addrText += ', ' + data.shiva_city;
             lastSignupAddress = addrText;
+
+            // V3: Vendor order CTA. If the volunteer picked a caterer card during
+            // signup, show a prominent "Order from [Vendor] →" button that opens
+            // the vendor's website in a new tab. The click is tracked via
+            // /api/track-click for vendor analytics. If no vendor was picked,
+            // show the generic "Browse local caterers" link instead.
+            var vendorCta = document.getElementById('confirmVendorCta');
+            var vendorCtaLabel = document.getElementById('confirmVendorCtaLabel');
+            var vendorCtaBtn = document.getElementById('confirmVendorCtaBtn');
+            var vendorCtaText = document.getElementById('confirmVendorCtaText');
+            var genericFallback = document.getElementById('confirmGenericCaterers');
+            if (pickedVendor && pickedVendor.website) {
+                vendorCtaLabel.textContent = 'Don\'t forget to place your order';
+                vendorCtaText.textContent = 'Order from ' + pickedVendor.name;
+                var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(pickedVendor.slug) +
+                               '&source=signup_confirm&dest=' + encodeURIComponent(pickedVendor.website);
+                vendorCtaBtn.href = trackUrl;
+                vendorCta.style.display = '';
+                if (genericFallback) genericFallback.style.display = 'none';
+            } else if (pickedVendor) {
+                // Vendor selected but no website URL — fall back to phone if available, otherwise generic link
+                vendorCta.style.display = 'none';
+                if (genericFallback) genericFallback.style.display = '';
+            } else {
+                vendorCta.style.display = 'none';
+                if (genericFallback) genericFallback.style.display = '';
+            }
 
             // V4: Store signup in sessionStorage for self-edit
             if (data.signup_id && supportId) {
@@ -3466,8 +3613,9 @@
             var endHour = mealType === 'Lunch' ? '13' : '19';
             var dateClean = date.replace(/-/g, '');
             var title = 'Bring ' + mealType.toLowerCase() + ' to ' + (supportData.family_name || 'shiva');
+            var servingsForCal = getMealServings(date, mealType);
             var details = 'You signed up to bring: ' + (description || 'a meal') +
-                '\nServings: ' + currentServings +
+                '\nServings: ' + servingsForCal +
                 '\n\nOrganized via Neshama';
 
             return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
@@ -3634,32 +3782,10 @@
             });
         });
 
-        // ── Alternative Contribution Toggle ──────────────
-
-        (function() {
-            var altCheckbox = document.getElementById('volAlternative');
-            var altOptions = document.getElementById('altOptions');
-            if (altCheckbox && altOptions) {
-                altCheckbox.addEventListener('change', function() {
-                    altOptions.style.display = this.checked ? '' : 'none';
-                    // When alternative is toggled, hide/show food chips + servings
-                    var foodSection = document.getElementById('foodChips').parentElement;
-                    var servingsSection = document.getElementById('servMinus').parentElement.parentElement;
-                    var willServeRow = document.getElementById('volWillServe').parentElement;
-                    if (this.checked) {
-                        foodSection.style.display = 'none';
-                        servingsSection.style.display = 'none';
-                        willServeRow.style.display = 'none';
-                        document.getElementById('mealCustom').parentElement.style.display = 'none';
-                    } else {
-                        foodSection.style.display = '';
-                        servingsSection.style.display = '';
-                        willServeRow.style.display = '';
-                        document.getElementById('mealCustom').parentElement.style.display = '';
-                    }
-                });
-            }
-        })();
+        // V3: Alternative contribution toggle removed — caterer cards in the
+        // signup modal now serve the same purpose (volunteer either picks a
+        // caterer card or types what they're bringing in plain text). No
+        // separate "I'd rather send something thoughtful" path needed.
 
         // ── V3: Updates Feed ──────────────────────────────
 

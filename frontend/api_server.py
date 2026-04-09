@@ -236,6 +236,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/index.html': ('index.html', 'text/html'),
         '/app.js': ('app.js', 'application/javascript'),
         '/footer-subscribe.js': ('footer-subscribe.js', 'application/javascript'),
+        '/share-buttons.js': ('share-buttons.js', 'application/javascript'),
         '/about': ('about.html', 'text/html'),
         '/about.html': ('about.html', 'text/html'),
         '/faq': ('faq.html', 'text/html'),
@@ -3539,7 +3540,8 @@ button:hover{background:#c45a1a}</style></head>
 
         base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
         shiva_page_url = f"{base_url}/shiva/{shiva_id}"
-        edit_url = f"{shiva_page_url}?token={magic_token}"
+        # V3: organizer link is the new dashboard, not the volunteer view with organizer mode.
+        edit_url = f"{base_url}/shiva/dashboard?id={shiva_id}&token={magic_token}"
 
         import urllib.parse
         share_text = f"Help coordinate meals for the {family_name} shiva: {shiva_page_url}"
