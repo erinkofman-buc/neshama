@@ -664,30 +664,6 @@
         }
         .contact-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-        /* -- Danger Zone -- */
-        .danger-zone {
-            border: 1.5px solid var(--danger-border);
-            background: var(--danger-bg);
-        }
-        .danger-zone h2 { color: var(--danger-text); }
-        .danger-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 48px;
-            padding: 12px 24px;
-            background: white;
-            color: var(--danger-text);
-            border: 2px solid var(--danger-border);
-            border-radius: var(--radius-pill);
-            font-family: var(--font-body);
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .danger-btn:hover { background: var(--danger-bg); }
-
         /* -- Transfer Section -- */
         .transfer-row {
             display: flex;
@@ -873,7 +849,7 @@
 
         /* -- Print -- */
         @media print {
-            .top-nav, footer, .modal-overlay, .confirm-dialog, .share-bar, .walkin-btn, .remove-btn, .toast, .danger-zone { display: none !important; }
+            .top-nav, footer, .modal-overlay, .confirm-dialog, .share-bar, .remove-btn, .toast { display: none !important; }
             body { background: white; }
             .day-card, .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
         }
@@ -1055,32 +1031,39 @@
                 </div>
             </div>
 
-            <!-- 7. Hand Off to Someone Else -->
-            <div class="section-card" id="transferSection">
-                <div class="collapsible-header" onclick="toggleCollapsible('transferBody', 'transferArrow')">
-                    <h2>Transfer Organizer Access</h2>
-                    <svg class="collapse-arrow" id="transferArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <!-- 7. Co-Organizers -->
+            <div class="section-card" id="coOrganizerSection">
+                <div class="collapsible-header" onclick="toggleCollapsible('coOrganizerBody', 'coOrganizerArrow')">
+                    <h2>Co-Organizers</h2>
+                    <svg class="collapse-arrow" id="coOrganizerArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
-                <div class="collapsible-body" id="transferBody">
-                    <p style="font-size: 17px; color: var(--sage-dark); margin-bottom: 1rem;">Share this organizer link with someone you trust. They will have full access to manage this shiva page.</p>
-                    <div class="transfer-row">
-                        <input type="text" id="transferLink" readonly style="font-size: 16px; background: var(--warm-beige); cursor: text;">
-                        <button class="share-btn share-btn-secondary" onclick="copyTransferLink()" style="min-width: 100px;">Copy link</button>
+                <div class="collapsible-body" id="coOrganizerBody">
+                    <p style="font-size: 17px; color: var(--sage-dark); margin-bottom: 1rem;">
+                        Invite other people who can also manage this shiva page. They will be able to see signups, edit details, and adjust the meal schedule. You always keep your access.
+                    </p>
+
+                    <!-- Existing co-organizers list -->
+                    <div id="coOrganizerList" style="margin-bottom: 1.5rem;"></div>
+
+                    <!-- Invite form -->
+                    <div class="form-group">
+                        <label for="coOrgName">Their name</label>
+                        <input type="text" id="coOrgName" placeholder="e.g., Sarah Cohen">
                     </div>
+                    <div class="form-group">
+                        <label for="coOrgEmail">Their email</label>
+                        <input type="email" id="coOrgEmail" placeholder="them@example.com">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem;">
+                        <button class="save-btn" id="coOrgInviteBtn" onclick="inviteCoOrganizer()">Send invitation</button>
+                        <span class="save-feedback" id="coOrgFeedback"></span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--sage-dark); margin-top: 1rem; line-height: 1.5;">
+                        They will receive an email with a link to accept. Once they accept, they will see this dashboard and can help manage meals. You can revoke their access at any time.
+                    </p>
                 </div>
             </div>
 
-            <!-- 8. Danger Zone (collapsed by default) -->
-            <div class="section-card danger-zone" id="dangerSection">
-                <div class="collapsible-header" onclick="toggleCollapsible('dangerBody', 'dangerArrow')">
-                    <h2>Danger Zone</h2>
-                    <svg class="collapse-arrow" id="dangerArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-                <div class="collapsible-body" id="dangerBody">
-                    <p style="font-size: 17px; color: var(--sage-dark); margin-bottom: 1rem;">Archiving will remove this shiva page from public view. Existing volunteers will not be notified.</p>
-                    <button class="danger-btn" onclick="confirmArchive()">Archive this shiva page</button>
-                </div>
-            </div>
         </div>
 
     </div>
@@ -1319,12 +1302,14 @@
 
         function showError() {
             document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'none';
             document.getElementById('errorState').style.display = '';
         }
 
         // -- Render Dashboard --
         function renderDashboard() {
             document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
             document.getElementById('dashboardContent').style.display = '';
 
             var d = supportData;
@@ -1344,14 +1329,15 @@
 
             document.getElementById('whatsappShareBtn').href = 'https://wa.me/?text=' + encodeURIComponent(shareText);
 
-            // Transfer link (this dashboard URL)
-            document.getElementById('transferLink').value = window.location.href;
+            // (V3: removed legacy "transferLink" copy widget — replaced by
+            // the real Pass Host form which is its own component.)
 
             // Render sections
             renderCoverage();
             renderCalendar();
             renderContactTable();
             populateEditForm();
+            loadCoOrganizers();
         }
 
         // -- Coverage --
@@ -1417,10 +1403,10 @@
                 signupMap[key].push(s);
             });
 
-            var lunchStart = formatTime24to12(d.lunch_dropoff_start || '11:30');
-            var lunchEnd = formatTime24to12(d.lunch_dropoff_end || '12:30');
-            var dinnerStart = formatTime24to12(d.dinner_dropoff_start || '16:30');
-            var dinnerEnd = formatTime24to12(d.dinner_dropoff_end || '17:30');
+            // V3: removed fixed drop-off time display per family request — the
+            // hardcoded V2 defaults (11:30/12:30 for lunch, 16:30/17:30 for dinner)
+            // weren't actually chosen by the organizer. Timing now lives in the
+            // organizer's free-text "Note to Volunteers" field.
 
             var calHtml = '';
 
@@ -1450,11 +1436,9 @@
                     dayTotal++;
                     var key = dateStr + '_' + type;
                     var signups = signupMap[key] || [];
-                    var timeStr = type === 'Lunch' ? (lunchStart + ' \u2013 ' + lunchEnd) : (dinnerStart + ' \u2013 ' + dinnerEnd);
 
                     slotsHtml += '<div class="meal-slot ' + (signups.length > 0 ? 'taken' : 'open') + '">';
                     slotsHtml += '<div class="slot-label">' + escapeHtml(type) + '</div>';
-                    slotsHtml += '<div class="slot-time">' + timeStr + '</div>';
 
                     if (signups.length > 0) {
                         dayCovered++;
@@ -1906,39 +1890,11 @@
             });
         };
 
-        // -- Archive --
-        window.confirmArchive = function() {
-            var dialog = document.getElementById('confirmDialog');
-            document.getElementById('confirmDialogText').textContent = 'Are you sure you want to archive this shiva page? This cannot be undone.';
-            document.getElementById('confirmDialogYes').onclick = function() {
-                closeConfirmDialog();
-                archiveShiva();
-            };
-            dialog.classList.add('active');
-        };
-
-        function archiveShiva() {
-            fetch('/api/shiva/' + encodeURIComponent(shivaId), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    magic_token: magicToken,
-                    status: 'archived'
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.status === 'success') {
-                    showToast('Shiva page archived');
-                    setTimeout(function() { window.location.href = '/'; }, 2000);
-                } else {
-                    showToast(result.message || 'Failed to archive');
-                }
-            })
-            .catch(function() {
-                showToast('Network error');
-            });
-        }
+        // V3: Archive flow removed from organizer dashboard. The shiva page
+        // now lives indefinitely from the organizer's perspective. If a page
+        // ever needs to be hidden, it can be done admin-side via direct API
+        // call (PUT /api/shiva/{id} with status='archived'). Backend support
+        // remains intact for that use case.
 
         // -- Refresh Meals --
         function refreshMeals() {
@@ -1968,10 +1924,139 @@
             }, 2500);
         };
 
-        window.copyTransferLink = function() {
-            copyToClipboard(window.location.href);
-            showToast('Organizer link copied');
+        // -- Co-Organizers --
+        // Invite helpers who can also manage this shiva page. The primary
+        // organizer always keeps full access. Each co-organizer gets their own
+        // magic_token (separate from the primary's), so individual revoke is
+        // possible without affecting other organizers.
+        function loadCoOrganizers() {
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/co-organizers?token=' + encodeURIComponent(magicToken))
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.status === 'success') {
+                        renderCoOrganizers(result.data || []);
+                    } else {
+                        renderCoOrganizers([]);
+                    }
+                })
+                .catch(function() {
+                    renderCoOrganizers([]);
+                });
+        }
+
+        function renderCoOrganizers(list) {
+            var container = document.getElementById('coOrganizerList');
+            if (!list || list.length === 0) {
+                container.innerHTML = '<p style="font-size: 0.95rem; color: var(--sage-dark); font-style: italic; margin: 0;">No co-organizers yet. Invite someone below.</p>';
+                return;
+            }
+            var html = '<div style="border: 1px solid var(--light-taupe); border-radius: 0.5rem; overflow: hidden;">';
+            list.forEach(function(co, idx) {
+                var statusBadge = co.status === 'accepted'
+                    ? '<span style="font-size: 0.78rem; color: var(--success-text); background: var(--success-bg); padding: 0.15rem 0.55rem; border-radius: 1rem;">accepted</span>'
+                    : '<span style="font-size: 0.78rem; color: var(--sage-dark); background: var(--cream); padding: 0.15rem 0.55rem; border-radius: 1rem;">pending</span>';
+                var border = idx > 0 ? 'border-top: 1px solid var(--light-taupe);' : '';
+                html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; ' + border + '">';
+                html += '<div style="flex: 1; min-width: 0;">';
+                html += '<div style="font-weight: 500; color: var(--dark-brown);">' + escapeHtml(co.name || co.email) + ' ' + statusBadge + '</div>';
+                html += '<div style="font-size: 0.85rem; color: var(--sage-dark); margin-top: 0.15rem;">' + escapeHtml(co.email) + '</div>';
+                html += '</div>';
+                html += '<button class="remove-btn" onclick="confirmRevokeCoOrganizer(' + co.id + ', \'' + escapeHtml(co.name || co.email).replace(/'/g, "\\'") + '\')">Remove</button>';
+                html += '</div>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        window.inviteCoOrganizer = function() {
+            var btn = document.getElementById('coOrgInviteBtn');
+            var feedback = document.getElementById('coOrgFeedback');
+            var nameEl = document.getElementById('coOrgName');
+            var emailEl = document.getElementById('coOrgEmail');
+
+            var name = nameEl.value.trim();
+            var email = emailEl.value.trim();
+
+            feedback.className = 'save-feedback';
+            feedback.textContent = '';
+
+            if (!name || !email) {
+                feedback.textContent = 'Both name and email are required.';
+                feedback.className = 'save-feedback visible error';
+                return;
+            }
+            if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+                feedback.textContent = 'Please enter a valid email address.';
+                feedback.className = 'save-feedback visible error';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/co-organizers/invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: magicToken,
+                    name: name,
+                    email: email
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                btn.textContent = 'Send invitation';
+                if (result.status === 'success') {
+                    feedback.textContent = 'Invitation sent to ' + email + '.';
+                    feedback.className = 'save-feedback visible success';
+                    nameEl.value = '';
+                    emailEl.value = '';
+                    showToast('Invitation sent');
+                    loadCoOrganizers();
+                } else {
+                    feedback.textContent = result.message || 'Could not send invitation.';
+                    feedback.className = 'save-feedback visible error';
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.textContent = 'Send invitation';
+                feedback.textContent = 'Network error. Please try again.';
+                feedback.className = 'save-feedback visible error';
+            });
         };
+
+        window.confirmRevokeCoOrganizer = function(coId, name) {
+            var dialog = document.getElementById('confirmDialog');
+            document.getElementById('confirmDialogText').textContent =
+                'Remove ' + name + ' as a co-organizer? They will lose access to this dashboard.';
+            document.getElementById('confirmDialogYes').onclick = function() {
+                closeConfirmDialog();
+                revokeCoOrganizer(coId);
+            };
+            dialog.classList.add('active');
+        };
+
+        function revokeCoOrganizer(coId) {
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/co-organizers/' + encodeURIComponent(coId) + '/revoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ magic_token: magicToken })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    showToast('Co-organizer removed');
+                    loadCoOrganizers();
+                } else {
+                    showToast(result.message || 'Failed to remove');
+                }
+            })
+            .catch(function() {
+                showToast('Network error');
+            });
+        }
 
         function copyToClipboard(text) {
             if (navigator.clipboard && navigator.clipboard.writeText) {

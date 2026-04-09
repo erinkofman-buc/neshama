@@ -3949,7 +3949,8 @@ button:hover{background:#c45a1a}</style></head>
         if result['status'] == 'success':
             shiva_mgr._trigger_backup()
             base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
-            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['new_magic_token']}"
+            # V3: redirect to the new organizer dashboard, not the volunteer view
+            dashboard_url = f"{base_url}/shiva/dashboard?id={result['shiva_id']}&token={result['new_magic_token']}"
             self._serve_access_result_page(
                 'You Are Now the Host',
                 f'You are now the primary organizer for the <strong>{html_mod.escape(result["family_name"])}</strong> shiva page. '
