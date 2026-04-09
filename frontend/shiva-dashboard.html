@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - Neshama</title>
+    <meta name="description" content="Manage your shiva meal coordination page. View signups, add walk-ins, update details, and share the volunteer link.">
+    <meta name="theme-color" content="#3E2723">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --terracotta: #C2621A;
+            --terracotta-hover: #A8541A;
+            --cream: #FFF8F0;
+            --warm-beige: #F5F0E8;
+            --dark-brown: #3E2723;
+            --sage: #8A9A8C;
+            --sage-dark: #4A5E4D;
+            --gold: #B8943E;
+            --light-taupe: #D4C5B9;
+            --open-slot-bg: #FFF0ED;
+            --open-slot-border: #C2621A;
+            --open-slot-text: #8B4513;
+            --taken-slot-bg: #F5F5F2;
+            --taken-slot-border: #D4CFC8;
+            --taken-slot-text: #6B6560;
+            --success-bg: #F0F5ED;
+            --success-border: #7BA87E;
+            --success-text: #3D6B40;
+            --shabbat-bg: #F8F5EF;
+            --shabbat-accent: #B8943E;
+            --danger-bg: #FFF5F5;
+            --danger-border: #E57373;
+            --danger-text: #C62828;
+            --shadow-sm: 0 1px 4px rgba(62, 39, 35, 0.06);
+            --shadow-md: 0 4px 16px rgba(62, 39, 35, 0.08);
+            --shadow-lg: 0 8px 32px rgba(62, 39, 35, 0.12);
+            --shadow-modal: 0 20px 60px rgba(62, 39, 35, 0.2);
+            --font-heading: 'Cormorant Garamond', 'Georgia', serif;
+            --font-body: 'Crimson Pro', 'Georgia', serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-pill: 999px;
+        }
+
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 17px; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(194, 98, 26, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+            font-size: 20px;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* -- Nav -- */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: var(--font-body); font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-link-help { font-size: 0.95rem; color: var(--terracotta); font-weight: 500; opacity: 1; }
+        .nav-link-help:hover { color: var(--terracotta-hover); }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: var(--terracotta-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; font-size: 0.72rem; font-weight: 400; opacity: 0.9; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* -- Footer -- */
+        footer { text-align: center; padding: 3rem 1.5rem 2rem; border-top: 1px solid rgba(212, 197, 185, 0.3); margin-top: 4rem; }
+        .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-bottom: 1rem; }
+        .footer-links a { font-family: var(--font-body); font-size: 17px; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 17px; color: var(--sage); }
+
+        /* -- Page Container -- */
+        .page-container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        /* -- Loading / Error -- */
+        .page-loading { text-align: center; padding: 6rem 2rem; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--light-taupe); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .page-loading p { font-size: 20px; color: var(--sage-dark); font-style: italic; }
+        .error-state { text-align: center; padding: 6rem 2rem; }
+        .error-state h2 { font-family: var(--font-heading); font-size: clamp(28px, 6vw, 40px); font-weight: 400; margin-bottom: 1rem; }
+        .error-state p { font-size: 20px; color: var(--sage-dark); margin-bottom: 2rem; }
+        .error-state a { display: inline-block; background: var(--terracotta); color: white; padding: 0.75rem 2rem; border-radius: var(--radius-pill); text-decoration: none; font-size: 20px; transition: all 0.3s ease; }
+        .error-state a:hover { background: var(--terracotta-hover); transform: translateY(-2px); }
+
+        /* -- Header / Hero -- */
+        .dashboard-hero {
+            text-align: center;
+            padding: 2.5rem 0 1.5rem;
+        }
+        .dashboard-hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(26px, 5vw, 36px);
+            font-weight: 400;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+        }
+        .dashboard-hero .shiva-dates {
+            font-size: 20px;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+
+        /* -- Share Bar -- */
+        .share-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 48px;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+        .share-btn-primary {
+            background: var(--terracotta);
+            color: white;
+        }
+        .share-btn-primary:hover { background: var(--terracotta-hover); transform: translateY(-1px); }
+        .share-btn-secondary {
+            background: white;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+        }
+        .share-btn-secondary:hover { border-color: var(--terracotta); color: var(--terracotta); }
+        .share-btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        .share-btn-whatsapp:hover { background: #1DA851; transform: translateY(-1px); }
+
+        /* -- Section Card -- */
+        .section-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-card h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(22px, 4vw, 28px);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        .section-card h3 {
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* -- Coverage Summary -- */
+        .coverage-summary .coverage-number {
+            font-family: var(--font-heading);
+            font-size: clamp(28px, 6vw, 40px);
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+        .coverage-bar-track {
+            height: 12px;
+            background: var(--light-taupe);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+        .coverage-bar-fill {
+            height: 100%;
+            background: var(--sage);
+            border-radius: var(--radius-pill);
+            transition: width 0.6s ease;
+        }
+        .coverage-bar-fill.full { background: var(--success-text); }
+        .coverage-nudge {
+            font-size: 17px;
+            color: var(--open-slot-text);
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* -- Meal Calendar -- */
+        .meal-calendar { display: flex; flex-direction: column; gap: 1.25rem; }
+        .day-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border-left: 4px solid var(--open-slot-border);
+        }
+        .day-card.all-covered { border-left-color: var(--success-border); }
+        .day-card.partial { border-left-color: var(--sage); }
+        .day-card.shabbat { background: var(--shabbat-bg); border-left-color: var(--shabbat-accent); }
+        .day-header {
+            padding: 0.75rem 1.25rem;
+            background: rgba(245, 240, 232, 0.5);
+            border-bottom: 1px solid rgba(212, 197, 185, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .day-header h3 {
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0;
+        }
+        .shabbat-badge {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--shabbat-accent);
+        }
+        .day-check {
+            color: var(--success-text);
+            font-size: 20px;
+        }
+        .meal-slots {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .meal-slots { flex-direction: row; }
+            .meal-slot { flex: 1; }
+        }
+
+        /* -- Meal Slot -- */
+        .meal-slot {
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border-left: 4px solid transparent;
+        }
+        .meal-slot.open {
+            background: var(--open-slot-bg);
+            border-left-color: var(--open-slot-border);
+        }
+        .meal-slot.taken {
+            background: var(--taken-slot-bg);
+            border-left-color: var(--taken-slot-border);
+        }
+        .meal-slot.shabbat-empty {
+            background: transparent;
+            border-left-color: transparent;
+            text-align: center;
+            font-style: italic;
+            color: var(--sage-dark);
+            font-size: 17px;
+            padding: 1.5rem 1rem;
+        }
+        .slot-label {
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.15rem;
+        }
+        .meal-slot.open .slot-label { color: var(--open-slot-text); }
+        .meal-slot.taken .slot-label { color: var(--taken-slot-text); }
+        .slot-time {
+            font-size: 17px;
+            margin-bottom: 0.75rem;
+        }
+        .meal-slot.open .slot-time { color: var(--open-slot-text); }
+        .meal-slot.taken .slot-time { color: var(--taken-slot-text); }
+
+        /* -- Signup Details (dashboard-specific) -- */
+        .signup-detail {
+            background: white;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .signup-detail .signup-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+        .signup-detail .signup-contact {
+            font-size: 16px;
+            color: var(--sage-dark);
+            margin-top: 0.15rem;
+        }
+        .signup-detail .signup-contact a {
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+        .signup-detail .signup-contact a:hover { text-decoration: underline; }
+        .signup-detail .signup-bringing {
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-top: 0.25rem;
+        }
+        .walkin-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: var(--warm-beige);
+            color: var(--sage-dark);
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .remove-btn {
+            display: inline-block;
+            font-family: var(--font-body);
+            font-size: 15px;
+            color: var(--danger-text);
+            background: none;
+            border: 1px solid var(--danger-border);
+            border-radius: var(--radius-pill);
+            padding: 4px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            min-height: 36px;
+        }
+        .remove-btn:hover { background: var(--danger-bg); }
+
+        .open-slot-text {
+            font-size: 17px;
+            color: var(--sage);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .walkin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--sage-dark);
+            background: white;
+            border: 1.5px solid var(--light-taupe);
+            border-radius: var(--radius-pill);
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px;
+        }
+        .walkin-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+        /* -- Collapsible -- */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding: 0.25rem 0;
+        }
+        .collapsible-header:hover h2 { color: var(--terracotta); }
+        .collapse-arrow {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+            color: var(--sage-dark);
+        }
+        .collapse-arrow.open { transform: rotate(180deg); }
+        .collapsible-body {
+            display: none;
+            padding-top: 1rem;
+        }
+        .collapsible-body.open { display: block; }
+
+        /* -- Form Elements -- */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--dark-brown);
+        }
+        .form-group .helper {
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-bottom: 0.35rem;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            min-height: 52px;
+            padding: 14px 16px;
+            border: 2px solid var(--light-taupe);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 20px;
+            color: var(--dark-brown);
+            background: white;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--terracotta);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .save-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            padding: 14px 32px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .save-btn:hover { background: var(--terracotta-hover); transform: translateY(-1px); }
+        .save-btn:disabled { background: var(--light-taupe); cursor: not-allowed; transform: none; }
+
+        .save-feedback {
+            display: inline-block;
+            font-size: 17px;
+            margin-left: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .save-feedback.visible { opacity: 1; }
+        .save-feedback.success { color: var(--success-text); }
+        .save-feedback.error { color: var(--danger-text); }
+
+        /* -- Checkbox Row -- */
+        .checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .checkbox-row input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            margin-top: 2px;
+            accent-color: var(--terracotta);
+            cursor: pointer;
+        }
+        .checkbox-row label {
+            font-size: 17px;
+            color: var(--sage-dark);
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        /* -- Contact Table -- */
+        .contact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 17px;
+        }
+        .contact-table th {
+            text-align: left;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--sage-dark);
+            padding: 0.75rem 0.5rem;
+            border-bottom: 2px solid var(--light-taupe);
+        }
+        .contact-table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+            vertical-align: top;
+        }
+        .contact-table tr:last-child td { border-bottom: none; }
+        .contact-table a { color: var(--terracotta); text-decoration: none; }
+        .contact-table a:hover { text-decoration: underline; }
+        .contact-count {
+            text-align: right;
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--light-taupe);
+        }
+        .contact-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* -- Danger Zone -- */
+        .danger-zone {
+            border: 1.5px solid var(--danger-border);
+            background: var(--danger-bg);
+        }
+        .danger-zone h2 { color: var(--danger-text); }
+        .danger-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 12px 24px;
+            background: white;
+            color: var(--danger-text);
+            border: 2px solid var(--danger-border);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .danger-btn:hover { background: var(--danger-bg); }
+
+        /* -- Transfer Section -- */
+        .transfer-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .transfer-row input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* -- Modal Overlay -- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(62, 39, 35, 0.5);
+            z-index: 500;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-overlay.active { display: flex; }
+        @media (min-width: 640px) {
+            .modal-overlay.active { align-items: center; }
+        }
+        .modal-sheet {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            max-height: 92vh;
+            overflow-y: auto;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            box-shadow: var(--shadow-modal);
+            padding: 1.5rem;
+            animation: slideUp 0.3s ease;
+        }
+        @media (min-width: 640px) {
+            .modal-sheet {
+                border-radius: var(--radius-lg);
+                animation: fadeIn 0.2s ease;
+            }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .drag-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--light-taupe);
+            border-radius: 2px;
+            margin: 0 auto 1rem;
+        }
+        @media (min-width: 640px) { .drag-handle { display: none; } }
+        .modal-header h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+        .modal-header p {
+            font-size: 17px;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+        .modal-divider {
+            height: 1px;
+            background: var(--light-taupe);
+            margin: 0 0 1.25rem;
+        }
+        .modal-submit-btn {
+            display: block;
+            width: 100%;
+            min-height: 56px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .modal-submit-btn:hover { background: var(--terracotta-hover); }
+        .modal-submit-btn:disabled { background: var(--light-taupe); cursor: not-allowed; }
+        .modal-cancel {
+            display: block;
+            text-align: center;
+            font-family: var(--font-body);
+            font-size: 17px;
+            color: var(--sage-dark);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 100%;
+        }
+        .modal-cancel:hover { color: var(--dark-brown); }
+
+        /* -- Confirm Dialog -- */
+        .confirm-dialog {
+            position: fixed;
+            inset: 0;
+            background: rgba(62, 39, 35, 0.5);
+            z-index: 600;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .confirm-dialog.active { display: flex; }
+        .confirm-dialog-box {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-modal);
+            text-align: center;
+        }
+        .confirm-dialog-box p {
+            font-size: 20px;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .confirm-dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+        .confirm-dialog-actions button {
+            min-height: 48px;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .confirm-yes {
+            background: var(--danger-text);
+            color: white;
+            border: none;
+        }
+        .confirm-yes:hover { background: #a01515; }
+        .confirm-no {
+            background: white;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+        }
+        .confirm-no:hover { border-color: var(--terracotta); }
+
+        /* -- Toast -- */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark-brown);
+            color: white;
+            padding: 14px 28px;
+            border-radius: var(--radius-pill);
+            font-size: 17px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 700;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* -- Print -- */
+        @media print {
+            .top-nav, footer, .modal-overlay, .confirm-dialog, .share-bar, .walkin-btn, .remove-btn, .toast, .danger-zone { display: none !important; }
+            body { background: white; }
+            .day-card, .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+        }
+
+        /* -- Mobile -- */
+        @media (max-width: 768px) {
+            .nav-center { display: none; }
+            .nav-hamburger { display: block; }
+            .nav-center.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 56px;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                padding: 1rem 2rem 1.5rem;
+                border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+                box-shadow: var(--shadow-md);
+                gap: 0.5rem;
+            }
+            .nav-center.open .nav-group-primary,
+            .nav-center.open .nav-group-secondary { flex-direction: column; gap: 0.75rem; }
+            .nav-center.open .nav-divider { display: none; }
+            .page-container { padding: 0 1rem 2rem; }
+            .contact-table { font-size: 15px; }
+            .contact-table th, .contact-table td { padding: 0.5rem 0.35rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main-content">
+    <div class="page-container">
+
+        <!-- Loading State -->
+        <div class="page-loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Loading your dashboard...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <h2>Unable to Access Dashboard</h2>
+            <p>This organizer link may be invalid or expired. Please check the link from your welcome email.</p>
+            <a href="/">Return Home</a>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display: none;">
+
+            <!-- 1. Header -->
+            <div class="dashboard-hero">
+                <h1 id="heroTitle"></h1>
+                <div class="shiva-dates" id="heroDates"></div>
+            </div>
+
+            <!-- Share Bar -->
+            <div class="share-bar">
+                <button class="share-btn share-btn-primary" id="copyLinkBtn" onclick="copyVolunteerLink()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    Copy volunteer link
+                </button>
+                <a class="share-btn share-btn-whatsapp" id="whatsappShareBtn" target="_blank" rel="noopener">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp
+                </a>
+            </div>
+
+            <!-- 2. Coverage Summary -->
+            <div class="section-card coverage-summary" id="coverageCard">
+                <div class="coverage-number" id="coverageNumber"></div>
+                <div class="coverage-bar-track">
+                    <div class="coverage-bar-fill" id="coverageFill" style="width: 0%;"></div>
+                </div>
+                <div class="coverage-nudge" id="coverageNudge"></div>
+            </div>
+
+            <!-- 3. Meal Calendar Grid -->
+            <div class="section-card">
+                <h2>Meal Schedule</h2>
+                <div class="meal-calendar" id="mealCalendar"></div>
+            </div>
+
+            <!-- 6. Volunteer Contact List -->
+            <div class="section-card" id="contactSection">
+                <h2>Volunteer Contact List</h2>
+                <div class="contact-table-wrap">
+                    <table class="contact-table" id="contactTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Meal</th>
+                                <th>Bringing</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="contact-count" id="contactCount"></div>
+            </div>
+
+            <!-- 5. Edit Shiva Details (collapsible) -->
+            <div class="section-card" id="editSection">
+                <div class="collapsible-header" onclick="toggleCollapsible('editBody', 'editArrow')">
+                    <h2>Edit Shiva Details</h2>
+                    <svg class="collapse-arrow" id="editArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="collapsible-body" id="editBody">
+                    <div class="form-group">
+                        <label for="editFamilyName">Family name</label>
+                        <input type="text" id="editFamilyName" placeholder="Family name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editStartDate">Shiva start date</label>
+                        <input type="date" id="editStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editEndDate">Shiva end date</label>
+                        <input type="date" id="editEndDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <input type="text" id="editAddress" placeholder="Full address">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCity">City</label>
+                        <input type="text" id="editCity" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDropoff">Drop-off instructions</label>
+                        <textarea id="editDropoff" placeholder="e.g., Use side entrance, ring doorbell"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuestsPerMeal">Guests per meal</label>
+                        <input type="number" id="editGuestsPerMeal" min="1" max="200" placeholder="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDietaryNotes">Dietary notes</label>
+                        <textarea id="editDietaryNotes" placeholder="Any allergies or dietary preferences"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editFamilyNotes">Note to volunteers</label>
+                        <textarea id="editFamilyNotes" placeholder="A message from the family to volunteers"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSpecialInstructions">Special instructions</label>
+                        <textarea id="editSpecialInstructions" placeholder="Anything else volunteers should know"></textarea>
+                    </div>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="editPauseShabbat">
+                        <label for="editPauseShabbat">Pause meals for Shabbat (Friday sunset - Saturday sunset)</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem;">
+                        <button class="save-btn" id="saveDetailsBtn" onclick="saveDetails()">Save changes</button>
+                        <span class="save-feedback" id="saveFeedback"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Hand Off to Someone Else -->
+            <div class="section-card" id="transferSection">
+                <div class="collapsible-header" onclick="toggleCollapsible('transferBody', 'transferArrow')">
+                    <h2>Transfer Organizer Access</h2>
+                    <svg class="collapse-arrow" id="transferArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="collapsible-body" id="transferBody">
+                    <p style="font-size: 17px; color: var(--sage-dark); margin-bottom: 1rem;">Share this organizer link with someone you trust. They will have full access to manage this shiva page.</p>
+                    <div class="transfer-row">
+                        <input type="text" id="transferLink" readonly style="font-size: 16px; background: var(--warm-beige); cursor: text;">
+                        <button class="share-btn share-btn-secondary" onclick="copyTransferLink()" style="min-width: 100px;">Copy link</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Danger Zone (collapsed by default) -->
+            <div class="section-card danger-zone" id="dangerSection">
+                <div class="collapsible-header" onclick="toggleCollapsible('dangerBody', 'dangerArrow')">
+                    <h2>Danger Zone</h2>
+                    <svg class="collapse-arrow" id="dangerArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="collapsible-body" id="dangerBody">
+                    <p style="font-size: 17px; color: var(--sage-dark); margin-bottom: 1rem;">Archiving will remove this shiva page from public view. Existing volunteers will not be notified.</p>
+                    <button class="danger-btn" onclick="confirmArchive()">Archive this shiva page</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </main>
+
+    <!-- Walk-in Modal -->
+    <div class="modal-overlay" id="walkinModal" role="dialog" aria-modal="true" aria-labelledby="walkinModalTitle">
+        <div class="modal-sheet">
+            <div class="drag-handle"></div>
+            <div class="modal-header">
+                <h2 id="walkinModalTitle">Add Walk-in Meal</h2>
+                <p id="walkinModalSubtitle"></p>
+            </div>
+            <div class="modal-divider"></div>
+            <div class="form-group">
+                <label for="walkinName">Name (optional)</label>
+                <input type="text" id="walkinName" placeholder="Who brought it?">
+            </div>
+            <div class="form-group">
+                <label for="walkinDescription">What did they bring?</label>
+                <input type="text" id="walkinDescription" placeholder="e.g., Pasta tray, serves 10" required>
+            </div>
+            <button class="modal-submit-btn" id="walkinSubmitBtn" onclick="submitWalkin()">Add Walk-in</button>
+            <button class="modal-cancel" onclick="closeWalkinModal()">Cancel</button>
+            <div id="walkinError" style="font-size: 17px; color: var(--danger-text); text-align: center; margin-top: 0.5rem; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-dialog" id="confirmDialog">
+        <div class="confirm-dialog-box">
+            <p id="confirmDialogText"></p>
+            <div class="confirm-dialog-actions">
+                <button class="confirm-no" onclick="closeConfirmDialog()">Cancel</button>
+                <button class="confirm-yes" id="confirmDialogYes">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/help">How Can I Help?</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // -- State --
+        var shivaId = null;
+        var magicToken = null;
+        var supportData = null;
+        var mealsData = [];
+        var blockedMealsSet = {};
+        var mealSchedule = {};
+        var walkinDate = null;
+        var walkinType = null;
+
+        // -- URL Parsing --
+        function getParams() {
+            var params = new URLSearchParams(window.location.search);
+            shivaId = params.get('id');
+            magicToken = params.get('key') || params.get('token');
+        }
+
+        // -- Utilities --
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatDateLong(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr + 'T12:00:00');
+                return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            } catch (e) { return dateStr; }
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '';
+            try {
+                var d = new Date(dateStr + 'T12:00:00');
+                return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            } catch (e) { return dateStr; }
+        }
+
+        function formatDateRange(start, end) {
+            try {
+                var s = new Date(start + 'T12:00:00');
+                var e = new Date(end + 'T12:00:00');
+                return s.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) + ' \u2013 ' +
+                    e.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            } catch (err) { return start + ' - ' + end; }
+        }
+
+        function formatTime24to12(t) {
+            if (!t) return '';
+            var parts = t.split(':');
+            var h = parseInt(parts[0], 10);
+            var m = parts[1] || '00';
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            if (h > 12) h -= 12;
+            if (h === 0) h = 12;
+            return h + ':' + m + ' ' + ampm;
+        }
+
+        function getDaysBetween(startStr, endStr) {
+            var days = [];
+            var s = new Date(startStr + 'T12:00:00');
+            var e = new Date(endStr + 'T12:00:00');
+            var cur = new Date(s);
+            while (cur <= e) {
+                var y = cur.getFullYear();
+                var m = String(cur.getMonth() + 1).padStart(2, '0');
+                var d = String(cur.getDate()).padStart(2, '0');
+                days.push(y + '-' + m + '-' + d);
+                cur.setDate(cur.getDate() + 1);
+            }
+            return days;
+        }
+
+        function isShabbat(dateStr) {
+            var d = new Date(dateStr + 'T12:00:00');
+            var day = d.getDay();
+            return day === 5 || day === 6;
+        }
+
+        function isMealBlocked(dateStr, mealType) {
+            return !!blockedMealsSet[dateStr + '_' + mealType];
+        }
+
+        function isMealDisabledInSchedule(dateStr, mealType) {
+            var daySchedule = mealSchedule[dateStr];
+            if (!daySchedule) return false;
+            var key = mealType.toLowerCase();
+            return daySchedule[key] === false;
+        }
+
+        function showToast(msg) {
+            var el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('visible');
+            setTimeout(function() { el.classList.remove('visible'); }, 3000);
+        }
+
+        // -- Data Loading --
+        function loadPage() {
+            getParams();
+
+            if (!shivaId || !magicToken) {
+                showError();
+                return;
+            }
+
+            var apiUrl = '/api/shiva/' + encodeURIComponent(shivaId) + '?token=' + encodeURIComponent(magicToken);
+
+            fetch(apiUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.status !== 'success' || !result.data) {
+                        showError();
+                        return;
+                    }
+                    supportData = result.data;
+
+                    // Parse blocked meals
+                    if (supportData.blocked_meals) {
+                        try {
+                            var blocked = JSON.parse(supportData.blocked_meals);
+                            blocked.forEach(function(bm) {
+                                blockedMealsSet[bm.date + '_' + bm.meal_type] = true;
+                            });
+                        } catch (e) {}
+                    }
+
+                    // Parse meal schedule
+                    if (supportData.meal_schedule) {
+                        try {
+                            mealSchedule = typeof supportData.meal_schedule === 'string'
+                                ? JSON.parse(supportData.meal_schedule)
+                                : supportData.meal_schedule;
+                        } catch (e) {}
+                    }
+
+                    // Load meals (organizer view with full contact details)
+                    var mealsUrl = '/api/shiva/' + encodeURIComponent(shivaId) + '/meals?token=' + encodeURIComponent(magicToken);
+                    return fetch(mealsUrl).then(function(r) { return r.json(); });
+                })
+                .then(function(mealsResult) {
+                    if (!mealsResult) return;
+                    mealsData = (mealsResult.status === 'success' && mealsResult.data) ? mealsResult.data : [];
+                    renderDashboard();
+                })
+                .catch(function() {
+                    showError();
+                });
+        }
+
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = '';
+        }
+
+        // -- Render Dashboard --
+        function renderDashboard() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = '';
+
+            var d = supportData;
+
+            // Header
+            document.getElementById('heroTitle').textContent = "You're organizing meals for the " + (d.family_name || 'Family') + ' family';
+            document.title = (d.family_name || 'Shiva') + ' Dashboard - Neshama';
+
+            if (d.shiva_start_date && d.shiva_end_date) {
+                document.getElementById('heroDates').textContent = formatDateRange(d.shiva_start_date, d.shiva_end_date);
+            }
+
+            // Share links
+            var baseUrl = window.location.origin;
+            var volunteerUrl = baseUrl + '/shiva/v2/' + encodeURIComponent(shivaId);
+            var shareText = 'Help coordinate meals for the ' + (d.family_name || '') + ' shiva: ' + volunteerUrl;
+
+            document.getElementById('whatsappShareBtn').href = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+
+            // Transfer link (this dashboard URL)
+            document.getElementById('transferLink').value = window.location.href;
+
+            // Render sections
+            renderCoverage();
+            renderCalendar();
+            renderContactTable();
+            populateEditForm();
+        }
+
+        // -- Coverage --
+        function renderCoverage() {
+            var d = supportData;
+            if (!d.shiva_start_date || !d.shiva_end_date) return;
+
+            var days = getDaysBetween(d.shiva_start_date, d.shiva_end_date);
+            var totalSlots = 0;
+            var coveredSlots = 0;
+            var uncoveredMeals = [];
+
+            var signupMap = {};
+            mealsData.forEach(function(s) {
+                var key = s.meal_date + '_' + s.meal_type;
+                if (!signupMap[key]) signupMap[key] = [];
+                signupMap[key].push(s);
+            });
+
+            days.forEach(function(dateStr) {
+                var shabbatDay = isShabbat(dateStr);
+                var shabbatPause = shabbatDay && d.pause_shabbat;
+                ['Lunch', 'Dinner'].forEach(function(type) {
+                    if (isMealBlocked(dateStr, type) || isMealDisabledInSchedule(dateStr, type)) return;
+                    if (shabbatPause) return;
+                    totalSlots++;
+                    var key = dateStr + '_' + type;
+                    if (signupMap[key] && signupMap[key].length > 0) {
+                        coveredSlots++;
+                    } else {
+                        uncoveredMeals.push(formatDateShort(dateStr) + ' ' + type.toLowerCase());
+                    }
+                });
+            });
+
+            var pct = totalSlots > 0 ? Math.round((coveredSlots / totalSlots) * 100) : 0;
+            document.getElementById('coverageNumber').textContent = coveredSlots + ' of ' + totalSlots + ' meals covered';
+
+            var fillEl = document.getElementById('coverageFill');
+            fillEl.style.width = pct + '%';
+            if (pct >= 100) fillEl.classList.add('full');
+            else fillEl.classList.remove('full');
+
+            var nudgeEl = document.getElementById('coverageNudge');
+            if (uncoveredMeals.length > 0 && uncoveredMeals.length <= 6) {
+                nudgeEl.textContent = 'Still need volunteers: ' + uncoveredMeals.join(', ');
+            } else if (uncoveredMeals.length > 6) {
+                nudgeEl.textContent = uncoveredMeals.length + ' meals still need volunteers';
+            } else {
+                nudgeEl.textContent = 'All meals are covered!';
+                nudgeEl.style.color = 'var(--success-text)';
+            }
+        }
+
+        // -- Calendar --
+        function renderCalendar() {
+            var d = supportData;
+            if (!d.shiva_start_date || !d.shiva_end_date) return;
+
+            var days = getDaysBetween(d.shiva_start_date, d.shiva_end_date);
+            var pauseShabbat = d.pause_shabbat;
+
+            var signupMap = {};
+            mealsData.forEach(function(s) {
+                var key = s.meal_date + '_' + s.meal_type;
+                if (!signupMap[key]) signupMap[key] = [];
+                signupMap[key].push(s);
+            });
+
+            var lunchStart = formatTime24to12(d.lunch_dropoff_start || '11:30');
+            var lunchEnd = formatTime24to12(d.lunch_dropoff_end || '12:30');
+            var dinnerStart = formatTime24to12(d.dinner_dropoff_start || '16:30');
+            var dinnerEnd = formatTime24to12(d.dinner_dropoff_end || '17:30');
+
+            var calHtml = '';
+
+            days.forEach(function(dateStr) {
+                var shabbatDay = isShabbat(dateStr);
+                var dayName = formatDateLong(dateStr);
+                var mealTypes = ['Lunch', 'Dinner'];
+                var slotsHtml = '';
+                var dayTotal = 0;
+                var dayCovered = 0;
+
+                mealTypes.forEach(function(type) {
+                    var blocked = isMealBlocked(dateStr, type);
+                    var disabled = isMealDisabledInSchedule(dateStr, type);
+                    var shabbatPause = shabbatDay && pauseShabbat;
+
+                    if (blocked || disabled) return;
+
+                    if (shabbatPause) {
+                        slotsHtml += '<div class="meal-slot shabbat-empty">Shiva pauses for Shabbat</div>';
+                        return;
+                    }
+
+                    dayTotal++;
+                    var key = dateStr + '_' + type;
+                    var signups = signupMap[key] || [];
+                    var timeStr = type === 'Lunch' ? (lunchStart + ' \u2013 ' + lunchEnd) : (dinnerStart + ' \u2013 ' + dinnerEnd);
+
+                    slotsHtml += '<div class="meal-slot ' + (signups.length > 0 ? 'taken' : 'open') + '">';
+                    slotsHtml += '<div class="slot-label">' + escapeHtml(type) + '</div>';
+                    slotsHtml += '<div class="slot-time">' + timeStr + '</div>';
+
+                    if (signups.length > 0) {
+                        dayCovered++;
+                        signups.forEach(function(su) {
+                            var nameDisplay = escapeHtml(su.volunteer_name || su.group_name || 'Someone');
+                            var isWalkin = su.is_walkin || (su.meal_description && su.meal_description.indexOf('(walk-in)') !== -1);
+                            slotsHtml += '<div class="signup-detail">';
+                            slotsHtml += '<div class="signup-name">' + nameDisplay;
+                            if (isWalkin) slotsHtml += '<span class="walkin-badge">walk-in</span>';
+                            slotsHtml += '</div>';
+
+                            // Contact info (organizer view)
+                            // Filter out internal placeholder emails (e.g. walkin@neshama.ca used for walk-in signups that don't have a real email)
+                            var contactParts = [];
+                            if (su.volunteer_email && su.volunteer_email.indexOf('@neshama.ca') === -1) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
+                            if (su.volunteer_phone) contactParts.push('<a href="tel:' + escapeHtml(su.volunteer_phone) + '">' + escapeHtml(su.volunteer_phone) + '</a>');
+                            if (contactParts.length > 0) {
+                                slotsHtml += '<div class="signup-contact">' + contactParts.join(' &middot; ') + '</div>';
+                            }
+
+                            if (su.meal_description) {
+                                var desc = su.meal_description.replace('(walk-in)', '').trim();
+                                if (desc) slotsHtml += '<div class="signup-bringing">Bringing: ' + escapeHtml(desc) + '</div>';
+                            }
+
+                            slotsHtml += '<button class="remove-btn" onclick="confirmRemoveSignup(' + su.id + ', \'' + escapeHtml(nameDisplay).replace(/'/g, "\\'") + '\')">Remove</button>';
+                            slotsHtml += '</div>';
+                        });
+                    } else {
+                        slotsHtml += '<div class="open-slot-text">No one signed up yet</div>';
+                    }
+
+                    // Walk-in button always present
+                    slotsHtml += '<button class="walkin-btn" onclick="openWalkinModal(\'' + dateStr + '\', \'' + type + '\')">+ Add walk-in</button>';
+                    slotsHtml += '</div>';
+                });
+
+                if (!slotsHtml) return;
+
+                var dayClass = 'day-card';
+                if (shabbatDay && pauseShabbat) dayClass += ' shabbat';
+                else if (dayTotal > 0 && dayCovered === dayTotal) dayClass += ' all-covered';
+                else if (dayCovered > 0) dayClass += ' partial';
+
+                var headerRight = '';
+                if (shabbatDay && pauseShabbat) {
+                    headerRight = '<span class="shabbat-badge">Shabbat</span>';
+                } else if (dayTotal > 0 && dayCovered === dayTotal) {
+                    headerRight = '<span class="day-check" aria-label="All meals covered">&#10003;</span>';
+                }
+
+                calHtml += '<div class="' + dayClass + '">';
+                calHtml += '<div class="day-header"><h3>' + dayName + '</h3>' + headerRight + '</div>';
+                calHtml += '<div class="meal-slots">' + slotsHtml + '</div>';
+                calHtml += '</div>';
+            });
+
+            document.getElementById('mealCalendar').innerHTML = calHtml;
+        }
+
+        // -- Contact Table --
+        function renderContactTable() {
+            var tbody = document.getElementById('contactTableBody');
+            if (mealsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--sage); font-style:italic; padding:2rem;">No volunteers yet</td></tr>';
+                document.getElementById('contactCount').textContent = '';
+                return;
+            }
+
+            // Sort by meal_date
+            var sorted = mealsData.slice().sort(function(a, b) {
+                if (a.meal_date < b.meal_date) return -1;
+                if (a.meal_date > b.meal_date) return 1;
+                if (a.meal_type < b.meal_type) return -1;
+                if (a.meal_type > b.meal_type) return 1;
+                return 0;
+            });
+
+            var html = '';
+            sorted.forEach(function(su) {
+                var name = escapeHtml(su.volunteer_name || su.group_name || 'Anonymous');
+                var isWalkin = su.is_walkin || (su.meal_description && su.meal_description.indexOf('(walk-in)') !== -1);
+                if (isWalkin) name += ' <span class="walkin-badge">walk-in</span>';
+
+                // Filter out internal placeholder emails (e.g. walkin@neshama.ca) from contact display
+                var contactParts = [];
+                if (su.volunteer_email && su.volunteer_email.indexOf('@neshama.ca') === -1) contactParts.push('<a href="mailto:' + escapeHtml(su.volunteer_email) + '">' + escapeHtml(su.volunteer_email) + '</a>');
+                if (su.volunteer_phone) contactParts.push('<a href="tel:' + escapeHtml(su.volunteer_phone) + '">' + escapeHtml(su.volunteer_phone) + '</a>');
+                var contact = contactParts.length > 0 ? contactParts.join('<br>') : '<span style="color:var(--sage)">--</span>';
+
+                var mealInfo = formatDateShort(su.meal_date) + '<br>' + escapeHtml(su.meal_type);
+
+                var bringing = su.meal_description ? escapeHtml(su.meal_description.replace('(walk-in)', '').trim()) : '<span style="color:var(--sage)">--</span>';
+
+                html += '<tr>';
+                html += '<td>' + name + '</td>';
+                html += '<td>' + contact + '</td>';
+                html += '<td>' + mealInfo + '</td>';
+                html += '<td>' + bringing + '</td>';
+                html += '</tr>';
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('contactCount').textContent = sorted.length + ' volunteer' + (sorted.length !== 1 ? 's' : '') + ' total';
+        }
+
+        // -- Edit Form --
+        function populateEditForm() {
+            var d = supportData;
+            document.getElementById('editFamilyName').value = d.family_name || '';
+            document.getElementById('editStartDate').value = d.shiva_start_date || '';
+            document.getElementById('editEndDate').value = d.shiva_end_date || '';
+            document.getElementById('editAddress').value = d.shiva_address || '';
+            document.getElementById('editCity').value = d.shiva_city || '';
+            document.getElementById('editDropoff').value = d.drop_off_instructions || '';
+            document.getElementById('editGuestsPerMeal').value = d.guests_per_meal || '';
+            document.getElementById('editDietaryNotes').value = d.dietary_notes || '';
+            document.getElementById('editFamilyNotes').value = d.family_notes || '';
+            document.getElementById('editSpecialInstructions').value = d.special_instructions || '';
+            document.getElementById('editPauseShabbat').checked = !!d.pause_shabbat;
+        }
+
+        // -- Save Details --
+        window.saveDetails = function() {
+            var btn = document.getElementById('saveDetailsBtn');
+            var feedback = document.getElementById('saveFeedback');
+            btn.disabled = true;
+            feedback.className = 'save-feedback';
+            feedback.textContent = '';
+
+            var payload = {
+                magic_token: magicToken,
+                family_name: document.getElementById('editFamilyName').value.trim(),
+                shiva_start_date: document.getElementById('editStartDate').value,
+                shiva_end_date: document.getElementById('editEndDate').value,
+                shiva_address: document.getElementById('editAddress').value.trim(),
+                shiva_city: document.getElementById('editCity').value.trim(),
+                drop_off_instructions: document.getElementById('editDropoff').value.trim(),
+                guests_per_meal: parseInt(document.getElementById('editGuestsPerMeal').value) || 20,
+                dietary_notes: document.getElementById('editDietaryNotes').value.trim(),
+                family_notes: document.getElementById('editFamilyNotes').value.trim(),
+                special_instructions: document.getElementById('editSpecialInstructions').value.trim(),
+                pause_shabbat: document.getElementById('editPauseShabbat').checked ? 1 : 0
+            };
+
+            fetch('/api/shiva/' + encodeURIComponent(shivaId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                if (result.status === 'success') {
+                    feedback.textContent = 'Saved!';
+                    feedback.className = 'save-feedback visible success';
+                    // Update local state and re-render
+                    supportData.family_name = payload.family_name;
+                    supportData.shiva_start_date = payload.shiva_start_date;
+                    supportData.shiva_end_date = payload.shiva_end_date;
+                    supportData.shiva_address = payload.shiva_address;
+                    supportData.shiva_city = payload.shiva_city;
+                    supportData.drop_off_instructions = payload.drop_off_instructions;
+                    supportData.guests_per_meal = payload.guests_per_meal;
+                    supportData.dietary_notes = payload.dietary_notes;
+                    supportData.family_notes = payload.family_notes;
+                    supportData.special_instructions = payload.special_instructions;
+                    supportData.pause_shabbat = payload.pause_shabbat;
+                    // Re-render affected sections
+                    document.getElementById('heroTitle').textContent = "You're organizing meals for the " + (payload.family_name || 'Family') + ' family';
+                    if (payload.shiva_start_date && payload.shiva_end_date) {
+                        document.getElementById('heroDates').textContent = formatDateRange(payload.shiva_start_date, payload.shiva_end_date);
+                    }
+                    renderCoverage();
+                    renderCalendar();
+                } else {
+                    feedback.textContent = result.message || 'Failed to save';
+                    feedback.className = 'save-feedback visible error';
+                }
+                setTimeout(function() { feedback.className = 'save-feedback'; }, 4000);
+            })
+            .catch(function() {
+                btn.disabled = false;
+                feedback.textContent = 'Network error';
+                feedback.className = 'save-feedback visible error';
+                setTimeout(function() { feedback.className = 'save-feedback'; }, 4000);
+            });
+        };
+
+        // -- Walk-in Modal --
+        window.openWalkinModal = function(dateStr, mealType) {
+            walkinDate = dateStr;
+            walkinType = mealType;
+            document.getElementById('walkinModalSubtitle').textContent = formatDateLong(dateStr) + ' \u2013 ' + mealType;
+            document.getElementById('walkinName').value = '';
+            document.getElementById('walkinDescription').value = '';
+            document.getElementById('walkinError').style.display = 'none';
+            document.getElementById('walkinModal').classList.add('active');
+            document.getElementById('walkinDescription').focus();
+        };
+
+        window.closeWalkinModal = function() {
+            document.getElementById('walkinModal').classList.remove('active');
+            walkinDate = null;
+            walkinType = null;
+        };
+
+        window.submitWalkin = function() {
+            var description = document.getElementById('walkinDescription').value.trim();
+            if (!description) {
+                document.getElementById('walkinError').textContent = 'Please describe what was brought.';
+                document.getElementById('walkinError').style.display = '';
+                return;
+            }
+
+            var name = document.getElementById('walkinName').value.trim() || 'Walk-in';
+            var btn = document.getElementById('walkinSubmitBtn');
+            btn.disabled = true;
+
+            var payload = {
+                shiva_support_id: shivaId,
+                volunteer_name: name,
+                volunteer_email: 'walkin@neshama.ca',
+                meal_date: walkinDate,
+                meal_type: walkinType,
+                meal_description: description + ' (walk-in)',
+                privacy_consent: true,
+                is_walkin: 1,
+                access_token: magicToken,
+                magic_token: magicToken
+            };
+
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                btn.disabled = false;
+                if (result.status === 'success') {
+                    closeWalkinModal();
+                    showToast('Walk-in added');
+                    refreshMeals();
+                } else {
+                    document.getElementById('walkinError').textContent = result.message || 'Could not add walk-in';
+                    document.getElementById('walkinError').style.display = '';
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                document.getElementById('walkinError').textContent = 'Network error. Please try again.';
+                document.getElementById('walkinError').style.display = '';
+            });
+        };
+
+        // -- Remove Signup --
+        window.confirmRemoveSignup = function(signupId, name) {
+            var dialog = document.getElementById('confirmDialog');
+            document.getElementById('confirmDialogText').textContent = 'Remove ' + name + ' from this meal?';
+            document.getElementById('confirmDialogYes').onclick = function() {
+                closeConfirmDialog();
+                removeSignup(signupId);
+            };
+            dialog.classList.add('active');
+        };
+
+        window.closeConfirmDialog = function() {
+            document.getElementById('confirmDialog').classList.remove('active');
+        };
+
+        function removeSignup(signupId) {
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/remove-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: magicToken,
+                    signup_id: signupId
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    showToast('Signup removed');
+                    refreshMeals();
+                } else {
+                    showToast(result.message || 'Failed to remove');
+                }
+            })
+            .catch(function() {
+                showToast('Network error');
+            });
+        }
+
+        // -- Archive --
+        window.confirmArchive = function() {
+            var dialog = document.getElementById('confirmDialog');
+            document.getElementById('confirmDialogText').textContent = 'Are you sure you want to archive this shiva page? This cannot be undone.';
+            document.getElementById('confirmDialogYes').onclick = function() {
+                closeConfirmDialog();
+                archiveShiva();
+            };
+            dialog.classList.add('active');
+        };
+
+        function archiveShiva() {
+            fetch('/api/shiva/' + encodeURIComponent(shivaId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    magic_token: magicToken,
+                    status: 'archived'
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    showToast('Shiva page archived');
+                    setTimeout(function() { window.location.href = '/'; }, 2000);
+                } else {
+                    showToast(result.message || 'Failed to archive');
+                }
+            })
+            .catch(function() {
+                showToast('Network error');
+            });
+        }
+
+        // -- Refresh Meals --
+        function refreshMeals() {
+            var mealsUrl = '/api/shiva/' + encodeURIComponent(shivaId) + '/meals?token=' + encodeURIComponent(magicToken);
+            fetch(mealsUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    mealsData = (result.status === 'success' && result.data) ? result.data : [];
+                    renderCoverage();
+                    renderCalendar();
+                    renderContactTable();
+                })
+                .catch(function() {
+                    showToast('Could not refresh data');
+                });
+        }
+
+        // -- Copy Links --
+        window.copyVolunteerLink = function() {
+            var baseUrl = window.location.origin;
+            var url = baseUrl + '/shiva/v2/' + encodeURIComponent(shivaId);
+            copyToClipboard(url);
+            var btn = document.getElementById('copyLinkBtn');
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+            setTimeout(function() {
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy volunteer link';
+            }, 2500);
+        };
+
+        window.copyTransferLink = function() {
+            copyToClipboard(window.location.href);
+            showToast('Organizer link copied');
+        };
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text);
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+        }
+
+        // -- Collapsible --
+        window.toggleCollapsible = function(bodyId, arrowId) {
+            var body = document.getElementById(bodyId);
+            var arrow = document.getElementById(arrowId);
+            body.classList.toggle('open');
+            arrow.classList.toggle('open');
+        };
+
+        // -- Hamburger Menu --
+        function setupNav() {
+            var btn = document.getElementById('hamburgerBtn');
+            var nav = document.getElementById('navLinks');
+            if (btn && nav) {
+                btn.addEventListener('click', function() {
+                    nav.classList.toggle('open');
+                    btn.setAttribute('aria-expanded', nav.classList.contains('open'));
+                });
+            }
+        }
+
+        // -- Close modals on backdrop click --
+        document.getElementById('walkinModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWalkinModal();
+        });
+        document.getElementById('confirmDialog').addEventListener('click', function(e) {
+            if (e.target === this) closeConfirmDialog();
+        });
+
+        // -- Escape key closes modals --
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeWalkinModal();
+                closeConfirmDialog();
+            }
+        });
+
+        // -- Init --
+        setupNav();
+        loadPage();
+    })();
+    </script>
+</body>
+</html>

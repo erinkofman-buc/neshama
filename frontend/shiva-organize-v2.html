@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Shiva Meals - Neshama</title>
+    <meta name="description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
+    <meta name="theme-color" content="#3E2723">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Neshama">
+    <link rel="canonical" href="https://neshama.ca/shiva/organize">
+    <meta property="og:title" content="Set Up Shiva Meals - Neshama">
+    <meta property="og:description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neshama.ca/shiva/organize">
+    <meta property="og:site_name" content="Neshama">
+    <meta property="og:image" content="https://neshama.ca/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Set Up Shiva Meals - Neshama">
+    <meta name="twitter:description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
+    <meta name="twitter:image" content="https://neshama.ca/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #B2BEB5;
+            --sage-dark: #556258;
+            --terracotta: #C2621A;
+            --warm-beige: #F5F5DC;
+            --cream: #FAF9F6;
+            --dark-brown: #3E2723;
+            --light-taupe: #D4C5B9;
+            --gold: #C9A96E;
+            --soft-shadow: rgba(62, 39, 35, 0.08);
+            --warm-glow: rgba(194, 98, 26, 0.15);
+        }
+
+        .skip-link { position: absolute; top: -100%; left: 16px; background: var(--dark-brown); color: var(--cream); padding: 12px 24px; border-radius: 4px; font-size: 0.9rem; z-index: 1000; transition: top 0.2s ease; }
+        .skip-link:focus { top: 16px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        ::selection {
+            background: rgba(194, 98, 26, 0.2);
+            color: var(--dark-brown);
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-beige) 100%);
+            color: var(--dark-brown);
+            line-height: 1.7;
+            min-height: 100vh;
+            font-size: 20px;
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline-offset: 0;
+        }
+
+        /* ── Nav ─────────────────────────────────────────── */
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 197, 185, 0.3); position: sticky; top: 0; z-index: 200; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--dark-brown); text-decoration: none; letter-spacing: 0.03em; }
+        .nav-logo:hover { opacity: 0.7; }
+        .nav-center { display: flex; align-items: center; gap: 2rem; }
+        .nav-link { font-family: 'Crimson Pro', serif; font-size: 1rem; color: var(--sage-dark); text-decoration: none; transition: color 0.2s; font-weight: 400; }
+        .nav-link:hover { color: var(--dark-brown); text-decoration: none; }
+        .nav-link.active { color: var(--dark-brown); font-weight: 600; }
+        .nav-link-secondary { font-size: 0.92rem; opacity: 0.7; }
+        .nav-link-secondary:hover { opacity: 1; }
+        .nav-group-primary, .nav-group-secondary { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-link-help { font-size: 0.95rem; color: var(--terracotta); font-weight: 500; opacity: 1; }
+        .nav-link-help:hover { color: #a85215; }
+        .nav-group-secondary { gap: 1.25rem; }
+        .nav-divider { width: 1px; height: 18px; background: var(--light-taupe); opacity: 0.5; }
+        .nav-premium-btn { position: relative; font-family: 'Crimson Pro', serif; font-size: 0.9rem; font-weight: 600; color: white; background: var(--terracotta); padding: 0.45rem 1.25rem; border-radius: 2rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
+        .nav-premium-btn:hover { background: #a85215; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25); text-decoration: none; }
+        .nav-btn-subtext { display: none; font-size: 0.72rem; font-weight: 400; opacity: 0.9; }
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
+        .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+        /* ── Page Container ──────────────────────────────── */
+        .page-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 2rem;
+        }
+
+        /* ── Progress Stepper ────────────────────────────── */
+        .progress-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stepper-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--light-taupe);
+            transition: all 0.3s ease;
+        }
+
+        .stepper-dot.active {
+            background: var(--terracotta);
+            width: 24px;
+            height: 24px;
+        }
+
+        .stepper-dot.completed {
+            background: var(--gold);
+        }
+
+        .stepper-line {
+            width: 40px;
+            height: 2px;
+            background: var(--light-taupe);
+            transition: background 0.3s ease;
+        }
+
+        .stepper-line.completed {
+            background: var(--gold);
+        }
+
+        /* ── Step Card ───────────────────────────────────── */
+        .step-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 48px 40px;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            display: none;
+        }
+
+        .step-card.active { display: block; }
+
+        .step-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--terracotta);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark-brown);
+        }
+
+        .step-reassurance {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* ── Form Elements ───────────────────────────────── */
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group label .optional {
+            font-weight: 400;
+            color: var(--sage-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            background: white;
+            color: var(--dark-brown);
+            transition: border-color 0.3s ease;
+            min-height: 48px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--sage);
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            opacity: 0.5;
+            background: #f5f3f0;
+            cursor: not-allowed;
+        }
+
+        .form-hint {
+            font-size: 0.9rem;
+            color: var(--sage-dark);
+            margin-top: 0.35rem;
+        }
+
+        /* ── Search Results ──────────────────────────────── */
+        .search-results {
+            display: none;
+            margin-top: 0.5rem;
+            border: 1px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: white;
+        }
+
+        .search-results.active { display: block; }
+
+        .search-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--cream);
+            cursor: pointer;
+            transition: background 0.15s;
+            min-height: 48px;
+        }
+
+        .search-result-item:last-child { border-bottom: none; }
+
+        .search-result-item:hover {
+            background: var(--cream);
+        }
+
+        .search-result-info {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .search-result-info strong { display: block; }
+        .search-result-info span { color: var(--sage-dark); font-size: 0.9rem; }
+
+        .search-result-link {
+            flex-shrink: 0;
+            font-size: 0.9rem;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .search-result-link:hover { text-decoration: underline; }
+
+        /* ── Checkbox Group ──────────────────────────────── */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1rem;
+            background: white;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            min-height: 48px;
+            min-width: 48px;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--terracotta);
+            background: var(--cream);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--terracotta);
+            flex-shrink: 0;
+        }
+
+        .checkbox-item:has(input:checked) {
+            border-color: var(--terracotta);
+            background: rgba(194, 98, 26, 0.08);
+        }
+
+        /* ── Toggle Switch (large) ──────────────────────── */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 72px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--light-taupe);
+            border-radius: 48px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 40px;
+            width: 40px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--terracotta);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+        }
+
+        /* ── Kosher Toggle (prominent) ───────────────────── */
+        .kosher-toggle-box {
+            background: var(--cream);
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .kosher-toggle-box .toggle-label {
+            font-size: 1.15rem;
+        }
+
+        .kosher-status {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-top: 0.25rem;
+        }
+
+        /* ── Meal Toggle Grid ────────────────────────────── */
+        .meal-grid {
+            margin: 1rem 0;
+        }
+
+        .meal-grid-header {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--sage-dark);
+            border-bottom: 1px solid var(--light-taupe);
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-grid-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid rgba(212, 197, 185, 0.3);
+            min-height: 56px;
+        }
+
+        .meal-grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .meal-grid-day {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+        }
+
+        .meal-grid-day .shabbat-note {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .meal-toggle {
+            width: 52px;
+            height: 30px;
+            border-radius: 15px;
+            background: var(--light-taupe);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            border: none;
+            padding: 0;
+            min-height: 48px;
+            min-width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .meal-toggle-track {
+            width: 52px;
+            height: 30px;
+            border-radius: 15px;
+            background: var(--light-taupe);
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .meal-toggle.on .meal-toggle-track {
+            background: var(--terracotta);
+        }
+
+        .meal-toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        .meal-toggle.on .meal-toggle-track::after {
+            transform: translateX(22px);
+        }
+
+        /* ── Number Stepper ──────────────────────────────── */
+        .stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .stepper-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--dark-brown);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            font-weight: 600;
+        }
+
+        .stepper-btn:hover {
+            background: var(--cream);
+        }
+
+        .stepper-btn:active {
+            background: rgba(194, 98, 26, 0.1);
+        }
+
+        .stepper-value {
+            min-width: 56px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            border-left: 2px solid var(--light-taupe);
+            border-right: 2px solid var(--light-taupe);
+            padding: 0 0.25rem;
+            line-height: 48px;
+        }
+
+        .stepper-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            margin-bottom: 0.4rem;
+        }
+
+        .stepper-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .stepper-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ── Chips ───────────────────────────────────────── */
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            min-height: 0;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.9rem;
+            background: rgba(194, 98, 26, 0.08);
+            border: 1.5px solid var(--terracotta);
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            color: var(--dark-brown);
+            font-weight: 500;
+            min-height: 40px;
+        }
+
+        .chip-remove {
+            background: none;
+            border: none;
+            color: var(--terracotta);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0 0.15rem;
+            line-height: 1;
+            min-width: 24px;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chip-remove:hover {
+            color: var(--dark-brown);
+        }
+
+        .chip-add-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .chip-add-row input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            color: var(--dark-brown);
+            min-height: 48px;
+        }
+
+        .chip-add-row input:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .chip-add-btn {
+            padding: 0.7rem 1.25rem;
+            background: var(--cream);
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            cursor: pointer;
+            min-height: 48px;
+            min-width: 48px;
+            transition: all 0.2s;
+        }
+
+        .chip-add-btn:hover {
+            border-color: var(--terracotta);
+            background: rgba(194, 98, 26, 0.08);
+        }
+
+        /* ── Directory Link ──────────────────────────────── */
+        .directory-link-section {
+            margin-top: 1.5rem;
+        }
+
+        .directory-link-warm {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--dark-brown);
+            margin-bottom: 0.25rem;
+        }
+
+        .directory-link-subtitle {
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .directory-link-btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--terracotta);
+            border: 2px solid var(--terracotta);
+            padding: 0.7rem 1.4rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            text-decoration: none;
+            line-height: 48px;
+        }
+
+        .directory-link-btn:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        /* ── Quick Setup ─────────────────────────────────── */
+        .quick-setup-trigger {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .quick-setup-trigger a {
+            color: var(--sage-dark);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            border: 1.5px solid var(--sage);
+            border-radius: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .quick-setup-trigger a:hover {
+            background: rgba(85, 98, 88, 0.08);
+            border-color: var(--sage-dark);
+        }
+
+        .quick-setup-panel {
+            display: none;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem 2.5rem;
+            box-shadow: 0 4px 20px var(--soft-shadow);
+            margin-bottom: 2rem;
+            border: 2px solid var(--terracotta);
+        }
+
+        .quick-setup-panel.active { display: block; }
+
+        .quick-setup-panel .step-title {
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-setup-panel .step-reassurance {
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── Buttons ─────────────────────────────────────── */
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            padding: 0.95rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .btn-primary:hover {
+            background: #a85215;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--warm-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-brown);
+            border: 2px solid var(--light-taupe);
+            padding: 0.95rem 2rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--dark-brown);
+        }
+
+        /* ── Review Summary ──────────────────────────────── */
+        .review-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .review-section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px solid var(--light-taupe);
+            color: var(--dark-brown);
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--cream);
+            font-size: 1rem;
+        }
+
+        .review-label {
+            color: var(--sage-dark);
+            font-weight: 400;
+        }
+
+        .review-value {
+            color: var(--dark-brown);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        /* ── Preview Toggle ──────────────────────────────── */
+        .preview-toggle-btn {
+            display: inline-block;
+            padding: 0.7rem 1.4rem;
+            border: 2px solid var(--light-taupe);
+            border-radius: 2rem;
+            background: white;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-brown);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-toggle-btn:hover {
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+        }
+
+        .preview-toggle-btn.active {
+            border-color: var(--terracotta);
+            background: rgba(194, 98, 26, 0.08);
+            color: var(--terracotta);
+        }
+
+        .volunteer-preview {
+            display: none;
+            background: var(--cream);
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .volunteer-preview.active { display: block; }
+
+        .volunteer-preview h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .volunteer-preview .preview-detail {
+            font-size: 1rem;
+            color: var(--sage-dark);
+            margin-bottom: 0.35rem;
+        }
+
+        .volunteer-preview .preview-note {
+            font-size: 1rem;
+            font-style: italic;
+            color: var(--dark-brown);
+            margin: 0.75rem 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+        }
+
+        /* ── Success State ───────────────────────────────── */
+        .success-state {
+            text-align: center;
+            display: none;
+        }
+
+        .success-state.active { display: block; }
+
+        .success-checkmark {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.25rem;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-checkmark svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .success-state h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .success-state p {
+            font-size: 1.1rem;
+            color: var(--sage-dark);
+            margin-bottom: 1rem;
+        }
+
+        .link-box {
+            background: var(--cream);
+            border: 2px solid var(--light-taupe);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1.25rem auto;
+            max-width: 440px;
+            text-align: left;
+        }
+
+        .link-box-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--sage-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .link-box-url {
+            font-size: 1rem;
+            color: var(--dark-brown);
+            word-break: break-all;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            display: block;
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 48px;
+        }
+
+        .copy-btn:hover { background: #a8521a; }
+
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.25rem;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            min-height: 48px;
+            border: 2px solid var(--light-taupe);
+            background: white;
+            color: var(--dark-brown);
+        }
+
+        .share-btn:hover {
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+        }
+
+        .share-btn-whatsapp {
+            border-color: #25D366;
+            color: #25D366;
+        }
+
+        .share-btn-whatsapp:hover {
+            background: #25D366;
+            color: white;
+        }
+
+        /* ── Form Error ──────────────────────────────────── */
+        .form-error {
+            display: none;
+            background: rgba(194, 98, 26, 0.08);
+            color: var(--dark-brown);
+            border: 1px solid var(--terracotta);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+
+        .form-error.active { display: block; }
+
+        /* ── Divider ─────────────────────────────────────── */
+        .section-divider {
+            height: 1px;
+            background: var(--light-taupe);
+            margin: 1.5rem 0;
+        }
+
+        /* ── Expandable ──────────────────────────────────── */
+        .expandable-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* ── Footer ──────────────────────────────────────── */
+        footer {
+            max-width: 640px;
+            margin: 3rem auto 0;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 1rem; color: var(--sage-dark); }
+
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-group-secondary { padding-bottom: 0.5rem; }
+            .nav-divider { display: none; }
+            .nav-link-secondary { opacity: 0.7; font-size: 0.92rem; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
+            .nav-hamburger { display: block; }
+        }
+
+        @media (max-width: 600px) {
+            .step-card { padding: 32px 24px; }
+            .quick-setup-panel { padding: 1.5rem; }
+            .btn-row { flex-direction: column; }
+            .review-item { flex-direction: column; gap: 0.25rem; }
+            .review-value { text-align: left; max-width: 100%; }
+            .meal-grid-header { font-size: 0.85rem; }
+            .share-buttons { flex-direction: column; }
+            .share-btn { width: 100%; justify-content: center; }
+        }
+
+        /* ── Animation ───────────────────────────────────── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-card.active {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* ── Print ───────────────────────────────────────── */
+        @media print {
+            .top-nav, footer, .btn-row, .progress-stepper, .quick-setup-trigger, .quick-setup-panel { display: none !important; }
+            .step-card { box-shadow: none; border: 1px solid #ccc; }
+            body { background: white; }
+        }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Set Up Shiva Meals - Neshama",
+      "url": "https://neshama.ca/shiva/organize",
+      "description": "Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Neshama",
+        "url": "https://neshama.ca"
+      }
+    }
+    </script>
+    <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
+    <script>
+    window.onerror = function(msg, src, line, col, err) {
+        try {
+            navigator.sendBeacon('/api/js-errors', JSON.stringify({
+                message: msg, source: src, line: line, col: col,
+                stack: err && err.stack, url: location.href,
+                userAgent: navigator.userAgent
+            }));
+        } catch(e) {}
+    };
+    </script>
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="top-nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo">Neshama</a>
+        <div class="nav-center" id="navLinks">
+            <div class="nav-group-primary">
+                <a href="/feed" class="nav-link">Listings</a>
+                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+                <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
+            </div>
+            <span class="nav-divider"></span>
+            <div class="nav-group-secondary">
+                <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
+                <a href="/about" class="nav-link nav-link-secondary">About</a>
+            </div>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-controls="navLinks" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <main id="main-content">
+    <div class="page-container">
+        <h1 class="page-title">Set Up Shiva Meals</h1>
+        <p class="page-subtitle">Four simple steps. Share the link. Meals get coordinated.</p>
+
+        <!-- Quick Setup -->
+        <div class="quick-setup-trigger" id="quickSetupTrigger">
+            <a href="javascript:void(0)" onclick="toggleQuickSetup()">Need to set this up fast?</a>
+        </div>
+
+        <div class="quick-setup-panel" id="quickSetupPanel">
+            <div class="step-title">Quick Setup</div>
+            <p class="step-reassurance">Enter the essentials and we will use smart defaults for everything else. You can customize anytime from your dashboard.</p>
+
+            <div class="form-group">
+                <label for="qsFamilyName">Family name</label>
+                <input type="text" id="qsFamilyName" placeholder="e.g., Goldstein" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="qsAddress">Address</label>
+                <input type="text" id="qsAddress" placeholder="Where the shiva is being held">
+            </div>
+            <div class="form-group">
+                <label for="qsCity">City</label>
+                <select id="qsCity">
+                    <option value="">Select a city</option>
+                    <option value="Toronto">Toronto</option>
+                    <option value="Montreal">Montreal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="qsBurialDate">Date of burial</label>
+                <input type="date" id="qsBurialDate">
+                <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; font-weight:400; font-size:0.95rem;">
+                    <input type="checkbox" id="qsBurialNotConfirmed" onchange="toggleQsBurialDate()" style="width:20px; height:20px; accent-color:var(--terracotta);">
+                    Not yet confirmed
+                </label>
+            </div>
+            <div class="kosher-toggle-box">
+                <div>
+                    <div class="toggle-label">Is the family kosher?</div>
+                </div>
+                <label class="toggle-switch" aria-label="Kosher toggle">
+                    <input type="checkbox" id="qsKosher">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="qsOrgName">Your name</label>
+                <input type="text" id="qsOrgName" placeholder="Your full name" autocomplete="name">
+            </div>
+            <div class="form-group">
+                <label for="qsOrgEmail">Your email</label>
+                <input type="email" id="qsOrgEmail" placeholder="you@email.com" autocomplete="email">
+            </div>
+            <div class="form-error" id="qsError"></div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="toggleQuickSetup()" style="flex:0;">Cancel</button>
+                <button class="btn-primary" onclick="submitQuickSetup()">Create Page</button>
+            </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="progress-stepper" id="progressStepper">
+            <div class="stepper-dot active" data-step="1"></div>
+            <div class="stepper-line" data-line="1"></div>
+            <div class="stepper-dot" data-step="2"></div>
+            <div class="stepper-line" data-line="2"></div>
+            <div class="stepper-dot" data-step="3"></div>
+            <div class="stepper-line" data-line="3"></div>
+            <div class="stepper-dot" data-step="4"></div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- STEP 1: Who is this for?                        -->
+        <!-- ════════════════════════════════════════════════ -->
+        <div class="step-card active" id="step1">
+            <div class="step-indicator">Step 1 of 4</div>
+            <h2 class="step-title">Who is this for?</h2>
+            <p class="step-reassurance">Let us know about the family so we can set up their page.</p>
+
+            <!-- Live search for existing pages -->
+            <div class="form-group">
+                <label for="familyName">Family name</label>
+                <input type="text" id="familyName" placeholder="e.g., Goldstein" autocomplete="off" oninput="searchFamilyDebounced()">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="burialDate">Date of burial</label>
+                <input type="date" id="burialDate">
+                <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; font-weight:400; font-size:0.95rem; cursor:pointer;">
+                    <input type="checkbox" id="burialNotConfirmed" onchange="toggleBurialDate()" style="width:20px; height:20px; accent-color:var(--terracotta);">
+                    Not yet confirmed
+                </label>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="form-group">
+                <label for="organizerName">Your name</label>
+                <input type="text" id="organizerName" placeholder="Your full name" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+                <label for="organizerEmail">Your email</label>
+                <input type="email" id="organizerEmail" placeholder="you@email.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="organizerPhone">Your phone <span class="optional">(optional)</span></label>
+                <input type="tel" id="organizerPhone" placeholder="(416) 555-1234" autocomplete="tel">
+            </div>
+
+            <div class="form-group">
+                <label>Which contact info should volunteers see?</label>
+                <div class="checkbox-group" style="margin-top:0.5rem;">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="showEmail" checked>
+                        Email
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="showPhone">
+                        Phone
+                    </label>
+                </div>
+                <p class="form-hint">At least one must be selected so volunteers can reach you.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="relationship">Relationship to family</label>
+                <select id="relationship">
+                    <option value="">Select...</option>
+                    <option value="Friend">Friend</option>
+                    <option value="Family member">Family member</option>
+                    <option value="Colleague">Colleague</option>
+                    <option value="Synagogue member">Synagogue member</option>
+                    <option value="Rabbi/Clergy">Rabbi/Clergy</option>
+                    <option value="Community member">Community member</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-error" id="step1Error"></div>
+            <div class="btn-row">
+                <button class="btn-primary" onclick="goToStep(2)">Next</button>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- STEP 2: When and where?                         -->
+        <!-- ════════════════════════════════════════════════ -->
+        <div class="step-card" id="step2">
+            <div class="step-indicator">Step 2 of 4</div>
+            <h2 class="step-title">When and where?</h2>
+            <p class="step-reassurance">We will use these details to build the meal calendar.</p>
+            <p class="reassurance" style="font-size: 16px; color: #888; font-style: italic; margin-bottom: 24px;">
+              Don't worry about getting everything perfect — you can edit all of this later from your dashboard.
+            </p>
+
+            <div class="form-group" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:140px;">
+                    <label for="shivaStart">Shiva starts</label>
+                    <input type="date" id="shivaStart" onchange="regenerateMealGrid()">
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <label for="shivaEnd">Shiva ends</label>
+                    <input type="date" id="shivaEnd" onchange="regenerateMealGrid()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="shivaAddress">Address</label>
+                <input type="text" id="shivaAddress" placeholder="Where the shiva is being held">
+            </div>
+
+            <div class="form-group">
+                <label for="shivaCity">City</label>
+                <select id="shivaCity">
+                    <option value="">Select a city</option>
+                    <option value="Toronto">Toronto</option>
+                    <option value="Montreal">Montreal</option>
+                </select>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Meal Toggle Grid -->
+            <div class="form-group">
+                <label>Meals per day</label>
+                <p class="form-hint" style="margin-bottom:0.75rem;">Toggle off any meals the family does not need.</p>
+                <div class="meal-grid" id="mealGrid">
+                    <div class="meal-grid-header">
+                        <span>Day</span>
+                        <span style="text-align:center;">Lunch</span>
+                        <span style="text-align:center;">Dinner</span>
+                    </div>
+                    <div id="mealGridBody">
+                        <!-- Dynamically generated -->
+                        <p style="color:var(--sage-dark); font-size:0.95rem; padding:1rem; text-align:center;">Set shiva dates above to see the meal calendar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Drop-off Windows -->
+            <div class="form-group">
+                <label>Default drop-off windows</label>
+                <p class="form-hint" style="margin-bottom:0.75rem;">These times apply to all days.</p>
+
+                <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                    <div style="flex:1; min-width:200px;">
+                        <label style="font-size:0.95rem; font-weight:500;">Lunch drop-off</label>
+                        <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.3rem;">
+                            <select id="lunchStart" style="flex:1; padding:0.6rem; font-family:'Crimson Pro',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; min-height:48px;"></select>
+                            <span style="color:var(--sage-dark);">to</span>
+                            <select id="lunchEnd" style="flex:1; padding:0.6rem; font-family:'Crimson Pro',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; min-height:48px;"></select>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:200px;">
+                        <label style="font-size:0.95rem; font-weight:500;">Dinner drop-off</label>
+                        <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.3rem;">
+                            <select id="dinnerStart" style="flex:1; padding:0.6rem; font-family:'Crimson Pro',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; min-height:48px;"></select>
+                            <span style="color:var(--sage-dark);">to</span>
+                            <select id="dinnerEnd" style="flex:1; padding:0.6rem; font-family:'Crimson Pro',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; min-height:48px;"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Guest Count -->
+            <div class="form-group">
+                <label>How many people are being fed?</label>
+                <div class="stepper-row" style="margin-top:0.5rem;">
+                    <div class="stepper-item">
+                        <span class="stepper-label">Adults</span>
+                        <div class="stepper">
+                            <button type="button" class="stepper-btn" onclick="adjustStepper('adults', -1)" aria-label="Decrease adults">-</button>
+                            <span class="stepper-value" id="adultsValue">10</span>
+                            <button type="button" class="stepper-btn" onclick="adjustStepper('adults', 1)" aria-label="Increase adults">+</button>
+                        </div>
+                    </div>
+                    <div class="stepper-item">
+                        <span class="stepper-label">Kids</span>
+                        <div class="stepper">
+                            <button type="button" class="stepper-btn" onclick="adjustStepper('kids', -1)" aria-label="Decrease kids">-</button>
+                            <span class="stepper-value" id="kidsValue">0</span>
+                            <button type="button" class="stepper-btn" onclick="adjustStepper('kids', 1)" aria-label="Increase kids">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drop-off Instructions -->
+            <div class="form-group">
+                <label for="dropoffInstructions">Drop-off instructions</label>
+                <select id="dropoffInstructions" onchange="toggleOtherDropoff()">
+                    <option value="Ring doorbell">Ring doorbell</option>
+                    <option value="Leave at door">Leave at door</option>
+                    <option value="Come inside">Come inside</option>
+                    <option value="Call on arrival">Call on arrival</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" id="dropoffOther" placeholder="Describe how to drop off food" style="display:none; margin-top:0.5rem;">
+            </div>
+
+            <div class="form-error" id="step2Error"></div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+                <button class="btn-primary" onclick="goToStep(3)">Next</button>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- STEP 3: What does the family like?              -->
+        <!-- ════════════════════════════════════════════════ -->
+        <div class="step-card" id="step3">
+            <div class="step-indicator">Step 3 of 4</div>
+            <h2 class="step-title">What does the family like?</h2>
+            <p class="step-reassurance">Help volunteers bring food the family will enjoy.</p>
+
+            <!-- Kosher Toggle -->
+            <div class="kosher-toggle-box">
+                <div>
+                    <div class="toggle-label">Is the family kosher?</div>
+                    <div class="kosher-status" id="kosherStatus">No</div>
+                </div>
+                <label class="toggle-switch" aria-label="Kosher toggle">
+                    <input type="checkbox" id="kosherToggle" onchange="updateKosherStatus()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Dietary Restrictions -->
+            <div class="form-group">
+                <label>Dietary restrictions</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Vegetarian"> Vegetarian
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Dairy-free"> Dairy-free
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Gluten-free"> Gluten-free
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Nut allergy"> Nut allergy
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Egg allergy"> Egg allergy
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="Other" onchange="toggleOtherDietary(this)"> Other
+                    </label>
+                </div>
+                <input type="text" id="otherDietary" placeholder="Describe other dietary needs" style="display:none; margin-top:0.5rem; width:100%; padding:0.75rem 1rem; font-family:'Crimson Pro',serif; font-size:1rem; border:2px solid var(--light-taupe); border-radius:0.5rem; min-height:48px;">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Family Note -->
+            <div class="form-group">
+                <label for="familyNote">What would you like people to know about your loved one? <span class="optional">(optional)</span></label>
+                <input type="text" id="familyNote" placeholder="She made the best rugelach and she'd want you to eat.">
+                <p class="form-hint">This appears at the top of the meal page. A personal touch goes a long way.</p>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Suggestions -->
+            <div class="form-group">
+                <label>What does the family like?</label>
+                <p class="form-hint">Pick favorites so volunteers know what to bring.</p>
+                <div class="chip-add-row">
+                    <input type="text" id="suggestionInput" placeholder="e.g., Lasagna, sushi, fruit platters" onkeydown="if(event.key==='Enter'){event.preventDefault();addSuggestion();}">
+                    <button type="button" class="chip-add-btn" onclick="addSuggestion()">Add</button>
+                </div>
+                <div class="chips-container" id="suggestionsChips"></div>
+            </div>
+
+            <!-- Directory Link -->
+            <div class="directory-link-section">
+                <p class="directory-link-warm">Suggest caterers for your volunteers</p>
+                <p class="directory-link-subtitle">Browse our directory to find trusted local options, then add them above.</p>
+                <a href="/help/food" target="_blank" class="directory-link-btn">Browse the directory</a>
+            </div>
+
+            <div class="form-error" id="step3Error"></div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                <button class="btn-primary" onclick="goToStep(4)">Next</button>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- STEP 4: Review + Share                          -->
+        <!-- ════════════════════════════════════════════════ -->
+        <div class="step-card" id="step4">
+            <div class="step-indicator">Step 4 of 4</div>
+            <h2 class="step-title">Review and share</h2>
+            <p class="step-reassurance">Take a moment to make sure everything looks right.</p>
+
+            <!-- Preview Toggle -->
+            <button type="button" class="preview-toggle-btn" onclick="toggleVolunteerPreview()">Preview volunteer view</button>
+
+            <div class="volunteer-preview" id="volunteerPreview">
+                <h3 id="previewTitle">Meals for the [Family] Family</h3>
+                <div class="preview-detail" id="previewDates"></div>
+                <div class="preview-detail" id="previewAddress"></div>
+                <div class="preview-detail" id="previewGuests"></div>
+                <div class="preview-note" id="previewNote" style="display:none;"></div>
+                <div class="preview-detail" id="previewDietary"></div>
+                <div class="preview-detail" id="previewSuggestions" style="margin-top:0.5rem;"></div>
+            </div>
+
+            <!-- Review Summary -->
+            <div id="reviewSummary">
+                <div class="review-section">
+                    <div class="review-section-title">Family Information</div>
+                    <div class="review-item"><span class="review-label">Family name</span><span class="review-value" id="revFamilyName"></span></div>
+                    <div class="review-item"><span class="review-label">Burial date</span><span class="review-value" id="revBurialDate"></span></div>
+                    <div class="review-item"><span class="review-label">Shiva dates</span><span class="review-value" id="revShivaDates"></span></div>
+                </div>
+
+                <div class="review-section">
+                    <div class="review-section-title">Location</div>
+                    <div class="review-item"><span class="review-label">Address</span><span class="review-value" id="revAddress"></span></div>
+                    <div class="review-item"><span class="review-label">City</span><span class="review-value" id="revCity"></span></div>
+                    <div class="review-item"><span class="review-label">Drop-off</span><span class="review-value" id="revDropoff"></span></div>
+                </div>
+
+                <div class="review-section">
+                    <div class="review-section-title">Meals</div>
+                    <div class="review-item"><span class="review-label">Meals enabled</span><span class="review-value" id="revMeals"></span></div>
+                    <div class="review-item"><span class="review-label">Lunch window</span><span class="review-value" id="revLunchWindow"></span></div>
+                    <div class="review-item"><span class="review-label">Dinner window</span><span class="review-value" id="revDinnerWindow"></span></div>
+                    <div class="review-item"><span class="review-label">Guests</span><span class="review-value" id="revGuests"></span></div>
+                </div>
+
+                <div class="review-section">
+                    <div class="review-section-title">Dietary</div>
+                    <div class="review-item"><span class="review-label">Kosher</span><span class="review-value" id="revKosher"></span></div>
+                    <div class="review-item"><span class="review-label">Restrictions</span><span class="review-value" id="revRestrictions"></span></div>
+                    <div class="review-item" id="revNoteRow" style="display:none;"><span class="review-label">Family note</span><span class="review-value" id="revNote"></span></div>
+                </div>
+
+                <div class="review-section" id="revSuggestionsSection" style="display:none;">
+                    <div class="review-section-title">Suggestions</div>
+                    <div class="chips-container" id="revSuggestionsChips"></div>
+                </div>
+            </div>
+
+            <div class="form-error" id="step4Error"></div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+                <p class="privacy-note" style="font-size: 14px; color: #888; margin-top: 16px;">
+                  By creating this page, you agree to share the information above with volunteers who receive the link.
+                </p>
+                <button class="btn-primary" id="createBtn" onclick="submitForm()">Create Shiva Page</button>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SUCCESS STATE                                   -->
+        <!-- ════════════════════════════════════════════════ -->
+        <div class="success-state" id="successState">
+            <div class="success-checkmark">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2>Your shiva meal page is ready</h2>
+            <p>Share this link with friends, family, and community. They will see the calendar and sign up to bring meals.</p>
+
+            <div class="link-box">
+                <div class="link-box-label">Volunteer link</div>
+                <div class="link-box-url" id="volunteerLinkUrl"></div>
+                <button class="copy-btn" id="copyVolBtn" onclick="copyLink('volunteer')">Copy volunteer link</button>
+            </div>
+
+            <div class="link-box">
+                <div class="link-box-label">Your organizer dashboard</div>
+                <div class="link-box-url" id="dashboardLinkUrl"></div>
+                <button class="copy-btn" id="copyDashBtn" onclick="copyLink('dashboard')">Copy dashboard link</button>
+            </div>
+
+            <p id="emailConfirmation" style="font-size:1rem; color:var(--sage-dark); margin:1rem 0;"></p>
+
+            <div class="share-buttons">
+                <a href="#" id="whatsappShareBtn" class="share-btn share-btn-whatsapp" target="_blank" rel="noopener">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Share on WhatsApp
+                </a>
+                <a href="#" id="smsShareBtn" class="share-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    Share via text
+                </a>
+            </div>
+
+            <p style="margin-top:1.5rem; font-size:0.95rem; color:var(--sage-dark);">You can customize your page anytime from the organizer dashboard.</p>
+        </div>
+    </div>
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/faq">FAQ</a>
+            <a href="/help">How Can I Help?</a>
+            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/yahrzeit">Yahrzeit Reminders</a>
+            <a href="/sustain">Sustain</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="mailto:contact@neshama.ca">Contact</a>
+            <a href="/partner">Partner With Us</a>
+            <a href="/shiva/caterers/apply">List Your Catering Business</a>
+        </nav>
+        <p class="footer-copy">Built with care for the Jewish community</p>
+    </footer>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ── State ───────────────────────────────────────────
+        var currentStep = 1;
+        var formData = {
+            familyName: '',
+            burialDate: null,
+            burialNotConfirmed: false,
+            organizerName: '',
+            organizerEmail: '',
+            organizerPhone: '',
+            showEmail: true,
+            showPhone: false,
+            relationship: '',
+            shivaStart: '',
+            shivaEnd: '',
+            address: '',
+            city: '',
+            meals: {},           // { '2026-04-07': { lunch: true, dinner: true }, ... }
+            lunchStart: '11:30',
+            lunchEnd: '12:30',
+            dinnerStart: '16:30',
+            dinnerEnd: '17:30',
+            adults: 10,
+            kids: 0,
+            dropoffInstructions: 'Ring doorbell',
+            dropoffOther: '',
+            kosher: false,
+            dietaryRestrictions: [],
+            otherDietary: '',
+            familyNote: '',
+            suggestions: []      // array of strings (custom suggestions)
+        };
+
+        var searchTimeout = null;
+        var createdVolunteerLink = '';
+        var createdDashboardLink = '';
+
+        // ── Hamburger ───────────────────────────────────────
+        var hamburger = document.getElementById('hamburgerBtn');
+        var navLinks = document.getElementById('navLinks');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                var isOpen = navLinks.classList.toggle('open');
+                hamburger.setAttribute('aria-expanded', isOpen);
+            });
+        }
+
+        // ── Time Selectors ──────────────────────────────────
+        function populateTimeSelects() {
+            var times = [];
+            for (var h = 6; h <= 22; h++) {
+                for (var m = 0; m < 60; m += 30) {
+                    var hh = h.toString().padStart(2, '0');
+                    var mm = m.toString().padStart(2, '0');
+                    var val = hh + ':' + mm;
+                    var ampm = h >= 12 ? 'PM' : 'AM';
+                    var dh = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+                    var label = dh + ':' + mm + ' ' + ampm;
+                    times.push({ val: val, label: label });
+                }
+            }
+
+            var selectors = [
+                { id: 'lunchStart', def: '11:30' },
+                { id: 'lunchEnd', def: '12:30' },
+                { id: 'dinnerStart', def: '16:30' },
+                { id: 'dinnerEnd', def: '17:30' }
+            ];
+
+            selectors.forEach(function(sel) {
+                var el = document.getElementById(sel.id);
+                if (!el) return;
+                el.innerHTML = '';
+                times.forEach(function(t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.val;
+                    opt.textContent = t.label;
+                    if (t.val === sel.def) opt.selected = true;
+                    el.appendChild(opt);
+                });
+            });
+        }
+        populateTimeSelects();
+
+        // ── Navigation ──────────────────────────────────────
+        window.goToStep = function(step) {
+            // Validate current step before advancing
+            if (step > currentStep) {
+                var valid = validateStep(currentStep);
+                if (!valid) return;
+            }
+
+            // Save current step data
+            saveStepData(currentStep);
+
+            // Special handling: pre-fill step 2 dates from burial date
+            if (step === 2 && currentStep === 1) {
+                prefillShivaDates();
+            }
+
+            // Special handling: populate review on step 4
+            if (step === 4) {
+                saveStepData(3);
+                populateReview();
+            }
+
+            // Update step display
+            currentStep = step;
+            for (var i = 1; i <= 4; i++) {
+                var card = document.getElementById('step' + i);
+                if (card) card.classList.toggle('active', i === step);
+            }
+
+            // Update stepper dots
+            var dots = document.querySelectorAll('.stepper-dot');
+            var lines = document.querySelectorAll('.stepper-line');
+            dots.forEach(function(dot, idx) {
+                var s = idx + 1;
+                dot.classList.remove('active', 'completed');
+                if (s === step) dot.classList.add('active');
+                else if (s < step) dot.classList.add('completed');
+            });
+            lines.forEach(function(line, idx) {
+                var s = idx + 1;
+                line.classList.toggle('completed', s < step);
+            });
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        };
+
+        // ── Validation ──────────────────────────────────────
+        function validateStep(step) {
+            hideErrors();
+
+            if (step === 1) {
+                var fn = document.getElementById('familyName').value.trim();
+                var on = document.getElementById('organizerName').value.trim();
+                var oe = document.getElementById('organizerEmail').value.trim();
+                var se = document.getElementById('showEmail').checked;
+                var sp = document.getElementById('showPhone').checked;
+
+                if (!fn) return showError('step1Error', 'Please enter the family name.');
+                if (!on) return showError('step1Error', 'Please enter your name.');
+                if (!oe) return showError('step1Error', 'Please enter your email.');
+                if (!isValidEmail(oe)) return showError('step1Error', 'Please enter a valid email address.');
+                if (!se && !sp) return showError('step1Error', 'Please select at least one contact method for volunteers.');
+                return true;
+            }
+
+            if (step === 2) {
+                var ss = document.getElementById('shivaStart').value;
+                var se2 = document.getElementById('shivaEnd').value;
+                if (!ss) return showError('step2Error', 'Please set the shiva start date.');
+                if (!se2) return showError('step2Error', 'Please set the shiva end date.');
+                if (ss > se2) return showError('step2Error', 'The end date must be after the start date.');
+                return true;
+            }
+
+            if (step === 3) {
+                return true; // No required fields in step 3
+            }
+
+            return true;
+        }
+
+        function showError(id, msg) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.textContent = msg;
+                el.classList.add('active');
+            }
+            return false;
+        }
+
+        function hideErrors() {
+            document.querySelectorAll('.form-error').forEach(function(el) {
+                el.classList.remove('active');
+                el.textContent = '';
+            });
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ── Save Step Data ──────────────────────────────────
+        function saveStepData(step) {
+            if (step === 1) {
+                formData.familyName = document.getElementById('familyName').value.trim();
+                formData.burialDate = document.getElementById('burialNotConfirmed').checked ? null : document.getElementById('burialDate').value;
+                formData.burialNotConfirmed = document.getElementById('burialNotConfirmed').checked;
+                formData.organizerName = document.getElementById('organizerName').value.trim();
+                formData.organizerEmail = document.getElementById('organizerEmail').value.trim();
+                formData.organizerPhone = document.getElementById('organizerPhone').value.trim();
+                formData.showEmail = document.getElementById('showEmail').checked;
+                formData.showPhone = document.getElementById('showPhone').checked;
+                formData.relationship = document.getElementById('relationship').value;
+            }
+
+            if (step === 2) {
+                formData.shivaStart = document.getElementById('shivaStart').value;
+                formData.shivaEnd = document.getElementById('shivaEnd').value;
+                formData.address = document.getElementById('shivaAddress').value.trim();
+                formData.city = document.getElementById('shivaCity').value;
+                formData.lunchStart = document.getElementById('lunchStart').value;
+                formData.lunchEnd = document.getElementById('lunchEnd').value;
+                formData.dinnerStart = document.getElementById('dinnerStart').value;
+                formData.dinnerEnd = document.getElementById('dinnerEnd').value;
+
+                var di = document.getElementById('dropoffInstructions').value;
+                formData.dropoffInstructions = di === 'Other' ? document.getElementById('dropoffOther').value.trim() : di;
+
+                // Save meal grid state
+                saveMealGridState();
+            }
+
+            if (step === 3) {
+                formData.kosher = document.getElementById('kosherToggle').checked;
+                formData.familyNote = document.getElementById('familyNote').value.trim();
+
+                // Dietary restrictions
+                formData.dietaryRestrictions = [];
+                document.querySelectorAll('#step3 .checkbox-group input[type="checkbox"]').forEach(function(cb) {
+                    if (cb.checked && cb.value && cb.value !== 'Other') {
+                        formData.dietaryRestrictions.push(cb.value);
+                    }
+                });
+                var otherDiet = document.getElementById('otherDietary');
+                if (otherDiet && otherDiet.style.display !== 'none' && otherDiet.value.trim()) {
+                    formData.otherDietary = otherDiet.value.trim();
+                    formData.dietaryRestrictions.push('Other: ' + formData.otherDietary);
+                }
+            }
+        }
+
+        // ── Burial Date ─────────────────────────────────────
+        window.toggleBurialDate = function() {
+            var cb = document.getElementById('burialNotConfirmed');
+            var dp = document.getElementById('burialDate');
+            dp.disabled = cb.checked;
+            if (cb.checked) dp.value = '';
+        };
+
+        window.toggleQsBurialDate = function() {
+            var cb = document.getElementById('qsBurialNotConfirmed');
+            var dp = document.getElementById('qsBurialDate');
+            dp.disabled = cb.checked;
+            if (cb.checked) dp.value = '';
+        };
+
+        // ── Pre-fill Shiva Dates ────────────────────────────
+        function prefillShivaDates() {
+            var startEl = document.getElementById('shivaStart');
+            var endEl = document.getElementById('shivaEnd');
+
+            // Only prefill if not already set
+            if (startEl.value && endEl.value) return;
+
+            if (formData.burialDate) {
+                var burial = new Date(formData.burialDate + 'T12:00:00');
+                startEl.value = formData.burialDate;
+
+                var endDate = new Date(burial);
+                endDate.setDate(endDate.getDate() + 6);
+                endEl.value = formatDateISO(endDate);
+
+                regenerateMealGrid();
+            }
+        }
+
+        // ── Family Name Search ──────────────────────────────
+        window.searchFamilyDebounced = function() {
+            clearTimeout(searchTimeout);
+            var q = document.getElementById('familyName').value.trim();
+            var results = document.getElementById('searchResults');
+
+            if (q.length < 2) {
+                results.classList.remove('active');
+                results.innerHTML = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(function() {
+                fetch('/api/shiva/search?q=' + encodeURIComponent(q))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.results && data.results.length > 0) {
+                            results.innerHTML = data.results.map(function(r) {
+                                return '<div class="search-result-item">' +
+                                    '<div class="search-result-info">' +
+                                    '<strong>' + escapeHtml(r.family_name) + '</strong>' +
+                                    '<span>' + escapeHtml(r.city || '') + (r.dates ? ' &mdash; ' + escapeHtml(r.dates) : '') + '</span>' +
+                                    '</div>' +
+                                    '<a href="/shiva/' + r.share_token + '" class="search-result-link">View existing page</a>' +
+                                    '</div>';
+                            }).join('');
+                            results.classList.add('active');
+                        } else {
+                            results.classList.remove('active');
+                            results.innerHTML = '';
+                        }
+                    })
+                    .catch(function() {
+                        results.classList.remove('active');
+                    });
+            }, 300);
+        };
+
+        // ── Meal Grid ───────────────────────────────────────
+        window.regenerateMealGrid = function() {
+            var startVal = document.getElementById('shivaStart').value;
+            var endVal = document.getElementById('shivaEnd').value;
+            var body = document.getElementById('mealGridBody');
+
+            if (!startVal || !endVal) {
+                body.innerHTML = '<p style="color:var(--sage-dark); font-size:0.95rem; padding:1rem; text-align:center;">Set shiva dates above to see the meal calendar.</p>';
+                return;
+            }
+
+            var start = new Date(startVal + 'T12:00:00');
+            var end = new Date(endVal + 'T12:00:00');
+            var html = '';
+            var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            var d = new Date(start);
+            while (d <= end) {
+                var iso = formatDateISO(d);
+                var dayOfWeek = d.getDay();
+                var isShabbat = (dayOfWeek === 5 || dayOfWeek === 6);
+                var dayLabel = dayNames[dayOfWeek] + ' ' + monthNames[d.getMonth()] + ' ' + d.getDate();
+
+                // Default: meals on, unless it's Shabbat
+                var lunchDefault = !isShabbat;
+                var dinnerDefault = !(dayOfWeek === 5); // No dinner on Friday (Shabbat starts)
+
+                // Preserve existing state if user already toggled
+                if (formData.meals[iso]) {
+                    lunchDefault = formData.meals[iso].lunch;
+                    dinnerDefault = formData.meals[iso].dinner;
+                } else {
+                    formData.meals[iso] = { lunch: lunchDefault, dinner: dinnerDefault };
+                }
+
+                var shabbatNote = '';
+                if (dayOfWeek === 5) shabbatNote = '<span class="shabbat-note">Shabbat begins at sundown</span>';
+                else if (dayOfWeek === 6) shabbatNote = '<span class="shabbat-note">Shabbat</span>';
+
+                html += '<div class="meal-grid-row">';
+                html += '<div class="meal-grid-day">' + dayLabel + shabbatNote + '</div>';
+                html += '<div style="text-align:center;"><button type="button" class="meal-toggle ' + (lunchDefault ? 'on' : '') + '" data-date="' + iso + '" data-meal="lunch" onclick="toggleMeal(this)" aria-label="Toggle lunch for ' + dayLabel + '"><div class="meal-toggle-track"></div></button></div>';
+                html += '<div style="text-align:center;"><button type="button" class="meal-toggle ' + (dinnerDefault ? 'on' : '') + '" data-date="' + iso + '" data-meal="dinner" onclick="toggleMeal(this)" aria-label="Toggle dinner for ' + dayLabel + '"><div class="meal-toggle-track"></div></button></div>';
+                html += '</div>';
+
+                d.setDate(d.getDate() + 1);
+            }
+
+            body.innerHTML = html;
+        };
+
+        window.toggleMeal = function(btn) {
+            btn.classList.toggle('on');
+            var date = btn.getAttribute('data-date');
+            var meal = btn.getAttribute('data-meal');
+            if (!formData.meals[date]) formData.meals[date] = { lunch: true, dinner: true };
+            formData.meals[date][meal] = btn.classList.contains('on');
+        };
+
+        function saveMealGridState() {
+            document.querySelectorAll('.meal-toggle').forEach(function(btn) {
+                var date = btn.getAttribute('data-date');
+                var meal = btn.getAttribute('data-meal');
+                if (!formData.meals[date]) formData.meals[date] = { lunch: true, dinner: true };
+                formData.meals[date][meal] = btn.classList.contains('on');
+            });
+        }
+
+        // ── Stepper ─────────────────────────────────────────
+        window.adjustStepper = function(type, delta) {
+            var el = document.getElementById(type + 'Value');
+            var val = parseInt(el.textContent, 10) + delta;
+            if (type === 'adults') val = Math.max(1, Math.min(50, val));
+            else val = Math.max(0, Math.min(30, val));
+            el.textContent = val;
+            formData[type] = val;
+        };
+
+        // ── Drop-off Instructions ───────────────────────────
+        window.toggleOtherDropoff = function() {
+            var sel = document.getElementById('dropoffInstructions').value;
+            var other = document.getElementById('dropoffOther');
+            other.style.display = sel === 'Other' ? 'block' : 'none';
+        };
+
+        // ── Kosher Status ───────────────────────────────────
+        window.updateKosherStatus = function() {
+            var isKosher = document.getElementById('kosherToggle').checked;
+            document.getElementById('kosherStatus').textContent = isKosher ? 'Yes' : 'No';
+        };
+
+        // ── Dietary Other ───────────────────────────────────
+        window.toggleOtherDietary = function(cb) {
+            var otherInput = document.getElementById('otherDietary');
+            otherInput.style.display = cb.checked ? 'block' : 'none';
+            if (!cb.checked) otherInput.value = '';
+        };
+
+        // ── Suggestions (Chips) ─────────────────────────────
+        window.addSuggestion = function() {
+            var input = document.getElementById('suggestionInput');
+            var val = input.value.trim();
+            if (!val) return;
+            if (formData.suggestions.indexOf(val) === -1) {
+                formData.suggestions.push(val);
+                renderSuggestionChips();
+            }
+            input.value = '';
+            input.focus();
+        };
+
+        window.removeSuggestion = function(idx) {
+            formData.suggestions.splice(idx, 1);
+            renderSuggestionChips();
+        };
+
+        function renderSuggestionChips() {
+            var container = document.getElementById('suggestionsChips');
+            container.innerHTML = formData.suggestions.map(function(s, i) {
+                return '<span class="chip">' + escapeHtml(s) +
+                    '<button type="button" class="chip-remove" onclick="removeSuggestion(' + i + ')" aria-label="Remove ' + escapeHtml(s) + '">&times;</button>' +
+                    '</span>';
+            }).join('');
+        }
+
+        // Vendor browser removed — directory link replaces it
+
+        // ── Review ──────────────────────────────────────────
+        function populateReview() {
+            document.getElementById('revFamilyName').textContent = formData.familyName;
+            document.getElementById('revBurialDate').textContent = formData.burialDate ? formatDateHuman(formData.burialDate) : 'Not yet confirmed';
+            document.getElementById('revShivaDates').textContent =
+                formatDateHuman(formData.shivaStart) + ' to ' + formatDateHuman(formData.shivaEnd);
+            document.getElementById('revAddress').textContent = formData.address || 'Not provided';
+            document.getElementById('revCity').textContent = formData.city || 'Not selected';
+            document.getElementById('revDropoff').textContent = formData.dropoffInstructions || 'Ring doorbell';
+
+            // Count enabled meals
+            var mealCount = 0;
+            var totalSlots = 0;
+            Object.keys(formData.meals).forEach(function(d) {
+                if (formData.meals[d].lunch) mealCount++;
+                if (formData.meals[d].dinner) mealCount++;
+                totalSlots += 2;
+            });
+            document.getElementById('revMeals').textContent = mealCount + ' of ' + totalSlots + ' meal slots';
+
+            document.getElementById('revLunchWindow').textContent = formatTime(formData.lunchStart) + ' - ' + formatTime(formData.lunchEnd);
+            document.getElementById('revDinnerWindow').textContent = formatTime(formData.dinnerStart) + ' - ' + formatTime(formData.dinnerEnd);
+            document.getElementById('revGuests').textContent = formData.adults + ' adults' + (formData.kids > 0 ? ', ' + formData.kids + ' kids' : '');
+            document.getElementById('revKosher').textContent = formData.kosher ? 'Yes' : 'No';
+
+            var restrictions = formData.dietaryRestrictions.length > 0 ? formData.dietaryRestrictions.join(', ') : 'None';
+            document.getElementById('revRestrictions').textContent = restrictions;
+
+            var noteRow = document.getElementById('revNoteRow');
+            if (formData.familyNote) {
+                noteRow.style.display = 'flex';
+                document.getElementById('revNote').textContent = formData.familyNote;
+            } else {
+                noteRow.style.display = 'none';
+            }
+
+            // Suggestions
+            var sugSection = document.getElementById('revSuggestionsSection');
+            var sugChips = document.getElementById('revSuggestionsChips');
+            if (formData.suggestions.length > 0) {
+                sugSection.style.display = 'block';
+                sugChips.innerHTML = formData.suggestions.map(function(s) {
+                    return '<span class="chip">' + escapeHtml(s) + '</span>';
+                }).join('');
+            } else {
+                sugSection.style.display = 'none';
+            }
+        }
+
+        // ── Volunteer Preview ───────────────────────────────
+        window.toggleVolunteerPreview = function() {
+            var btn = document.querySelector('.preview-toggle-btn');
+            var preview = document.getElementById('volunteerPreview');
+            var isActive = preview.classList.toggle('active');
+            btn.classList.toggle('active', isActive);
+
+            if (isActive) {
+                document.getElementById('previewTitle').textContent = 'Meals for the ' + formData.familyName + ' Family';
+                document.getElementById('previewDates').textContent = formatDateHuman(formData.shivaStart) + ' to ' + formatDateHuman(formData.shivaEnd);
+                document.getElementById('previewAddress').textContent = formData.address ? formData.address + ', ' + formData.city : formData.city || '';
+                document.getElementById('previewGuests').textContent = 'Feeding ' + formData.adults + ' adults' + (formData.kids > 0 ? ' and ' + formData.kids + ' kids' : '');
+
+                var noteEl = document.getElementById('previewNote');
+                if (formData.familyNote) {
+                    noteEl.textContent = '"' + formData.familyNote + '"';
+                    noteEl.style.display = 'block';
+                } else {
+                    noteEl.style.display = 'none';
+                }
+
+                var dietary = [];
+                if (formData.kosher) dietary.push('Kosher');
+                dietary = dietary.concat(formData.dietaryRestrictions);
+                document.getElementById('previewDietary').textContent = dietary.length > 0 ? 'Dietary: ' + dietary.join(', ') : '';
+
+                document.getElementById('previewSuggestions').textContent = formData.suggestions.length > 0 ? 'The family enjoys: ' + formData.suggestions.join(', ') : '';
+            }
+        };
+
+        // ── Quick Setup ─────────────────────────────────────
+        window.toggleQuickSetup = function() {
+            var panel = document.getElementById('quickSetupPanel');
+            var trigger = document.getElementById('quickSetupTrigger');
+            var stepper = document.getElementById('progressStepper');
+            var steps = document.querySelectorAll('.step-card');
+
+            var isOpen = panel.classList.toggle('active');
+            trigger.style.display = isOpen ? 'none' : 'block';
+            stepper.style.display = isOpen ? 'none' : 'flex';
+            steps.forEach(function(s) { s.style.display = isOpen ? 'none' : ''; });
+            if (!isOpen) {
+                // Restore current step
+                document.getElementById('step' + currentStep).classList.add('active');
+            }
+        };
+
+        window.submitQuickSetup = function() {
+            var fn = document.getElementById('qsFamilyName').value.trim();
+            var addr = document.getElementById('qsAddress').value.trim();
+            var city = document.getElementById('qsCity').value;
+            var orgName = document.getElementById('qsOrgName').value.trim();
+            var orgEmail = document.getElementById('qsOrgEmail').value.trim();
+
+            if (!fn) return showError('qsError', 'Please enter the family name.');
+            if (!orgName) return showError('qsError', 'Please enter your name.');
+            if (!orgEmail || !isValidEmail(orgEmail)) return showError('qsError', 'Please enter a valid email.');
+
+            hideErrors();
+
+            // Build quick setup payload with smart defaults
+            var burialDate = document.getElementById('qsBurialNotConfirmed').checked ? null : document.getElementById('qsBurialDate').value;
+            var shivaStart = burialDate || null;
+            var shivaEnd = null;
+            if (burialDate) {
+                var bd = new Date(burialDate + 'T12:00:00');
+                bd.setDate(bd.getDate() + 6);
+                shivaEnd = formatDateISO(bd);
+            }
+
+            var payload = {
+                family_name: fn,
+                burial_date: burialDate,
+                shiva_start: shivaStart,
+                shiva_end: shivaEnd,
+                address: addr,
+                city: city,
+                organizer_name: orgName,
+                organizer_email: orgEmail,
+                organizer_phone: '',
+                show_email: true,
+                show_phone: false,
+                relationship: '',
+                kosher: document.getElementById('qsKosher').checked,
+                dietary_restrictions: [],
+                family_note: '',
+                suggestions: [],
+                adults: 10,
+                kids: 0,
+                dropoff_instructions: 'Ring doorbell',
+                lunch_start: '11:30',
+                lunch_end: '12:30',
+                dinner_start: '16:30',
+                dinner_end: '17:30',
+                meals: {},
+                quick_setup: true
+            };
+
+            submitPayload(payload);
+        };
+
+        // ── Form Submit ─────────────────────────────────────
+        window.submitForm = function() {
+            var btn = document.getElementById('createBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            hideErrors();
+
+            var payload = {
+                family_name: formData.familyName,
+                burial_date: formData.burialDate,
+                shiva_start: formData.shivaStart,
+                shiva_end: formData.shivaEnd,
+                address: formData.address,
+                city: formData.city,
+                organizer_name: formData.organizerName,
+                organizer_email: formData.organizerEmail,
+                organizer_phone: formData.organizerPhone,
+                show_email: formData.showEmail,
+                show_phone: formData.showPhone,
+                relationship: formData.relationship,
+                kosher: formData.kosher,
+                dietary_restrictions: formData.dietaryRestrictions,
+                family_note: formData.familyNote,
+                suggestions: formData.suggestions,
+                adults: formData.adults,
+                kids: formData.kids,
+                dropoff_instructions: formData.dropoffInstructions,
+                lunch_start: formData.lunchStart,
+                lunch_end: formData.lunchEnd,
+                dinner_start: formData.dinnerStart,
+                dinner_end: formData.dinnerEnd,
+                meals: formData.meals
+            };
+
+            submitPayload(payload);
+        };
+
+        function submitPayload(payload) {
+            fetch('/api/shiva-v2/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) {
+                if (!r.ok) throw new Error('Server error');
+                return r.json();
+            })
+            .then(function(data) {
+                showSuccess(data);
+            })
+            .catch(function(err) {
+                var errId = payload.quick_setup ? 'qsError' : 'step4Error';
+                showError(errId, 'Something went wrong. Please try again or email contact@neshama.ca.');
+                var btn = document.getElementById('createBtn');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Create Shiva Page';
+                }
+            });
+        }
+
+        function showSuccess(data) {
+            // Hide everything else
+            document.querySelectorAll('.step-card').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById('quickSetupPanel').classList.remove('active');
+            document.getElementById('quickSetupTrigger').style.display = 'none';
+            document.getElementById('progressStepper').style.display = 'none';
+
+            var familyName = formData.familyName || data.family_name || 'the family';
+            var volunteerLink = data.volunteer_link || data.volunteer_url || (window.location.origin + '/shiva/' + (data.share_token || ''));
+            var dashboardLink = data.dashboard_link || data.dashboard_url || data.magic_link || '';
+            var email = formData.organizerEmail || data.organizer_email || '';
+
+            createdVolunteerLink = volunteerLink;
+            createdDashboardLink = dashboardLink;
+
+            document.getElementById('volunteerLinkUrl').textContent = volunteerLink;
+            document.getElementById('dashboardLinkUrl').textContent = dashboardLink || 'Check your email for the dashboard link';
+
+            if (email) {
+                document.getElementById('emailConfirmation').textContent = 'We have emailed both links to ' + email;
+            }
+
+            // WhatsApp
+            var dates = '';
+            if (formData.shivaStart && formData.shivaEnd) {
+                dates = formatDateHuman(formData.shivaStart) + ' to ' + formatDateHuman(formData.shivaEnd);
+            } else if (data.shiva_start && data.shiva_end) {
+                dates = formatDateHuman(data.shiva_start) + ' to ' + formatDateHuman(data.shiva_end);
+            }
+            var waText = 'Meals are being coordinated for the ' + familyName + ' family\'s shiva' +
+                (dates ? ' (' + dates + ')' : '') + '. Sign up to help: ' + volunteerLink;
+            document.getElementById('whatsappShareBtn').href = 'https://wa.me/?text=' + encodeURIComponent(waText);
+
+            // SMS
+            var smsText = waText;
+            document.getElementById('smsShareBtn').href = 'sms:?body=' + encodeURIComponent(smsText);
+
+            document.getElementById('successState').classList.add('active');
+
+            // Update page title
+            document.querySelector('.page-title').textContent = 'You did a beautiful thing';
+            document.querySelector('.page-subtitle').textContent = '';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ── Copy Link ───────────────────────────────────────
+        window.copyLink = function(type) {
+            var link = type === 'volunteer' ? createdVolunteerLink : createdDashboardLink;
+            var btnId = type === 'volunteer' ? 'copyVolBtn' : 'copyDashBtn';
+            var btn = document.getElementById(btnId);
+
+            if (navigator.clipboard && link) {
+                navigator.clipboard.writeText(link).then(function() {
+                    btn.textContent = 'Copied';
+                    btn.classList.add('copied');
+                    setTimeout(function() {
+                        btn.textContent = type === 'volunteer' ? 'Copy volunteer link' : 'Copy dashboard link';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        };
+
+        // ── Utilities ───────────────────────────────────────
+        function formatDateISO(date) {
+            var y = date.getFullYear();
+            var m = (date.getMonth() + 1).toString().padStart(2, '0');
+            var d = date.getDate().toString().padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        function formatDateHuman(dateStr) {
+            if (!dateStr) return '';
+            var parts = dateStr.split('-');
+            var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return dayNames[d.getDay()] + ' ' + monthNames[d.getMonth()] + ' ' + d.getDate();
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            var parts = timeStr.split(':');
+            var h = parseInt(parts[0]);
+            var m = parts[1];
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            var dh = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+            return dh + ':' + m + ' ' + ampm;
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+    })();
+    </script>
+
+</body>
+</html>

@@ -381,6 +381,39 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE meal_signups ADD COLUMN additional_contributors TEXT')
 
+        # ── V7 Migrations (Meal Planner Redesign) ────────────────
+
+        # V7: shiva_support — meal planner columns
+        for col, defn in [
+            ('burial_date', 'TEXT'),
+            ('kosher', 'INTEGER DEFAULT 0'),
+            ('num_adults', 'INTEGER DEFAULT 10'),
+            ('num_kids', 'INTEGER DEFAULT 0'),
+            ('lunch_dropoff_start', "TEXT DEFAULT '11:30'"),
+            ('lunch_dropoff_end', "TEXT DEFAULT '12:30'"),
+            ('dinner_dropoff_start', "TEXT DEFAULT '16:30'"),
+            ('dinner_dropoff_end', "TEXT DEFAULT '17:30'"),
+            ('suggested_caterers', 'TEXT'),
+            ('custom_suggestions', 'TEXT'),
+            ('organizer_contact_visible', "TEXT DEFAULT 'both'"),
+            ('enabled_meals', 'TEXT'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM shiva_support LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE shiva_support ADD COLUMN {col} {defn}')
+
+        # V7: meal_signups — group and walk-in columns
+        for col, defn in [
+            ('group_name', 'TEXT'),
+            ('contact_phone', 'TEXT'),
+            ('is_walkin', 'INTEGER DEFAULT 0'),
+        ]:
+            try:
+                cursor.execute(f'SELECT {col} FROM meal_signups LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE meal_signups ADD COLUMN {col} {defn}')
+
         conn.commit()
         conn.close()
 
@@ -583,6 +616,75 @@ class ShivaManager:
         verification_token = secrets.token_urlsafe(32)
         verification_status = 'verified'
 
+        # V7: Optional meal planner redesign fields
+        v7_burial_date = None
+        raw_burial = data.get('burial_date', '').strip()[:10] if data.get('burial_date') else None
+        if raw_burial:
+            try:
+                datetime.strptime(raw_burial, '%Y-%m-%d')
+                v7_burial_date = raw_burial
+            except ValueError:
+                pass
+
+        v7_kosher = data.get('kosher')
+        if v7_kosher is not None:
+            v7_kosher = 1 if v7_kosher in (True, 'true', '1', 1) else 0
+
+        v7_num_adults = None
+        if data.get('num_adults') is not None:
+            try:
+                v7_num_adults = max(0, min(500, int(data['num_adults'])))
+            except (ValueError, TypeError):
+                pass
+
+        v7_num_kids = None
+        if data.get('num_kids') is not None:
+            try:
+                v7_num_kids = max(0, min(500, int(data['num_kids'])))
+            except (ValueError, TypeError):
+                pass
+
+        # Dropoff time windows (HH:MM strings)
+        def _clean_time(val):
+            if not val:
+                return None
+            t = str(val).strip()[:5]
+            if len(t) == 5 and t[2] == ':':
+                return t
+            return None
+
+        v7_lunch_dropoff_start = _clean_time(data.get('lunch_dropoff_start'))
+        v7_lunch_dropoff_end = _clean_time(data.get('lunch_dropoff_end'))
+        v7_dinner_dropoff_start = _clean_time(data.get('dinner_dropoff_start'))
+        v7_dinner_dropoff_end = _clean_time(data.get('dinner_dropoff_end'))
+
+        # JSON fields
+        v7_suggested_caterers = None
+        raw_caterers = data.get('suggested_caterers')
+        if raw_caterers and isinstance(raw_caterers, list):
+            clean_caterers = [self._sanitize_text(str(c), 200) for c in raw_caterers if c][:10]
+            if clean_caterers:
+                v7_suggested_caterers = json.dumps(clean_caterers)
+
+        v7_custom_suggestions = None
+        raw_suggestions = data.get('custom_suggestions')
+        if raw_suggestions and isinstance(raw_suggestions, list):
+            clean_suggestions = [self._sanitize_text(str(s), 500) for s in raw_suggestions if s][:20]
+            if clean_suggestions:
+                v7_custom_suggestions = json.dumps(clean_suggestions)
+
+        v7_organizer_contact_visible = None
+        if data.get('organizer_contact_visible') is not None:
+            v7_organizer_contact_visible = 1 if data['organizer_contact_visible'] else 0
+
+        v7_enabled_meals = None
+        raw_enabled = data.get('enabled_meals')
+        if raw_enabled and isinstance(raw_enabled, list):
+            allowed_meals = {'Lunch', 'Dinner'}
+            clean_enabled = [str(m) for m in raw_enabled if str(m) in allowed_meals]
+            if clean_enabled:
+                v7_enabled_meals = json.dumps(clean_enabled)
+
         try:
             cursor.execute('''
                 INSERT INTO shiva_support (
@@ -593,8 +695,12 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals, dietary_restrictions, meal_schedule
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    share_token, blocked_meals, dietary_restrictions, meal_schedule,
+                    burial_date, kosher, num_adults, num_kids,
+                    lunch_dropoff_start, lunch_dropoff_end, dinner_dropoff_start, dinner_dropoff_end,
+                    suggested_caterers, custom_suggestions, organizer_contact_visible, enabled_meals
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -628,6 +734,18 @@ class ShivaManager:
                 blocked_meals,
                 dietary_restrictions,
                 meal_schedule,
+                v7_burial_date,
+                v7_kosher,
+                v7_num_adults,
+                v7_num_kids,
+                v7_lunch_dropoff_start,
+                v7_lunch_dropoff_end,
+                v7_dinner_dropoff_start,
+                v7_dinner_dropoff_end,
+                v7_suggested_caterers,
+                v7_custom_suggestions,
+                v7_organizer_contact_visible,
+                v7_enabled_meals,
             ))
             conn.commit()
             return {
@@ -695,11 +813,18 @@ class ShivaManager:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
+                   organizer_email, organizer_phone,
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
+                   shiva_address,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
                    organizer_update, family_notes, dietary_restrictions,
-                   meal_schedule, created_at, share_token, blocked_meals
+                   meal_schedule, created_at, share_token, blocked_meals,
+                   kosher, num_adults, num_kids,
+                   lunch_dropoff_start, lunch_dropoff_end,
+                   dinner_dropoff_start, dinner_dropoff_end,
+                   custom_suggestions, organizer_contact_visible,
+                   drop_off_instructions
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
@@ -752,6 +877,18 @@ class ShivaManager:
 
         # Never expose share_token to non-organizer visitors
         data.pop('share_token', None)
+
+        # Respect organizer_contact_visible for public responses
+        contact_pref = data.get('organizer_contact_visible', 'both')
+        if contact_pref == 'email':
+            data.pop('organizer_phone', None)
+        elif contact_pref == 'phone':
+            data.pop('organizer_email', None)
+        elif contact_pref == 'none':
+            data.pop('organizer_email', None)
+            data.pop('organizer_phone', None)
+        # 'both' keeps both fields
+
         conn.close()
         return {'status': 'success', 'data': data}
 
@@ -798,14 +935,18 @@ class ShivaManager:
             'dietary_restrictions',
             'meal_schedule',
             'obituary_id',
+            'status',
         ]
 
         sets = []
         vals = []
         for field in updatable:
             if field in data:
-                sets.append(f'{field} = ?')
                 val = data[field]
+                # Only allow valid status transitions
+                if field == 'status' and val not in ('active', 'archived'):
+                    continue
+                sets.append(f'{field} = ?')
                 if field == 'privacy':
                     val = val if val in ('public', 'private') else 'public'
                 elif field == 'pause_shabbat':
@@ -1303,7 +1444,13 @@ class ShivaManager:
         support = dict(support)
 
         # Check privacy: private shivas require a valid access token OR share token
-        if support.get('privacy') == 'private':
+        # Bypass: walk-in signups from the organizer dashboard include a valid magic_token
+        walkin_bypass = (
+            data.get('is_walkin')
+            and data.get('magic_token')
+            and data.get('magic_token') == support.get('magic_token')
+        )
+        if support.get('privacy') == 'private' and not walkin_bypass:
             share_token_valid = (access_token and access_token == support.get('share_token'))
             access_request_valid = False
             if access_token and not share_token_valid:
@@ -1344,19 +1491,9 @@ class ShivaManager:
             except (json.JSONDecodeError, TypeError):
                 pass
 
-        # Alternative contributions skip the duplicate check
+        # Multiple groups can sign up for the same meal slot (V2).
+        # Alternative contributions are still tracked separately.
         is_alternative = bool(data.get('alternative_type'))
-
-        if not is_alternative:
-            # Check for duplicate signup (same date + meal type)
-            cursor.execute('''
-                SELECT id FROM meal_signups
-                WHERE shiva_support_id = ? AND meal_date = ? AND meal_type = ?
-                  AND (status IS NULL OR status NOT IN ('alternative', 'cancelled'))
-            ''', (support_id, meal_date, data['meal_type']))
-            if cursor.fetchone():
-                conn.close()
-                return {'status': 'error', 'message': 'Someone has already signed up for this meal slot'}
 
         now = datetime.now().isoformat()
         try:
@@ -1390,13 +1527,17 @@ class ShivaManager:
                 if clean_contributors:
                     additional_contributors = json.dumps(clean_contributors)
 
+            group_name = data.get('group_name', '').strip()[:200]
+            contact_phone = data.get('contact_phone', '').strip()[:20]
+
             cursor.execute('''
                 INSERT INTO meal_signups (
                     shiva_support_id, volunteer_name, volunteer_email, volunteer_phone,
                     meal_date, meal_type, meal_description, num_servings,
                     will_serve, privacy_consent, created_at, signup_group_id,
-                    status, alternative_type, alternative_note, additional_contributors
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    status, alternative_type, alternative_note, additional_contributors,
+                    group_name, contact_phone, is_walkin
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 self._sanitize_text(data['volunteer_name'], 200),
@@ -1414,6 +1555,9 @@ class ShivaManager:
                 alt_type,
                 alt_note,
                 additional_contributors,
+                group_name or None,
+                contact_phone or None,
+                1 if data.get('is_walkin') else 0,
             ))
             conn.commit()
 
@@ -1667,6 +1811,29 @@ class ShivaManager:
                 })
 
         return matches[:5]  # Return at most 5 matches
+
+    def search_active_shivas(self, query):
+        """Search active shivas by family name (LIKE match).
+        Used for duplicate-family search endpoint."""
+        if not query or len(query.strip()) < 2:
+            return []
+
+        # Escape LIKE wildcards to prevent unintended matches
+        safe_query = query.strip().replace('%', '\\%').replace('_', '\\_')
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, family_name, shiva_start_date, shiva_end_date, shiva_city
+            FROM shiva_support
+            WHERE status = 'active' AND family_name LIKE ? ESCAPE '\\'
+            ORDER BY created_at DESC
+            LIMIT 10
+        ''', (f'%{safe_query}%',))
+        rows = cursor.fetchall()
+        conn.close()
+
+        return [dict(row) for row in rows]
 
     # ── Auto-Archive ──────────────────────────────────────────
 

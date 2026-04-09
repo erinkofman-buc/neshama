@@ -274,6 +274,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/icon-512.png': ('icon-512.png', 'image/png'),
         '/apple-touch-icon.png': ('apple-touch-icon.png', 'image/png'),
         '/og-image.png': ('og-image.png', 'image/png'),
+        '/shiva/organize-v2': ('shiva-organize-v2.html', 'text/html'),
+        '/shiva/dashboard': ('shiva-dashboard.html', 'text/html'),
         '/shiva/organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize': ('shiva-organize.html', 'text/html'),
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
@@ -457,6 +459,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):-len('/updates')]
             self.handle_get_updates(support_id)
+        # V2: Duplicate family search
+        elif path == '/api/shiva/search':
+            self.handle_shiva_search()
         elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
@@ -472,6 +477,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/shiva/organize')
             self.end_headers()
+        elif path.startswith('/shiva/v2/'):
+            self.serve_shiva_v2_page()
         elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
         # Care coordination pages
@@ -636,6 +643,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_care_add_task(care_id, body)
         elif path == '/api/care-task/claim':
             self.handle_care_claim_task(body)
+        elif path == '/api/shiva-v2/create':
+            self.handle_create_shiva_v2(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         # V5: Extend shiva dates
@@ -3663,6 +3672,26 @@ button:hover{background:#c45a1a}</style></head>
         except FileNotFoundError:
             self.send_404()
 
+    def serve_shiva_v2_page(self):
+        """Serve the V2 volunteer view page"""
+        filepath = os.path.join(FRONTEND_DIR, 'shiva-view-v2.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+            # Track page view
+            if SHIVA_AVAILABLE:
+                path = urlparse(self.path).path
+                support_id = path[len('/shiva/v2/'):] if path.startswith('/shiva/v2/') else None
+                shiva_mgr.track_event('page_view_v2', support_id)
+        except FileNotFoundError:
+            self.send_404()
+
     def get_shiva_by_obituary(self, obit_id):
         """Check if shiva support exists for an obituary"""
         if not SHIVA_AVAILABLE:
@@ -3731,6 +3760,70 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.create_support(data)
             if result['status'] == 'success':
                 shiva_mgr.track_event('organize_complete', obit_id)
+                shiva_mgr._trigger_backup()
+                # Send welcome email with share links
+                self._send_welcome_email(result)
+            status_code = 200 if result['status'] in ('success', 'duplicate', 'similar_found') else 400
+            # Don't expose verification_token to client
+            safe_result = dict(result)
+            safe_result.pop('verification_token', None)
+            safe_result.pop('organizer_email', None)
+            self.send_json_response(safe_result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_create_shiva_v2(self, body):
+        """Create a new shiva support page via V2 wizard.
+        V2 wizard handles consent in the UI, so we set privacy_consent automatically.
+        Accepts all V7 meal planner fields.
+        """
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            # V2 wizard handles consent in the UI
+            data['privacy_consent'] = 1
+            # V2 wizard already does duplicate search in Step 1
+            data['_skip_similar'] = True
+
+            # Map V2 frontend field names to create_support() field names
+            field_map = {
+                'shiva_start': 'shiva_start_date',
+                'shiva_end': 'shiva_end_date',
+                'address': 'shiva_address',
+                'lunch_start': 'lunch_dropoff_start',
+                'lunch_end': 'lunch_dropoff_end',
+                'dinner_start': 'dinner_dropoff_start',
+                'dinner_end': 'dinner_dropoff_end',
+                'family_note': 'family_notes',
+                'suggestions': 'custom_suggestions',
+                'adults': 'num_adults',
+                'kids': 'num_kids',
+                'relationship': 'organizer_relationship',
+                'dropoff_instructions': 'drop_off_instructions',
+            }
+            for frontend_name, backend_name in field_map.items():
+                if frontend_name in data and backend_name not in data:
+                    data[backend_name] = data[frontend_name]
+
+            # Kosher field: frontend sends JS boolean, backend expects integer
+            if 'kosher' in data:
+                data['kosher'] = 1 if data.get('kosher') in (True, 'true', '1', 1) else 0
+
+            # Dietary restrictions: frontend sends array of strings, backend uses dietary_notes
+            if 'dietary_restrictions' in data:
+                restrictions = data.get('dietary_restrictions', [])
+                if isinstance(restrictions, list):
+                    data['dietary_notes'] = ', '.join(restrictions)
+
+            obit_id = data.get('obituary_id')
+            shiva_mgr.track_event('organize_v2_start', obit_id)
+            result = shiva_mgr.create_support(data)
+            if result['status'] == 'success':
+                shiva_mgr.track_event('organize_v2_complete', obit_id)
                 shiva_mgr._trigger_backup()
                 # Send welcome email with share links
                 self._send_welcome_email(result)
@@ -3991,6 +4084,23 @@ button:hover{background:#c45a1a}</style></head>
             self.send_error_response(str(e))
 
     # ── API: V3 — Updates Feed + Thank-You Notes ──────────────
+
+    def handle_shiva_search(self):
+        """Search active shivas by family name."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            query = params.get('q', [''])[0]
+            if not query or len(query.strip()) < 2:
+                self.send_json_response([])
+                return
+            results = shiva_mgr.search_active_shivas(query)
+            self.send_json_response(results)
+        except Exception as e:
+            self.send_error_response(str(e))
 
     def handle_get_updates(self, support_id):
         """Get updates for a shiva page (public)."""

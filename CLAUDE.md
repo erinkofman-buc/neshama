@@ -65,7 +65,7 @@
 - Mobile-first design (test at 375px)
 - All user-facing text must be empathetic — this serves grieving families
 - Caterer features must never feel like ads
-- Address privacy: never expose shiva address publicly, only after meal signup
+- Address privacy (V2): shiva address is visible to anyone with the volunteer link. The link itself is the access control — only people the organizer shares it with can see it.
 
 ## Design Quality Checklist (every change)
 - Mobile-first: test at 375px before committing
