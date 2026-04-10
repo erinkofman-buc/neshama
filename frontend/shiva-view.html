@@ -1313,6 +1313,11 @@
         /* ── Print Styles ──────────────────────────────────── */
 
         @media print {
+            /* ── V3 Print Layout — functional schedule, not decorative ──
+               Mental model: fridge-postable schedule. Left-aligned, scannable,
+               tabular. NOT a wedding program. Primary question the reader asks:
+               "Who is bringing what on which day?" Answer that instantly. */
+
             /* Hide everything non-essential */
             .top-nav,
             .nav-hamburger,
@@ -1339,21 +1344,30 @@
             #shivaShareBar,
             .neshama-share-bar,
             .coverage-strip,
+            #calendarLegend,
+            .coverage-cta-text,
+            .coverage-summary,
             .print-schedule-btn,
+            .info-cards,
             .meal-slot.available .slot-action,
             .remove-btn,
             .support-cta-btn,
             #heroCta,
-            .hero-divider {
+            .hero-divider,
+            .essentials-banner,
+            .section-heading {
                 display: none !important;
             }
 
-            /* Reset page background */
+            /* ── Page setup ── */
+            @page { margin: 0.75in 0.65in; }
+
             body {
                 background: white !important;
-                color: #000 !important;
-                font-size: 11pt;
-                line-height: 1.4;
+                color: #111 !important;
+                font-family: 'Source Serif 4', Georgia, serif !important;
+                font-size: 11pt !important;
+                line-height: 1.5 !important;
             }
 
             .page-container {
@@ -1362,238 +1376,183 @@
                 margin: 0 !important;
             }
 
-            /* Hero — clean header */
+            /* ── Header: family + dates, left-aligned ── */
             .shiva-hero {
-                padding: 0.5rem 0 0.75rem !important;
-                border-bottom: 2px solid #333;
-                margin-bottom: 0.75rem;
+                padding: 0 0 0.6rem !important;
+                margin-bottom: 0.6rem !important;
+                border: none !important;
+                border-bottom: 1pt solid #111 !important;
+                text-align: left !important;
+                background: transparent !important;
+                box-shadow: none !important;
             }
 
             .shiva-hero h1 {
-                font-size: 20pt !important;
-                margin-bottom: 0.15rem;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-weight: 600 !important;
+                font-size: 22pt !important;
+                line-height: 1.1 !important;
+                margin: 0 0 0.15rem !important;
+                color: #111 !important;
             }
 
             .shiva-hero .dates {
                 font-size: 11pt !important;
                 color: #333 !important;
+                margin: 0 !important;
+                font-style: normal !important;
+                display: block !important;
             }
 
-            .shiva-hero .organized-by {
-                font-size: 10pt !important;
-                color: #555 !important;
-            }
-
+            .shiva-hero .organized-by,
             .shiva-hero .memorial-link { display: none !important; }
 
-            /* Info cards — compact */
-            .info-cards {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 0.5rem !important;
-                margin: 0.5rem 0 !important;
-                page-break-inside: avoid;
-            }
-
-            .info-card {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                padding: 0.6rem !important;
-                border-radius: 0.3rem !important;
-            }
-
-            .info-card h3 { font-size: 10pt !important; margin-bottom: 0.2rem; }
-            .info-card p { font-size: 9pt !important; line-height: 1.3; }
-
-            /* Family notes — compact */
+            /* ── Family note — small italic, no box, left-aligned ── */
             #familyNotesBox {
+                background: transparent !important;
                 box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                border-left: 3px solid #999 !important;
-                padding: 0.5rem 0.75rem !important;
-                margin: 0.5rem 0 !important;
-                border-radius: 0.3rem !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                margin: 0 0 0.7rem !important;
+                text-align: left !important;
             }
 
-            /* Calendar section */
-            .calendar-section {
-                margin: 0.75rem 0 !important;
+            #familyNotesBox h3 { display: none !important; }
+
+            #familyNotesText {
+                font-size: 10pt !important;
+                color: #444 !important;
+                font-style: italic !important;
+                line-height: 1.45 !important;
+                margin: 0 !important;
             }
 
-            .section-heading {
-                font-size: 14pt !important;
-                margin-bottom: 0.5rem !important;
-            }
+            .coverage-bar,
+            .coverage-summary { display: none !important; }
 
-            .section-heading::after {
-                display: none !important;
-            }
+            /* ── Meal Calendar — left-aligned tabular schedule ── */
+            .calendar-section { margin: 0 !important; }
 
-            /* Coverage summary — clean */
-            .coverage-bar { display: none !important; }
-
-            .coverage-summary {
-                margin-bottom: 0.5rem !important;
-                font-size: 9pt !important;
-            }
-
-            .coverage-dot {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .coverage-dot.green { background: #D2691E !important; }
-            .coverage-dot.yellow { background: #B2BEB5 !important; }
-            .coverage-dot.red { background: #4caf50 !important; }
-
-            /* Day cards — table-like */
             .meal-calendar {
-                gap: 0.3rem !important;
+                display: block !important;
+                gap: 0 !important;
             }
 
             .meal-day-card {
+                display: block !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                border-left: 3px solid #999 !important;
+                border: none !important;
+                border-top: 0.5pt solid #ccc !important;
+                background: transparent !important;
+                padding: 0.6rem 0 0.7rem !important;
+                margin: 0 !important;
                 page-break-inside: avoid;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
-            .meal-day-card.day-full {
-                border-left-color: #f44336 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.day-partial {
-                border-left-color: #ff9800 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.day-empty {
-                border-left-color: #4caf50 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.shabbat {
-                background: #f5f5f5 !important;
+            .meal-day-card:first-child {
+                border-top: none !important;
             }
 
             .meal-day-header {
-                padding: 0.35rem 0.6rem !important;
-                font-size: 10pt !important;
-                background: #f9f9f9 !important;
-                border-bottom: 1px solid #ddd !important;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-size: 14pt !important;
+                font-weight: 700 !important;
+                color: #111 !important;
+                padding: 0 0 0.35rem !important;
+                background: transparent !important;
+                border: none !important;
+                text-align: left !important;
+                display: block !important;
+                letter-spacing: 0.01em;
             }
 
-            .meal-day-card.day-full .meal-day-header,
-            .meal-day-card.day-partial .meal-day-header,
-            .meal-day-card.day-empty .meal-day-header,
-            .meal-day-card.shabbat .meal-day-header {
-                background: #f9f9f9 !important;
-            }
+            /* Hide on-screen urgency badges and help status in print */
+            .urgent-badge,
+            .meal-day-header > span:not(:first-child),
+            .meal-slot .most-needed-label,
+            .most-needed { display: none !important; }
 
+            /* Meal rows — displayed as two columns, left-aligned */
             .meal-slots-grid {
+                display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
+                gap: 0 2rem !important;
+                margin: 0 !important;
             }
 
             .meal-slot {
-                padding: 0.4rem 0.6rem !important;
+                display: block !important;
+                padding: 0 !important;
                 min-height: auto !important;
-                border-left: none !important;
-            }
-
-            .meal-slot:first-child {
-                border-right: 1px solid #ddd !important;
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                text-align: left !important;
             }
 
             .meal-slot-label {
-                font-size: 7pt !important;
-                margin-bottom: 0.15rem;
+                font-size: 7.5pt !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: #777 !important;
+                margin-bottom: 0.15rem !important;
+                display: block !important;
             }
 
             .meal-slot.taken .vol-name {
-                font-size: 9pt !important;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-size: 12pt !important;
+                font-weight: 600 !important;
+                color: #111 !important;
+                margin: 0 !important;
+                line-height: 1.3 !important;
             }
 
             .meal-slot.taken .vol-desc {
-                font-size: 8pt !important;
+                font-size: 9.5pt !important;
+                color: #555 !important;
+                font-style: italic !important;
+                margin-top: 0.1rem !important;
             }
 
-            .meal-slot.available {
-                background: white !important;
-                border-left: none !important;
-                cursor: default !important;
-            }
-
-            .meal-slot.available .slot-action {
-                display: none !important;
-            }
+            .meal-slot.available .slot-action { display: none !important; }
 
             .meal-slot.available::after {
-                content: '(available)';
-                font-size: 8pt;
-                color: #999;
-                font-style: italic;
+                content: 'Open';
+                font-size: 11pt !important;
+                color: #aaa !important;
+                font-style: italic !important;
             }
 
-            .shabbat-message {
-                font-size: 9pt !important;
-                padding: 0.4rem !important;
-            }
+            .shabbat-message { font-size: 9pt !important; }
 
-            /* Shiva essentials banner */
-            .essentials-banner {
-                display: none !important;
-            }
-
-            /* Print color legend */
+            /* ── Legend — minimal, inline ── */
             .print-legend {
-                display: flex !important;
-                gap: 1rem;
-                align-items: center;
-                margin-top: 0.75rem;
-                padding: 0.4rem 0.6rem;
-                border: 1px solid #ddd;
-                border-radius: 0.3rem;
-                font-size: 8pt;
-                color: #333;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                display: block !important;
+                margin-top: 1rem !important;
+                padding-top: 0.5rem !important;
+                border-top: 0.5pt solid #ccc !important;
+                font-size: 8pt !important;
+                color: #888 !important;
+                text-align: left !important;
                 page-break-inside: avoid;
             }
 
-            .print-legend-item {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.25rem;
-            }
+            .print-legend strong { display: none !important; }
+            .print-legend-swatch { display: none !important; }
+            .print-legend-item { display: inline !important; margin-right: 1rem !important; }
 
-            .print-legend-swatch {
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                border-radius: 2px;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Print footer */
+            /* ── Footer ── */
             .print-footer {
                 display: block !important;
-                text-align: center;
-                margin-top: 1rem;
-                padding-top: 0.5rem;
-                border-top: 1px solid #ccc;
-                font-size: 8pt;
-                color: #999;
-            }
-
-            /* Page setup */
-            @page {
-                margin: 1.5cm;
-                size: portrait;
+                margin-top: 0.4rem !important;
+                font-size: 7.5pt !important;
+                color: #bbb !important;
+                font-style: italic !important;
+                text-align: left !important;
             }
         }
 
@@ -3085,7 +3044,7 @@
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {
-                    summaryEl.innerHTML += '<p style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
+                    summaryEl.innerHTML += '<p class="coverage-cta-text" style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
                 }
             }
 
@@ -3167,7 +3126,7 @@
             // Empty slot — check if this is the first empty/urgent slot
             var urgentBadge = '';
             if (!_firstEmptySlotMarked) {
-                urgentBadge = '<div style="font-size:0.65rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem;">Most needed</div>';
+                urgentBadge = '<div class="urgent-badge" style="font-size:0.65rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem;">Most needed</div>';
                 _firstEmptySlotMarked = true;
             }
             return '<div class="meal-slot available" data-date="' + dateStr + '" data-meal="' + mealType + '" role="button" tabindex="0" aria-label="Sign up for ' + mealType + ' on ' + formatDateShort(dateStr) + '">' +
