@@ -957,7 +957,14 @@
                 var v = visible[i];
                 var initial = escapeHtml(v.name.charAt(0));
                 var color = placeholderColors[i % placeholderColors.length];
-                var services = v.services || [];
+                // Backend returns `services` as either an array (placeholder
+                // data) or a comma-separated string (API). Normalize to array.
+                var services = v.services;
+                if (typeof services === 'string') {
+                    services = services.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+                } else if (!Array.isArray(services)) {
+                    services = [];
+                }
 
                 html += '<div class="vendor-card">';
 
@@ -974,8 +981,9 @@
                     html += '<div class="vendor-card-badges">';
                     for (var s = 0; s < services.length; s++) {
                         var svc = services[s];
-                        var label = svc === 'psw' ? 'PSW' : svc === 'nursing' ? 'Nursing' : svc === 'overnight' ? 'Overnight' : svc === 'palliative' ? 'Palliative' : svc;
-                        html += '<span class="badge service-' + svc + '">' + label + '</span>';
+                        var svcKey = String(svc).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                        var label = svcKey === 'psw' ? 'PSW' : svcKey === 'nursing' ? 'Nursing' : svcKey === 'overnight' ? 'Overnight' : svcKey === 'palliative' ? 'Palliative' : svc;
+                        html += '<span class="badge service-' + escapeHtml(svcKey) + '">' + escapeHtml(label) + '</span>';
                     }
                     html += '</div>';
                 }
@@ -992,8 +1000,9 @@
                     html += '<div class="service-tags">';
                     for (var t = 0; t < services.length; t++) {
                         var tag = services[t];
-                        var tagLabel = tag === 'psw' ? 'PSW' : tag === 'nursing' ? 'Nursing' : tag === 'overnight' ? 'Overnight' : tag === 'palliative' ? 'Palliative' : tag;
-                        html += '<span class="service-tag ' + tag + '">' + tagLabel + '</span>';
+                        var tagKey = String(tag).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                        var tagLabel = tagKey === 'psw' ? 'PSW' : tagKey === 'nursing' ? 'Nursing' : tagKey === 'overnight' ? 'Overnight' : tagKey === 'palliative' ? 'Palliative' : tag;
+                        html += '<span class="service-tag ' + escapeHtml(tagKey) + '">' + escapeHtml(tagLabel) + '</span>';
                     }
                     html += '</div>';
                 }
