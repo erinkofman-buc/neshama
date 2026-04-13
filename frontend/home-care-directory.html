@@ -976,15 +976,26 @@
                     html += '<div class="vendor-card-initial" style="background:' + color + ';">' + initial + '</div>';
                 }
 
-                // Service badges on image
-                if (services.length > 0) {
+                // Service badges on image — ONLY the 4 known filter-matching
+                // categories (psw/nursing/overnight/palliative) to keep the
+                // top area visually clean. Free-text services go in the body.
+                var KNOWN_BADGE_KEYS = {
+                    'psw': 'PSW',
+                    'nursing': 'Nursing',
+                    'overnight': 'Overnight',
+                    'palliative': 'Palliative'
+                };
+                var badgeSet = {};
+                services.forEach(function(svc) {
+                    var svcKey = String(svc).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    if (KNOWN_BADGE_KEYS[svcKey]) badgeSet[svcKey] = KNOWN_BADGE_KEYS[svcKey];
+                });
+                var badgeKeys = Object.keys(badgeSet);
+                if (badgeKeys.length > 0) {
                     html += '<div class="vendor-card-badges">';
-                    for (var s = 0; s < services.length; s++) {
-                        var svc = services[s];
-                        var svcKey = String(svc).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                        var label = svcKey === 'psw' ? 'PSW' : svcKey === 'nursing' ? 'Nursing' : svcKey === 'overnight' ? 'Overnight' : svcKey === 'palliative' ? 'Palliative' : svc;
-                        html += '<span class="badge service-' + escapeHtml(svcKey) + '">' + escapeHtml(label) + '</span>';
-                    }
+                    badgeKeys.forEach(function(k) {
+                        html += '<span class="badge service-' + escapeHtml(k) + '">' + escapeHtml(badgeSet[k]) + '</span>';
+                    });
                     html += '</div>';
                 }
                 html += '</div>';
@@ -995,15 +1006,19 @@
                 }
                 html += '<h3>' + escapeHtml(v.name) + '</h3>';
 
-                // Service tags in body
-                if (services.length > 0) {
+                // Service tags in body — skip the 4 known categories (they
+                // already show as badges on the image above) so we don't
+                // repeat e.g. "Nursing" in both places.
+                var bodyTags = services.filter(function(svc) {
+                    var k = String(svc).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    return !KNOWN_BADGE_KEYS[k];
+                });
+                if (bodyTags.length > 0) {
                     html += '<div class="service-tags">';
-                    for (var t = 0; t < services.length; t++) {
-                        var tag = services[t];
+                    bodyTags.forEach(function(tag) {
                         var tagKey = String(tag).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                        var tagLabel = tagKey === 'psw' ? 'PSW' : tagKey === 'nursing' ? 'Nursing' : tagKey === 'overnight' ? 'Overnight' : tagKey === 'palliative' ? 'Palliative' : tag;
-                        html += '<span class="service-tag ' + escapeHtml(tagKey) + '">' + escapeHtml(tagLabel) + '</span>';
-                    }
+                        html += '<span class="service-tag ' + escapeHtml(tagKey) + '">' + escapeHtml(tag) + '</span>';
+                    });
                     html += '</div>';
                 }
 

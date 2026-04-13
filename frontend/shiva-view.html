@@ -3272,7 +3272,12 @@
                         html += '<div class="signup-caterer-detail">Kosher (' + v.kosher_status + ')</div>';
                     }
                     if (v.website) {
-                        html += '<a class="signup-caterer-menu-link" href="' + escapeHtml(v.website) + '" target="_blank" rel="noopener noreferrer">View menu &rarr;</a>';
+                        // Route through /api/track-click so caterer outbound
+                        // clicks land in vendor_clicks for analytics.
+                        var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
+                                       '&dest=' + encodeURIComponent(v.website) +
+                                       '&type=caterer-menu';
+                        html += '<a class="signup-caterer-menu-link" href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener noreferrer">View menu &rarr;</a>';
                     }
                     html += '</div>';
                 });
