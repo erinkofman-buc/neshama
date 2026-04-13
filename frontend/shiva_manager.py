@@ -395,12 +395,6 @@ class ShivaManager:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def _is_shabbat(self, date_str):
-        """Check if a date falls on Shabbat (Friday sunset to Saturday sunset).
-        For simplicity: Friday and Saturday are marked as Shabbat days."""
-        d = datetime.strptime(date_str, '%Y-%m-%d')
-        return d.weekday() in (4, 5)  # 4=Friday, 5=Saturday
-
     MAX_FIELD_LENGTH = 500
     MAX_TEXT_LENGTH = 2000
 
@@ -509,15 +503,10 @@ class ShivaManager:
 
         support_id = str(uuid.uuid4())
         magic_token = secrets.token_urlsafe(32)
-        share_token = secrets.token_urlsafe(16)
         now = datetime.now().isoformat()
 
         conn = self._get_conn()
         cursor = conn.cursor()
-
-        privacy = data.get('privacy', 'public')
-        if privacy not in ('public', 'private'):
-            privacy = 'public'
 
         # Validate recommended_vendors (JSON array of slugs, max 5)
         recommended_vendors = None
@@ -595,8 +584,8 @@ class ShivaManager:
                     status, magic_token, privacy_consent, privacy, recommended_vendors,
                     family_notes, created_at,
                     drop_off_instructions, source, verification_status, verification_token,
-                    share_token, blocked_meals, dietary_restrictions, meal_guest_overrides
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    blocked_meals, dietary_restrictions, meal_guest_overrides
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 'active', ?, ?, 'public', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 support_id,
                 obit_id,
@@ -610,7 +599,6 @@ class ShivaManager:
                 self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
                 data['shiva_end_date'].strip()[:10],
-                0,  # pause_shabbat removed in V3 — hard-coded 0 for legacy column compat
                 max(1, min(200, int(data.get('guests_per_meal', 20)))),
                 self._sanitize_text(data.get('dietary_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 self._sanitize_text(data.get('special_instructions', ''), self.MAX_TEXT_LENGTH) or None,
@@ -618,7 +606,6 @@ class ShivaManager:
                 self._sanitize_text(data.get('donation_label', ''), 200) or None,
                 magic_token,
                 1,
-                privacy,
                 recommended_vendors,
                 self._sanitize_text(data.get('family_notes', ''), self.MAX_TEXT_LENGTH) or None,
                 now,
@@ -626,7 +613,6 @@ class ShivaManager:
                 source,
                 verification_status,
                 verification_token,
-                share_token,
                 blocked_meals,
                 dietary_restrictions,
                 meal_guest_overrides,
@@ -639,8 +625,6 @@ class ShivaManager:
                 'verification_token': verification_token,
                 'organizer_email': clean_email,
                 'family_name': self._sanitize_text(data['family_name'], 200),
-                'share_token': share_token,
-                'privacy': privacy,
             }
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
@@ -672,72 +656,30 @@ class ShivaManager:
             return {'status': 'success', 'data': dict(row)}
         return {'status': 'not_found', 'message': 'No active support page for this memorial'}
 
-    def get_support_by_id(self, support_id, access_token=None):
+    def get_support_by_id(self, support_id):
         """Get support page by ID. Address EXCLUDED from public response.
-        For private pages, dietary_notes and special_instructions are also excluded
-        unless a valid access_token is provided."""
+        organizer_email + organizer_phone ARE included so volunteers can
+        reach the organizer directly — they cannot cancel via the UI."""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
             SELECT id, obituary_id, organizer_name, organizer_relationship,
+                   organizer_email, organizer_phone,
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
-                   pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
-                   donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at, share_token, blocked_meals
+                   guests_per_meal, dietary_notes, special_instructions, dietary_restrictions,
+                   donation_url, donation_label, status, recommended_vendors,
+                   organizer_update, family_notes, created_at, blocked_meals,
+                   meal_guest_overrides
             FROM shiva_support
             WHERE id = ?
         ''', (support_id,))
         row = cursor.fetchone()
+        conn.close()
 
         if not row:
-            conn.close()
             return {'status': 'not_found', 'message': 'Support page not found'}
 
-        data = dict(row)
-
-        # For private pages, check access token
-        if data.get('privacy') == 'private':
-            has_access = False
-            if access_token:
-                # Check if it's the share_token (host-shared link)
-                if access_token == data.get('share_token'):
-                    has_access = True
-                else:
-                    # Check individual approved access requests
-                    cursor.execute('''
-                        SELECT id FROM shiva_access_requests
-                        WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
-                    ''', (support_id, access_token))
-                    has_access = cursor.fetchone() is not None
-
-            if not has_access:
-                # Return limited data for private pages
-                conn.close()
-                return {
-                    'status': 'success',
-                    'data': {
-                        'id': data['id'],
-                        'obituary_id': data['obituary_id'],
-                        'organizer_name': data['organizer_name'],
-                        'organizer_relationship': data['organizer_relationship'],
-                        'family_name': data['family_name'],
-                        'shiva_city': data.get('shiva_city'),
-                        'shiva_sub_area': data.get('shiva_sub_area'),
-                        'shiva_start_date': data['shiva_start_date'],
-                        'shiva_end_date': data['shiva_end_date'],
-                        'status': data['status'],
-                        'privacy': 'private',
-                        'created_at': data['created_at'],
-                    },
-                    'access': 'limited'
-                }
-            else:
-                data['access'] = 'granted'
-
-        # Never expose share_token to non-organizer visitors
-        data.pop('share_token', None)
-        conn.close()
-        return {'status': 'success', 'data': data}
+        return {'status': 'success', 'data': dict(row)}
 
     # ── Get Support (Organizer - includes address) ────────────
 
@@ -775,9 +717,9 @@ class ShivaManager:
 
         updatable = [
             'family_name', 'shiva_address', 'shiva_city', 'shiva_sub_area', 'shiva_start_date',
-            'shiva_end_date', 'pause_shabbat', 'guests_per_meal', 'dietary_notes',
+            'shiva_end_date', 'guests_per_meal', 'dietary_notes',
             'dietary_restrictions', 'meal_guest_overrides',
-            'special_instructions', 'donation_url', 'donation_label', 'privacy',
+            'special_instructions', 'donation_url', 'donation_label',
             'recommended_vendors', 'organizer_update', 'family_notes',
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
         ]
@@ -788,11 +730,7 @@ class ShivaManager:
             if field in data:
                 sets.append(f'{field} = ?')
                 val = data[field]
-                if field == 'privacy':
-                    val = val if val in ('public', 'private') else 'public'
-                elif field == 'pause_shabbat':
-                    val = 1 if val else 0
-                elif field == 'guests_per_meal':
+                if field == 'guests_per_meal':
                     val = max(1, min(200, int(val) if val else 20))
                 elif field == 'donation_url':
                     val = self._validate_url(val) if val else None
@@ -1100,152 +1038,6 @@ class ShivaManager:
 
         return {'status': 'success', 'data': rows}
 
-    # ── Privacy / Access Requests ─────────────────────────────
-
-    def create_access_request(self, data):
-        """Create an access request for a private shiva page."""
-        shiva_id = data.get('shiva_id', '').strip()
-        name = self._sanitize_text(data.get('requester_name', ''), 200)
-        email = self._validate_email(data.get('requester_email', ''))
-        message = self._sanitize_text(data.get('message', ''), self.MAX_TEXT_LENGTH)
-
-        if not shiva_id or not name or not email:
-            return {'status': 'error', 'message': 'Name and email are required'}
-
-        conn = self._get_conn()
-        cursor = conn.cursor()
-
-        # Verify shiva page exists and is private
-        cursor.execute('SELECT id, family_name, organizer_email, privacy FROM shiva_support WHERE id = ?', (shiva_id,))
-        shiva = cursor.fetchone()
-        if not shiva:
-            conn.close()
-            return {'status': 'error', 'message': 'Shiva page not found'}
-        if shiva['privacy'] != 'private':
-            conn.close()
-            return {'status': 'error', 'message': 'This shiva page is public'}
-
-        # Check for duplicate pending request
-        cursor.execute('''
-            SELECT id FROM shiva_access_requests
-            WHERE shiva_id = ? AND requester_email = ? AND status = 'pending'
-        ''', (shiva_id, email))
-        if cursor.fetchone():
-            conn.close()
-            return {'status': 'error', 'message': 'You already have a pending request'}
-
-        # Check if already approved
-        cursor.execute('''
-            SELECT access_token FROM shiva_access_requests
-            WHERE shiva_id = ? AND requester_email = ? AND status = 'approved'
-        ''', (shiva_id, email))
-        existing = cursor.fetchone()
-        if existing:
-            conn.close()
-            return {'status': 'already_approved', 'message': 'You already have access', 'access_token': existing['access_token']}
-
-        organizer_key = secrets.token_urlsafe(24)
-        now = datetime.now().isoformat()
-
-        cursor.execute('''
-            INSERT INTO shiva_access_requests (shiva_id, requester_name, requester_email,
-                                               message, status, organizer_key, created_at)
-            VALUES (?, ?, ?, ?, 'pending', ?, ?)
-        ''', (shiva_id, name, email, message, organizer_key, now))
-        conn.commit()
-        request_id = cursor.lastrowid
-        conn.close()
-
-        return {
-            'status': 'success',
-            'message': 'Access request submitted',
-            'request_id': request_id,
-            'organizer_email': shiva['organizer_email'],
-            'family_name': shiva['family_name'],
-            'requester_name': name,
-            'requester_email': email,
-            'requester_message': message,
-            'organizer_key': organizer_key,
-        }
-
-    def approve_access_request(self, request_id, organizer_key):
-        """Approve an access request. Returns requester info for email."""
-        conn = self._get_conn()
-        cursor = conn.cursor()
-
-        cursor.execute('''
-            SELECT r.*, s.family_name, s.id as shiva_id
-            FROM shiva_access_requests r
-            JOIN shiva_support s ON r.shiva_id = s.id
-            WHERE r.id = ? AND r.organizer_key = ?
-        ''', (request_id, organizer_key))
-        req = cursor.fetchone()
-
-        if not req:
-            conn.close()
-            return {'status': 'error', 'message': 'Invalid request or key'}
-        if req['status'] != 'pending':
-            conn.close()
-            return {'status': 'error', 'message': f'Request already {req["status"]}'}
-
-        access_token = secrets.token_urlsafe(32)
-        now = datetime.now().isoformat()
-
-        cursor.execute('''
-            UPDATE shiva_access_requests
-            SET status = 'approved', access_token = ?, responded_at = ?
-            WHERE id = ?
-        ''', (access_token, now, request_id))
-        conn.commit()
-        conn.close()
-
-        return {
-            'status': 'success',
-            'message': f'Access granted to {req["requester_name"]}',
-            'requester_name': req['requester_name'],
-            'requester_email': req['requester_email'],
-            'family_name': req['family_name'],
-            'shiva_id': req['shiva_id'],
-            'access_token': access_token,
-        }
-
-    def deny_access_request(self, request_id, organizer_key):
-        """Deny an access request. Returns requester info for email."""
-        conn = self._get_conn()
-        cursor = conn.cursor()
-
-        cursor.execute('''
-            SELECT r.*, s.family_name
-            FROM shiva_access_requests r
-            JOIN shiva_support s ON r.shiva_id = s.id
-            WHERE r.id = ? AND r.organizer_key = ?
-        ''', (request_id, organizer_key))
-        req = cursor.fetchone()
-
-        if not req:
-            conn.close()
-            return {'status': 'error', 'message': 'Invalid request or key'}
-        if req['status'] != 'pending':
-            conn.close()
-            return {'status': 'error', 'message': f'Request already {req["status"]}'}
-
-        now = datetime.now().isoformat()
-        cursor.execute('''
-            UPDATE shiva_access_requests
-            SET status = 'denied', responded_at = ?
-            WHERE id = ?
-        ''', (now, request_id))
-        conn.commit()
-        conn.close()
-
-        return {
-            'status': 'success',
-            'message': f'Request from {req["requester_name"]} denied',
-            'requester_name': req['requester_name'],
-            'requester_email': req['requester_email'],
-            'family_name': req['family_name'],
-        }
-
     # ── Meal Signup ───────────────────────────────────────────
 
     def signup_meal(self, data):
@@ -1270,7 +1062,6 @@ class ShivaManager:
 
         support_id = data['shiva_support_id'].strip()
         meal_date = data['meal_date'].strip()[:10]
-        access_token = data.get('access_token', '').strip()
 
         conn = self._get_conn()
         cursor = conn.cursor()
@@ -1285,19 +1076,6 @@ class ShivaManager:
 
         support = dict(support)
 
-        # Check privacy: private shivas require a valid access token OR share token
-        if support.get('privacy') == 'private':
-            share_token_valid = (access_token and access_token == support.get('share_token'))
-            access_request_valid = False
-            if access_token and not share_token_valid:
-                cursor.execute(
-                    'SELECT id FROM shiva_access_requests WHERE shiva_id = ? AND access_token = ? AND status = ?',
-                    (support_id, access_token, 'approved'))
-                access_request_valid = cursor.fetchone() is not None
-            if not share_token_valid and not access_request_valid:
-                conn.close()
-                return {'status': 'error', 'message': 'This shiva page is private. Please request access from the organizer.'}
-
         # Validate date within shiva range
         try:
             md = datetime.strptime(meal_date, '%Y-%m-%d')
@@ -1309,11 +1087,6 @@ class ShivaManager:
         except ValueError:
             conn.close()
             return {'status': 'error', 'message': 'Invalid date format'}
-
-        # Check Shabbat
-        if support['pause_shabbat'] and self._is_shabbat(meal_date):
-            conn.close()
-            return {'status': 'error', 'message': 'This date falls on Shabbat and is not available for meal coordination'}
 
         # Check blocked meals
         blocked_meals_json = support.get('blocked_meals')
@@ -1489,7 +1262,8 @@ class ShivaManager:
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, meal_description,
                    num_servings, will_serve, created_at,
-                   status, alternative_type, alternative_note
+                   status, alternative_type, alternative_note,
+                   additional_contributors
             FROM meal_signups
             WHERE shiva_support_id = ?
               AND (status IS NULL OR status != 'cancelled')
@@ -1498,17 +1272,30 @@ class ShivaManager:
         rows = [dict(row) for row in cursor.fetchall()]
         conn.close()
 
-        # Only show first name of volunteer for privacy
+        # Privacy: show first name of volunteer, and strip contributor emails
+        # (contributors' first names are fine to expose, same as volunteer_name).
         for row in rows:
             name = row.get('volunteer_name', '')
             row['volunteer_name'] = name.split()[0] if name else 'Anonymous'
+            contribs_raw = row.get('additional_contributors')
+            if contribs_raw:
+                try:
+                    contribs = json.loads(contribs_raw) if isinstance(contribs_raw, str) else contribs_raw
+                    safe = []
+                    for c in contribs or []:
+                        cname = (c.get('name') or '').split()[0] if isinstance(c, dict) else ''
+                        if cname:
+                            safe.append({'name': cname})
+                    row['additional_contributors'] = safe if safe else None
+                except (json.JSONDecodeError, TypeError):
+                    row['additional_contributors'] = None
 
         return {'status': 'success', 'data': rows}
 
     # ── Get Available Dates ───────────────────────────────────
 
     def get_available_dates(self, support_id):
-        """Return date range with Shabbat and existing signups marked."""
+        """Return date range with existing signups marked."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
@@ -1543,14 +1330,11 @@ class ShivaManager:
 
         while current <= end:
             date_str = current.strftime('%Y-%m-%d')
-            is_shabbat = self._is_shabbat(date_str)
             booked = signups.get(date_str, [])
 
             dates.append({
                 'date': date_str,
                 'day_name': current.strftime('%A'),
-                'is_shabbat': is_shabbat,
-                'paused': is_shabbat and bool(support['pause_shabbat']),
                 'lunch_taken': 'Lunch' in booked,
                 'dinner_taken': 'Dinner' in booked
             })
@@ -1682,7 +1466,7 @@ class ShivaManager:
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, volunteer_email,
                    volunteer_phone, meal_description, num_servings, will_serve, created_at,
-                   status
+                   status, additional_contributors
             FROM meal_signups
             WHERE shiva_support_id = ?
               AND (status IS NULL OR status != 'cancelled')
@@ -1690,6 +1474,16 @@ class ShivaManager:
         ''', (support_id,))
         rows = [dict(row) for row in cursor.fetchall()]
         conn.close()
+
+        # Parse contributors JSON so the dashboard can render full details
+        # (organizer sees name + email for reminder-email purposes).
+        for row in rows:
+            raw = row.get('additional_contributors')
+            if raw and isinstance(raw, str):
+                try:
+                    row['additional_contributors'] = json.loads(raw)
+                except json.JSONDecodeError:
+                    row['additional_contributors'] = None
 
         return {'status': 'success', 'data': rows}
 
@@ -2511,6 +2305,20 @@ class ShivaManager:
         if 'volunteer_phone' in data:
             sets.append('volunteer_phone = ?')
             vals.append(self._sanitize_text(data['volunteer_phone'], 30))
+        if 'additional_contributors' in data:
+            raw = data.get('additional_contributors')
+            cleaned = None
+            if isinstance(raw, list):
+                clean_list = []
+                for c in raw[:10]:
+                    if isinstance(c, dict) and c.get('name', '').strip():
+                        contributor = {'name': self._sanitize_text(c['name'], 200)}
+                        if c.get('email', '').strip():
+                            contributor['email'] = self._validate_email(c['email']) or ''
+                        clean_list.append(contributor)
+                cleaned = json.dumps(clean_list) if clean_list else None
+            sets.append('additional_contributors = ?')
+            vals.append(cleaned)
 
         if not sets:
             conn.close()

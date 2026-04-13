@@ -447,10 +447,6 @@
             transition: width 0.5s ease;
         }
 
-        .meal-day-card.shabbat {
-            background: #f8f5f0;
-        }
-
         .meal-day-header {
             padding: 0.7rem 1.25rem;
             font-weight: 600;
@@ -472,18 +468,6 @@
 
         .meal-day-card.day-empty .meal-day-header {
             background: var(--amber-light);
-        }
-
-        .meal-day-card.shabbat .meal-day-header {
-            background: #f0ebe3;
-        }
-
-        .shabbat-badge {
-            font-size: 0.7rem;
-            color: var(--gold);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
 
         .meal-slots-grid {
@@ -594,16 +578,6 @@
         .remove-btn:hover {
             background: rgba(210, 105, 30, 0.08);
             border-color: var(--dark-brown);
-        }
-
-        /* ── Shabbat Message ─────────────────────────────── */
-
-        .shabbat-message {
-            text-align: center;
-            padding: 1rem 1.25rem;
-            color: var(--sage-dark);
-            font-style: italic;
-            font-size: 0.9rem;
         }
 
         /* ── Modal (shared) ──────────────────────────────── */
@@ -724,6 +698,28 @@
         }
         .signup-caterer-card.selected .signup-caterer-name,
         .signup-caterer-card.selected .signup-caterer-detail {
+            color: white;
+        }
+        .signup-caterer-category {
+            font-weight: 600 !important;
+            color: var(--terracotta) !important;
+            text-transform: uppercase;
+            font-size: 0.7rem !important;
+            letter-spacing: 0.05em;
+            margin-top: 0.1rem;
+        }
+        .signup-caterer-card.selected .signup-caterer-category {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        .signup-caterer-menu-link {
+            display: inline-block;
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--terracotta);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .signup-caterer-card.selected .signup-caterer-menu-link {
             color: white;
         }
         .signup-caterer-name {
@@ -1322,13 +1318,18 @@
             .top-nav,
             .nav-hamburger,
             .skip-link,
+            body > footer,
             footer,
+            .footer-links,
+            .footer-copy,
+            .report-link,
             .organizer-banner,
             .modal-overlay,
             #cantCookSection,
             #giftSection,
             #catererSection,
             #organizerEditSection,
+            #organizerUpdateBox,
             #dropOffSection,
             #notifSection,
             #coOrgSection,
@@ -1338,7 +1339,8 @@
             #passHostSection,
             #extendDatesSection,
             #updatesFeed,
-            #privateNotice,
+            #addressReveal,
+            .address-reveal,
             #heroShare,
             #shivaShareBtn,
             #shivaShareBar,
@@ -1351,6 +1353,8 @@
             .info-cards,
             .meal-slot.available .slot-action,
             .remove-btn,
+            .vol-edit-btn,
+            .vol-cancel-btn,
             .support-cta-btn,
             #heroCta,
             .hero-divider,
@@ -1359,15 +1363,20 @@
                 display: none !important;
             }
 
-            /* ── Page setup ── */
-            @page { margin: 0.75in 0.65in; }
+            /* ── Page setup ──
+               @page margins are minimal floor; real breathing room comes
+               from body padding below, which Chrome always respects even
+               when the print dialog is set to "Minimum" margins. */
+            @page { margin: 0.4in; }
 
             body {
                 background: white !important;
                 color: #111 !important;
                 font-family: 'Source Serif 4', Georgia, serif !important;
-                font-size: 11pt !important;
-                line-height: 1.5 !important;
+                font-size: 10.5pt !important;
+                line-height: 1.3 !important;
+                padding: 0.45in 0.9in 0.45in 0.9in !important;
+                margin: 0 !important;
             }
 
             .page-container {
@@ -1376,10 +1385,25 @@
                 margin: 0 !important;
             }
 
+            /* Wordmark above the family name — anchors the top of the page */
+            main#main-content::before {
+                content: 'Neshama';
+                display: block;
+                font-family: 'Cormorant Garamond', Georgia, serif;
+                font-size: 9pt;
+                font-weight: 400;
+                letter-spacing: 0.25em;
+                text-transform: uppercase;
+                color: #999;
+                border-bottom: 0.5pt solid #ddd;
+                padding-bottom: 0.15rem;
+                margin-bottom: 0.3rem;
+            }
+
             /* ── Header: family + dates, left-aligned ── */
             .shiva-hero {
-                padding: 0 0 0.6rem !important;
-                margin-bottom: 0.6rem !important;
+                padding: 0 0 0.3rem !important;
+                margin-bottom: 0.3rem !important;
                 border: none !important;
                 border-bottom: 1pt solid #111 !important;
                 text-align: left !important;
@@ -1390,14 +1414,14 @@
             .shiva-hero h1 {
                 font-family: 'Cormorant Garamond', Georgia, serif !important;
                 font-weight: 600 !important;
-                font-size: 22pt !important;
-                line-height: 1.1 !important;
-                margin: 0 0 0.15rem !important;
+                font-size: 19pt !important;
+                line-height: 1.05 !important;
+                margin: 0 0 0.1rem !important;
                 color: #111 !important;
             }
 
             .shiva-hero .dates {
-                font-size: 11pt !important;
+                font-size: 10pt !important;
                 color: #333 !important;
                 margin: 0 !important;
                 font-style: normal !important;
@@ -1407,25 +1431,70 @@
             .shiva-hero .organized-by,
             .shiva-hero .memorial-link { display: none !important; }
 
-            /* ── Family note — small italic, no box, left-aligned ── */
-            #familyNotesBox {
+            /* ── Organizer contact card — compact one-block in print ── */
+            #organizerContactCard {
                 background: transparent !important;
                 box-shadow: none !important;
                 border: none !important;
                 border-radius: 0 !important;
                 padding: 0 !important;
-                margin: 0 0 0.7rem !important;
+                margin: 0 0 0.2rem !important;
+                font-size: 9pt !important;
+                color: #333 !important;
+                line-height: 1.25 !important;
+            }
+            #organizerContactCard > div:first-child {
+                /* "ORGANIZER" label */
+                font-size: 6.5pt !important;
+                color: #777 !important;
+                margin-bottom: 0 !important;
+            }
+            #organizerContactName {
+                font-weight: 700 !important;
+                color: #111 !important;
+                display: inline !important;
+            }
+            #organizerContactLinks {
+                display: inline !important;
+                margin: 0 0 0 0.4rem !important;
+                color: #333 !important;
+            }
+            #organizerContactLinks a {
+                color: #333 !important;
+                text-decoration: none !important;
+            }
+            #organizerContactCard > div:last-child {
+                /* "To cancel or change..." italic note — drop from print */
+                display: none !important;
+            }
+
+            /* ── Family note — prefixed inline, no box ── */
+            #familyNotesBox {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-left: 2pt solid #ccc !important;
+                border-radius: 0 !important;
+                padding: 0 0 0 0.35rem !important;
+                margin: 0 0 0.3rem !important;
                 text-align: left !important;
             }
 
             #familyNotesBox h3 { display: none !important; }
 
             #familyNotesText {
-                font-size: 10pt !important;
-                color: #444 !important;
+                font-size: 9pt !important;
+                color: #555 !important;
                 font-style: italic !important;
-                line-height: 1.45 !important;
+                line-height: 1.25 !important;
                 margin: 0 !important;
+            }
+
+            #familyNotesText::before {
+                content: 'Note from the family: ';
+                font-style: normal !important;
+                font-weight: 700 !important;
+                color: #333 !important;
             }
 
             .coverage-bar,
@@ -1446,7 +1515,7 @@
                 border: none !important;
                 border-top: 0.5pt solid #ccc !important;
                 background: transparent !important;
-                padding: 0.6rem 0 0.7rem !important;
+                padding: 0.18rem 0 0.22rem !important;
                 margin: 0 !important;
                 page-break-inside: avoid;
             }
@@ -1457,14 +1526,15 @@
 
             .meal-day-header {
                 font-family: 'Cormorant Garamond', Georgia, serif !important;
-                font-size: 14pt !important;
+                font-size: 11pt !important;
                 font-weight: 700 !important;
                 color: #111 !important;
-                padding: 0 0 0.35rem !important;
+                padding: 0 0 0.1rem !important;
                 background: transparent !important;
                 border: none !important;
                 text-align: left !important;
                 display: block !important;
+                line-height: 1.15 !important;
                 letter-spacing: 0.01em;
             }
 
@@ -1493,49 +1563,57 @@
             }
 
             .meal-slot-label {
-                font-size: 7.5pt !important;
+                font-size: 7pt !important;
                 font-weight: 700 !important;
                 text-transform: uppercase;
-                letter-spacing: 0.1em;
-                color: #777 !important;
-                margin-bottom: 0.15rem !important;
+                letter-spacing: 0.08em;
+                color: #888 !important;
+                margin-bottom: 0.05rem !important;
                 display: block !important;
+                line-height: 1.1 !important;
             }
 
             .meal-slot.taken .vol-name {
                 font-family: 'Cormorant Garamond', Georgia, serif !important;
-                font-size: 12pt !important;
+                font-size: 10.5pt !important;
                 font-weight: 600 !important;
                 color: #111 !important;
                 margin: 0 !important;
-                line-height: 1.3 !important;
+                line-height: 1.2 !important;
             }
 
+            /* Suppress "will serve ✓" — irrelevant on a fridge schedule.
+               Contributors (.vol-desc used for names) still print via
+               their own .signup-contributors selector below. */
             .meal-slot.taken .vol-desc {
-                font-size: 9.5pt !important;
-                color: #555 !important;
-                font-style: italic !important;
+                display: none !important;
+            }
+
+            .signup-contributors {
+                font-size: 8.5pt !important;
+                color: #666 !important;
+                font-style: normal !important;
                 margin-top: 0.1rem !important;
+                display: block !important;
             }
 
             .meal-slot.available .slot-action { display: none !important; }
 
             .meal-slot.available::after {
                 content: 'Open';
-                font-size: 11pt !important;
+                font-size: 10pt !important;
                 color: #aaa !important;
                 font-style: italic !important;
+                line-height: 1.2 !important;
             }
-
-            .shabbat-message { font-size: 9pt !important; }
 
             /* ── Legend — minimal, inline ── */
             .print-legend {
                 display: block !important;
-                margin-top: 1rem !important;
-                padding-top: 0.5rem !important;
+                margin-top: 0.5rem !important;
+                padding-top: 0.3rem !important;
                 border-top: 0.5pt solid #ccc !important;
-                font-size: 8pt !important;
+                font-size: 7.5pt !important;
                 color: #888 !important;
                 text-align: left !important;
                 page-break-inside: avoid;
@@ -1635,6 +1713,15 @@
             <div id="shivaShareBar" data-share-target="true" style="display: none; margin-top: 1.25rem;"></div>
         </section>
 
+        <!-- Organizer contact card — how volunteers reach the organizer for
+             changes, questions, or cancellations (volunteers cannot self-cancel). -->
+        <div id="organizerContactCard" style="display: none; background: var(--cream); border: 1px solid var(--light-taupe); border-left: 4px solid var(--terracotta); border-radius: 0.6rem; padding: 0.85rem 1.1rem; margin: 0 0 1rem; font-size: 0.95rem; line-height: 1.5; color: var(--dark-brown);">
+            <div style="font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--terracotta); margin-bottom: 0.25rem;">Organizer</div>
+            <div id="organizerContactName" style="font-weight: 600;"></div>
+            <div id="organizerContactLinks" style="margin-top: 0.2rem;"></div>
+            <div style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.35rem; font-style: italic;">To cancel or change your signup, please contact the organizer directly.</div>
+        </div>
+
         <!-- Coverage Strip (above-the-fold mobile summary) -->
         <div class="coverage-strip" id="coverageStrip">
             <div class="coverage-strip-text" id="coverageStripText"></div>
@@ -1644,35 +1731,6 @@
 
         <div class="essentials-banner" style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; margin: 1rem 0; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5; text-align: center;">
             Preparing for shiva? See our <a href="/help/supplies" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
-        </div>
-
-        <!-- Private Page Notice (shown when page is private and visitor has no access) -->
-        <div id="privateNotice" style="display: none;">
-            <div style="background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin: 1.5rem 0; border: 1px solid var(--light-taupe);">
-                <p style="font-size: 1.1rem; line-height: 1.6; color: var(--dark-brown); margin-bottom: 1rem;">This shiva page is private. The family has chosen to coordinate meals through direct invitations.</p>
-                <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.5rem;">If you know the family, you can request access below.</p>
-                <button onclick="showAccessForm()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer;">Request Access</button>
-            </div>
-            <div id="accessForm" style="display: none; background: white; border-radius: 1rem; padding: 2rem; margin-top: 1rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
-                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--dark-brown);">Request Access</h3>
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Name</label>
-                    <input type="text" id="accessName" placeholder="Your full name" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Email</label>
-                    <input type="email" id="accessEmail" placeholder="your@email.com" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">How do you know the family? <span style="color: var(--sage-dark); font-weight: 400;">(optional)</span></label>
-                    <textarea id="accessMessage" placeholder="e.g., Neighbour, colleague, friend from shul..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: vertical;"></textarea>
-                </div>
-                <div id="accessError" style="display: none; color: var(--dark-brown); font-size: 0.9rem; margin-bottom: 1rem;"></div>
-                <button id="accessSubmitBtn" onclick="submitAccessRequest()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer; width: 100%;">Send Request</button>
-            </div>
-            <div id="accessSuccess" style="display: none; background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin-top: 1rem;">
-                <p style="font-size: 1.1rem; color: var(--dark-brown); line-height: 1.6;">Your request has been sent. You'll receive an email when the organizer responds.</p>
-            </div>
         </div>
 
         <!-- Organizer Banner -->
@@ -1867,9 +1925,6 @@
                     <div style="display: flex; align-items: center; gap: 0.35rem;">
                         <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--amber-light); border-left: 3px solid var(--amber-mid); flex-shrink: 0;"></span> Help needed
                     </div>
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #f8f5f0; border-left: 3px solid var(--gold); flex-shrink: 0;"></span> Shabbat
-                    </div>
                 </div>
             </div>
         </section>
@@ -1986,8 +2041,8 @@
                     <label>What are you bringing?</label>
                     <p id="signupCatererHelper" class="signup-caterer-helper" style="display: none;">Select one of the preferred catering options.</p>
                     <div id="signupCatererCards" class="signup-caterer-cards" style="margin-top: 0.5rem;"></div>
-                    <p id="signupCustomLabel" class="signup-custom-label" style="display: none;">Not using a caterer? Please fill in below what you'll be bringing.</p>
-                    <input type="text" id="mealCustom" placeholder="Or describe what you're bringing..." style="margin-top: 0.5rem;">
+                    <p id="signupCustomLabel" class="signup-custom-label" style="display: none;">Tap a caterer above to auto-fill, or type what you're bringing below.</p>
+                    <input type="text" id="mealCustom" placeholder="e.g., Roast chicken + rice, or Ordering from Jem Salads" style="margin-top: 0.5rem;">
                 </div>
 
                 <div class="consent-row" style="margin-bottom: 0.75rem;">
@@ -2128,8 +2183,7 @@
         // organizer's per-meal config via getMealServings(date, type).
         var isOrganizerMode = false;
         var organizerToken = null;
-        var accessToken = null;
-        var isPrivateLimited = false;
+        var editingSignupId = null;
         var lastSignupAddress = null;
 
         // ── URL Parsing ─────────────────────────────────
@@ -2203,10 +2257,6 @@
 
             isOrganizerMode = !!organizerToken;
 
-            // Check for access token (for private pages)
-            var params = new URLSearchParams(window.location.search);
-            accessToken = params.get('access') || null;
-
             if (!supportId) {
                 hide('pageLoading');
                 show('errorState');
@@ -2218,8 +2268,6 @@
             if (organizerToken) {
                 shivaUrl += '?token=' + encodeURIComponent(organizerToken);
                 mealsUrl += '?token=' + encodeURIComponent(organizerToken);
-            } else if (accessToken) {
-                shivaUrl += '?access=' + encodeURIComponent(accessToken);
             }
 
             Promise.all([
@@ -2236,15 +2284,9 @@
 
                 supportData = shivaResult.data;
                 mealsData = (mealsResult && mealsResult.data) || [];
-                isPrivateLimited = (shivaResult.access === 'limited');
 
                 if (supportData.status === 'archived') {
                     renderArchived();
-                    return;
-                }
-
-                if (isPrivateLimited) {
-                    renderPrivateLimited();
                     return;
                 }
 
@@ -2275,91 +2317,6 @@
             show('mainContent');
         }
 
-        // ── Render Private Limited View ─────────────────
-
-        function renderPrivateLimited() {
-            document.title = supportData.family_name + ' - Shiva Support - Neshama';
-            document.getElementById('familyName').textContent = supportData.family_name;
-
-            if (supportData.shiva_start_date && supportData.shiva_end_date) {
-                document.getElementById('shivaDates').textContent =
-                    formatDateRange(supportData.shiva_start_date, supportData.shiva_end_date);
-            }
-
-            if (supportData.obituary_id && supportData.obituary_id !== 'unknown') {
-                var ml = document.getElementById('memorialLink');
-                ml.href = '/memorial/' + encodeURIComponent(supportData.obituary_id);
-                ml.style.display = '';
-            }
-
-            // Hide sections that require access
-            hide('infoCards');
-            hide('addressReveal');
-            var calSec = document.getElementById('calendarSection');
-            if (calSec) calSec.style.display = 'none';
-
-            // Show private notice
-            show('privateNotice');
-
-            hide('pageLoading');
-            show('mainContent');
-        }
-
-        function showAccessForm() {
-            show('accessForm');
-        }
-
-        function submitAccessRequest() {
-            var name = document.getElementById('accessName').value.trim();
-            var email = document.getElementById('accessEmail').value.trim();
-            var message = document.getElementById('accessMessage').value.trim();
-            var errEl = document.getElementById('accessError');
-            var btn = document.getElementById('accessSubmitBtn');
-
-            errEl.style.display = 'none';
-
-            if (!name || !email) {
-                errEl.textContent = 'Please enter your name and email.';
-                errEl.style.display = '';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Sending...';
-
-            fetch('/api/shiva-access/request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    shiva_id: supportId,
-                    requester_name: name,
-                    requester_email: email,
-                    message: message
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.status === 'success') {
-                    hide('accessForm');
-                    show('accessSuccess');
-                } else if (result.status === 'already_approved' && result.access_token) {
-                    // Already approved — reload with token
-                    window.location.href = '/shiva/' + encodeURIComponent(supportId) + '?access=' + encodeURIComponent(result.access_token);
-                } else {
-                    errEl.textContent = result.message || 'We weren\'t able to send your request. Please try again.';
-                    errEl.style.display = '';
-                    btn.disabled = false;
-                    btn.textContent = 'Send Request';
-                }
-            })
-            .catch(function() {
-                errEl.textContent = 'Network error. Please try again.';
-                errEl.style.display = '';
-                btn.disabled = false;
-                btn.textContent = 'Send Request';
-            });
-        }
-
         // ── Render Main Page ────────────────────────────
 
         function renderPage() {
@@ -2372,6 +2329,22 @@
                 obEl.textContent = 'Organized by ' + supportData.organizer_name +
                     (supportData.organizer_relationship ? ' (' + supportData.organizer_relationship + ')' : '');
                 obEl.style.display = '';
+
+                // Organizer contact card (name + email + phone for volunteers)
+                var contactName = supportData.organizer_name +
+                    (supportData.organizer_relationship ? ' · ' + supportData.organizer_relationship : '');
+                document.getElementById('organizerContactName').textContent = contactName;
+                var contactBits = [];
+                if (supportData.organizer_email) {
+                    contactBits.push('<a href="mailto:' + encodeURIComponent(supportData.organizer_email) + '" style="color: var(--terracotta); text-decoration: underline;">' + escapeHtml(supportData.organizer_email) + '</a>');
+                }
+                if (supportData.organizer_phone) {
+                    contactBits.push('<a href="tel:' + encodeURIComponent(supportData.organizer_phone) + '" style="color: var(--terracotta); text-decoration: underline;">' + escapeHtml(supportData.organizer_phone) + '</a>');
+                }
+                if (contactBits.length) {
+                    document.getElementById('organizerContactLinks').innerHTML = contactBits.join(' &middot; ');
+                }
+                document.getElementById('organizerContactCard').style.display = '';
             }
 
             // Dates
@@ -2790,10 +2763,6 @@
             if (!shareBar) return;
 
             var pageUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
-            // For private shivas, include share_token so recipients get direct access
-            if (supportData.privacy === 'private' && supportData.share_token) {
-                pageUrl += '?access=' + encodeURIComponent(supportData.share_token);
-            }
 
             shareBar.setAttribute('data-share-url', pageUrl);
             shareBar.setAttribute('data-share-family', supportData.family_name || '');
@@ -2957,68 +2926,54 @@
 
             while (current <= end) {
                 var dateStr = current.toISOString().split('T')[0];
-                var dayOfWeek = current.getDay();
-                var isShabbat = dayOfWeek === 5 || dayOfWeek === 6;
-                var isPaused = isShabbat && supportData.pause_shabbat;
 
                 var lunchBlocked = isBlocked(dateStr, 'Lunch');
                 var dinnerBlocked = isBlocked(dateStr, 'Dinner');
 
                 var dayClass = 'meal-day-card';
-                if (isPaused) {
-                    dayClass += ' shabbat';
-                } else {
-                    var lunchSignups = signupMap[dateStr + '_Lunch'] || [];
-                    var dinnerSignups = signupMap[dateStr + '_Dinner'] || [];
-                    var hasLunch = lunchSignups.length > 0 || lunchBlocked;
-                    var hasDinner = dinnerSignups.length > 0 || dinnerBlocked;
-                    if (!lunchBlocked) totalSlots++;
-                    if (!dinnerBlocked) totalSlots++;
-                    if (!lunchBlocked && lunchSignups.length > 0) filledSlots++;
-                    if (!dinnerBlocked && dinnerSignups.length > 0) filledSlots++;
-                    if (hasLunch && hasDinner) { dayClass += ' day-full'; fullDays++; }
-                    else if (hasLunch || hasDinner) { dayClass += ' day-partial'; partialDays++; }
-                    else { dayClass += ' day-empty'; emptyDays++; }
-                }
+                var lunchSignups = signupMap[dateStr + '_Lunch'] || [];
+                var dinnerSignups = signupMap[dateStr + '_Dinner'] || [];
+                var hasLunch = lunchSignups.length > 0 || lunchBlocked;
+                var hasDinner = dinnerSignups.length > 0 || dinnerBlocked;
+                if (!lunchBlocked) totalSlots++;
+                if (!dinnerBlocked) totalSlots++;
+                if (!lunchBlocked && lunchSignups.length > 0) filledSlots++;
+                if (!dinnerBlocked && dinnerSignups.length > 0) filledSlots++;
+                if (hasLunch && hasDinner) { dayClass += ' day-full'; fullDays++; }
+                else if (hasLunch || hasDinner) { dayClass += ' day-partial'; partialDays++; }
+                else { dayClass += ' day-empty'; emptyDays++; }
 
                 // Status badge for header
                 var statusBadge = '';
-                if (!isPaused) {
-                    var lunchS = signupMap[dateStr + '_Lunch'] || [];
-                    var dinnerS = signupMap[dateStr + '_Dinner'] || [];
-                    if (lunchS.length > 0 && dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
-                    } else if (lunchS.length > 0 || dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
-                    } else {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
-                    }
+                var lunchS = signupMap[dateStr + '_Lunch'] || [];
+                var dinnerS = signupMap[dateStr + '_Dinner'] || [];
+                if (lunchS.length > 0 && dinnerS.length > 0) {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
+                } else if (lunchS.length > 0 || dinnerS.length > 0) {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
+                } else {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
                 }
 
                 html += '<div class="' + dayClass + '">';
                 html += '<div class="meal-day-header"><span>' + formatDateShort(dateStr) + '</span>';
-                if (isPaused) html += '<span class="shabbat-badge">Shabbat</span>';
-                else html += statusBadge;
+                html += statusBadge;
                 html += '</div>';
 
-                if (!isPaused) {
-                    html += '<div class="meal-slots-grid">';
-                    if (lunchBlocked) {
-                        html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Lunch</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
-                    } else {
-                        var lunchFirst = (signupMap[dateStr + '_Lunch'] || [])[0] || null;
-                        html += renderSlot(dateStr, 'Lunch', lunchFirst);
-                    }
-                    if (dinnerBlocked) {
-                        html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Dinner</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
-                    } else {
-                        var dinnerFirst = (signupMap[dateStr + '_Dinner'] || [])[0] || null;
-                        html += renderSlot(dateStr, 'Dinner', dinnerFirst);
-                    }
-                    html += '</div>';
+                html += '<div class="meal-slots-grid">';
+                if (lunchBlocked) {
+                    html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Lunch</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
                 } else {
-                    html += '<div class="shabbat-message">Paused for Shabbat</div>';
+                    var lunchFirst = (signupMap[dateStr + '_Lunch'] || [])[0] || null;
+                    html += renderSlot(dateStr, 'Lunch', lunchFirst);
                 }
+                if (dinnerBlocked) {
+                    html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Dinner</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
+                } else {
+                    var dinnerFirst = (signupMap[dateStr + '_Dinner'] || [])[0] || null;
+                    html += renderSlot(dateStr, 'Dinner', dinnerFirst);
+                }
+                html += '</div>';
 
                 html += '</div>';
                 current.setDate(current.getDate() + 1);
@@ -3076,11 +3031,27 @@
             return mySignups.some(function(s) { return s.signup_id == signupId; });
         }
 
-        function getMySignupEmail(signupId) {
-            if (!supportId) return '';
+        function getMySignupEntry(signupId) {
+            if (!supportId) return null;
             var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-            var match = mySignups.find(function(s) { return s.signup_id == signupId; });
-            return match ? match.email : '';
+            return mySignups.find(function(s) { return s.signup_id == signupId; }) || null;
+        }
+
+        function getMySignupEmail(signupId) {
+            var entry = getMySignupEntry(signupId);
+            return entry ? entry.email : '';
+        }
+
+        function saveMySignupEntry(signupId, updates) {
+            if (!supportId) return;
+            var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+            var idx = mySignups.findIndex(function(s) { return s.signup_id == signupId; });
+            if (idx >= 0) {
+                mySignups[idx] = Object.assign({}, mySignups[idx], updates);
+            } else {
+                mySignups.push(Object.assign({ signup_id: signupId }, updates));
+            }
+            sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
         }
 
         function renderSlot(dateStr, mealType, signup) {
@@ -3104,7 +3075,7 @@
                             JSON.parse(signup.additional_contributors) : signup.additional_contributors;
                         if (contribs && contribs.length) {
                             var names = contribs.map(function(c) { return escapeHtml(c.name); }).join(', ');
-                            h += '<div class="vol-desc" style="font-size:0.8rem;color:var(--sage-dark);">+ ' + names + '</div>';
+                            h += '<div class="signup-contributors" style="font-size:0.8rem;color:var(--sage-dark);">+ ' + names + '</div>';
                         }
                     } catch(e) {}
                 }
@@ -3114,10 +3085,11 @@
                 if (isOrganizerMode && signup.id) {
                     h += '<button class="remove-btn" data-signup-id="' + signup.id + '">Remove</button>';
                 }
-                // V4: Volunteer self-edit / cancel buttons
+                // Volunteer self-edit: "Edit my signup" button. Per plan,
+                // volunteers cannot cancel — they must contact the organizer.
                 if (!isOrganizerMode && isMine && signup.id) {
                     h += '<div style="display:flex;gap:0.4rem;margin-top:0.3rem;">';
-                    h += '<button class="remove-btn vol-cancel-btn" data-signup-id="' + signup.id + '" style="font-size:0.7rem;">Cancel my signup</button>';
+                    h += '<button class="remove-btn vol-edit-btn" data-signup-id="' + signup.id + '" style="font-size:0.7rem;">Edit my signup</button>';
                     h += '</div>';
                 }
                 h += '</div>';
@@ -3145,10 +3117,10 @@
                 openSignup(slot.getAttribute('data-date'), slot.getAttribute('data-meal'));
                 return;
             }
-            // Volunteer self-cancel (check BEFORE organizer remove since it also has .remove-btn)
-            var volCancelBtn = e.target.closest('.vol-cancel-btn');
-            if (volCancelBtn) {
-                cancelMySignup(volCancelBtn.getAttribute('data-signup-id'));
+            // Volunteer self-edit (check BEFORE organizer remove since it also has .remove-btn)
+            var volEditBtn = e.target.closest('.vol-edit-btn');
+            if (volEditBtn) {
+                openEditSignup(volEditBtn.getAttribute('data-signup-id'));
                 return;
             }
             // Organizer remove button click
@@ -3173,6 +3145,7 @@
         // ── Open Signup ─────────────────────────────────
 
         function openSignup(date, mealType) {
+            editingSignupId = null;
             selectedDate = date;
             selectedMealType = mealType;
 
@@ -3186,7 +3159,9 @@
 
             // Reset form
             document.getElementById('volName').value = '';
-            document.getElementById('volEmail').value = '';
+            var emailField = document.getElementById('volEmail');
+            emailField.value = '';
+            emailField.readOnly = false;
             document.getElementById('volPhone').value = '';
             document.getElementById('mealCustom').value = '';
             document.getElementById('volWillServe').checked = false;
@@ -3289,9 +3264,15 @@
                 picks.forEach(function(v) {
                     html += '<div class="signup-caterer-card" data-slug="' + escapeHtml(v.slug) + '" data-name="' + escapeHtml(v.name) + '">';
                     html += '<div class="signup-caterer-name">' + escapeHtml(v.name) + '</div>';
+                    if (v.category) {
+                        html += '<div class="signup-caterer-detail signup-caterer-category">' + escapeHtml(v.category) + '</div>';
+                    }
                     if (v.neighborhood) html += '<div class="signup-caterer-detail">' + escapeHtml(v.neighborhood) + '</div>';
                     if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
                         html += '<div class="signup-caterer-detail">Kosher (' + v.kosher_status + ')</div>';
+                    }
+                    if (v.website) {
+                        html += '<a class="signup-caterer-menu-link" href="' + escapeHtml(v.website) + '" target="_blank" rel="noopener noreferrer">View menu &rarr;</a>';
                     }
                     html += '</div>';
                 });
@@ -3306,7 +3287,10 @@
                 // handler can pass it through to showConfirmation for the
                 // post-signup vendor CTA.
                 container.querySelectorAll('.signup-caterer-card').forEach(function(card) {
-                    card.addEventListener('click', function() {
+                    card.addEventListener('click', function(e) {
+                        // Clicks on "View menu" should open the site, not
+                        // auto-fill the meal description. Let the anchor handle it.
+                        if (e.target.closest('.signup-caterer-menu-link')) return;
                         var slug = this.getAttribute('data-slug');
                         var name = this.getAttribute('data-name');
                         var input = document.getElementById('mealCustom');
@@ -3384,6 +3368,9 @@
         }
 
         function closeSignup() {
+            editingSignupId = null;
+            var emailField = document.getElementById('volEmail');
+            if (emailField) emailField.readOnly = false;
             document.getElementById('signupModal').classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -3440,7 +3427,7 @@
             }
 
             btn.disabled = true;
-            btn.textContent = 'Signing up...';
+            btn.textContent = editingSignupId ? 'Saving...' : 'Signing up...';
             errEl.classList.remove('active');
 
             // V3: meal description is whatever's in the free-text input
@@ -3448,6 +3435,54 @@
             var mealDescription = document.getElementById('mealCustom').value.trim();
             // Servings is set by the organizer, never the volunteer.
             var servingsCount = getMealServings(selectedDate, selectedMealType);
+
+            // V3: capture the vendor the volunteer picked (if any) before submit,
+            // so the confirmation view can show a "Place your order" CTA.
+            var pickedVendor = null;
+            var catContainer = document.getElementById('signupCatererCards');
+            if (catContainer && catContainer._selectedVendor) {
+                pickedVendor = catContainer._selectedVendor;
+            }
+
+            if (editingSignupId) {
+                // Edit existing signup — PUT to edit endpoint.
+                var editPayload = {
+                    volunteer_email: email,
+                    meal_description: mealDescription,
+                    num_servings: servingsCount,
+                    will_serve: document.getElementById('volWillServe').checked,
+                    volunteer_phone: phone,
+                    additional_contributors: getAdditionalContributors()
+                };
+                var editId = editingSignupId;
+                fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup/' + encodeURIComponent(editId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(editPayload)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        // Persist updated values to sessionStorage so subsequent
+                        // edit opens see the new phone / contributors.
+                        saveMySignupEntry(editId, {
+                            phone: phone,
+                            contributors: getAdditionalContributors()
+                        });
+                        closeSignup();
+                        refreshMeals();
+                    } else {
+                        throw new Error(data.message || 'We weren\'t able to save your changes. Please try again.');
+                    }
+                })
+                .catch(function(err) {
+                    btn.disabled = false;
+                    btn.textContent = 'Save changes';
+                    errEl.textContent = err.message || 'We weren\'t able to save your changes. Please try again.';
+                    errEl.classList.add('active');
+                });
+                return;
+            }
 
             var payload = {
                 volunteer_name: name,
@@ -3458,22 +3493,13 @@
                 meal_description: mealDescription,
                 num_servings: servingsCount,
                 will_serve: document.getElementById('volWillServe').checked,
-                privacy_consent: true,
-                access_token: accessToken || ''
+                privacy_consent: true
             };
 
             // Additional contributors (multiple families)
             var contributors = getAdditionalContributors();
             if (contributors.length > 0) {
                 payload.additional_contributors = contributors;
-            }
-
-            // V3: capture the vendor the volunteer picked (if any) before submit,
-            // so the confirmation view can show a "Place your order" CTA.
-            var pickedVendor = null;
-            var catContainer = document.getElementById('signupCatererCards');
-            if (catContainer && catContainer._selectedVendor) {
-                pickedVendor = catContainer._selectedVendor;
             }
 
             fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup', {
@@ -3534,14 +3560,13 @@
 
             // V4: Store signup in sessionStorage for self-edit
             if (data.signup_id && supportId) {
-                var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-                mySignups.push({
-                    signup_id: data.signup_id,
+                saveMySignupEntry(data.signup_id, {
                     email: document.getElementById('volEmail').value.trim().toLowerCase(),
                     date: selectedDate,
-                    meal_type: selectedMealType
+                    meal_type: selectedMealType,
+                    phone: document.getElementById('volPhone').value.trim(),
+                    contributors: getAdditionalContributors()
                 });
-                sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
             }
 
             // Update persistent address reveal
@@ -3620,40 +3645,86 @@
             });
         }
 
-        // ── Volunteer: Cancel Own Signup ─────────────────
+        // ── Volunteer: Edit Own Signup ───────────────────
 
-        function cancelMySignup(signupId) {
-            if (!confirm('Cancel your meal signup? The organizer will be notified so they can find a replacement.')) return;
+        function findMySignup(signupId) {
+            for (var i = 0; i < mealsData.length; i++) {
+                if (mealsData[i].id == signupId) return mealsData[i];
+            }
+            return null;
+        }
 
-            var volunteerEmail = getMySignupEmail(signupId);
+        function openEditSignup(signupId) {
+            var signup = findMySignup(signupId);
+            if (!signup) {
+                alert('We could not find this signup. Please reload the page.');
+                return;
+            }
+            var entry = getMySignupEntry(signupId);
+            var volunteerEmail = entry ? entry.email : '';
             if (!volunteerEmail) {
                 alert('We could not verify this signup belongs to you. Please contact the organizer directly.');
                 return;
             }
 
-            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/cancel-signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    signup_id: parseInt(signupId),
-                    volunteer_email: volunteerEmail
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.status === 'success') {
-                    // Remove from sessionStorage
-                    var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-                    mySignups = mySignups.filter(function(s) { return s.signup_id != signupId; });
-                    sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
-                    refreshMeals();
-                } else {
-                    alert(data.message || 'We were not able to cancel this signup. Please try again.');
+            editingSignupId = signupId;
+            selectedDate = signup.meal_date;
+            selectedMealType = signup.meal_type;
+
+            document.getElementById('modalSubtitle').textContent =
+                signup.meal_type + ' \u00b7 ' + formatDate(signup.meal_date);
+
+            var servingsCount = getMealServings(signup.meal_date, signup.meal_type);
+            document.getElementById('signupServingsCount').textContent = servingsCount;
+
+            // Pre-fill from existing signup. Email stays locked because the
+            // backend verifies identity by matching it against the stored row.
+            // Phone + contributors are pulled from sessionStorage because the
+            // public meals API strips them for privacy.
+            document.getElementById('volName').value = signup.volunteer_name || '';
+            var emailField = document.getElementById('volEmail');
+            emailField.value = volunteerEmail;
+            emailField.readOnly = true;
+            document.getElementById('volPhone').value = (entry && entry.phone) || '';
+            document.getElementById('mealCustom').value = signup.meal_description || '';
+            document.getElementById('volWillServe').checked = !!signup.will_serve;
+            document.getElementById('volConsent').checked = true;
+            document.getElementById('signupError').classList.remove('active');
+
+            var btn = document.getElementById('signupSubmitBtn');
+            btn.disabled = false;
+            btn.textContent = 'Save changes';
+
+            // Pre-fill existing additional contributors so the volunteer can
+            // edit, add, or remove them. Pulled from sessionStorage because
+            // the public meals API strips contributors for privacy.
+            document.getElementById('additionalFamilies').innerHTML = '';
+            additionalFamilyCount = 0;
+            var existingContribs = entry && entry.contributors;
+            if (Array.isArray(existingContribs)) {
+                for (var i = 0; i < existingContribs.length; i++) {
+                    var c = existingContribs[i] || {};
+                    document.getElementById('addFamilyBtn').click();
+                    var rows = document.querySelectorAll('.additional-family-row');
+                    var row = rows[rows.length - 1];
+                    if (row) {
+                        row.querySelector('.af-name').value = c.name || '';
+                        row.querySelector('.af-email').value = c.email || '';
+                    }
                 }
-            })
-            .catch(function() {
-                alert('Something went wrong. Please try again or contact the organizer directly.');
-            });
+            }
+
+            // Caterer cards stay available so volunteer can switch their pick.
+            var catererContainer = document.getElementById('signupCatererCards');
+            if (catererContainer) catererContainer._selectedVendor = null;
+            renderSignupCatererCards();
+
+            show('signupFormView');
+            hide('signupConfirmView');
+
+            document.getElementById('signupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(function() { document.getElementById('mealCustom').focus(); }, 150);
         }
 
         // ── Refresh Meals ───────────────────────────────

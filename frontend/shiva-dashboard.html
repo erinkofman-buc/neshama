@@ -36,8 +36,6 @@
             --success-bg: #F0F5ED;
             --success-border: #7BA87E;
             --success-text: #3D6B40;
-            --shabbat-bg: #F8F5EF;
-            --shabbat-accent: #B8943E;
             --danger-bg: #FFF5F5;
             --danger-border: #E57373;
             --danger-text: #C62828;
@@ -147,6 +145,39 @@
             margin-bottom: 1rem;
         }
 
+        /* -- Organizer-only banner -- */
+        .organizer-banner {
+            background: var(--cream);
+            border: 1px solid var(--light-taupe);
+            border-left: 4px solid var(--terracotta);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin: 0 0 1.25rem;
+            font-size: 15px;
+            line-height: 1.55;
+            color: var(--dark-brown);
+        }
+        .organizer-banner .organizer-banner-title {
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--terracotta);
+            margin-bottom: 0.35rem;
+        }
+        .organizer-banner p {
+            margin: 0 0 0.5rem;
+        }
+        .organizer-banner p:last-child {
+            margin-bottom: 0;
+        }
+        .organizer-banner a.edit-link {
+            color: var(--terracotta);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
         /* -- Share Bar -- */
         .share-bar {
             display: flex;
@@ -249,7 +280,6 @@
         }
         .day-card.all-covered { border-left-color: var(--success-border); }
         .day-card.partial { border-left-color: var(--sage); }
-        .day-card.shabbat { background: var(--shabbat-bg); border-left-color: var(--shabbat-accent); }
         .day-header {
             padding: 0.75rem 1.25rem;
             background: rgba(245, 240, 232, 0.5);
@@ -264,13 +294,6 @@
             font-weight: 600;
             color: var(--dark-brown);
             margin-bottom: 0;
-        }
-        .shabbat-badge {
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--shabbat-accent);
         }
         .day-check {
             color: var(--success-text);
@@ -300,15 +323,6 @@
         .meal-slot.taken {
             background: var(--taken-slot-bg);
             border-left-color: var(--taken-slot-border);
-        }
-        .meal-slot.shabbat-empty {
-            background: transparent;
-            border-left-color: transparent;
-            text-align: center;
-            font-style: italic;
-            color: var(--sage-dark);
-            font-size: 17px;
-            padding: 1.5rem 1rem;
         }
         .slot-label {
             font-size: 16px;
@@ -929,6 +943,13 @@
                 <div class="shiva-dates" id="heroDates"></div>
             </div>
 
+            <!-- Organizer-only banner (clarifies that this page is private) -->
+            <div class="organizer-banner" role="note">
+                <div class="organizer-banner-title">Your organizer dashboard</div>
+                <p>Only you can see this page. The buttons below share the <strong>volunteer view</strong> — a version of this page without edit controls — so friends and family can sign up to bring meals.</p>
+                <p>Before sharing, take a moment to <a class="edit-link" onclick="scrollToEdit()">review and edit the shiva details</a>.</p>
+            </div>
+
             <!-- Share Bar — uses shared share-buttons.js component for cross-app consistency -->
             <div data-share-target="true" id="dashboardShareBar"></div>
 
@@ -1199,12 +1220,6 @@
             return days;
         }
 
-        function isShabbat(dateStr) {
-            var d = new Date(dateStr + 'T12:00:00');
-            var day = d.getDay();
-            return day === 5 || day === 6;
-        }
-
         function isMealBlocked(dateStr, mealType) {
             return !!blockedMealsSet[dateStr + '_' + mealType];
         }
@@ -1459,6 +1474,18 @@
                                 if (desc) slotsHtml += '<div class="signup-bringing">Bringing: ' + escapeHtml(desc) + '</div>';
                             }
 
+                            // Additional contributors (other families joining this meal)
+                            if (su.additional_contributors && su.additional_contributors.length) {
+                                var contribBits = su.additional_contributors.map(function(c) {
+                                    var nm = escapeHtml(c.name || '');
+                                    if (c.email) {
+                                        nm += ' <span style="color:var(--sage-dark);font-size:0.85em;">&lt;' + escapeHtml(c.email) + '&gt;</span>';
+                                    }
+                                    return nm;
+                                }).join(', ');
+                                slotsHtml += '<div class="signup-contributors" style="font-size:0.85em;color:var(--sage-dark);margin-top:0.25rem;">+ also joining: ' + contribBits + '</div>';
+                            }
+
                             slotsHtml += '<button class="remove-btn" onclick="confirmRemoveSignup(' + su.id + ', \'' + escapeHtml(nameDisplay).replace(/'/g, "\\'") + '\')">Remove</button>';
                             slotsHtml += '</div>';
                         });
@@ -1542,6 +1569,18 @@
                 var mealInfo = formatDateShort(su.meal_date) + '<br>' + escapeHtml(su.meal_type);
 
                 var bringing = su.meal_description ? escapeHtml(su.meal_description.replace('(walk-in)', '').trim()) : '<span style="color:var(--sage)">--</span>';
+
+                // Append additional contributors under the primary name
+                if (su.additional_contributors && su.additional_contributors.length) {
+                    var contribBits = su.additional_contributors.map(function(c) {
+                        var nm = escapeHtml(c.name || '');
+                        if (c.email) {
+                            nm += ' <span style="color:var(--sage-dark);font-size:0.85em;">&lt;' + escapeHtml(c.email) + '&gt;</span>';
+                        }
+                        return nm;
+                    }).join(', ');
+                    name += '<div style="font-size:0.85em;color:var(--sage-dark);margin-top:0.2rem;">+ ' + contribBits + '</div>';
+                }
 
                 html += '<tr>';
                 html += '<td>' + name + '</td>';
@@ -1708,7 +1747,6 @@
                 meal_description: description + ' (walk-in)',
                 privacy_consent: true,
                 is_walkin: 1,
-                access_token: magicToken,
                 magic_token: magicToken
             };
 
@@ -2065,6 +2103,17 @@
             var arrow = document.getElementById(arrowId);
             body.classList.toggle('open');
             arrow.classList.toggle('open');
+        };
+
+        window.scrollToEdit = function() {
+            var body = document.getElementById('editBody');
+            var arrow = document.getElementById('editArrow');
+            if (body && !body.classList.contains('open')) {
+                body.classList.add('open');
+                if (arrow) arrow.classList.add('open');
+            }
+            var section = document.getElementById('editSection');
+            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
 
         // -- Hamburger Menu --
