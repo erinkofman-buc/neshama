@@ -170,6 +170,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York',
+        'image_url': 'https://www.whatabagel.com/wp-content/uploads/2019/07/slider-home-01.jpg',
     },
     {
         'name': 'Gryfe\'s Bagel Bakery',
@@ -182,6 +183,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://cdn.prod.website-files.com/6654f491939825e5141cd118/66552bd504426dcc82487a15_IMG_6348%201.png',
     },
     {
         'name': 'Kiva\'s Bagels',
@@ -206,6 +208,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'http://hermesbakery.com/wp-content/uploads/2015/01/sweet-table-1.jpg',
     },
     {
         'name': 'United Bakers Dairy Restaurant',
@@ -219,10 +222,10 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto',
     },
-    # Kosher Restaurants & Caterers
+    # Caterers (kosher + non-kosher, distinguished by kosher_status field)
     {
         'name': 'Jem Salads',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great option for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.',
         'address': '441 Clark Ave W, Toronto, ON',
         'neighborhood': 'North York',
@@ -236,7 +239,7 @@ VENDORS = [
     },
     {
         'name': 'Bistro Grande',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Upscale kosher dining and catering. Offers elegant plated meals, buffet setups, and family-style dinners suitable for shiva gatherings.',
         'address': '1000 Eglinton Ave W, Toronto, ON',
         'neighborhood': 'Forest Hill',
@@ -245,12 +248,13 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg',
     },
     # Miami Grill — REMOVED Mar 9 (no longer exists, per Jordana)
 
     {
         'name': 'Tov-Li Pizza & Falafel',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Kosher pizza, falafel, and Israeli favourites. Great for casual shiva meals and feeding a crowd on a budget. Party trays available.',
         'address': '3457 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -262,7 +266,7 @@ VENDORS = [
     },
     {
         'name': 'Matti\'s Kitchen',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Home-style kosher cooking with a modern twist. Specializes in comforting meals perfect for shiva — soups, stews, roasted chicken, and side dishes.',
         'address': '3006 Bathurst St, Toronto, ON',
         'neighborhood': 'Lawrence Heights',
@@ -274,7 +278,7 @@ VENDORS = [
     },
     {
         'name': 'The Chicken Nest',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Glatt kosher restaurant and caterer serving Toronto for over 30 years. Known for rotisserie chicken, ribs, schnitzel, wings, and Middle Eastern dishes. Dedicated catering menu for shiva, Shabbos, and events. Delivery and takeout available.',
         'address': '3038 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -283,10 +287,11 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
+        'image_url': 'https://static.wixstatic.com/media/004dff_862ddb7fc1c74e42b3462816becebaf1.jpg/v1/fill/w_288,h_183,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/004dff_862ddb7fc1c74e42b3462816becebaf1.jpg',
     },
     {
         'name': "Milk 'N Honey",
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': "Toronto's longest-serving kosher dairy caterer. Specializing in shiva meals, Shabbat catering, and lifecycle events. COR dairy certified.",
         'address': '3457 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -295,10 +300,11 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
+        'image_url': 'https://milknhoney.ca/wp-content/uploads/2015/07/hero3.jpg',
     },
     {
         'name': 'Kosher Gourmet',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher catering specializing in shiva meals. Delivery available across Toronto and the GTA. Known for quality prepared meals and reliable service.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -319,10 +325,11 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://yummymarket.com/wp-content/uploads/2022/01/2022-family-day.jpg',
     },
     {
         'name': "Daiter's Kitchen",
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher deli and butcher shop. Deli platters, prepared meats, and classic comfort food. A go-to for shiva deli trays.',
         'address': '3535 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -331,10 +338,11 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.daiterskitchen.ca/media/2020/03/salad2.jpg',
     },
     {
         'name': 'Orly\'s Kitchen',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Homestyle kosher Israeli and Mediterranean cooking. Fresh salads, grilled meats, and hearty mains. Catering available for shiva meals.',
         'address': '3413 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -346,7 +354,7 @@ VENDORS = [
     },
     {
         'name': 'Cafe Sheli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Kosher dairy cafe offering light meals, salads, fish dishes, and baked goods. Ideal for lighter shiva lunches and dessert platters.',
         'address': '4750 Dufferin St, Toronto, ON',
         'neighborhood': 'North York',
@@ -355,6 +363,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://cafesheli.com/wp-content/uploads/2024/04/cafe-sheli-catering-bg-scaled.jpg',
     },
     # Caterers (dedicated catering companies)
     {
@@ -381,13 +390,13 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto,North York,Thornhill/Vaughan,Hamilton,GTA',
     },
-    # Italian
+    # Italian & Pizza
     # Village Pizza Kosher — REMOVED Mar 9 (no longer exists, per Jordana)
 
     # Pizza Pita — Re-added Mar 22, 2026 (see MONTREAL_VENDORS below)
     {
         'name': 'Paisanos',
-        'category': 'Italian',
+        'category': 'Italian & Pizza',
         'description': 'Italian restaurant with catering services. Pasta trays, chicken parmigiana, Caesar salads, and tiramisu. Generous portions for family-style meals.',
         'address': '624 College St, Toronto, ON',
         'neighborhood': 'Little Italy',
@@ -399,7 +408,7 @@ VENDORS = [
     },
     {
         'name': 'Terroni',
-        'category': 'Italian',
+        'category': 'Italian & Pizza',
         'description': 'Beloved Toronto Italian restaurant group. Offers catering with authentic pasta, antipasti platters, and rustic Italian dishes. Multiple locations.',
         'address': '720 Queen St W, Toronto, ON',
         'neighborhood': 'Queen West',
@@ -408,10 +417,11 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://cdn.prod.website-files.com/62fc4f857fe9ad71232c190f/68265cae97b495d0e2e98da9_adewebsite.jpg',
     },
     {
         'name': 'Tutto Pronto',
-        'category': 'Italian',
+        'category': 'Italian & Pizza',
         'description': 'Modern southern Italian catering in North York. Known for arancini, pasta, veal, eggplant parm, and fresh salads. Popular for shiva in the Avenue Rd corridor. All food prepared fresh day-of.',
         'address': '1718 Avenue Rd, North York ON',
         'neighborhood': 'North York',
@@ -424,7 +434,7 @@ VENDORS = [
     # Middle Eastern / Israeli
     {
         'name': 'Wok & Bowl',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': "Toronto's first COR-certified kosher pho and ramen restaurant. Asian fusion including Chinese dishes, dumplings, noodles, and fried rice. Catering available. Great option for families who want something different at shiva.",
         'address': '3022 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -445,6 +455,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://drlaffa.com/wp-content/uploads/2020/12/Cropped_Dr-Laffa-Engagement-Photography-Toronto1.jpg',
     },
     {
         'name': 'Aish Tanoor',
@@ -489,7 +500,7 @@ VENDORS = [
     # More diverse options
     {
         'name': 'Sushi Inn',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Kosher sushi and Japanese-inspired cuisine. Sushi platters and bento boxes are a refreshing alternative for shiva meals. Party trays available.',
         'address': '3461 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -510,6 +521,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'http://static1.squarespace.com/static/6478a38999812546babb8e36/t/67bf42b0d7ee0406f0c5f769/1724096196631/5.png',
     },
     {
         'name': 'Pickle Barrel',
@@ -522,6 +534,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://www.picklebarrel.ca/content/dam/cara/en/pickle-barrel-image-library/pb-share-image.jpg',
     },
     {
         'name': 'Harbord Bakery',
@@ -537,7 +550,7 @@ VENDORS = [
     },
     {
         'name': 'Centre Street Deli',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Classic Jewish deli in Thornhill since 1988. Montreal-style smoked meat, corned beef, matzo ball soup, and all the deli favourites. Catering platters and party trays available.',
         'address': '1136 Centre St, Thornhill, ON',
         'neighborhood': 'Thornhill',
@@ -584,6 +597,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA-wide',
+        'image_url': 'https://x56.wpenginepowered.com/wp-content/uploads/2023/10/2.2.Catering-Edited-1.jpg',
     },
     {
         'name': "Pusateri's Fine Foods",
@@ -596,10 +610,11 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg',
     },
     {
         'name': 'Schmaltz Appetizing',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Jewish-style appetizing shop specializing in smoked fish, bagel sandwiches, cream cheeses, and deli platters. Catering for groups of 10+. A modern take on classic Jewish comfort food.',
         'address': '414 Dupont St, Toronto, ON',
         'neighborhood': 'Annex',
@@ -608,6 +623,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://ambassador-media-library-assets.s3.amazonaws.com/f707f9af-c2f0-490f-ac3a-8062ca793982.jpg',
     },
     {
         'name': 'Paramount Fine Foods',
@@ -633,6 +649,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA-wide',
+        'image_url': 'https://www.danieletdaniel.ca/wp-content/themes/lambda-child-theme/assets/images/Catering-Toronto-Events.jpg',
     },
     {
         'name': 'McEwan Fine Foods',
@@ -657,6 +674,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://cdn.shopify.com/s/files/1/0440/1673/0274/files/locations-bg_a01118b0-1d5b-4079-af4a-bad1e1b37a60.jpg',
     },
     {
         'name': 'Toben Food by Design',
@@ -669,11 +687,12 @@ VENDORS = [
         'kosher_status': '',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
+        'image_url': 'https://e7ovatjya3o.exactdn.com/site-content/uploads/2021/12/GORGEOUS-PLATE-GROUPING-BY-PATTY-OF-NEXT-MAINS-scaled.jpg',
     },
     # ── New verified vendors — Feb 2026 (Sprint 6) ──
     {
         'name': "Ely's Fine Foods",
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher grocery, deli, and caterer serving the Toronto Jewish community since 1993. Fresh daily prepared foods, deli counter, retail store, and full catering services. Available on DoorDash.',
         'address': '3537A Bathurst St, North York, ON',
         'neighborhood': 'Bathurst Manor',
@@ -682,6 +701,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://cdn.shopify.com/s/files/1/0405/2896/9883/files/slider-4_e2eee44d-db56-4c79-8384-9bd5625e8c4d.jpg',
     },
     {
         'name': 'Grodzinski Bakery',
@@ -694,6 +714,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'http://www.grodzinskibakery.com/uploads/upload/Katan%20studios-70.jpg',
     },
     {
         'name': 'Ba-Li Laffa',
@@ -718,6 +739,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'GTA-wide',
+        'image_url': 'https://prccaterers.com/wp-content/uploads/2024/09/01HERB1-scaled.jpg',
     },
     {
         'name': 'Beyond Delish',
@@ -733,7 +755,7 @@ VENDORS = [
     },
     {
         'name': 'Marron Bistro',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Upscale COR-certified kosher fine dining in Forest Hill. Globally-inspired meat and fish dishes. Often called the best kosher restaurant in Canada. Elegant option for catered shiva meals.',
         'address': '992 Eglinton Ave W, Toronto, ON',
         'neighborhood': 'Forest Hill',
@@ -742,11 +764,12 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.marronbistro.com/wp-content/uploads/2016/11/banner_002.jpg',
     },
     # ── New vendors added Mar 9, 2026 (per Jordana) ──
     {
         'name': 'Pizza Cafe',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher pizza restaurant. Pizza, pasta, and Italian favourites. Affordable catering options for shiva meals.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -758,7 +781,7 @@ VENDORS = [
     },
     {
         'name': 'Aroma Espresso Bar',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Israeli-born cafe chain with multiple locations. Coffee, pastries, salads, sandwiches, and shakshuka. A warm, familiar option for lighter shiva meals.',
         'address': 'Multiple locations, Toronto, ON',
         'neighborhood': 'GTA',
@@ -770,7 +793,7 @@ VENDORS = [
     },
     {
         'name': 'Chop Hop',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Fresh, flavourful salads and bowls. A great option for lighter shiva meals and family-style gatherings.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -782,7 +805,7 @@ VENDORS = [
     },
     {
         'name': 'Slice n Bites',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher restaurant. Pizza, wraps, and fresh bites. A convenient option for shiva meals and casual gatherings.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -844,7 +867,7 @@ VENDORS = [
     },
     {
         'name': 'Noah Kosher Sushi',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher sushi in the Bathurst corridor. A unique and crowd-pleasing option for shiva meals — sushi platters that everyone appreciates.',
         'address': '4119 Bathurst St, North York, ON M3H 3P4',
         'neighborhood': 'Bathurst Manor',
@@ -856,7 +879,7 @@ VENDORS = [
     },
     {
         'name': 'Royal Dairy Cafe & Catering',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Kosher dairy cafe and catering in Thornhill. Light meals, salads, fish, and baked goods. A warm, welcoming option for dairy shiva meals and lighter gatherings.',
         'address': '10 Disera Dr Unit 100, Thornhill, ON L4J 0A7',
         'neighborhood': 'Thornhill',
@@ -868,7 +891,7 @@ VENDORS = [
     },
     {
         'name': "Pancer's Original Deli",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Legendary Toronto Jewish deli on Bathurst. Smoked meat, corned beef, and classic deli platters that have served the community for decades. A comforting, familiar choice for shiva catering.',
         'address': '3856 Bathurst St, North York, ON M3H 3N3',
         'neighborhood': 'Bathurst Manor',
@@ -880,7 +903,7 @@ VENDORS = [
     },
     {
         'name': "Zelden's Deli and Desserts",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Jewish-style deli and desserts on Yonge. Sandwiches, salads, baked goods, and catering platters. A dependable choice when you need food for the family.',
         'address': '1446 Yonge St, Toronto, ON M4T 1Y5',
         'neighborhood': 'Midtown',
@@ -929,7 +952,7 @@ VENDORS = [
     # ── New Toronto vendors from COR research — Mar 4, 2026 ──
     {
         'name': "Howie T's Burger Bar",
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher burger restaurant in Thornhill. Burgers, hot dogs, fries, and classic comfort food. A crowd-pleasing option for casual shiva meals.',
         'address': '115-1 Promenade Circle, Thornhill, ON',
         'neighborhood': 'Thornhill',
@@ -941,7 +964,7 @@ VENDORS = [
     },
     {
         'name': 'Umami Sushi',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'COR-certified kosher sushi restaurant serving Toronto since 2001. Poke bowls, maki combos, udon, soba noodles, and sushi burritos. Catering platters available.',
         'address': '3459 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -950,6 +973,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://www.umamisushi.ca/sites/default/files/imagecache/page_header-display/front-page-images/image_gallery/front-page-images-image_gallery-55.jpeg',
     },
     {
         'name': 'Haymishe Bakery',
@@ -966,7 +990,7 @@ VENDORS = [
     },
     {
         'name': "Bubby's Bagels",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'COR-certified deli with two locations. NY-style bagels and bialys on Bathurst, plus sandwiches, burgers, tacos, and onion rings at the larger Lawrence Ave diner.',
         'address': '3030 Bathurst St, Toronto, ON',
         'neighborhood': 'Bathurst Manor',
@@ -978,7 +1002,7 @@ VENDORS = [
     },
     {
         'name': 'Golden Chopsticks',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Glatt kosher Chinese restaurant. Chinese dishes, fried rice, and Asian comfort food. Relocated to Spring Farm Marketplace in Thornhill.',
         'address': '441 Clark Ave W, Unit 15, Thornhill, ON',
         'neighborhood': 'Thornhill',
@@ -991,7 +1015,7 @@ VENDORS = [
     # Yehudales Falafel and Pizza — removed Mar 2026 (permanently closed per Yelp Dec 2025)
     {
         'name': 'Shalom India',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': "COR-certified kosher Indian restaurant — Toronto's only one. Curries, tandoori, biryani, and vegetarian options — a unique and flavourful choice for shiva meals.",
         'address': '7700 Bathurst St, Thornhill, ON',
         'neighborhood': 'Thornhill',
@@ -1000,11 +1024,12 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://shalomindia.ca/wp-content/uploads/2023/02/Food.png',
     },
-    # Mediterranean / Turkish
+    # Middle Eastern / Mediterranean / Turkish
     {
         'name': 'Sofram Restaurant',
-        'category': 'Mediterranean',
+        'category': 'Middle Eastern & Israeli',
         'description': 'Turkish and Mediterranean cuisine in North York. Known for generous portions, fresh-baked pide, grilled kebabs, hummus, and mixed grill platters. Reasonably priced and popular for shiva catering orders.',
         'address': '5849 Leslie St, North York, ON',
         'neighborhood': 'North York',
@@ -1014,10 +1039,10 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA',
     },
-    # Italian
+    # Italian & Pizza
     {
         'name': 'Paese Ristorante',
-        'category': 'Italian',
+        'category': 'Italian & Pizza',
         'description': 'Upscale Italian restaurant on Bloor West. Known for housemade pastas, wood-fired pizzas, and refined Italian dishes. A popular choice for shiva catering in the Bloor-Annex neighbourhood.',
         'address': '3827 Bloor St W, Etobicoke, ON',
         'neighborhood': 'Bloor West',
@@ -1032,10 +1057,10 @@ VENDORS = [
 
 # 30 Montreal-area food vendors
 MONTREAL_VENDORS = [
-    # Kosher Caterers
+    # Caterers (Montreal)
     {
         'name': 'Blossom by La Plaza',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'One of Montreal\'s premier kosher caterers, specializing in elegant event planning and gourmet cuisine. Full-service catering for shiva meals, lifecycle events, and community gatherings.',
         'address': '5458 Avenue Westminster, Côte-Saint-Luc, QC',
         'neighborhood': 'Côte-Saint-Luc',
@@ -1047,7 +1072,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Paradise Kosher Catering',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Full-service kosher caterer offering prepared meals, bakery goods, and catering for shiva, Shabbat, and lifecycle events. Provides an à la carte order form for easy meal planning. MK certified.',
         'address': '11608 Boulevard de Salaberry, Dollard-des-Ormeaux, QC',
         'neighborhood': 'Dollard-des-Ormeaux',
@@ -1059,7 +1084,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Kosher Quality Bakery & Deli',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'Iconic Montreal kosher destination offering bakery, butcher, deli, and full catering. Known for challah, prepared Shabbat meals, smoked fish platters, and party sandwiches. MK certified.',
         'address': '5855 Avenue Victoria, Montréal, QC',
         'neighborhood': 'Snowdon',
@@ -1069,10 +1094,10 @@ MONTREAL_VENDORS = [
         'delivery': 1,
         'delivery_area': 'Montreal,Snowdon,Côte-Saint-Luc',
     },
-    # Jewish Delis
+    # Delis & Restaurants
     {
         'name': 'Snowdon Deli',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'A Montreal institution since 1946, beloved for classic smoked meat, deli sandwiches, and homestyle Jewish comfort food. Catering platters ideal for shiva meals.',
         'address': '5265 Boulevard Décarie, Montréal, QC',
         'neighborhood': 'Snowdon',
@@ -1084,7 +1109,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Deli 365',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'MK-certified kosher smoked meat deli on Bernard Street. Take-out sandwiches, burgers, and prepared platters. Reliable for kosher deli trays and comfort food for shiva meals.',
         'address': '365 Rue Bernard Ouest, Montréal, QC',
         'neighborhood': 'Outremont',
@@ -1093,10 +1118,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont,Mile End',
+        'image_url': 'https://deli365.ca/wp-content/uploads/2016/05/20150128_151023-e1465485459800.jpg',
     },
     {
         'name': 'Schwartz\'s Deli',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'World-famous Montreal smoked meat restaurant since 1928. An iconic Jewish culinary landmark on Boulevard Saint-Laurent.',
         'address': '3895 Boulevard Saint-Laurent, Montréal, QC',
         'neighborhood': 'Plateau Mont-Royal',
@@ -1108,7 +1134,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Lester\'s Deli',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Established in 1951, a beloved Outremont smoked meat institution known for hand-cut fries and community spirit. Catering, take-out, and delivery available.',
         'address': '1057 Avenue Bernard, Outremont, QC',
         'neighborhood': 'Outremont',
@@ -1117,6 +1143,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont',
+        'image_url': 'https://i0.wp.com/lestersdeli.com/wp-content/uploads/2023/10/Homepage-Lesters.webp',
     },
     # Bagel Shops & Bakeries
     {
@@ -1184,7 +1211,7 @@ MONTREAL_VENDORS = [
     # Iconic Montreal Restaurants
     {
         'name': "Mandy's",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Montreal's beloved gourmet salad destination with multiple locations. Creative, hearty salads and grain bowls — a fresh, healthy option for feeding a crowd. Catering platters available for groups.",
         'address': '2067 Rue Crescent, Montréal, QC',
         'neighborhood': 'Downtown',
@@ -1193,10 +1220,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal',
+        'image_url': 'https://mandys.ca/wp-content/uploads/2026/01/Mandys-Ordering-Cover.webp',
     },
     {
         'name': "Gibby's",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Iconic Montreal steakhouse in a historic 200-year-old stone building in Old Montreal. Premium steaks, seafood, and classic sides. Private dining and catering for special occasions.",
         'address': "298 Place D'Youville, Montréal, QC",
         'neighborhood': 'Old Montreal',
@@ -1205,10 +1233,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.gibbys.com/wp-content/uploads/2025/06/GB-Shooting30oct.automne-010.jpg',
     },
     {
         'name': 'Moishes',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Legendary Montreal steakhouse and a fixture of the city's Jewish community since 1938. Now at their new downtown location. Famous for dry-aged steaks and old-school elegance.",
         'address': '1001 Rue du Square-Victoria, Montréal, QC',
         'neighborhood': 'Downtown',
@@ -1217,10 +1246,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://moishes.ca/wp-content/uploads/2023/11/moishes-vue-densemble-bw_accueil_v2.jpg',
     },
     {
         'name': "Beauty's Luncheonette",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "A Montreal Jewish institution since 1942. Famous for bagels, lox, eggs, and brunch classics. Founded by Hymie Sckolnick — a beloved gathering place for generations of Montreal families.",
         'address': '93 Avenue du Mont-Royal Ouest, Montréal, QC',
         'neighborhood': 'Plateau Mont-Royal',
@@ -1229,10 +1259,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://images.squarespace-cdn.com/content/v1/6633b66c8902e916bd868d86/1fac348b-8b86-4b1c-b531-1646a49d35dd/larry+special.jpg',
     },
     {
         'name': "Wilensky's Light Lunch",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Iconic Montreal lunch counter since 1932, immortalized in Mordecai Richler's novels. Famous for 'The Special' — a pressed salami and bologna sandwich. A living piece of Montreal Jewish heritage.",
         'address': '34 Avenue Fairmount Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
@@ -1244,7 +1275,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Rôtisserie Laurier',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Classic Montreal rotisserie chicken restaurant, a neighbourhood staple for decades. Whole roast chickens, ribs, and comfort food platters — perfect for feeding a crowd.",
         'address': '381 Avenue Laurier Ouest, Montréal, QC',
         'neighborhood': 'Outremont',
@@ -1268,7 +1299,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Lemeac',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Beloved Outremont French bistro, a neighbourhood favourite for over 20 years. Refined yet accessible cuisine with private dining available for gatherings and celebrations.",
         'address': '1045 Avenue Laurier Ouest, Montréal, QC',
         'neighborhood': 'Outremont',
@@ -1280,7 +1311,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Arthurs Nosh Bar',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': "Jewish-inspired brunch and comfort food. Latkes, smoked fish, shakshuka, and creative deli dishes. A modern take on Montreal's rich Jewish food traditions.",
         'address': '4621 Rue Notre-Dame Ouest, Montréal, QC',
         'neighborhood': 'Saint-Henri',
@@ -1301,6 +1332,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://cdn.shopify.com/s/files/1/1074/9666/files/fullsizeoutput_1c63_d19cd57f-630d-4cda-b70d-d557ff69eb05.jpg',
     },
     {
         'name': 'Olive et Gourmando',
@@ -1326,10 +1358,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mount Royal,Snowdon',
+        'image_url': 'https://districtbagel.com/wp-content/uploads/2023/07/menu.webp',
     },
     {
         'name': "JoJo's Pizza",
-        'category': 'Italian',
+        'category': 'Italian & Pizza',
         'description': 'New York-style kosher pizza in Mile End under the highest level of MK Mehadrin kosher supervision. Thin-crust pies, dine-in, takeout, and delivery via Uber Eats and DoorDash.',
         'address': '355 Rue Bernard Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
@@ -1353,7 +1386,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': "Oineg's Kosher",
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'A Mile End staple for prepared kosher Shabbat meals. MK-certified meat restaurant known for cholent, sandwiches, dips, and liver. Full Shabbos takeout, dine-in, and catering services.',
         'address': '360 Rue Saint-Viateur Ouest, Montréal, QC',
         'neighborhood': 'Mile End',
@@ -1366,7 +1399,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': "Chenoy's Deli",
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'description': 'Legendary Montreal Jewish-style deli open since 1936. Famous for Montreal-style smoked meat sandwiches. The last remaining Chenoy\'s location in Dollard-des-Ormeaux. Open 24/7.',
         'address': '3616 Boulevard Saint-Jean, Dollard-des-Ormeaux, QC',
         'neighborhood': 'Dollard-des-Ormeaux',
@@ -1381,7 +1414,7 @@ MONTREAL_VENDORS = [
 
     {
         'name': 'Mehadrin Meats',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'description': 'MK-certified kosher butcher, takeout, and full-service caterer in the Mile End area. Prepared Shabbos meals, deli meats, and catering for shiva and lifecycle events.',
         'address': '8600 8e Ave, Montréal, QC',
         'neighborhood': 'Outremont',
@@ -1407,7 +1440,7 @@ MONTREAL_VENDORS = [
     # Benny & Fils Downtown REMOVED per Jordana Mar 25 — keep Queen Mary only
     {
         'name': "Linny's Luncheonette",
-        'category': 'Delis & Smoked Meat',
+        'category': 'Delis & Restaurants',
         'description': "Nostalgic Jewish-style takeout deli on Ossington Ave. Hand-cut pastrami on rye, freshly baked knishes, smoked fish sandwiches, and full-sour pickles. Named after restaurateur David Schwartz's late mother Linda. Catering available.",
         'address': '174 Ossington Avenue, Toronto, ON M6J 2Z7',
         'neighborhood': 'Ossington',
@@ -1429,6 +1462,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York,GTA-wide',
+        'image_url': 'https://encorecatering.com/wp-content/uploads/Encore-Catering-Homepage-Hero-Image.png',
     },
     {
         'name': 'Jerusalem Restaurant',
@@ -1441,6 +1475,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.jerusalemrestaurant.ca/restaurants/jerusalem/gallery/1.jpg',
     },
     {
         'name': 'Tabule',
@@ -1453,10 +1488,11 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Midtown,Toronto',
+        'image_url': 'https://tabule.ca/wp-content/uploads/2025/09/Tabule_Midtown_Seating_6-scaled.jpg',
     },
     {
         'name': 'Deli 770',
-        'category': 'Delis & Smoked Meat',
+        'category': 'Delis & Restaurants',
         'description': 'Chabad-inspired kosher deli in the Westbury complex specializing in Montreal-style smoked meat sandwiches and gourmet grill fusions.',
         'address': '5193 Avenue de Courtrai, Montreal, QC H3W 2X7',
         'neighborhood': 'Snowdon',
@@ -1468,7 +1504,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Deli Boyz',
-        'category': 'Delis & Smoked Meat',
+        'category': 'Delis & Restaurants',
         'description': 'Kosher deli in Quartier Cavendish Mall serving smoked meat, schnitzel, burgers, wraps, and salads.',
         'address': '5800 Cavendish Blvd, Cote-Saint-Luc, QC H4W 2T5',
         'neighborhood': 'Cote-Saint-Luc',
@@ -1480,7 +1516,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Chiyoko',
-        'category': 'Japanese & Sushi',
+        'category': 'Delis & Restaurants',
         'description': 'Upscale kosher Japanese restaurant in Ville Saint-Laurent serving sushi-grade fish and fine cuts of meat in an elegant setting.',
         'address': '2113 Rue Saint-Louis, Saint-Laurent, QC H4M 1P1',
         'neighborhood': 'Saint-Laurent',
@@ -1505,7 +1541,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Pizza Gourmetti',
-        'category': 'Pizza & Dairy',
+        'category': 'Italian & Pizza',
         'description': 'Authentic New York-style kosher Cholov Yisroel pizza restaurant in Saint-Laurent serving thin-crust pizzas, salads, and sandwiches since 2009.',
         'address': '2075 Rue Saint-Louis, Saint-Laurent, QC H4W 1S5',
         'neighborhood': 'Saint-Laurent',
@@ -1517,7 +1553,7 @@ MONTREAL_VENDORS = [
     },
     {
         'name': 'Pizza Pita Prime',
-        'category': 'Pizza & Dairy',
+        'category': 'Italian & Pizza',
         'description': 'Long-standing kosher pizzeria run by the Shpiegelman family for three decades, serving pizza, pasta, and dairy dishes with catering services.',
         'address': '5345 Vezina, Montreal, QC H3X 4A8',
         'neighborhood': 'Snowdon',
@@ -1862,7 +1898,7 @@ GIFT_VENDORS = [
     # ── New vendors added Mar 18, 2026 (per Jordana) ──
     {
         'name': 'Box and Board',
-        'category': 'Chocolate & Sweets, Fruit',
+        'category': 'Chocolate & Sweets',
         'description': 'Beautiful charcuterie-style gift boxes featuring chocolates, nuts, dried fruit, and gourmet treats. Thoughtful and elegant gifts for a shiva home.',
         'address': 'Toronto, ON',
         'neighborhood': 'Toronto',
@@ -1889,7 +1925,7 @@ GIFT_VENDORS = [
     # ── New Montreal vendors — Mar 22, 2026 ──
     {
         'name': 'Falafel St. Jacques',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Popular Middle Eastern street food restaurant founded by an Israeli-Palestinian duo. Crispy falafel, shawarma, fresh pita, and baked goods including rugelach and babka. Multiple Montreal locations.',
         'address': '345 Rue Saint-Jacques, Lachine, QC',
@@ -1904,7 +1940,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Fressers',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Beloved Montreal deli and bakery on Decarie Boulevard known for kosher-style sandwiches, fresh pastries, and classic comfort food. A neighbourhood staple in Snowdon.',
         'address': '5737 Boulevard Décarie, Montréal, QC H3W 3C8',
@@ -1934,7 +1970,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Cote St Luc BBQ',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Montreal charcoal chicken institution since 1953. Famous rotisserie chicken, fries, and BBQ sauce. Multiple locations including NDG and DDO. Catering and delivery available.',
         'address': '5403 Chemin de la Côte-Saint-Luc, Montréal, QC H3X 2C3',
@@ -1949,7 +1985,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Beso',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'vendor_type': 'food',
         'description': 'MK-certified kosher catering, bakery, and takeout in Côte-Saint-Luc. Specializes in Shabbat foods, event catering, and refined kosher cuisine. Meat, dairy, pareve, and fish options.',
         'address': '7018 Côte-Saint-Luc Rd, Montréal, QC H4V 1J3',
@@ -1964,7 +2000,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Adar',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'vendor_type': 'food',
         'description': 'MK-certified kosher bakery, supermarket, and takeout in Côte-Saint-Luc since 1996. Freshly baked goods, pastries, prepared meals, grocery items, fruits and vegetables. Catering available.',
         'address': '5634 Avenue Westminster, Côte-Saint-Luc, QC H4W 2J3',
@@ -1979,7 +2015,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Pizza Pita',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'vendor_type': 'food',
         'description': 'Long-standing Montreal kosher pizzeria and dairy restaurant. Pizza, pita, pasta, and Middle Eastern-style dairy dishes. MK certified. Dine-in, takeout, and delivery.',
         'address': '5345 Avenue Vezina, Montréal, QC H3X 4A8',
@@ -1994,7 +2030,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Zera Cafe',
-        'category': 'Kosher Restaurants & Caterers',
+        'category': 'Caterers',
         'vendor_type': 'food',
         'description': 'MK-certified kosher cafe and catering social enterprise employing neurodivergent adults. Creative plant-based menu with modern Israeli and Jewish-inspired foods. Catering and weekly meal delivery.',
         'address': '5151 Chemin de la Côte-Sainte-Catherine, Montréal, QC H3W 1M6',
@@ -2009,7 +2045,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Yans Deli',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Modern Montreal delicatessen from former Joe Beef chef Benji Greenberg. Elevated Jewish deli classics with refined twists — smoked meat, chopped liver, knishes, and house-baked goods.',
         'address': '5345 Rue Ferrier, Montréal, QC H4P 1M1',
@@ -2039,7 +2075,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Cuisine Pronto MTL',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Neighbourhood pizzeria in the Plateau-Mont-Royal known for homemade lasagna, pizza, sandwiches, and prepared dishes. Fresh daily cooking with high-quality ingredients. Catering and frozen meal options.',
         'address': '2025 Avenue du Mont-Royal E, Montréal, QC H2H 1J7',
@@ -2054,7 +2090,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Clarke Cafe',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Family-run cafe in Pointe-Saint-Charles (est. 2018) carrying on the legacy of Boulangerie Clarke. Italian-style sandwiches, fresh baked goods, and specialty coffee. Two locations: PSC and Kirkland.',
         'address': '1207 Rue Shearer, Montréal, QC H3K 1H8',
@@ -2084,7 +2120,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Solomos',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Montreal specialty food shop famous for hand-sliced smoked salmon, bagels, and salmon tartares. A local favourite on Queen Mary Road. Platters and catering available.',
         'address': '5453 Chemin Queen Mary, Montréal, QC H3X 1V4',
@@ -2099,7 +2135,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Bagels on Greene',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Westmount bagel shop and cafe serving Montreal-style bagels, sandwiches, salads, and breakfast. Diverse menu with gluten-free and vegan options. Catering platters available.',
         'address': '4160 Rue Sainte-Catherine O, Westmount, QC H3Z 1P4',
@@ -2114,7 +2150,7 @@ GIFT_VENDORS = [
     },
     {
         'name': 'Bossa',
-        'category': 'Restaurants & Delis',
+        'category': 'Delis & Restaurants',
         'vendor_type': 'food',
         'description': 'Montreal Italian deli offering signature gourmet sandwiches, fresh pasta, groceries, and prepared meals. Locations in Verdun, Rosemont, and Downtown. Catering and takeout.',
         'address': '4354 Rue Wellington, Montréal, QC H4G 1W4',

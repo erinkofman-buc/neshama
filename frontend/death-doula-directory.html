@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Food Vendors for Shiva Meals - Neshama</title>
-    <meta name="description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Find a Death Doula in Toronto &amp; Montreal - Neshama</title>
+    <meta name="description" content="Find compassionate death doulas and end-of-life doulas in Toronto and Montreal. Emotional support, vigil planning, and practical guidance for families navigating loss.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
@@ -13,28 +14,27 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Neshama">
-    <link rel="canonical" href="https://neshama.ca/directory">
-    <meta property="og:title" content="Local Food Vendors for Shiva Meals - Neshama">
-    <meta property="og:description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">
+    <link rel="canonical" href="https://neshama.ca/find-a-death-doula">
+    <meta property="og:title" content="Find a Death Doula in Toronto & Montreal - Neshama">
+    <meta property="og:description" content="Find compassionate death doulas and end-of-life doulas in Toronto and Montreal. Emotional support, vigil planning, and practical guidance for families.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://neshama.ca/directory">
+    <meta property="og:url" content="https://neshama.ca/find-a-death-doula">
     <meta property="og:site_name" content="Neshama">
     <meta property="og:image" content="https://neshama.ca/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Local Food Vendors for Shiva Meals - Neshama">
-    <meta name="twitter:description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">
+    <meta name="twitter:title" content="Find a Death Doula in Toronto & Montreal - Neshama">
+    <meta name="twitter:description" content="Find compassionate death doulas and end-of-life doulas in Toronto and Montreal. Emotional support, vigil planning, and practical guidance for families.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": "Neshama — Local Food Vendors for Shiva Meals",
-      "description": "Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.",
-      "url": "https://neshama.ca/directory",
-      "itemListOrder": "https://schema.org/ItemListUnordered",
-      "provider": {
+      "@type": "Article",
+      "headline": "Find a Death Doula in Toronto and Montreal",
+      "description": "A directory of compassionate death doulas and end-of-life doulas serving families in Toronto and Montreal. Emotional support, vigil planning, legacy projects, and practical guidance.",
+      "url": "https://neshama.ca/find-a-death-doula",
+      "publisher": {
         "@type": "Organization",
         "name": "Neshama",
         "url": "https://neshama.ca"
@@ -116,7 +116,7 @@
         .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--dark-brown); }
         .nav-hamburger svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
 
-        /* ── Hero (Task 1) ── */
+        /* Hero */
         .hero {
             text-align: center;
             padding: 2rem 1.5rem 1.25rem;
@@ -132,7 +132,7 @@
         .hero .subtitle {
             font-size: 1.1rem;
             color: var(--sage-dark);
-            max-width: 520px;
+            max-width: 580px;
             margin: 0 auto;
             line-height: 1.6;
         }
@@ -180,7 +180,7 @@
             stroke-width: 2;
         }
 
-        /* ── Filter Bar (Task 3) ── */
+        /* Filter Bar */
         .filter-bar {
             max-width: 960px;
             margin: 0 auto;
@@ -213,26 +213,6 @@
             align-items: center;
         }
 
-        .filter-select {
-            padding: 0.65rem 1rem;
-            border: 2px solid var(--light-taupe);
-            border-radius: 2rem;
-            font-family: 'Source Serif 4', serif;
-            font-size: 0.95rem;
-            color: var(--dark-brown);
-            background: var(--cream);
-            cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-            min-width: 140px;
-            min-height: 44px;
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--terracotta);
-        }
-
         .filter-toggle {
             display: flex;
             align-items: center;
@@ -260,42 +240,6 @@
             border-color: var(--terracotta);
         }
 
-        /* ── Category Pills (Task 2) ── */
-        .category-pills {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding: 0.25rem 0;
-            justify-content: center;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .category-pills::-webkit-scrollbar { display: none; }
-
-        .cat-pill {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.5rem 1rem;
-            border: 1.5px solid var(--light-taupe);
-            border-radius: 2rem;
-            background: white;
-            cursor: pointer;
-            font-family: 'Source Serif 4', serif;
-            font-size: 0.9rem;
-            color: var(--dark-brown);
-            transition: all 0.2s;
-            white-space: nowrap;
-            min-height: 44px;
-        }
-        .cat-pill:hover { border-color: var(--terracotta); }
-        .cat-pill.active {
-            background: var(--terracotta);
-            color: white;
-            border-color: var(--terracotta);
-        }
-        .cat-pill-icon { font-size: 1rem; }
-
         .result-count {
             text-align: center;
             padding: 1rem 1.5rem 0;
@@ -305,11 +249,11 @@
             margin: 0 auto;
         }
 
-        /* ── Vendor Grid ── */
+        /* Provider Grid */
         .vendor-grid {
             max-width: 960px;
             margin: 1.5rem auto 0;
-            padding: 0 1.5rem 4rem;
+            padding: 0 1.5rem 2rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.25rem;
@@ -349,13 +293,6 @@
             object-fit: cover;
         }
 
-        /* Logos (non-photo images) get contain + padding */
-        .vendor-card-img img.img-logo {
-            object-fit: contain;
-            padding: 1.25rem;
-            background: white;
-        }
-
         .vendor-card-initial {
             width: 100%;
             height: 100%;
@@ -368,7 +305,6 @@
             color: white;
         }
 
-        /* Badge overlays on image (Task 4) */
         .vendor-card-badges {
             position: absolute;
             bottom: 0.5rem;
@@ -384,35 +320,14 @@
             padding: 0.15rem 0.5rem;
             border-radius: 0.5rem;
             white-space: nowrap;
-        }
-
-        .vendor-card-badges .badge {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(4px);
             border: none;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
 
-        .badge.kosher {
-            color: #166534;
-        }
-
-        .badge.delivery {
+        .badge.virtual {
             color: #1e40af;
-        }
-
-        .featured-badge {
-            display: inline-block;
-            background: rgba(253, 246, 227, 0.92);
-            color: #7a5c10;
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 0.15rem 0.5rem;
-            border-radius: 1rem;
-            white-space: nowrap;
-            flex-shrink: 0;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
 
         .vendor-card-body {
@@ -431,21 +346,6 @@
             margin-bottom: 0.35rem;
         }
 
-        /* Category as colored pill (Task 4) */
-        .vendor-category {
-            display: inline-block;
-            font-size: 1rem;
-            color: var(--terracotta);
-            font-weight: 500;
-            padding: 0.15rem 0.6rem;
-            border-radius: 1rem;
-            background: rgba(210, 105, 30, 0.08);
-            margin-bottom: 0.4rem;
-            text-transform: none;
-            letter-spacing: normal;
-            width: fit-content;
-        }
-
         .vendor-desc {
             font-size: 1rem;
             line-height: 1.65;
@@ -453,12 +353,11 @@
             margin-bottom: 0.75rem;
             flex-grow: 1;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        /* Vendor location line (Task 4) */
         .vendor-location {
             font-size: 1rem;
             color: var(--sage-dark);
@@ -466,7 +365,11 @@
             padding-top: 0.5rem;
         }
 
-        /* Single full-width CTA (Task 4) */
+        .vendor-card-cta-row {
+            display: flex;
+            border-top: 1px solid rgba(210, 105, 30, 0.1);
+        }
+
         .vendor-card-cta {
             display: block;
             text-align: center;
@@ -475,14 +378,17 @@
             font-weight: 600;
             font-size: 1.05rem;
             text-decoration: none;
-            border-top: 1px solid rgba(210, 105, 30, 0.1);
             transition: background 0.2s;
             min-height: 44px;
             line-height: 1.5;
+            flex: 1;
         }
         .vendor-card-cta:hover {
             background: rgba(210, 105, 30, 0.04);
             text-decoration: none;
+        }
+        .vendor-card-cta + .vendor-card-cta {
+            border-left: 1px solid rgba(210, 105, 30, 0.1);
         }
 
         .no-results {
@@ -500,78 +406,90 @@
             margin-bottom: 0.5rem;
         }
 
-        .no-results a {
-            color: var(--terracotta);
-            font-weight: 500;
+        .example-badge {
+            display: inline-block;
+            background: rgba(253, 246, 227, 0.92);
+            color: #7a5c10;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+            margin-bottom: 0.35rem;
         }
 
-        /* ── Partner Banner (Task 5) ── */
-        .vendor-apply-footer {
-            text-align: center;
-            padding: 2rem 1.5rem 1rem;
-            max-width: 600px;
+        /* Content Sections */
+        .content-sections {
+            max-width: 720px;
             margin: 0 auto;
+            padding: 2rem 1.5rem 3rem;
         }
-        .vendor-apply-footer p {
+
+        .content-sections h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            margin-top: 2.5rem;
+        }
+
+        .content-sections h2:first-child {
+            margin-top: 0;
+        }
+
+        .content-sections p {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin-bottom: 1rem;
+            color: var(--dark-brown);
+        }
+
+        .content-sections ul {
+            margin: 0.75rem 0 1rem 1.25rem;
+            font-size: 1.05rem;
+            line-height: 1.75;
+        }
+
+        .content-sections li {
+            margin-bottom: 0.35rem;
+        }
+
+        .content-sections .note-box {
+            background: white;
+            border-left: 3px solid var(--sage);
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin: 1.25rem 0;
             font-size: 1rem;
-            color: var(--sage-dark);
-            margin-bottom: 0.5rem;
+            line-height: 1.65;
         }
-        .vendor-apply-footer a {
-            color: var(--terracotta);
+
+        .content-sections .cta-link {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1.75rem;
+            background: var(--terracotta);
+            color: white;
+            border-radius: 2rem;
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 1.05rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            min-height: 44px;
         }
 
-        /* ── Footer ── */
-        footer {
-            padding: 2rem 1.5rem;
+        .content-sections .cta-link:hover {
+            background: #c45a1a;
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        .divider {
+            border: none;
             border-top: 1px solid var(--light-taupe);
-            text-align: center;
+            margin: 2rem 0;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.25rem;
-        }
-
-        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
-        .footer-links a:hover { color: var(--terracotta); }
-        .footer-copy { font-size: 1rem; color: var(--sage-dark); }
-
-        /* ── Mobile Nav ── */
-        @media (max-width: 768px) {
-            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
-            .nav-center.open { display: flex; }
-            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
-            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
-            .nav-group-secondary { padding-bottom: 0.5rem; }
-            .nav-divider { display: none; }
-            .nav-link-secondary { opacity: 0.7; font-size: 0.92rem; }
-            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
-            .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
-            .nav-hamburger { display: block; }
-        }
-
-        /* ── Responsive (Task 7) ── */
-        @media (max-width: 768px) {
-            .vendor-grid { grid-template-columns: 1fr; max-width: 520px; }
-            .filter-secondary { flex-direction: column; }
-            .filter-secondary > * { width: 100%; justify-content: center; }
-            .category-pills { justify-content: flex-start; }
-        }
-
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 2.2rem; }
-            .hero { padding: 1.5rem 1.5rem 1rem; }
-            .hero-search input { font-size: 1rem; padding: 0.75rem 1rem 0.75rem 2.75rem; }
-            .vendor-card-img { height: 150px; }
-            .vendor-card h3 { font-size: 1.35rem; }
-            .footer-links { gap: 1.25rem; }
-        }
+        /* Show More */
         .show-more-wrapper {
             grid-column: 1 / -1;
             text-align: center;
@@ -599,6 +517,56 @@
             font-size: 0.95rem;
             color: var(--sage-dark);
         }
+
+        /* Footer */
+        footer {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--light-taupe);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links a { color: var(--dark-brown); text-decoration: none; font-size: 1rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-copy { font-size: 1rem; color: var(--sage-dark); }
+
+        /* Mobile Nav */
+        @media (max-width: 768px) {
+            .nav-center { display: none; position: absolute; top: 56px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem 1.5rem; border-bottom: 1px solid var(--light-taupe); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); gap: 0; z-index: 199; }
+            .nav-center.open { display: flex; }
+            .nav-group-primary, .nav-group-secondary { flex-direction: column; gap: 0.5rem; width: 100%; }
+            .nav-group-primary { padding-bottom: 0.75rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(212, 197, 185, 0.3); }
+            .nav-group-secondary { padding-bottom: 0.5rem; }
+            .nav-divider { display: none; }
+            .nav-link-secondary { opacity: 0.7; font-size: 0.92rem; }
+            .nav-premium-btn { text-align: center; width: 100%; margin-top: 0.25rem; }
+            .nav-btn-subtext { display: block; margin-top: 0.2rem; font-size: 0.75rem; font-weight: 400; opacity: 0.85; }
+            .nav-hamburger { display: block; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .vendor-grid { grid-template-columns: 1fr; max-width: 520px; }
+            .filter-secondary { flex-direction: column; }
+            .filter-secondary > * { width: 100%; justify-content: center; }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero { padding: 1.5rem 1.5rem 1rem; }
+            .hero-search input { font-size: 1rem; padding: 0.75rem 1rem 0.75rem 2.75rem; }
+            .vendor-card-img { height: 150px; }
+            .vendor-card h3 { font-size: 1.35rem; }
+            .footer-links { gap: 1.25rem; }
+            .content-sections h2 { font-size: 1.7rem; }
+        }
     </style>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
     <script>
@@ -620,13 +588,13 @@
     <a href="/" class="nav-logo">Neshama</a>
     <div class="nav-center" id="navLinks">
         <div class="nav-group-primary">
-            <a href="/feed" class="nav-link active">Listings</a>
-                <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
+            <a href="/feed" class="nav-link">Listings</a>
+            <a href="/help/supplies" class="nav-link">Shiva Essentials</a>
             <a href="/shiva/organize" class="nav-premium-btn">Organize Shiva Meals<span class="nav-btn-subtext">Coordinate meals for the family</span></a>
         </div>
         <span class="nav-divider"></span>
         <div class="nav-group-secondary">
-            <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help active">How Can I Help?</a>
+            <a href="/help?utm_source=nav&amp;utm_medium=header" class="nav-link nav-link-help">How Can I Help?</a>
             <a href="/about" class="nav-link nav-link-secondary">About</a>
         </div>
     </div>
@@ -637,12 +605,12 @@
 
     <main id="main-content">
     <header class="hero">
-        <h1>Local Vendors Ready to Help</h1>
-        <p class="subtitle">Caterers, bakeries, food vendors, and event services &mdash; here when your community needs them most.</p>
+        <h1>Find a Death Doula</h1>
+        <p class="subtitle">Compassionate end-of-life support for families in Toronto and Montreal. A death doula walks beside you &mdash; guiding, comforting, and helping with the practical and emotional journey.</p>
         <p id="heroCount" class="hero-count"></p>
         <div class="hero-search">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="searchInput" placeholder="Search by name, cuisine, or neighborhood..." aria-label="Search vendors">
+            <input type="text" id="searchInput" placeholder="Search by name or neighbourhood..." aria-label="Search death doulas">
         </div>
     </header>
 
@@ -654,57 +622,59 @@
             <button class="filter-toggle" id="cityMontreal" onclick="setCity('montreal',this)">Montreal</button>
         </div>
 
-        <!-- Category pills (Task 2) -->
-        <div class="category-pills" id="categoryPills" role="radiogroup" aria-label="Filter by category">
-            <button class="cat-pill active" data-cat="" onclick="setCat('',this)">
-                <span class="cat-pill-icon">&#9776;</span> All
-            </button>
-            <button class="cat-pill" data-cat="Caterers" onclick="setCat('Caterers',this)">
-                <span class="cat-pill-icon">&#127858;</span> Caterers
-            </button>
-            <button class="cat-pill" data-cat="Delis &amp; Restaurants" onclick="setCat('Delis &amp; Restaurants',this)">
-                <span class="cat-pill-icon">&#129386;</span> Delis
-            </button>
-            <button class="cat-pill" data-cat="Bagel Shops &amp; Bakeries" onclick="setCat('Bagel Shops &amp; Bakeries',this)">
-                <span class="cat-pill-icon">&#127838;</span> Bakeries
-            </button>
-            <button class="cat-pill" data-cat="Middle Eastern &amp; Israeli" onclick="setCat('Middle Eastern &amp; Israeli',this)">
-                <span class="cat-pill-icon">&#129474;</span> Middle Eastern
-            </button>
-            <button class="cat-pill" data-cat="Italian &amp; Pizza" onclick="setCat('Italian &amp; Pizza',this)">
-                <span class="cat-pill-icon">&#127829;</span> Italian &amp; Pizza
-            </button>
-            <button class="cat-pill" data-cat="Event Staff &amp; Services" onclick="setCat('Event Staff &amp; Services',this)">
-                <span class="cat-pill-icon">&#128188;</span> Event Staff
-            </button>
-        </div>
-
-        <!-- Secondary filters -->
+        <!-- Virtual toggle -->
         <div class="filter-secondary">
-            <select class="filter-select" id="neighborhoodFilter" aria-label="Filter by area">
-                <option value="">All Areas</option>
-            </select>
-            <button class="filter-toggle" id="kosherToggle" aria-label="Show kosher certified only" aria-pressed="false">Kosher Certified</button>
-            <button class="filter-toggle" id="deliveryToggle" aria-label="Show delivery available only" aria-pressed="false">Delivers</button>
+            <button class="filter-toggle" id="virtualToggle" aria-label="Show doulas offering virtual support" aria-pressed="false">Virtual Available</button>
         </div>
     </div>
 
     <p class="result-count" id="resultCount" aria-live="polite" aria-atomic="true"></p>
 
     <div class="vendor-grid" id="vendorGrid">
-        <div class="no-results" id="loadingMsg">Loading vendors...</div>
+        <div class="no-results" id="loadingMsg">Loading providers...</div>
     </div>
 
-    <!-- Partner banner — below grid, softer (Task 5) -->
-    <div class="vendor-apply-footer">
-        <p>Are you a vendor or service provider serving the Toronto or Montreal Jewish community?</p>
-        <a href="/shiva/caterers/apply">Join our free directory &rarr;</a>
-    </div>
+    <!-- Content Sections -->
+    <div class="content-sections">
+        <h2>What Is a Death Doula?</h2>
+        <p>A death doula &mdash; sometimes called an end-of-life doula &mdash; is a trained companion who supports individuals and families through the dying process and its aftermath. They are not medical professionals, but they fill the gaps that medicine often cannot: the emotional, spiritual, and deeply practical needs that arise when someone you love is nearing the end of life.</p>
+        <p>Think of them as a steady, warm presence during one of the most overwhelming times a family can face. They listen. They help you plan. They sit with you when words run out.</p>
 
-    <div style="max-width: 700px; margin: 1.5rem auto; padding: 0 1.5rem; text-align: center;">
-        <div style="background: var(--cream); border-left: 3px solid var(--sage); padding: 0.65rem 0.9rem; border-radius: 0.4rem; font-size: 0.95rem; color: var(--sage-dark); line-height: 1.5;">
-            Looking for gift baskets and treats? <a href="/help/gifts" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Browse our gift guide</a> for comfort gifts, chocolate, and more. &rarr;
+        <hr class="divider">
+
+        <h2>What to Expect</h2>
+        <p><strong>What a death doula does:</strong></p>
+        <ul>
+            <li>Emotional support and active listening for the dying person and their family</li>
+            <li>Vigil planning &mdash; creating a peaceful, meaningful environment in the final hours</li>
+            <li>Legacy projects such as letters, memory books, or recorded stories</li>
+            <li>Practical guidance: navigating funeral planning, paperwork, and next steps</li>
+            <li>Family mediation and communication support during difficult conversations</li>
+            <li>Grief support in the days and weeks that follow</li>
+        </ul>
+
+        <p><strong>What a death doula does not do:</strong></p>
+        <ul>
+            <li>Medical care, nursing, or clinical assessments</li>
+            <li>Medication administration or management</li>
+            <li>Personal support work (bathing, lifting, feeding)</li>
+        </ul>
+
+        <div class="note-box">
+            Death doulas work alongside your medical team, not in place of them. Many families find that having a doula allows nurses and PSWs to focus on physical care while the doula tends to the emotional and spiritual side.
         </div>
+
+        <hr class="divider">
+
+        <h2>How Much Does It Cost?</h2>
+        <p>Death doula fees in Canada typically range from <strong>$45 to $200+ per hour</strong>, depending on the doula's experience, the scope of support, and whether they offer packages or hourly rates.</p>
+        <p>Death doula services are <strong>not covered by OHIP or most private insurance plans</strong> at this time. However, many doulas offer sliding-scale fees or payment plans to make their support accessible to more families.</p>
+        <p>Some doulas offer a free initial consultation so you can get a sense of whether it feels like the right fit before committing.</p>
+
+        <hr class="divider">
+
+        <p>Need help coordinating family support during this time?</p>
+        <a href="/care/setup" class="cta-link">Set up a free coordination page &rarr;</a>
     </div>
 
     </main>
@@ -714,99 +684,36 @@
             <a href="/about">About</a>
             <a href="/faq">FAQ</a>
             <a href="/help">How Can I Help?</a>
-            <a href="/what-to-bring-to-a-shiva">What to Bring</a>
+            <a href="/find-home-care">Home Care</a>
             <a href="/yahrzeit">Yahrzeit Reminders</a>
-            <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="mailto:contact@neshama.ca">Contact</a>
-            <a href="/partner">Partner With Us</a>
-            <a href="/shiva/caterers/apply">Join Our Directory</a>
         </nav>
-        <p class="footer-copy">Built with care for the Jewish community</p>
+        <p class="footer-copy">Built with care for families</p>
     </footer>
 
     <script>
     (function() {
         'use strict';
-        var allVendors = [];
+        var allProviders = [];
         var displayLimit = 12;
         var activeCity = 'all';
-        var activeCategory = '';
+        var virtualActive = false;
         var searchInput = document.getElementById('searchInput');
-        var neighborhoodFilter = document.getElementById('neighborhoodFilter');
-        var kosherToggle = document.getElementById('kosherToggle');
-        var deliveryToggle = document.getElementById('deliveryToggle');
+        var virtualToggle = document.getElementById('virtualToggle');
         var vendorGrid = document.getElementById('vendorGrid');
         var resultCount = document.getElementById('resultCount');
-        var kosherActive = false;
-        var deliveryActive = false;
-
-        // Apply URL query params (e.g. /directory?filter=kosher&category=Caterers&city=toronto)
-        (function() {
-            var params = new URLSearchParams(window.location.search);
-            var filter = params.get('filter');
-            if (filter === 'kosher') {
-                kosherActive = true;
-                kosherToggle.classList.add('active');
-                kosherToggle.setAttribute('aria-pressed', 'true');
-            }
-            if (filter === 'delivery') {
-                deliveryActive = true;
-                deliveryToggle.classList.add('active');
-                deliveryToggle.setAttribute('aria-pressed', 'true');
-            }
-
-            // Pre-select category from URL param
-            var categoryParam = params.get('category');
-            if (categoryParam) {
-                var pills = document.querySelectorAll('.cat-pill');
-                pills.forEach(function(p) {
-                    if (p.getAttribute('data-cat') === categoryParam) {
-                        pills.forEach(function(pp) { pp.classList.remove('active'); });
-                        p.classList.add('active');
-                        activeCategory = categoryParam;
-                    }
-                });
-            }
-
-            // Pre-select city from URL param
-            var cityParam = params.get('city');
-            if (cityParam) {
-                var cityLower = cityParam.toLowerCase();
-                if (cityLower === 'toronto' || cityLower === 'montreal') {
-                    activeCity = cityLower;
-                    var cityBtns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
-                    cityBtns.forEach(function(b) { b.classList.remove('active'); });
-                    if (cityLower === 'toronto') {
-                        document.getElementById('cityToronto').classList.add('active');
-                    } else {
-                        document.getElementById('cityMontreal').classList.add('active');
-                    }
-                }
-            }
-        })();
 
         var montrealKeywords = ['montreal','montréal','côte-saint-luc','cote-saint-luc',
             'outremont','mile end','snowdon','hampstead','westmount','dollard',
             'mount royal','plateau','saint-henri','old montreal','côte-des-neiges',
             'cote-des-neiges','saint-laurent'];
 
-        var torontoNeighborhoods = ['Annex','Bathurst Manor','Bayview Village','Bloor West',
-            'Cabbagetown','Church-Wellesley','Don Mills','Downsview','Eglinton West',
-            'Forest Hill','GTA-wide','Harbord Village','Kensington','Lawrence Heights',
-            'Lawrence Park','Leslieville','Liberty Village','Little Italy','Midtown',
-            'North York','Ossington','Queen West','Richmond Hill','Summerhill',
-            'Thornhill','Toronto','Yorkville'];
-        var montrealNeighborhoods = ['Côte-des-Neiges','Côte-Saint-Luc','Dollard-des-Ormeaux',
-            'Downtown','Mile End','Mount Royal','Old Montreal','Outremont',
-            'Plateau Mont-Royal','Saint-Henri','Saint-Laurent','Snowdon'];
-
-        function isMontrealVendor(v) {
+        function isMontrealProvider(v) {
             var nb = (v.neighborhood || '').toLowerCase();
-            var da = (v.delivery_area || '').toLowerCase();
             var addr = (v.address || '').toLowerCase();
-            var combined = nb + ' ' + da + ' ' + addr;
+            var combined = nb + ' ' + addr;
             return montrealKeywords.some(function(kw) { return combined.indexOf(kw) !== -1; });
         }
 
@@ -816,206 +723,190 @@
             var btns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
             btns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
-            updateNeighborhoodDropdown();
-            filterVendors();
+            filterProviders();
         };
 
-        window.setCat = function(cat, btn) {
-            activeCategory = cat;
-            displayLimit = 12;
-            var pills = document.querySelectorAll('.cat-pill');
-            pills.forEach(function(p) { p.classList.remove('active'); });
-            btn.classList.add('active');
-            filterVendors();
-        };
-
-        function updateNeighborhoodDropdown() {
-            var html = '<option value="">All Areas</option>';
-            if (activeCity === 'all' || activeCity === 'toronto') {
-                if (activeCity === 'all') html += '<optgroup label="Toronto">';
-                torontoNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
-                if (activeCity === 'all') html += '</optgroup>';
+        // Placeholder data for staging
+        var placeholderProviders = [
+            {
+                name: 'Sarah Cohen',
+                neighborhood: 'Midtown Toronto',
+                description: 'Certified end-of-life doula offering compassionate vigil support, legacy projects, and family guidance. Trained through the International End of Life Doula Association.',
+                website: 'https://example.com',
+                phone: '416-555-0101',
+                virtual: true,
+                image_url: '',
+                is_placeholder: true
+            },
+            {
+                name: 'Marie-Claire Bouchard',
+                neighborhood: 'Outremont, Montreal',
+                description: 'Bilingual death doula serving Montreal families. Specializes in grief support, sacred space creation, and helping families navigate the final days with presence and grace.',
+                website: 'https://example.com',
+                phone: '514-555-0202',
+                virtual: true,
+                image_url: '',
+                is_placeholder: true
+            },
+            {
+                name: 'Rachel Stein',
+                neighborhood: 'North York',
+                description: 'End-of-life doula with a background in social work. Offers support through the dying process, funeral planning guidance, and post-loss check-ins for family members.',
+                website: 'https://example.com',
+                phone: '416-555-0303',
+                virtual: false,
+                image_url: '',
+                is_placeholder: true
+            },
+            {
+                name: 'Diane Tremblay',
+                neighborhood: 'Côte-des-Neiges, Montreal',
+                description: 'Specializes in palliative doula care and legacy letter writing. Fluent in English and French. Offers sliding-scale pricing for families in need.',
+                website: 'https://example.com',
+                phone: '514-555-0404',
+                virtual: true,
+                image_url: '',
+                is_placeholder: true
+            },
+            {
+                name: 'Jennifer Park',
+                neighborhood: 'Forest Hill, Toronto',
+                description: 'Trained death doula and grief counsellor. Helps families plan meaningful vigils, supports children through loss, and offers follow-up bereavement support.',
+                website: 'https://example.com',
+                phone: '',
+                virtual: true,
+                image_url: '',
+                is_placeholder: true
             }
-            if (activeCity === 'all' || activeCity === 'montreal') {
-                if (activeCity === 'all') html += '<optgroup label="Montreal">';
-                montrealNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
-                if (activeCity === 'all') html += '</optgroup>';
-            }
-            neighborhoodFilter.innerHTML = html;
-        }
+        ];
 
-        function fetchVendors() {
-            fetch('/api/vendors')
+        function fetchProviders() {
+            fetch('/api/providers?type=death_doula')
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    if (data.status === 'success') {
-                        allVendors = data.data;
-                        document.getElementById('heroCount').textContent = data.data.length + ' vendors across Toronto & Montreal';
-                        updateNeighborhoodDropdown();
-                        filterVendors();
+                    if (data.status === 'success' && data.data && data.data.length > 0) {
+                        allProviders = data.data;
+                        document.getElementById('heroCount').textContent = data.data.length + ' doula' + (data.data.length !== 1 ? 's' : '') + ' across Toronto & Montreal';
                     } else {
-                        vendorGrid.innerHTML = '<div class="no-results"><h3>We couldn\'t load the listings right now</h3><p>Please try again in a moment.</p></div>';
+                        allProviders = placeholderProviders;
+                        document.getElementById('heroCount').textContent = 'Directory launching soon';
                     }
+                    filterProviders();
                 })
                 .catch(function() {
-                    vendorGrid.innerHTML = '<div class="no-results"><h3>We couldn\'t load the listings right now</h3><p>Please try again in a moment.</p></div>';
+                    allProviders = placeholderProviders;
+                    document.getElementById('heroCount').textContent = 'Directory launching soon';
+                    filterProviders();
                 });
         }
 
-        function renderVendors(vendors) {
-            if (vendors.length === 0) {
-                vendorGrid.innerHTML = '<div class="no-results"><h3>No vendors match those filters</h3><p>Try broadening your search or <a href="/shiva/caterers/apply">suggest a vendor</a> you trust.</p></div>';
-                resultCount.textContent = '0 vendors found';
+        var placeholderColors = ['#B2BEB5', '#D4C5B9', '#8b7355', '#6b7c6e', '#a08070'];
+
+        function renderProviders(providers) {
+            if (providers.length === 0) {
+                vendorGrid.innerHTML = '<div class="no-results"><h3>No doulas match those filters</h3><p>Try broadening your search or check back soon as we add more providers.</p></div>';
+                resultCount.textContent = '0 doulas found';
                 return;
             }
 
-            resultCount.textContent = vendors.length + ' vendor' + (vendors.length !== 1 ? 's' : '') + ' found';
+            resultCount.textContent = providers.length + ' doula' + (providers.length !== 1 ? 's' : '') + ' found';
 
-            // Category color map for placeholder initials
-            var catColorRules = [
-                { match: 'caterer', color: '#D2691E' },
-                { match: 'restaurant', color: '#8B6914' },
-                { match: 'bake', color: '#A0522D' },
-                { match: 'bagel', color: '#A0522D' },
-                { match: 'deli', color: '#6b7c6e' },
-                { match: 'gift', color: '#C9A96E' },
-                { match: 'chocolate', color: '#7a5230' },
-                { match: 'sweet', color: '#7a5230' },
-                { match: 'pizza', color: '#c45a1a' },
-                { match: 'sushi', color: '#5a7a6e' },
-                { match: 'japanese', color: '#5a7a6e' },
-                { match: 'mediterranean', color: '#8b7355' },
-                { match: 'middle eastern', color: '#8b7355' },
-                { match: 'israeli', color: '#8b7355' },
-                { match: 'italian', color: '#7a5230' },
-                { match: 'fruit', color: '#7a9e7e' },
-                { match: 'grocery', color: '#5C534A' },
-                { match: 'florist', color: '#7a9e7e' },
-                { match: 'event staff', color: '#6b7c8e' },
-                { match: 'setup', color: '#6b7c8e' },
-                { match: 'cleaning', color: '#6b7c8e' },
-                { match: 'server', color: '#6b7c8e' }
-            ];
-            var defaultColor = '#B2BEB5';
-
-            function getCatColor(category) {
-                var cat = (category || '').toLowerCase();
-                for (var j = 0; j < catColorRules.length; j++) {
-                    if (cat.indexOf(catColorRules[j].match) !== -1) return catColorRules[j].color;
-                }
-                return defaultColor;
-            }
-
-            var visible = vendors.slice(0, displayLimit);
+            var visible = providers.slice(0, displayLimit);
             var html = '';
             for (var i = 0; i < visible.length; i++) {
                 var v = visible[i];
-                var color = getCatColor(v.category);
                 var initial = escapeHtml(v.name.charAt(0));
-                var detailUrl = '/directory/' + encodeURIComponent(v.slug) + '?from=directory';
+                var color = placeholderColors[i % placeholderColors.length];
 
                 html += '<div class="vendor-card">';
 
-                // Clickable area: image + body content
-                html += '<a href="' + detailUrl + '" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex-grow:1;">';
-
-                // Image or branded placeholder with badge overlays
+                // Card body (not wrapped in a single link since we have multiple CTAs)
                 html += '<div class="vendor-card-img">';
                 if (v.image_url) {
-                    var imgUrl = v.image_url.toLowerCase();
-                    var isLogo = (
-                        imgUrl.indexOf('logo') !== -1 ||
-                        imgUrl.indexOf('favicon') !== -1 ||
-                        imgUrl.indexOf('.svg') !== -1 ||
-                        (imgUrl.indexOf('.png') !== -1 && (
-                            imgUrl.indexOf('shopify') !== -1 ||
-                            imgUrl.indexOf('wsimg.com') !== -1 ||
-                            imgUrl.indexOf('cdn.shop') !== -1
-                        ))
-                    );
-                    var imgClass = isLogo ? 'img-logo' : '';
-                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" class="' + imgClass + '" width="460" height="180" loading="lazy" referrerpolicy="no-referrer">';
+                    html += '<img src="' + escapeHtml(v.image_url) + '" alt="' + escapeHtml(v.name) + '" width="460" height="180" loading="lazy" referrerpolicy="no-referrer">';
                 } else {
                     html += '<div class="vendor-card-initial" style="background:' + color + ';">' + initial + '</div>';
                 }
 
-                // Badge overlays on image (Task 4)
-                var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery || v.featured);
-                if (hasBadges) {
+                // Badges
+                if (v.virtual) {
                     html += '<div class="vendor-card-badges">';
-                    if (v.featured) {
-                        html += '<span class="featured-badge">Community Pick</span>';
-                    }
-                    if (v.kosher_status === 'COR') {
-                        html += '<span class="badge kosher" title="Kosher certified by the Council of Orthodox Rabbis (Toronto)">Kosher (COR)</span>';
-                    } else if (v.kosher_status === 'MK') {
-                        html += '<span class="badge kosher" title="Kosher certified by Montreal Kosher / Vaad Ha\'ir">Kosher (MK)</span>';
-                    }
-                    if (v.delivery) {
-                        html += '<span class="badge delivery">Delivery</span>';
-                    }
+                    html += '<span class="badge virtual">Virtual</span>';
                     html += '</div>';
                 }
                 html += '</div>';
 
                 html += '<div class="vendor-card-body">';
-                html += '<div class="vendor-category">' + escapeHtml(v.category) + '</div>';
+                if (v.is_placeholder) {
+                    html += '<span class="example-badge">Example Listing</span>';
+                }
                 html += '<h3>' + escapeHtml(v.name) + '</h3>';
                 html += '<p class="vendor-desc">' + escapeHtml(v.description || '') + '</p>';
                 if (v.neighborhood) {
                     html += '<div class="vendor-location">' + escapeHtml(v.neighborhood) + '</div>';
                 }
-                html += '</div>'; // close vendor-card-body
-                html += '</a>'; // close clickable area
+                html += '</div>';
 
-                // Single CTA
-                html += '<a href="' + detailUrl + '" class="vendor-card-cta">View Details</a>';
+                // CTA row
+                html += '<div class="vendor-card-cta-row">';
+                if (v.website && !v.is_placeholder) {
+                    html += '<a href="' + escapeHtml(v.website) + '" target="_blank" rel="noopener" class="vendor-card-cta" onclick="trackClick(\'' + escapeHtml(v.name) + '\')">Learn More</a>';
+                } else if (v.is_placeholder) {
+                    html += '<span class="vendor-card-cta" style="opacity:0.5;cursor:default;">Learn More</span>';
+                }
+                if (v.phone && !v.is_placeholder) {
+                    html += '<a href="tel:' + escapeHtml(v.phone) + '" class="vendor-card-cta">Call</a>';
+                }
+                html += '</div>';
 
-                html += '</div>'; // close vendor-card
+                html += '</div>';
             }
 
-            // Show More button if there are more vendors
-            if (vendors.length > displayLimit) {
-                var remaining = vendors.length - displayLimit;
+            // Show More
+            if (providers.length > displayLimit) {
+                var remaining = providers.length - displayLimit;
                 var nextBatch = remaining < 12 ? remaining : 12;
                 html += '<div class="show-more-wrapper">';
-                html += '<button class="show-more-btn" onclick="window.showMoreVendors()">Show ' + nextBatch + ' More Vendors</button>';
-                html += '<p class="show-more-count">Showing ' + displayLimit + ' of ' + vendors.length + ' vendors</p>';
+                html += '<button class="show-more-btn" onclick="window.showMore()">Show ' + nextBatch + ' More</button>';
+                html += '<p class="show-more-count">Showing ' + displayLimit + ' of ' + providers.length + '</p>';
                 html += '</div>';
             }
 
             vendorGrid.innerHTML = html;
         }
 
-        window.showMoreVendors = function() {
+        window.showMore = function() {
             displayLimit += 12;
-            filterVendors();
+            filterProviders();
         };
 
-        function filterVendors() {
-            var query = searchInput.value.toLowerCase().trim();
-            var category = activeCategory;
-            var neighborhood = neighborhoodFilter.value;
+        window.trackClick = function(name) {
+            try {
+                if (window.plausible) {
+                    window.plausible('Doula Click', { props: { name: name } });
+                }
+            } catch(e) {}
+        };
 
-            var filtered = allVendors.filter(function(v) {
+        function filterProviders() {
+            var query = searchInput.value.toLowerCase().trim();
+
+            var filtered = allProviders.filter(function(v) {
                 // City filter
-                if (activeCity === 'toronto' && isMontrealVendor(v)) return false;
-                if (activeCity === 'montreal' && !isMontrealVendor(v)) return false;
+                if (activeCity === 'toronto' && isMontrealProvider(v)) return false;
+                if (activeCity === 'montreal' && !isMontrealProvider(v)) return false;
+                // Virtual filter
+                if (virtualActive && !v.virtual) return false;
                 // Search
                 if (query && v.name.toLowerCase().indexOf(query) === -1 &&
                     (v.description || '').toLowerCase().indexOf(query) === -1 &&
-                    (v.category || '').toLowerCase().indexOf(query) === -1 &&
                     (v.neighborhood || '').toLowerCase().indexOf(query) === -1) {
                     return false;
                 }
-                if (category && v.category !== category) return false;
-                if (neighborhood && (v.neighborhood || '') !== neighborhood) return false;
-                if (kosherActive && v.kosher_status !== 'COR' && v.kosher_status !== 'MK') return false;
-                if (deliveryActive && !v.delivery) return false;
                 return true;
             });
 
-            renderVendors(filtered);
+            renderProviders(filtered);
         }
 
         function escapeHtml(str) {
@@ -1024,26 +915,17 @@
             return div.innerHTML;
         }
 
-        searchInput.addEventListener('input', function() { displayLimit = 12; filterVendors(); });
-        neighborhoodFilter.addEventListener('change', function() { displayLimit = 12; filterVendors(); });
+        searchInput.addEventListener('input', function() { displayLimit = 12; filterProviders(); });
 
-        kosherToggle.addEventListener('click', function() {
-            kosherActive = !kosherActive;
+        virtualToggle.addEventListener('click', function() {
+            virtualActive = !virtualActive;
             displayLimit = 12;
-            this.classList.toggle('active', kosherActive);
-            this.setAttribute('aria-pressed', kosherActive);
-            filterVendors();
+            this.classList.toggle('active', virtualActive);
+            this.setAttribute('aria-pressed', virtualActive);
+            filterProviders();
         });
 
-        deliveryToggle.addEventListener('click', function() {
-            deliveryActive = !deliveryActive;
-            displayLimit = 12;
-            this.classList.toggle('active', deliveryActive);
-            this.setAttribute('aria-pressed', deliveryActive);
-            filterVendors();
-        });
-
-        fetchVendors();
+        fetchProviders();
     })();
     </script>
 <script>

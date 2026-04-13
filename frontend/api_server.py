@@ -201,6 +201,17 @@ except Exception as e:
     shiva_mgr = None
     logging.info(f" Shiva support: Not available ({e})")
 
+# Optional Care Coordination import
+try:
+    from care_manager import CareManager
+    care_mgr = CareManager(db_path=DB_PATH)
+    CARE_AVAILABLE = True
+    logging.info(f" Care coordination: Available")
+except Exception as e:
+    CARE_AVAILABLE = False
+    care_mgr = None
+    logging.info(f" Care coordination: Not available ({e})")
+
 # Optional Yahrzeit Reminder import
 try:
     from yahrzeit_manager import YahrzeitManager
@@ -296,6 +307,18 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/jewish-funeral-etiquette.html': ('jewish-funeral-etiquette.html', 'text/html'),
         '/condolence-messages': ('condolence-messages.html', 'text/html'),
         '/condolence-messages.html': ('condolence-messages.html', 'text/html'),
+        '/shiva-dos-and-donts': ('shiva-dos-and-donts.html', 'text/html'),
+        '/shiva-dos-and-donts.html': ('shiva-dos-and-donts.html', 'text/html'),
+        '/jewish-death-traditions': ('jewish-death-traditions.html', 'text/html'),
+        '/jewish-death-traditions.html': ('jewish-death-traditions.html', 'text/html'),
+        '/types-of-shiva': ('types-of-shiva.html', 'text/html'),
+        '/types-of-shiva.html': ('types-of-shiva.html', 'text/html'),
+        '/grief-support': ('grief-support.html', 'text/html'),
+        '/grief-support.html': ('grief-support.html', 'text/html'),
+        '/care/setup': ('care-setup.html', 'text/html'),
+        '/care-setup': ('care-setup.html', 'text/html'),
+        '/find-a-death-doula': ('death-doula-directory.html', 'text/html'),
+        '/find-home-care': ('home-care-directory.html', 'text/html'),
         '/directory': ('directory.html', 'text/html'),
         '/directory.html': ('directory.html', 'text/html'),
         '/gifts': ('gifts.html', 'text/html'),
@@ -399,6 +422,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             slug = path[len('/api/vendors/'):]
             self.get_vendor_by_slug(slug)
         # Vendor analytics page (/vendor-analytics/slug)
+        elif path == '/vendor-analytics':
+            self.send_response(301)
+            self.send_header('Location', '/directory')
+            self.end_headers()
         elif path.startswith('/vendor-analytics/') and path != '/vendor-analytics/':
             self.serve_vendor_analytics_page()
         # Vendor detail pages (/directory/slug)
@@ -431,10 +458,28 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and not path.endswith('/meals') and not path.endswith('/updates'):
             support_id = path[len('/api/shiva/'):]
             self.get_shiva_details(support_id)
+        # Care providers API
+        elif path == '/api/providers':
+            self.handle_get_providers()
+        # Care coordination API
+        elif path.startswith('/api/care/') and not path.endswith('/meals') and not path.endswith('/visitors') and not path.endswith('/tasks') and not path.endswith('/updates'):
+            care_id = path[len('/api/care/'):]
+            self.handle_get_care_page(care_id)
         # Shiva pages
+        elif path == '/shiva':
+            self.send_response(301)
+            self.send_header('Location', '/shiva/organize')
+            self.end_headers()
         elif path.startswith('/shiva/') and path not in self.STATIC_FILES:
             self.serve_shiva_page()
+        # Care coordination pages
+        elif path.startswith('/care/') and path not in self.STATIC_FILES:
+            self.serve_care_page()
         # Memorial pages
+        elif path == '/memorial':
+            self.send_response(301)
+            self.send_header('Location', '/')
+            self.end_headers()
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
         # Yahrzeit confirm/unsubscribe routes
@@ -536,6 +581,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_add_subscriber(body)
         elif path == '/admin/delete-subscribers':
             self.handle_admin_delete_subscribers(body)
+        elif path == '/admin/send-passover-email':
+            self.handle_send_passover_email(body)
         elif path == '/admin/delete-obituary':
             self.handle_admin_delete_obituary(body)
         elif path == '/admin/hide-obituary':
@@ -568,6 +615,25 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_track_referral(body)
         elif path == '/api/find-my-page':
             self.handle_find_my_page(body)
+        # Care coordination POST routes (kept from main — vertical preserved
+        # for future use per operator decision). Shiva access-request route
+        # removed in V3 Phase 5 (private shiva feature gone).
+        elif path == '/api/care':
+            self.handle_create_care_page(body)
+        elif path.startswith('/api/care/') and path.endswith('/updates'):
+            care_id = path[len('/api/care/'):-len('/updates')]
+            self.handle_care_post_update(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/visitors'):
+            care_id = path[len('/api/care/'):-len('/visitors')]
+            self.handle_care_add_visitor(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/meals'):
+            care_id = path[len('/api/care/'):-len('/meals')]
+            self.handle_care_add_meal(care_id, body)
+        elif path.startswith('/api/care/') and path.endswith('/tasks'):
+            care_id = path[len('/api/care/'):-len('/tasks')]
+            self.handle_care_add_task(care_id, body)
+        elif path == '/api/care-task/claim':
+            self.handle_care_claim_task(body)
         elif path == '/api/shiva':
             self.handle_create_shiva(body)
         # V5: Extend shiva dates
@@ -775,7 +841,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             if city:
                 cursor.execute(f'''
                     SELECT o.*,
-                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                           s.id AS shiva_id
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
@@ -786,7 +853,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             else:
                 cursor.execute(f'''
                     SELECT o.*,
-                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                           CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                           s.id AS shiva_id
                     FROM obituaries o
                     LEFT JOIN shiva_support s
                       ON s.obituary_id = o.id AND s.status = 'active'
@@ -797,10 +865,21 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             obituaries = [dict(row) for row in cursor.fetchall()]
             conn.close()
 
+            # Deduplicate same-source obituaries (same name + same funeral home).
+            # Keep the first occurrence (earliest in the result set, which is sorted by last_updated DESC).
+            # Cross-source duplicates (different funeral homes) are intentionally kept.
+            seen = set()
+            deduped = []
+            for obit in obituaries:
+                key = (obit.get('deceased_name', ''), obit.get('source', ''))
+                if key not in seen:
+                    seen.add(key)
+                    deduped.append(obit)
+
             self.send_json_response({
                 'status': 'success',
-                'data': obituaries,
-                'meta': {'total': len(obituaries)}
+                'data': deduped,
+                'meta': {'total': len(deduped)}
             })
         except Exception as e:
             self.send_error_response(str(e))
@@ -815,7 +894,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             cursor.execute('''
                 SELECT o.*,
-                       CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva
+                       CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END AS has_shiva,
+                       s.id AS shiva_id
                 FROM obituaries o
                 LEFT JOIN shiva_support s
                   ON s.obituary_id = o.id AND s.status = 'active'
@@ -1207,11 +1287,92 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         self.wfile.write(content_bytes)
 
     def serve_memorial_page(self):
-        """Serve the memorial page template (JS handles data loading)"""
+        """Serve the memorial page with dynamic meta tags for social sharing.
+
+        WhatsApp/Facebook/iMessage crawlers don't execute JS, so we inject
+        og:title, og:description, og:image, and canonical URL server-side.
+        This makes shared memorial links show the person's name and photo
+        in the preview card instead of the generic Neshama logo.
+        """
         filepath = os.path.join(FRONTEND_DIR, 'memorial.html')
         try:
-            with open(filepath, 'rb') as f:
-                content = f.read()
+            with open(filepath, 'r', encoding='utf-8') as f:
+                html = f.read()
+
+            # Extract obituary ID from URL path
+            parsed_path = urlparse(self.path).path
+            parts = parsed_path.strip('/').split('/')
+            obit_id = parts[1] if len(parts) > 1 else None
+
+            if obit_id:
+                # Look up obituary data for meta tag injection
+                try:
+                    db_path = self.get_db_path()
+                    conn = _connect_db(db_path)
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT deceased_name, obituary_text, photo_url, source FROM obituaries WHERE id = ?', (obit_id,))
+                    row = cursor.fetchone()
+                    conn.close()
+
+                    if row:
+                        name = html_mod.escape(row['deceased_name'] or 'Memorial')
+                        # Build a short description from obituary text
+                        obit_text = row['obituary_text'] or ''
+                        # Strip HTML tags for meta description
+                        clean_text = re.sub(r'<[^>]+>', '', obit_text).strip()
+                        desc = clean_text[:160] + '...' if len(clean_text) > 160 else clean_text
+                        desc = html_mod.escape(desc) if desc else f'Remembering {name}. Leave a tribute, light a candle, and share memories with family and community on Neshama.'
+                        photo = row['photo_url'] or 'https://neshama.ca/og-image.png'
+                        memorial_url = f'https://neshama.ca/memorial/{obit_id}'
+
+                        # Replace generic meta tags with person-specific ones
+                        html = html.replace(
+                            '<title>Memorial - Neshama</title>',
+                            f'<title>{name} — Memorial | Neshama</title>'
+                        )
+                        html = html.replace(
+                            '<meta property="og:title" content="Memorial - Neshama">',
+                            f'<meta property="og:title" content="Remembering {name} — Neshama">'
+                        )
+                        html = html.replace(
+                            '<meta name="twitter:title" content="Memorial - Neshama">',
+                            f'<meta name="twitter:title" content="Remembering {name} — Neshama">'
+                        )
+                        html = html.replace(
+                            '<meta property="og:description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta property="og:description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta name="twitter:description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta name="twitter:description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta name="description" content="A place to honour and remember a cherished life. Leave a tribute, light a candle, and share memories with family and community on Neshama.">',
+                            f'<meta name="description" content="{desc}">'
+                        )
+                        html = html.replace(
+                            '<meta property="og:url" content="https://neshama.ca/memorial">',
+                            f'<meta property="og:url" content="{memorial_url}">'
+                        )
+                        html = html.replace(
+                            '<link rel="canonical" href="https://neshama.ca/memorial">',
+                            f'<link rel="canonical" href="{memorial_url}">'
+                        )
+                        # Only replace og:image if the person has a photo
+                        if row['photo_url']:
+                            html = html.replace(
+                                '<meta property="og:image" content="https://neshama.ca/og-image.png">',
+                                f'<meta property="og:image" content="{html_mod.escape(photo)}">'
+                            )
+                            html = html.replace(
+                                '<meta name="twitter:image" content="https://neshama.ca/og-image.png">',
+                                f'<meta name="twitter:image" content="{html_mod.escape(photo)}">'
+                            )
+                except Exception:
+                    pass  # If DB lookup fails, serve with generic meta tags
+
+            content = html.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
@@ -1930,6 +2091,88 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             logging.error(f"[Admin] Error adding subscriber: {e}")
             self.send_error_response(f'Error: {str(e)}', 500)
 
+    def handle_send_passover_email(self, body):
+        """One-time Passover subscriber email blast."""
+        if not self._check_admin_auth():
+            return
+        try:
+            sendgrid_key = os.environ.get('SENDGRID_API_KEY', '')
+            if not sendgrid_key:
+                self.send_json_response({'status': 'error', 'message': 'SendGrid not configured'}, 500)
+                return
+
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+            sg = SendGridAPIClient(sendgrid_key)
+
+            db_path = self.get_db_path()
+            conn = _connect_db(db_path)
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT email FROM subscribers
+                WHERE confirmed = TRUE AND unsubscribed_at IS NULL
+                AND email NOT LIKE 'smoketest%@neshama.ca'
+            """)
+            subscribers = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            html = '''<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#FFF8F0;font-family:Georgia,serif;">
+<div style="max-width:600px;margin:0 auto;padding:2rem 1.5rem;">
+    <div style="background:white;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(62,39,35,0.06);">
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">Good afternoon.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">Passover begins tomorrow evening. For many in our community, this is a season of warmth &mdash; family around the table, familiar melodies, food that connects us to memory.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">For those carrying grief, the seder can feel different. An empty chair. A recipe no one else makes quite the same way. A voice missing from the songs.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">If this Pesach feels heavier than usual &mdash; or if you know someone for whom it might &mdash; we wrote something that may help:</p>
+        <div style="text-align:center;margin:1.5rem 0;">
+            <a href="https://neshama.ca/first-passover-after-loss" style="display:inline-block;background:#D2691E;color:white;padding:12px 32px;border-radius:4px;text-decoration:none;font-family:Georgia,serif;font-size:1rem;">Your First Passover After a Loss &rarr;</a>
+        </div>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 16px 0;">It is okay to hold both things at the table: the gratitude and the ache.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:0 0 0 0;">Wishing you a meaningful Pesach.</p>
+        <p style="font-size:1rem;line-height:1.7;color:#3E2723;margin:4px 0 0 0;">&mdash; Neshama</p>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+        <p style="font-size:0.85rem;color:#8a7e75;margin:0;">Neshama &middot; Community support when it matters most</p>
+        <p style="font-size:0.85rem;color:#8a7e75;margin:4px 0 0 0;"><a href="https://neshama.ca" style="color:#D2691E;">neshama.ca</a></p>
+        <p style="font-size:0.8rem;color:#aaa;margin:8px 0 0 0;"><a href="https://neshama.ca/unsubscribe?email=UNSUB_EMAIL" style="color:#aaa;">Unsubscribe</a></p>
+    </div>
+</div></body></html>'''
+
+            sent = 0
+            failed = 0
+            results = []
+            for email in subscribers:
+                try:
+                    email_html = html.replace('UNSUB_EMAIL', email)
+                    message = Mail(
+                        from_email=Email('updates@neshama.ca', 'Neshama'),
+                        to_emails=To(email),
+                        subject='Before the first seder',
+                        html_content=Content('text/html', email_html)
+                    )
+                    response = sg.client.mail.send.post(request_body=message.get())
+                    if response.status_code in (200, 201, 202):
+                        sent += 1
+                        results.append({'email': email, 'status': 'sent'})
+                    else:
+                        failed += 1
+                        results.append({'email': email, 'status': f'failed ({response.status_code})'})
+                except Exception as e:
+                    failed += 1
+                    results.append({'email': email, 'status': f'error: {str(e)[:50]}'})
+
+            logging.info(f"[Passover Email] Sent: {sent}, Failed: {failed}, Total: {len(subscribers)}")
+            self.send_json_response({
+                'status': 'success',
+                'sent': sent,
+                'failed': failed,
+                'total': len(subscribers),
+                'results': results
+            })
+        except Exception as e:
+            self.send_error_response(str(e))
+
     def handle_admin_delete_subscribers(self, body):
         """Delete subscribers matching a pattern (e.g. smoketest addresses)"""
         if not self._check_admin_auth():
@@ -2546,7 +2789,7 @@ button:hover{background:#c45a1a}</style></head>
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT * FROM vendors WHERE vendor_type = 'food' ORDER BY featured DESC, name ASC")
+                cursor.execute("SELECT * FROM vendors WHERE vendor_type IN ('food', 'services') ORDER BY featured DESC, name ASC")
             except Exception:
                 cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
             vendors = [dict(row) for row in cursor.fetchall()]
@@ -3459,11 +3702,12 @@ button:hover{background:#c45a1a}</style></head>
             parsed_path = urlparse(self.path)
             query_params = parse_qs(parsed_path.query)
             token = query_params.get('token', [None])[0]
+            access_token = query_params.get('access', [None])[0]
 
             if token:
                 result = shiva_mgr.get_signups_for_organizer(support_id, token)
             else:
-                result = shiva_mgr.get_signups(support_id)
+                result = shiva_mgr.get_signups(support_id, access_token=access_token)
             self.send_json_response(result)
         except Exception as e:
             self.send_error_response(str(e))
@@ -4316,6 +4560,143 @@ button:hover{background:#c45a1a}</style></head>
 </body>
 </html>'''
 
+    # ── Care Coordination Handlers ─────────────────────────────
+
+    def handle_get_providers(self):
+        """GET care providers (death doulas, PSWs, home care)"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'success', 'data': []})
+            return
+        try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            provider_type = params.get('type', [''])[0] or None
+            city = params.get('city', [''])[0] or None
+            result = care_mgr.get_providers(provider_type=provider_type, city=city)
+            self.send_json_response(result)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def serve_care_page(self):
+        """Serve the care coordination page (JS handles data loading)"""
+        filepath = os.path.join(FRONTEND_DIR, 'care-page.html')
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.end_headers()
+            self.wfile.write(content)
+        except FileNotFoundError:
+            self.send_404()
+
+    def handle_get_care_page(self, care_id):
+        """GET care page data"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Care coordination not available'}, 503)
+            return
+        try:
+            parsed = urlparse(self.path)
+            token = parse_qs(parsed.query).get('token', [''])[0]
+            result = care_mgr.get_page(care_id, token)
+            status_code = 200 if result['status'] == 'success' else 404
+            self.send_json_response(result, status_code)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_create_care_page(self, body):
+        """POST create a new care page"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Care coordination not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_create', max_calls=3, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.create_page(data)
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_post_update(self, care_id, body):
+        """POST an update to a care page"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = care_mgr.post_update(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_visitor(self, care_id, body):
+        """POST sign up for a visit"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_visitor', max_calls=10, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.add_visitor(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_meal(self, care_id, body):
+        """POST sign up to bring a meal"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'care_meal', max_calls=10, window=300):
+                self._send_rate_limit_error()
+                return
+            data = json.loads(body)
+            result = care_mgr.add_meal(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_add_task(self, care_id, body):
+        """POST add a new task (organizer)"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            result = care_mgr.add_task(care_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_care_claim_task(self, body):
+        """POST claim a task"""
+        if not CARE_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            task_id = data.get('task_id')
+            if not task_id:
+                self.send_json_response({'status': 'error', 'message': 'Task ID required'}, 400)
+                return
+            result = care_mgr.claim_task(task_id, data)
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     def handle_update_shiva(self, support_id, body):
         """Handle organizer update to shiva support page"""
         if not SHIVA_AVAILABLE:
@@ -4663,12 +5044,14 @@ button:hover{background:#c45a1a}</style></head>
 
     def _serve_access_result_page(self, title, message):
         """Serve a simple result page for approve/deny actions"""
+        safe_title = html_mod.escape(str(title))
+        safe_msg = message  # Already escaped by callers; re-escaping would double-encode
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} - Neshama</title>
+    <title>{safe_title} - Neshama</title>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body {{ font-family: 'Crimson Pro', serif; background: linear-gradient(135deg, #FAF9F6 0%, #F5F5DC 100%); color: #3E2723; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }}
@@ -4680,8 +5063,8 @@ button:hover{background:#c45a1a}</style></head>
 </head>
 <body>
     <div class="container">
-        <h1>{title}</h1>
-        <p>{message}</p>
+        <h1>{safe_title}</h1>
+        <p>{safe_msg}</p>
         <a href="/" class="btn">Return to Neshama</a>
     </div>
 </body>
@@ -5593,14 +5976,15 @@ def run_server(port=None):
         except Exception as e:
             logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
 
-        # Add weekly offsite backup (Sunday 3 AM ET — emails backup JSON)
+        # Add weekly offsite backup (Sunday 3 AM ET — runs backup, email disabled to reduce noise)
         try:
             def _run_offsite_backup():
                 try:
                     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
                     admin_email = os.environ.get('ADMIN_EMAIL', 'contact@neshama.ca')
-                    if not sendgrid_key:
-                        logging.info("[OffsiteBackup] No SendGrid key — skipping email backup")
+                    send_email = os.environ.get('BACKUP_EMAIL_ENABLED', 'false').lower() == 'true'
+                    if not sendgrid_key or not send_email:
+                        logging.info("[OffsiteBackup] Backup email disabled (set BACKUP_EMAIL_ENABLED=true to re-enable)")
                         return
                     if not SHIVA_AVAILABLE:
                         logging.error("[OffsiteBackup] Shiva manager unavailable — cannot backup")
@@ -6198,10 +6582,10 @@ def run_server(port=None):
 
         # Migration 2026-03-12: Remove "not_certified" label — confusing, implies certification
         # These vendors are not certified; better to show no kosher badge at all
-        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
         ks_count = cursor.rowcount
         if ks_count > 0:
-            logging.info(f" Migrations: removed 'Kosher Style' label from {ks_count} vendors")
+            logging.info(f" Migrations: changed 'Kosher Style' to 'not_certified' for {ks_count} vendors")
         total_changed += ks_count
 
         # Migration 2026-03-12b: Fix 3 vendors missing website URLs (orange button fix)
@@ -6442,8 +6826,8 @@ def run_server(port=None):
         cursor.execute(f"DELETE FROM shiva_support WHERE id IN ({placeholders})", test_shiva_ids)
         total_changed += cursor.rowcount
 
-        # Migration 2026-03-22b: Remove all 'Kosher Style' labels from vendors
-        cursor.execute("UPDATE vendors SET kosher_status = '' WHERE kosher_status = 'Kosher Style'")
+        # Migration 2026-03-22b: Fix 'Kosher Style' labels — use 'not_certified' instead
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE kosher_status = 'Kosher Style'")
         total_changed += cursor.rowcount
 
         # Migration 2026-03-22c: Remove kosher label from Chop Hop (not kosher)
@@ -6498,6 +6882,164 @@ def run_server(port=None):
         if cleaned_count > 0:
             logging.info(f" Migrations: stripped honorific suffixes from {cleaned_count} obituary names")
         total_changed += cleaned_count
+
+        # Migration 2026-03-26: Firecrawl vendor enrichment — emails, instagram, phones
+        firecrawl_enrichment = [
+            "UPDATE vendors SET email = 'info@abasbagel.com', instagram = '@abas.bagels', phone = '(416) 780-2020' WHERE slug = 'abas-bagel-company' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'info@apexkoshercatering.com', instagram = '@apexkoshercatering' WHERE slug = 'apex-kosher-catering' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            # Aroma phone removed — (805) is California, not Toronto
+            "UPDATE vendors SET email = 'edloomy@gmail.com' WHERE slug = 'ba-li-laffa' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@bistro.grande' WHERE slug = 'bistro-grande' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@boxandboardto' WHERE slug = 'box-and-board' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@bubbysbagels.com' WHERE slug = 'bubbys' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@chophop_salads' WHERE slug = 'chop-hop' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@cumbraes' WHERE slug = 'cumbraes' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@deli770' WHERE slug = 'deli-770' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@districtbagel.com', instagram = '@districtbagel' WHERE slug = 'district-bagel' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'catering@elysfinefoods.com' WHERE slug = 'elys-fine-foods' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'catering@elysfinefoods.com' WHERE slug = 'elys-fine-foods-gift-baskets' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@fandbkosher' WHERE slug = 'f-b-kosher-catering' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@fairmountbagel.com' WHERE slug = 'fairmount-bagel' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'info@gibbys.com', instagram = '@gibbysrestaurant' WHERE slug = 'gibbys' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@jem.salads' WHERE slug = 'jem-salads' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'customerservice@laurasecord.ca', phone = '(800) 268-6353' WHERE slug = 'laura-secord' AND (email IS NULL OR email = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'catering@maineventmauzone.com' WHERE slug = 'main-event-catering' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET email = 'info@montrealkosher.ca' WHERE slug = 'montreal-kosher-bakery' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@lovemevame' WHERE slug = 'me-va-me' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@menchenscatering', phone = '(416) 638-8381' WHERE slug = 'menchens-glatt-kosher-catering' AND (instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET instagram = '@milknhoneyto' WHERE slug = 'milk-n-honey' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET phone = '(647) 343-4773' WHERE slug = 'noah-kosher-sushi' AND (phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'orlygrill2019@gmail.com' WHERE slug = 'orlys-kitchen' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@prccaterers' WHERE slug = 'prc-caterers' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@paeseristorante' WHERE slug = 'paese-ristorante' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@paisanos_orginal' WHERE slug = 'il-paesano' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'orders@pantryfoods.ca', instagram = '@pantryfoods', phone = '(416) 785-0996' WHERE slug = 'pantry-foods' AND (email IS NULL OR email = '' OR instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+            "UPDATE vendors SET email = 'shalomindiacatering@gmail.com' WHERE slug = 'shalom-india' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@snowdondeli' WHERE slug = 'snowdon-deli' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@stviateurbagel' WHERE slug = 'st-viateur-bagel' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@terroni.com' WHERE slug = 'terroni' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@fooddudes' WHERE slug = 'the-food-dudes' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET instagram = '@unitedbakers' WHERE slug = 'united-bakers-dairy-restaurant' AND (instagram IS NULL OR instagram = '')",
+            "UPDATE vendors SET email = 'info@wokandbowl.ca' WHERE slug = 'wok-bowl' AND (email IS NULL OR email = '')",
+            "UPDATE vendors SET instagram = '@zeldensdeli', phone = '(647) 347-3474' WHERE slug = 'zeldens-deli-and-desserts' AND (instagram IS NULL OR instagram = '' OR phone IS NULL OR phone = '')",
+        ]
+        for stmt in firecrawl_enrichment:
+            cursor.execute(stmt)
+            total_changed += cursor.rowcount
+
+        # Migration 2026-03-26b: Firecrawl vendor images (og:image metadata)
+        firecrawl_images = {
+            "1-800-baskets": "https://images.contentstack.io/v3/assets/bltc699f5c4977942f7/blt8afadb9aace1d727/601c6c964b8030688c37b81f/baskets-com.jpg",
+            "abas-bagel-company": "https://img1.wsimg.com/isteam/ip/b9fc4f49-b834-4894-b337-fadb0b8205fa/blob-247fa0a.png",
+            "aish-tanoor": "http://aishtanoor.com/wp-content/uploads/2019/08/home-pic-2.jpg",
+            "apex-kosher-catering": "https://static.wixstatic.com/media/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg",
+            "aroma-espresso-bar": "https://www.aromaespressobar.ca/wp-content/uploads/2025/01/cropped-aroma-favicon-1.png",
+            "ba-li-laffa": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/website/images/header-logo.png",
+            "beautys-luncheonette": "http://static1.squarespace.com/static/6633b66c8902e916bd868d86/t/66f57916d4f3b30a3b03dc88/1727363350434/Beautys-1942-navy-drop.png?format=1500w",
+            "beyond-delish": "https://www.beyonddelish.ca/logo-for-facebook.png",
+            "bistro-grande": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg",
+            "bubbys": "https://static.wixstatic.com/media/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png/v1/fill/w_2500,h_3196,al_c/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png",
+            "candy-catchers": "http://candycatchers.com/cdn/shop/files/Logo-01_copy_9c297b14-751d-488e-8f22-f4388e1b0dc0.png?height=628&pad_color=ffffff&v=1630532191&width=1200",
+            "centre-street-deli": "https://static.wixstatic.com/media/a9a0b8_a639f1e141ec4594bcb35b4f83b413fc%7Emv2.png/v1/fit/w_2500,h_1330,al_c/a9a0b8_a639f1e141ec4594bcb35b4f83b413fc%7Emv2.png",
+            "chenoys-deli": "https://static.goto-where.com/7042-albums-1.jpg",
+            "cheryls-cookies": "https://images.contentstack.io/v3/assets/blt9f0a9533818afd99/bltbecc4b167616d036/603951582eee966ee2e3d43e/CherylsLogo_250x250.jpg",
+            "chop-hop": "https://static.wixstatic.com/media/0fc9e4_bfb57a9d00934444a0759055b8615b3b~mv2.jpeg/v1/fill/w_2500,h_2000,al_c/0fc9e4_bfb57a9d00934444a0759055b8615b3b~mv2.jpeg",
+            "daiters-kitchen": "https://www.daiterskitchen.ca/media/2020/02/cor4.png",
+            "deli-770": "https://deli770.com/wp-content/uploads/2024/07/Smoked-Meat-.png",
+            "deli-boyz": "https://restaurantdeliboyz.com/wp-content/uploads/2023/12/cropped-favicon-32x32-1.png",
+            "f-b-kosher-catering": "https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Home-Background.jpg",
+            "gibbys": "https://www.gibbys.com/wp-content/uploads/2025/06/cropped-_GB-Shooting2avril128-2.jpg",
+            "harry-david": "https://images.contentstack.io/v3/assets/blt89dbf1c763ec00a6/bltc724c01a1c03ea6f/67d3211a1aa7755631b1b3c9/20_4202_30E_05.jpg",
+            "la-marguerite-catering": "http://www.lamarguerite.ca/cdn/shop/files/SHOPIFY_1200x1200.png?v=1683573799",
+            "lesters-deli": "https://i0.wp.com/lestersdeli.com/wp-content/uploads/2023/10/Homepage-Lesters.webp",
+            "mandys": "https://mandys.ca/wp-content/uploads/2025/02/cropped-Mandys-Gourmet-Salads.webp",
+            "me-va-me": "https://lirp.cdn-website.com/ed3e1e79/dms3rep/multi/opt/mevame_open_graph-1920w.jpg",
+            "menchens-glatt-kosher-catering": "https://menchens.ca/img/logo_og.jpg",
+            "mitzuyan-kosher-catering": "https://staging9.mitzuyankoshercatering.com/wp-content/uploads/2021/03/Kosher-Wedding-Package_Mitzuyan-Kosher-Catering_CM.jpg",
+            "moishes": "https://moishes.ca/wp-content/uploads/2023/05/moishes_og.jpg",
+            "noah-kosher-sushi": "https://noah-kosher-sushi.vercel.app/images/og-thumbnail.webp",
+            "nosherz": "http://nosherz.com/cdn/shop/files/Nosherz_Sticker-Logo_Final_1200x1200.jpg?v=1629121749",
+            "oinegs-kosher": "https://static.wixstatic.com/media/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg",
+            "olive-et-gourmando": "http://oliveetgourmando.com/cdn/shop/files/Olive_LOGO.svg?height=628&pad_color=ffffff&v=1720203290&width=1200",
+            "pancers-original-deli": "https://static.wixstatic.com/media/ccc15e_a59923da2656400984c425b7afb4ce04.png/v1/fit/w_2500,h_1330,al_c/ccc15e_a59923da2656400984c425b7afb4ce04.png",
+            "paradise-kosher-catering": "https://www.paradisekosher.com/wp-content/uploads/2018/07/kosher350.png",
+            "parallel": "https://cdn.sanity.io/images/x07rp3eb/production/26e17ca9c79d53e2d548d75d2334c10c29c8384a-1737x1172.jpg",
+            "pickle-barrel": "https://www.picklebarrel.ca/content/dam/cara/en/pickle-barrel-image-library/pb-share-image.jpg",
+            "pizza-gourmetti": "https://i.ibb.co/ZW3nCyT/gourmetti-logo.png",
+            "prc-caterers": "https://prccaterers.com/wp-content/uploads/2024/09/01HERB1-scaled.jpg",
+            "purdys-chocolatier": "https://www.purdys.com/media/og_image/stores/1/logo.png",
+            "pusateris-fine-foods": "https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg",
+            "richmond-kosher-bakery": "https://richmondkosherbakery.com/wp-content/uploads/2023/08/Share.jpg",
+            "royal-dairy-cafe-catering": "https://royaldairycafe.com/wp-content/uploads/2025/12/Royal-Dairy-Cafe-Logo-Main.svg",
+            "schwartzs-deli": "http://schwartzsdeli.com/cdn/shop/t/9/assets/logo.png?v=974",
+            "st-viateur-bagel": "http://stviateurbagel.com/cdn/shop/files/st-viateur-bagel-social-share.png?v=1737128349",
+            "summerhill-market": "http://static1.squarespace.com/static/6478a38999812546babb8e36/t/67bf42b0d7ee0406f0c5f769/1724096196631/5.png?format=1500w",
+            # sushi-inn removed — ChowNow generic placeholder, not restaurant image
+            "terroni": "https://cdn.prod.website-files.com/62fc3b45d1a5bb6c2ec29d06/638565decf1e5fde853b7361_og-gruppo-terroni-30.png",
+            "the-chicken-nest": "https://static.wixstatic.com/media/e6a6d4_faddf65a9b8b400f8b4ddfbefcc91742%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/e6a6d4_faddf65a9b8b400f8b4ddfbefcc91742%7Emv2.jpg",
+            "the-fruit-company": "http://www.thefruitcompany.com/cdn/shop/files/Recurso_1.png?height=628&pad_color=ffffff&v=1706213999&width=1200",
+            # tutto-pronto removed — WordPress theme demo image, not restaurant
+            "united-bakers-dairy-restaurant": "http://unitedbakers.ca/cdn/shop/files/UB_Logos_UB_Secondary_Logo_1.png?v=1662426190",
+            "what-a-bagel": "https://www.whatabagel.com/wp-content/uploads/2019/07/slider-home-01.jpg",
+            "wolfermans-bakery": "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/blta0835708627fd460/602076e937c7bc6afba5213d/Wolfermans-Logo-250x250.jpg",
+        }
+        for slug, img_url in firecrawl_images.items():
+            cursor.execute("UPDATE vendors SET image_url = ? WHERE slug = ? AND (image_url IS NULL OR image_url = '')", (img_url, slug))
+            total_changed += cursor.rowcount
+
+        # Centre Street Deli instagram from image pass
+        cursor.execute("UPDATE vendors SET instagram = '@centrestreetdeli1988' WHERE slug = 'centre-street-deli' AND (instagram IS NULL OR instagram = '')")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-26c: Fix Candy Catchers bare "Kosher" label
+        cursor.execute("UPDATE vendors SET kosher_status = 'not_certified' WHERE slug = 'candy-catchers' AND kosher_status = 'Kosher'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-26d: Fix Tarnofsky test shiva — set to public so link works
+        cursor.execute("UPDATE shiva_support SET privacy = 'public' WHERE id = '1f94514f-931c-4147-8f4f-1847a0368815' AND privacy = 'private'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-03-31: Vendor image enrichment batch 2 (14 images, 2 emails, 4 phones)
+        enrichment_sql = [
+            "UPDATE vendors SET image_url = 'https://d226b0iufwcjmj.cloudfront.net/retailers/1502/icon.png?0.533108841950406' WHERE slug = 'adar' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://besomontreal.ca/wp-content/uploads/2025/07/BTrack_portraits-718_NEW-TEAM-NO-CS.png?_t=1753978642' WHERE slug = 'beso' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'http://boardsbydani.com/cdn/shop/files/Dani---stickers---print-_1.png?height=628&pad_color=fbe8ec&v=1681131469&width=1200', phone = '(774) 967-5392' WHERE slug = 'boards-by-dani' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://static.wixstatic.com/media/900ec9_60f7363d728e46f29d6bd6198725b707~mv2.png/v1/fit/w_2500,h_1330,al_c/900ec9_60f7363d728e46f29d6bd6198725b707~mv2.png' WHERE slug = 'bossa' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET phone = '(462) 394-6792' WHERE slug = 'candy-catchers' AND (phone IS NULL OR phone = '')",
+            "UPDATE vendors SET image_url = 'http://static1.squarespace.com/static/5fc2758dc6d96458362bf34f/t/5fc27bd84f98375720301186/1606581220103/TheSAVCollective_Clarke13.JPG?format=1500w' WHERE slug = 'clarke-cafe' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://eatzchezvouz.com/wp-content/uploads/2021/03/logo.png', email = 'eatzchezvouz@bellnet.ca' WHERE slug = 'eatz-chez-vouz' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://falafelstjacques.ca/images/og-image.jpg' WHERE slug = 'falafel-st-jacques' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://media.restodata.ca/_restoimages/18/19167-photo772.jpg' WHERE slug = 'fressers' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://linnysluncheonette.com/assets/images/social.png' WHERE slug = 'linnys-luncheonette' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://www.mybaskets.ca/cdn/shop/files/fre-shipping-ontario-quebec_1200x.jpg?v=1618421181', phone = '(416) 421-7437' WHERE slug = 'my-baskets' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://slicenbites.com/wp-content/uploads/2021/10/top-choice-logo.png', email = 'manager@slicenbites.com', phone = '(416) 781-1326' WHERE slug = 'slice-n-bites' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://solomos.ca/wp-content/uploads/2025/12/facebook-thumbnail.jpg' WHERE slug = 'solomos' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'https://e7ovatjya3o.exactdn.com/site-content/uploads/2021/12/GORGEOUS-PLATE-GROUPING-BY-PATTY-OF-NEXT-MAINS-scaled.jpg?strip=all&quality=70' WHERE slug = 'toben-food-by-design' AND (image_url IS NULL OR image_url = '')",
+            "UPDATE vendors SET image_url = 'http://yansdeli.com/cdn/shop/files/home-yans_796dc25b-2435-4853-81a8-13859fa761c9.jpg?v=1755461841' WHERE slug = 'yans-deli' AND (image_url IS NULL OR image_url = '')",
+        ]
+        for sql in enrichment_sql:
+            cursor.execute(sql)
+            total_changed += cursor.rowcount
+
+        # Migration 2026-03-31: Clean smoketest subscribers from production
+        cursor.execute("DELETE FROM subscribers WHERE email LIKE 'smoketest%@neshama.ca'")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-04-05: Feature Linny's Luncheonette and Jem Salads (Amanda beta vendors)
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'linnys-luncheonette' AND featured != 1")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'jem-salads' AND featured != 1")
+        total_changed += cursor.rowcount
+        # Migration 2026-04-05b: Feature Montreal vendors — Nosherz + Snowdon Deli
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'nosherz' AND featured != 1")
+        total_changed += cursor.rowcount
+        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'snowdon-deli' AND featured != 1")
+        total_changed += cursor.rowcount
+
+        # Migration 2026-04-05c: Same-source dedup DEFERRED
+        # Risk: scraper IDs are hash-based. Deleting by name match could cause
+        # re-insertion on next scrape run. Using API-level dedup instead (safe).
+        # TODO: Fix scraper to normalize names before hashing, then clean DB.
 
         conn.commit()
         conn.close()

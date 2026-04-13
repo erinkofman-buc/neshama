@@ -75,11 +75,18 @@ class NeshamaDatabase:
             ('hidden', 'INTEGER DEFAULT 0'),
             ('country', "TEXT DEFAULT 'CA'"),
             ('region', 'TEXT'),
+            ('first_seen', 'TEXT'),
         ]:
             try:
                 self.cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')
             except sqlite3.OperationalError:
                 pass  # Column already exists
+
+        # Backfill first_seen from last_updated for any records missing it
+        try:
+            self.cursor.execute('UPDATE obituaries SET first_seen = last_updated WHERE first_seen IS NULL')
+        except sqlite3.OperationalError:
+            pass
 
         # Comments table - linked to obituaries
         self.cursor.execute('''
@@ -194,8 +201,10 @@ class NeshamaDatabase:
 
     def generate_obituary_id(self, source, deceased_name, date_of_death):
         """Generate unique ID for obituary using hash"""
-        # Normalize name: strip whitespace, collapse spaces, lowercase
-        name = ' '.join(deceased_name.strip().split()).lower()
+        # Normalize name: strip zero-width chars, whitespace, collapse spaces, lowercase
+        import unicodedata
+        clean_name = ''.join(c for c in deceased_name if unicodedata.category(c) != 'Cf')
+        name = ' '.join(clean_name.strip().split()).lower()
         source_norm = source.strip().lower()
         dod = (date_of_death or '').strip()
         key = f"{source_norm}_{name}_{dod}"
@@ -203,10 +212,12 @@ class NeshamaDatabase:
 
     def generate_content_hash(self, obituary_data):
         """Generate hash of content to detect changes"""
-        # Combine key fields that might change
-        content = f"{obituary_data.get('funeral_datetime', '')}_" \
+        # Combine key fields that might change (photo_url added Apr 7, 2026)
+        content = f"{obituary_data.get('deceased_name', '')}_" \
+                  f"{obituary_data.get('funeral_datetime', '')}_" \
                   f"{obituary_data.get('shiva_info', '')}_" \
-                  f"{obituary_data.get('livestream_url', '')}"
+                  f"{obituary_data.get('livestream_url', '')}_" \
+                  f"{obituary_data.get('photo_url', '')}"
         return hashlib.md5(content.encode()).hexdigest()
 
     def upsert_obituary(self, obituary_data):
@@ -223,15 +234,24 @@ class NeshamaDatabase:
         content_hash = self.generate_content_hash(obituary_data)
         now = datetime.now().isoformat()
 
-        # Check if obituary exists
+        # Check if obituary exists by ID (exact name match)
         self.cursor.execute('SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,))
         existing = self.cursor.fetchone()
+
+        # REMOVED: funeral_datetime fallback matching (caused name overwrite bug — two different
+        # people at the same funeral home with similar times got merged into one record).
+        # Funeral homes often post preliminary listings then update them, so we rely on the
+        # name-based ID hash as the sole matching key. Duplicates from name typo corrections
+        # are preferable to silently merging two different people's records.
 
         if existing:
             # Update if content changed
             if existing[1] != content_hash:
                 self.cursor.execute('''
                     UPDATE obituaries SET
+                        deceased_name = ?,
+                        source_url = ?,
+                        condolence_url = ?,
                         hebrew_name = ?,
                         date_of_death = ?,
                         yahrzeit_date = ?,
@@ -252,6 +272,9 @@ class NeshamaDatabase:
                         shiva_private = ?
                     WHERE id = ?
                 ''', (
+                    obituary_data['deceased_name'],
+                    obituary_data['source_url'],
+                    obituary_data.get('condolence_url', obituary_data['source_url']),
                     obituary_data.get('hebrew_name'),
                     obituary_data.get('date_of_death'),
                     obituary_data.get('yahrzeit_date'),

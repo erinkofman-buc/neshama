@@ -22,7 +22,9 @@ def _normalize_name(name):
     then lowercases and collapses whitespace."""
     if not name:
         return ''
-    n = name
+    import unicodedata as _ud
+    # Strip zero-width characters (funeral homes inject these, causes false duplicates)
+    n = ''.join(c for c in name if _ud.category(c) != 'Cf')
     # Remove ALL parenthesized content: nicknames "(Jerry)", née "(née Smith)", etc.
     n = _re.sub(r'\s*\([^)]*\)', '', n)
     # Remove ז״ל / ז"ל honorific specifically (not all Hebrew text)
@@ -157,7 +159,9 @@ class DailyDigestSender:
     }
 
     def get_new_obituaries(self, hours=24, location=None):
-        """Get obituaries posted in the last N hours, optionally filtered by location"""
+        """Get obituaries first seen in the last N hours, optionally filtered by location.
+        Uses COALESCE(first_seen, last_updated) so name corrections by funeral homes
+        don't cause repeats, with fallback for records missing first_seen."""
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -169,17 +173,17 @@ class DailyDigestSender:
             placeholders = ','.join('?' for _ in sources)
             cursor.execute(f'''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND source IN ({placeholders})
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', [cutoff_time] + sources)
         else:
             cursor.execute('''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', (cutoff_time,))
 
         obituaries = [dict(row) for row in cursor.fetchall()]
@@ -417,14 +421,14 @@ class DailyDigestSender:
                 if 'montreal' in loc_list:
                     subscriber_obits.extend(montreal_obits)
 
-                # Deduplicate by id and sort by last_updated desc
+                # Deduplicate by id and sort by first_seen desc
                 seen = set()
                 unique_obits = []
                 for o in subscriber_obits:
                     if o['id'] not in seen:
                         seen.add(o['id'])
                         unique_obits.append(o)
-                unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
+                unique_obits.sort(key=lambda x: x.get('first_seen') or x.get('last_updated', ''), reverse=True)
 
                 if not unique_obits:
                     # No obits for this subscriber's location, but other locations have obits.
@@ -537,16 +541,20 @@ ERRORS
 {error_summary}
 """
 
-            message = Mail(
-                from_email=Email(self.from_email, self.from_name),
-                to_emails=To('contact@neshama.ca'),
-                subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
-                plain_text_content=Content(MimeType.text, plain_text)
-            )
+            # Only send health summary on Mondays (reduce inbox noise)
+            if datetime.now().weekday() == 0:  # Monday
+                message = Mail(
+                    from_email=Email(self.from_email, self.from_name),
+                    to_emails=To('contact@neshama.ca'),
+                    subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                    plain_text_content=Content(MimeType.text, plain_text)
+                )
 
-            sg = SendGridAPIClient(self.sendgrid_api_key)
-            sg.send(message)
-            logging.info("[DailyDigest] Health summary sent to contact@neshama.ca")
+                sg = SendGridAPIClient(self.sendgrid_api_key)
+                sg.send(message)
+                logging.info("[DailyDigest] Weekly health summary sent to contact@neshama.ca")
+            else:
+                logging.info(f"[DailyDigest] Health: {obit_count} obits, {sent} sent, {failed} failed (email suppressed — Monday only)")
 
         except Exception as e:
             logging.error(f"[DailyDigest] Failed to send health summary: {e}")

@@ -645,9 +645,9 @@
                         var slug = o.id || '';
                         html += '<a href="/memorial/' + encodeURIComponent(slug) + '" class="obit-card">';
                         if (o.photo_url) {
-                            html += '<img class="obit-image" src="' + escapeHtml(o.photo_url) + '" alt="' + escapeHtml(o.deceased_name || '') + '" loading="lazy" onerror="this.outerHTML=\'<div class=obit-placeholder>&#x1F56F;&#xFE0F;</div>\'">';
+                            html += '<img class="obit-image" src="' + escapeHtml(o.photo_url) + '" alt="' + escapeHtml(o.deceased_name || '') + '" loading="lazy" onerror="this.outerHTML=\'<div class=obit-placeholder>In Memory</div>\'">';
                         } else {
-                            html += '<div class="obit-placeholder">&#x1F56F;&#xFE0F;</div>';
+                            html += '<div class="obit-placeholder">In Memory</div>';
                         }
                         html += '<div class="obit-info">';
                         html += '<div class="obit-name">' + escapeHtml(o.deceased_name || '') + '</div>';

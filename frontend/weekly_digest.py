@@ -49,7 +49,8 @@ class WeeklyDigestSender:
         self.subscription_manager = EmailSubscriptionManager(db_path, sendgrid_api_key)
 
     def get_weekly_obituaries(self, location=None):
-        """Get obituaries posted in the last 7 days, optionally filtered by location"""
+        """Get obituaries first seen in the last 7 days, optionally filtered by location.
+        Uses first_seen (not last_updated) so name corrections don't cause repeats."""
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -61,17 +62,17 @@ class WeeklyDigestSender:
             placeholders = ','.join('?' for _ in sources)
             cursor.execute(f'''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND source IN ({placeholders})
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', [cutoff_time] + sources)
         else:
             cursor.execute('''
                 SELECT * FROM obituaries
-                WHERE last_updated >= ?
+                WHERE COALESCE(first_seen, last_updated) >= ?
                 AND COALESCE(hidden, 0) = 0
-                ORDER BY last_updated DESC
+                ORDER BY COALESCE(first_seen, last_updated) DESC
             ''', (cutoff_time,))
 
         obituaries = [dict(row) for row in cursor.fetchall()]
@@ -93,7 +94,7 @@ class WeeklyDigestSender:
         by_day = defaultdict(list)
         for obit in obituaries:
             try:
-                updated = obit.get('last_updated', '')
+                updated = obit.get('first_seen') or obit.get('last_updated', '')
                 if updated:
                     day_key = updated[:10]  # YYYY-MM-DD
                     by_day[day_key].append(obit)
@@ -286,7 +287,7 @@ class WeeklyDigestSender:
                 if o['id'] not in seen:
                     seen.add(o['id'])
                     unique_obits.append(o)
-            unique_obits.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
+            unique_obits.sort(key=lambda x: x.get('first_seen') or x.get('last_updated', ''), reverse=True)
 
             if not unique_obits:
                 skipped_count += 1

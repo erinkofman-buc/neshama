@@ -38,7 +38,7 @@ class ShivaManager:
                 organizer_phone TEXT,
                 organizer_relationship TEXT NOT NULL,
                 family_name TEXT NOT NULL,
-                shiva_address TEXT NOT NULL,
+                shiva_address TEXT,
                 shiva_city TEXT,
                 shiva_sub_area TEXT,
                 shiva_start_date TEXT NOT NULL,
@@ -363,6 +363,18 @@ class ShivaManager:
         except sqlite3.OperationalError:
             cursor.execute('ALTER TABLE shiva_support ADD COLUMN blocked_meals TEXT')
 
+        # V6: dietary_restrictions (JSON array of strings like ["kosher","nut_free"])
+        try:
+            cursor.execute('SELECT dietary_restrictions FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN dietary_restrictions TEXT')
+
+        # V6: meal_schedule (JSON object with per-meal overrides)
+        try:
+            cursor.execute('SELECT meal_schedule FROM shiva_support LIMIT 1')
+        except sqlite3.OperationalError:
+            cursor.execute('ALTER TABLE shiva_support ADD COLUMN meal_schedule TEXT')
+
         # V5: additional_contributors on meal_signups (JSON array of {name, email})
         try:
             cursor.execute('SELECT additional_contributors FROM meal_signups LIMIT 1')
@@ -399,11 +411,17 @@ class ShivaManager:
     MAX_TEXT_LENGTH = 2000
 
     def _sanitize_text(self, value, max_len=None):
-        """Truncate text fields to prevent abuse."""
+        """Strip HTML tags and truncate text fields to prevent abuse."""
         if not value:
             return value
+        import re
+        text = str(value)
+        # Strip complete tags
+        text = re.sub(r'<[^>]*>', '', text)
+        # Strip unclosed tags (e.g. "<img src=x onerror=alert(1)")
+        text = re.sub(r'<[^>]*$', '', text)
         limit = max_len or self.MAX_FIELD_LENGTH
-        return str(value)[:limit].strip()
+        return text[:limit].strip()
 
     def _validate_url(self, url):
         """Validate URL uses http:// or https://. Reject javascript:, data:, vbscript: schemes."""
@@ -441,9 +459,9 @@ class ShivaManager:
     # ── Create Support Page ───────────────────────────────────
 
     def _normalize_obituary_id(self, obit_id):
-        """Normalize obituary_id: treat 'unknown', empty string as None."""
-        if not obit_id or str(obit_id).strip() in ('unknown', ''):
-            return None
+        """Normalize obituary_id: treat 'unknown', empty string as unique standalone ID."""
+        if not obit_id or str(obit_id).strip() in ('unknown', '', 'null', 'None', 'standalone'):
+            return 'standalone_' + str(uuid.uuid4())[:8]
         return str(obit_id).strip()
 
     def create_support(self, data):
@@ -451,7 +469,7 @@ class ShivaManager:
         Returns: {status, id, magic_token} or {status, error}
         """
         required = ['organizer_name', 'organizer_email',
-                     'organizer_relationship', 'family_name', 'shiva_address',
+                     'family_name',
                      'shiva_start_date', 'shiva_end_date']
 
         for field in required:
@@ -532,7 +550,9 @@ class ShivaManager:
             if clean_blocked:
                 blocked_meals = json.dumps(clean_blocked)
 
-        # V3: Validate dietary_restrictions (JSON array of chip values + optional free-text "other")
+        # V3 dietary_restrictions: free-text chip values (not main's allowlist)
+        # because V3 organize UI sends "Kosher"/"Nut-free"/etc. + an "Other"
+        # free-text field. Allowlist from main would reject all V3 input.
         dietary_restrictions = None
         raw_dietary = data.get('dietary_restrictions')
         if raw_dietary and isinstance(raw_dietary, list):
@@ -544,7 +564,9 @@ class ShivaManager:
             if clean_dietary:
                 dietary_restrictions = json.dumps(clean_dietary)
 
-        # V3: Validate meal_guest_overrides (JSON array of {date, meal_type, guest_count})
+        # V3 meal_guest_overrides (JSON array of {date, meal_type, guest_count}).
+        # Main's parallel `meal_schedule` (dict of serving_time + guests + note)
+        # is intentionally not merged — V3 replaces the scheduling UX entirely.
         meal_guest_overrides = None
         raw_overrides = data.get('meal_guest_overrides')
         if raw_overrides and isinstance(raw_overrides, list):
@@ -592,9 +614,9 @@ class ShivaManager:
                 self._sanitize_text(data['organizer_name'], 200),
                 clean_email,
                 self._sanitize_text(data.get('organizer_phone', ''), 30) or None,
-                self._sanitize_text(data['organizer_relationship'], 50),
+                self._sanitize_text(data.get('organizer_relationship', ''), 50) or 'Friend',
                 self._sanitize_text(data['family_name'], 200),
-                self._sanitize_text(data['shiva_address']),
+                self._sanitize_text(data.get('shiva_address', '')) or '',
                 self._sanitize_text(data.get('shiva_city', ''), 100) or None,
                 self._sanitize_text(data.get('shiva_sub_area', ''), 100) or None,
                 data['shiva_start_date'].strip()[:10],
@@ -644,7 +666,7 @@ class ShivaManager:
                    family_name, shiva_city, shiva_sub_area, shiva_start_date, shiva_end_date,
                    pause_shabbat, guests_per_meal, dietary_notes, special_instructions,
                    donation_url, donation_label, status, privacy, recommended_vendors,
-                   organizer_update, family_notes, created_at
+                   organizer_update, family_notes, dietary_restrictions, created_at
             FROM shiva_support
             WHERE obituary_id = ? AND status = 'active'
             ORDER BY created_at DESC LIMIT 1
@@ -653,7 +675,24 @@ class ShivaManager:
         conn.close()
 
         if row:
-            return {'status': 'success', 'data': dict(row)}
+            data = dict(row)
+            # For private pages, only expose limited fields (same as get_support_by_id)
+            if data.get('privacy') == 'private':
+                data = {
+                    'id': data['id'],
+                    'obituary_id': data['obituary_id'],
+                    'organizer_name': data['organizer_name'],
+                    'organizer_relationship': data['organizer_relationship'],
+                    'family_name': data['family_name'],
+                    'shiva_city': data.get('shiva_city'),
+                    'shiva_sub_area': data.get('shiva_sub_area'),
+                    'shiva_start_date': data['shiva_start_date'],
+                    'shiva_end_date': data['shiva_end_date'],
+                    'status': data['status'],
+                    'privacy': 'private',
+                    'created_at': data['created_at'],
+                }
+            return {'status': 'success', 'data': data}
         return {'status': 'not_found', 'message': 'No active support page for this memorial'}
 
     def get_support_by_id(self, support_id):
@@ -722,6 +761,9 @@ class ShivaManager:
             'special_instructions', 'donation_url', 'donation_label',
             'recommended_vendors', 'organizer_update', 'family_notes',
             'drop_off_instructions', 'notification_prefs', 'blocked_meals',
+            'dietary_restrictions',
+            'meal_schedule',
+            'obituary_id',
         ]
 
         sets = []
@@ -1116,11 +1158,12 @@ class ShivaManager:
 
         now = datetime.now().isoformat()
         try:
-            num_servings = 4
+            # Servings are controlled by the organizer's guests_per_meal setting.
+            # Volunteers cannot override this — prevents mismatched portion sizes.
             try:
-                num_servings = max(1, min(50, int(data.get('num_servings', 4))))
+                num_servings = 0 if is_alternative else max(1, int(support.get('guests_per_meal') or 20))
             except (ValueError, TypeError):
-                pass
+                num_servings = 0 if is_alternative else 20
 
             will_serve = 1 if data.get('will_serve') else 0
 
@@ -1255,10 +1298,30 @@ class ShivaManager:
 
     # ── Get Signups ───────────────────────────────────────────
 
-    def get_signups(self, support_id):
-        """Get all meal signups for a support page (for calendar display)."""
+    def get_signups(self, support_id, access_token=None):
+        """Get all meal signups for a support page (for calendar display).
+        For private pages, requires a valid access_token or share_token."""
         conn = self._get_conn()
         cursor = conn.cursor()
+
+        # Check privacy before returning signups
+        cursor.execute('SELECT privacy, share_token FROM shiva_support WHERE id = ?', (support_id,))
+        support = cursor.fetchone()
+        if support and dict(support).get('privacy') == 'private':
+            has_access = False
+            if access_token:
+                if access_token == dict(support).get('share_token'):
+                    has_access = True
+                else:
+                    cursor.execute('''
+                        SELECT id FROM shiva_access_requests
+                        WHERE shiva_id = ? AND access_token = ? AND status = 'approved'
+                    ''', (support_id, access_token))
+                    has_access = cursor.fetchone() is not None
+            if not has_access:
+                conn.close()
+                return {'status': 'success', 'data': []}
+
         cursor.execute('''
             SELECT id, meal_date, meal_type, volunteer_name, meal_description,
                    num_servings, will_serve, created_at,
@@ -1780,6 +1843,8 @@ class ShivaManager:
         'yahrzeit_reminders', 'unsubscribe_feedback',
         'shiva_analytics', 'email_log', 'scraper_log',
         'shiva_co_organizers', 'shiva_updates',
+        'shiva_access_requests', 'candles',
+        'digest_runs', 'email_daily_cap',
     ]
 
     # High-volume analytics/logging tables: only back up last 30 days
@@ -2293,12 +2358,7 @@ class ShivaManager:
         if 'meal_description' in data:
             sets.append('meal_description = ?')
             vals.append(self._sanitize_text(data['meal_description'], self.MAX_TEXT_LENGTH))
-        if 'num_servings' in data:
-            sets.append('num_servings = ?')
-            try:
-                vals.append(max(1, min(50, int(data['num_servings']))))
-            except (ValueError, TypeError):
-                vals.append(4)
+        # num_servings is NOT editable by volunteers — controlled by organizer's guests_per_meal
         if 'will_serve' in data:
             sets.append('will_serve = ?')
             vals.append(1 if data['will_serve'] else 0)

@@ -13,6 +13,14 @@ from datetime import datetime
 from database_setup import NeshamaDatabase
 from shiva_parser import extract_shiva_info
 
+# Photo delivery: Steeles uses CSS background-image on <figure>, NOT <img> tags.
+# See HQ/01-Projects/Neshama/scraper-photo-fix-plan.md for details.
+PHOTO_EXCLUSION_RE = re.compile(
+    r'logo|icon|badge|star|bao|bereavement|\.svg|data:image|placeholder|banner',
+    re.IGNORECASE
+)
+
+
 class SteelesScraper:
     def __init__(self):
         self.source_name = "Steeles Memorial Chapel"
@@ -37,16 +45,21 @@ class SteelesScraper:
         return None
 
     def extract_obituary_links(self, html):
-        """Extract all obituary links from homepage"""
+        """Extract all condolence page links"""
         soup = BeautifulSoup(html, 'html.parser')
         links = []
+        seen_slugs = set()
 
-        # Find all condolence links
         for link in soup.find_all('a', href=True):
             href = link['href']
             if '/condolence/' in href:
                 full_url = href if href.startswith('http') else self.base_url + href
-                if full_url not in links:
+                # Deduplicate by slug, not full URL
+                slug = full_url.rstrip('/').split('/condolence/')[-1].split('?')[0].split('#')[0].lower()
+                if slug and slug not in seen_slugs:
+                    seen_slugs.add(slug)
+                    links.append(full_url)
+                elif not slug and full_url not in links:
                     links.append(full_url)
 
         return links
@@ -86,37 +99,55 @@ class SteelesScraper:
             if not data.get('deceased_name'):
                 return None  # Skip if no name found
 
-            # Extract full obituary text
-            obit_content = soup.find('div', class_='entry-content') or soup.find('div', class_='obituary')
-            if obit_content:
-                # Get all paragraphs
-                paragraphs = [p.get_text() for p in obit_content.find_all('p')]
-                data['obituary_text'] = self.clean_text('\n\n'.join(paragraphs))
+            # Extract full obituary text — try post-content first (Steeles page structure)
+            post_content = soup.find('div', class_='post-content')
+            if post_content:
+                paragraphs = [self.clean_text(p.get_text()) for p in post_content.find_all('p')]
+                text = '\n\n'.join(p for p in paragraphs if p)
+                if text:
+                    data['obituary_text'] = text
 
-                # Try to extract structured data from text
-                full_text = data['obituary_text']
+            # Fallback: entry-content or obituary div (other WordPress themes)
+            if not data.get('obituary_text'):
+                obit_content = soup.find('div', class_='entry-content') or soup.find('div', class_='obituary')
+                if obit_content:
+                    paragraphs = [self.clean_text(p.get_text()) for p in obit_content.find_all('p')]
+                    text = '\n\n'.join(p for p in paragraphs if p)
+                    if text:
+                        data['obituary_text'] = text
 
+            # Fallback: use og:description if main content divs not found
+            if not data.get('obituary_text'):
+                og_desc = soup.find('meta', property='og:description')
+                if og_desc and og_desc.get('content'):
+                    data['obituary_text'] = self.clean_text(og_desc['content'])
+
+            # Extract structured data from obituary text (regardless of source)
+            full_text = data.get('obituary_text')
+            if full_text:
                 # Hebrew name pattern
                 hebrew_match = re.search(r'[\u0590-\u05FF\s]+', full_text)
-                if hebrew_match:
+                if hebrew_match and not data.get('hebrew_name'):
                     data['hebrew_name'] = hebrew_match.group(0).strip()
 
-                # Date of death
-                death_date_patterns = [
-                    r'passed away.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
-                    r'died.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
-                    r'peacefully.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
-                ]
-                for pattern in death_date_patterns:
-                    match = re.search(pattern, full_text, re.IGNORECASE)
-                    if match:
-                        data['date_of_death'] = match.group(1)
-                        break
+                # Date of death — contextual phrases prevent false matches
+                if not data.get('date_of_death'):
+                    death_date_patterns = [
+                        r'passed away.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
+                        r'died.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})',
+                        r'peacefully.*?on\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
+                    ]
+                    for pattern in death_date_patterns:
+                        match = re.search(pattern, full_text, re.IGNORECASE)
+                        if match:
+                            data['date_of_death'] = match.group(1)
+                            break
 
                 # Yahrzeit
-                yahrzeit_match = re.search(r'Yahrzeit:?\s*([^\n.]+)', full_text, re.IGNORECASE)
-                if yahrzeit_match:
-                    data['yahrzeit_date'] = self.clean_text(yahrzeit_match.group(1))
+                if not data.get('yahrzeit_date'):
+                    yahrzeit_match = re.search(r'Yahrzeit:?\s*([^\n.]+)', full_text, re.IGNORECASE)
+                    if yahrzeit_match:
+                        data['yahrzeit_date'] = self.clean_text(yahrzeit_match.group(1))
 
             # Extract structured shiva info from obituary text
             if data.get('obituary_text'):
@@ -160,18 +191,74 @@ class SteelesScraper:
             if shiva_info:
                 parent = shiva_info.find_parent()
                 if parent:
-                    data['shiva_info'] = self.clean_text(parent.get_text())
+                    text = self.clean_text(parent.get_text())
+                    # Skip heading-only values like "Shiva Details" with no actual content
+                    if text and text.lower() not in ('shiva details', 'shiva', 'shiva information'):
+                        data['shiva_info'] = text
 
             # Check for livestream
             livestream_link = soup.find('a', href=re.compile(r'smclive|livestream', re.IGNORECASE))
             if livestream_link:
                 data['livestream_url'] = livestream_link['href']
 
-            # Extract photo
-            photo = soup.find('img', class_=re.compile(r'obituary|deceased|memorial', re.IGNORECASE))
-            if photo and photo.get('src'):
-                photo_url = photo['src']
-                data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
+            # Extract photo — Strategy 0: background-image CSS (Steeles uses this)
+            photo_div = soup.find('div', class_='description-photo')
+            if photo_div:
+                fig = photo_div.find(style=re.compile(r'background-image'))
+                if fig:
+                    style = fig.get('style', '')
+                    bg_match = re.search(
+                        r'background-image:\s*url\(\s*["\']?([^"\')\s]+)["\']?\s*\)', style
+                    )
+                    if bg_match:
+                        bg_url = bg_match.group(1)
+                        if not PHOTO_EXCLUSION_RE.search(bg_url):
+                            data['photo_url'] = bg_url if bg_url.startswith('http') else self.base_url + bg_url
+
+            # Fallback: <img> tag strategies (for future-proofing if Steeles changes theme)
+            if not data.get('photo_url'):
+                photo = None
+
+                # Strategy 1: class-based match
+                photo = soup.find('img', class_=re.compile(
+                    r'obituary|deceased|memorial|portrait|photo|tribute|condolence',
+                    re.IGNORECASE
+                ))
+
+                # Strategy 2: src-based match (upload paths, photo keywords)
+                if not photo:
+                    photo = soup.find('img', src=re.compile(
+                        r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait|memorial.*\.(jpg|jpeg|png|webp)',
+                        re.IGNORECASE
+                    ))
+
+                # Strategy 3: data-src for lazy-loaded images
+                if not photo:
+                    photo = soup.find('img', attrs={'data-src': re.compile(
+                        r'uploads/.*\.(jpg|jpeg|png|webp)|photo|portrait',
+                        re.IGNORECASE
+                    )})
+
+                # Strategy 4: first large image inside the obituary content area
+                if not photo:
+                    content_area = soup.find('div', class_=re.compile(r'entry-content|obituary|condolence-content|post-content', re.IGNORECASE))
+                    if content_area:
+                        for img in content_area.find_all('img'):
+                            src = img.get('src', '') or img.get('data-src', '')
+                            if src and not PHOTO_EXCLUSION_RE.search(src):
+                                photo = img
+                                break
+
+                # Global exclusion: reject known-bad images
+                if photo:
+                    photo_url = photo.get('src') or photo.get('data-src', '')
+                    if photo_url and PHOTO_EXCLUSION_RE.search(photo_url):
+                        photo = None
+
+                if photo:
+                    photo_url = photo.get('src') or photo.get('data-src', '')
+                    if photo_url and not photo_url.startswith('data:'):
+                        data['photo_url'] = photo_url if photo_url.startswith('http') else self.base_url + photo_url
 
             return data
 

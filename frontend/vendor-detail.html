@@ -426,6 +426,10 @@
 
         <div class="container">
 
+            <div id="vendorHeroImage" style="display:none; max-width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.25rem;">
+                <img id="vendorImage" src="" alt="" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" loading="lazy">
+            </div>
+
             <div class="vendor-header">
                 <div class="vendor-header-top">
                     <h1 id="vendorName"></h1>
@@ -433,6 +437,13 @@
                 </div>
                 <div class="vendor-category" id="vendorCategory"></div>
                 <p class="vendor-description" id="vendorDesc"></p>
+            </div>
+
+            <div id="vendorActions" style="display:none; margin-bottom: 1.25rem;">
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <a id="callBtn" href="#" style="display:none; flex: 1; min-width: 140px; min-height: 56px; background: var(--terracotta); color: white; border-radius: 2rem; text-decoration: none; font-family: 'Source Serif 4', serif; font-size: 1.1rem; font-weight: 500; text-align: center; line-height: 56px; transition: all 0.2s;">Call Now</a>
+                    <a id="websiteBtn" href="#" target="_blank" rel="noopener" style="display:none; flex: 1; min-width: 140px; min-height: 56px; background: white; color: var(--terracotta); border: 2px solid var(--terracotta); border-radius: 2rem; text-decoration: none; font-family: 'Source Serif 4', serif; font-size: 1.1rem; font-weight: 500; text-align: center; line-height: 52px; transition: all 0.2s;">Visit Website</a>
+                </div>
             </div>
 
             <div class="vendor-info">
@@ -555,6 +566,19 @@
             document.getElementById('vendorCategory').textContent = v.category;
             document.getElementById('vendorDesc').textContent = v.description || '';
 
+            // Show vendor image if available (not a logo)
+            if (v.image_url) {
+                var imgUrl = v.image_url.toLowerCase();
+                var isLogo = imgUrl.indexOf('logo') !== -1 || imgUrl.indexOf('favicon') !== -1 || imgUrl.indexOf('.svg') !== -1;
+                if (!isLogo) {
+                    var heroImg = document.getElementById('vendorHeroImage');
+                    var imgEl = document.getElementById('vendorImage');
+                    imgEl.src = v.image_url;
+                    imgEl.alt = v.name;
+                    heroImg.style.display = 'block';
+                }
+            }
+
             if (v.kosher_status === 'COR') {
                 document.getElementById('kosherBadge').textContent = 'Kosher (COR)';
                 document.getElementById('kosherBadge').style.display = 'inline-block';
@@ -562,6 +586,25 @@
                 document.getElementById('kosherBadge').textContent = 'Kosher (MK)';
                 document.getElementById('kosherBadge').style.display = 'inline-block';
             }
+
+            // Prominent action buttons
+            var actionsDiv = document.getElementById('vendorActions');
+            var hasActions = false;
+            if (v.phone) {
+                var callBtn = document.getElementById('callBtn');
+                callBtn.href = 'tel:' + v.phone.replace(/[^\d+]/g, '');
+                callBtn.textContent = 'Call ' + v.phone;
+                callBtn.style.display = '';
+                hasActions = true;
+            }
+            if (v.website) {
+                var webBtn = document.getElementById('websiteBtn');
+                webBtn.href = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(v.website);
+                webBtn.textContent = 'Visit Website';
+                webBtn.style.display = '';
+                hasActions = true;
+            }
+            if (hasActions) actionsDiv.style.display = '';
 
             // Build info rows
             var rows = '';
