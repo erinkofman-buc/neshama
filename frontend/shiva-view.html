@@ -447,10 +447,6 @@
             transition: width 0.5s ease;
         }
 
-        .meal-day-card.shabbat {
-            background: #f8f5f0;
-        }
-
         .meal-day-header {
             padding: 0.7rem 1.25rem;
             font-weight: 600;
@@ -472,18 +468,6 @@
 
         .meal-day-card.day-empty .meal-day-header {
             background: var(--amber-light);
-        }
-
-        .meal-day-card.shabbat .meal-day-header {
-            background: #f0ebe3;
-        }
-
-        .shabbat-badge {
-            font-size: 0.7rem;
-            color: var(--gold);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
 
         .meal-slots-grid {
@@ -596,16 +580,6 @@
             border-color: var(--dark-brown);
         }
 
-        /* ── Shabbat Message ─────────────────────────────── */
-
-        .shabbat-message {
-            text-align: center;
-            padding: 1rem 1.25rem;
-            color: var(--sage-dark);
-            font-style: italic;
-            font-size: 0.9rem;
-        }
-
         /* ── Modal (shared) ──────────────────────────────── */
 
         .modal-overlay {
@@ -696,38 +670,125 @@
             color: var(--sage);
         }
 
-        /* ── Food Chips ──────────────────────────────────── */
+        /* ── Signup Caterer Cards (V3) ───────────────────── */
+        /* Inline cards inside the signup modal showing the organizer's
+           recommended caterers. Click to auto-fill the meal description. */
 
-        .food-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
+        .signup-caterer-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
-
-        .food-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 0.9rem;
+        .signup-caterer-card {
+            padding: 0.65rem 0.85rem;
             border: 2px solid var(--light-taupe);
-            border-radius: 2rem;
-            font-family: 'Source Serif 4', serif;
-            font-size: 0.9rem;
+            border-radius: 0.5rem;
             background: white;
-            color: var(--dark-brown);
             cursor: pointer;
             transition: all 0.15s;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
-
-        .food-chip:hover {
+        .signup-caterer-card:hover {
             border-color: var(--terracotta);
         }
+        .signup-caterer-card.selected {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+        }
+        .signup-caterer-card.selected .signup-caterer-name,
+        .signup-caterer-card.selected .signup-caterer-detail {
+            color: white;
+        }
+        .signup-caterer-category {
+            font-weight: 600 !important;
+            color: var(--terracotta) !important;
+            text-transform: uppercase;
+            font-size: 0.7rem !important;
+            letter-spacing: 0.05em;
+            margin-top: 0.1rem;
+        }
+        .signup-caterer-card.selected .signup-caterer-category {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        .signup-caterer-menu-link {
+            display: inline-block;
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--terracotta);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .signup-caterer-card.selected .signup-caterer-menu-link {
+            color: white;
+        }
+        .signup-caterer-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--dark-brown);
+            margin-bottom: 0.15rem;
+        }
+        .signup-caterer-detail {
+            font-size: 0.78rem;
+            color: var(--sage-dark);
+            line-height: 1.3;
+        }
+        .signup-caterer-fallback {
+            display: inline-block;
+            padding: 0.5rem 0;
+            color: var(--terracotta);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+        .signup-caterer-helper {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin: 0.35rem 0 0.6rem;
+            font-style: italic;
+        }
+        .signup-custom-label {
+            font-size: 0.85rem;
+            color: var(--sage-dark);
+            margin: 0.85rem 0 0.35rem;
+            font-style: italic;
+        }
 
-        .food-chip.selected {
+        /* V3: Vendor order CTA in the confirmation view */
+        .confirm-vendor-cta {
+            margin: 1.25rem 0 1rem;
+            padding: 1.1rem 1.25rem;
+            background: rgba(194, 98, 26, 0.08);
+            border: 1.5px solid var(--terracotta);
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+        .confirm-vendor-cta-label {
+            font-size: 0.92rem;
+            color: var(--dark-brown);
+            margin: 0 0 0.75rem;
+            font-weight: 500;
+        }
+        .confirm-vendor-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.75rem;
             background: var(--terracotta);
             color: white;
-            border-color: var(--terracotta);
+            border-radius: 2rem;
+            font-family: 'Source Serif 4', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            min-height: 48px;
+            box-sizing: border-box;
+        }
+        .confirm-vendor-cta-btn:hover {
+            background: #A8541A;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(194, 98, 26, 0.25);
         }
 
         /* ── Servings Counter ────────────────────────────── */
@@ -1115,9 +1176,7 @@
             #thankYouSection,
             #donationPromptSection,
             #passHostSection,
-            #dietaryEditSection,
-            #extendDatesSection,
-            #recommendCaterersSection {
+            #extendDatesSection {
                 order: 10;
             }
             /* Tighten calendar section */
@@ -1250,17 +1309,27 @@
         /* ── Print Styles ──────────────────────────────────── */
 
         @media print {
+            /* ── V3 Print Layout — functional schedule, not decorative ──
+               Mental model: fridge-postable schedule. Left-aligned, scannable,
+               tabular. NOT a wedding program. Primary question the reader asks:
+               "Who is bringing what on which day?" Answer that instantly. */
+
             /* Hide everything non-essential */
             .top-nav,
             .nav-hamburger,
             .skip-link,
+            body > footer,
             footer,
+            .footer-links,
+            .footer-copy,
+            .report-link,
             .organizer-banner,
             .modal-overlay,
             #cantCookSection,
             #giftSection,
             #catererSection,
             #organizerEditSection,
+            #organizerUpdateBox,
             #dropOffSection,
             #notifSection,
             #coOrgSection,
@@ -1268,27 +1337,46 @@
             #thankYouSection,
             #donationPromptSection,
             #passHostSection,
-            #dietaryEditSection,
             #extendDatesSection,
             #updatesFeed,
-            #privateNotice,
+            #addressReveal,
+            .address-reveal,
             #heroShare,
             #shivaShareBtn,
+            #shivaShareBar,
+            .neshama-share-bar,
+            .coverage-strip,
+            #calendarLegend,
+            .coverage-cta-text,
+            .coverage-summary,
             .print-schedule-btn,
+            .info-cards,
             .meal-slot.available .slot-action,
             .remove-btn,
+            .vol-edit-btn,
+            .vol-cancel-btn,
             .support-cta-btn,
             #heroCta,
-            .hero-divider {
+            .hero-divider,
+            .essentials-banner,
+            .section-heading {
                 display: none !important;
             }
 
-            /* Reset page background */
+            /* ── Page setup ──
+               @page margins are minimal floor; real breathing room comes
+               from body padding below, which Chrome always respects even
+               when the print dialog is set to "Minimum" margins. */
+            @page { margin: 0.4in; }
+
             body {
                 background: white !important;
-                color: #000 !important;
-                font-size: 11pt;
-                line-height: 1.4;
+                color: #111 !important;
+                font-family: 'Source Serif 4', Georgia, serif !important;
+                font-size: 10.5pt !important;
+                line-height: 1.3 !important;
+                padding: 0.45in 0.9in 0.45in 0.9in !important;
+                margin: 0 !important;
             }
 
             .page-container {
@@ -1297,238 +1385,252 @@
                 margin: 0 !important;
             }
 
-            /* Hero — clean header */
+            /* Wordmark above the family name — anchors the top of the page */
+            main#main-content::before {
+                content: 'Neshama';
+                display: block;
+                font-family: 'Cormorant Garamond', Georgia, serif;
+                font-size: 9pt;
+                font-weight: 400;
+                letter-spacing: 0.25em;
+                text-transform: uppercase;
+                color: #999;
+                border-bottom: 0.5pt solid #ddd;
+                padding-bottom: 0.15rem;
+                margin-bottom: 0.3rem;
+            }
+
+            /* ── Header: family + dates, left-aligned ── */
             .shiva-hero {
-                padding: 0.5rem 0 0.75rem !important;
-                border-bottom: 2px solid #333;
-                margin-bottom: 0.75rem;
+                padding: 0 0 0.3rem !important;
+                margin-bottom: 0.3rem !important;
+                border: none !important;
+                border-bottom: 1pt solid #111 !important;
+                text-align: left !important;
+                background: transparent !important;
+                box-shadow: none !important;
             }
 
             .shiva-hero h1 {
-                font-size: 20pt !important;
-                margin-bottom: 0.15rem;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-weight: 600 !important;
+                font-size: 19pt !important;
+                line-height: 1.05 !important;
+                margin: 0 0 0.1rem !important;
+                color: #111 !important;
             }
 
             .shiva-hero .dates {
-                font-size: 11pt !important;
-                color: #333 !important;
-            }
-
-            .shiva-hero .organized-by {
                 font-size: 10pt !important;
-                color: #555 !important;
+                color: #333 !important;
+                margin: 0 !important;
+                font-style: normal !important;
+                display: block !important;
             }
 
+            .shiva-hero .organized-by,
             .shiva-hero .memorial-link { display: none !important; }
 
-            /* Info cards — compact */
-            .info-cards {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 0.5rem !important;
-                margin: 0.5rem 0 !important;
-                page-break-inside: avoid;
-            }
-
-            .info-card {
+            /* ── Organizer contact card — compact one-block in print ── */
+            #organizerContactCard {
+                background: transparent !important;
                 box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                padding: 0.6rem !important;
-                border-radius: 0.3rem !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                margin: 0 0 0.2rem !important;
+                font-size: 9pt !important;
+                color: #333 !important;
+                line-height: 1.25 !important;
             }
-
-            .info-card h3 { font-size: 10pt !important; margin-bottom: 0.2rem; }
-            .info-card p { font-size: 9pt !important; line-height: 1.3; }
-
-            /* Family notes — compact */
-            #familyNotesBox {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                border-left: 3px solid #999 !important;
-                padding: 0.5rem 0.75rem !important;
-                margin: 0.5rem 0 !important;
-                border-radius: 0.3rem !important;
+            #organizerContactCard > div:first-child {
+                /* "ORGANIZER" label */
+                font-size: 6.5pt !important;
+                color: #777 !important;
+                margin-bottom: 0 !important;
             }
-
-            /* Calendar section */
-            .calendar-section {
-                margin: 0.75rem 0 !important;
+            #organizerContactName {
+                font-weight: 700 !important;
+                color: #111 !important;
+                display: inline !important;
             }
-
-            .section-heading {
-                font-size: 14pt !important;
-                margin-bottom: 0.5rem !important;
+            #organizerContactLinks {
+                display: inline !important;
+                margin: 0 0 0 0.4rem !important;
+                color: #333 !important;
             }
-
-            .section-heading::after {
+            #organizerContactLinks a {
+                color: #333 !important;
+                text-decoration: none !important;
+            }
+            #organizerContactCard > div:last-child {
+                /* "To cancel or change..." italic note — drop from print */
                 display: none !important;
             }
 
-            /* Coverage summary — clean */
-            .coverage-bar { display: none !important; }
+            /* ── Family note — prefixed inline, no box ── */
+            #familyNotesBox {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-left: 2pt solid #ccc !important;
+                border-radius: 0 !important;
+                padding: 0 0 0 0.35rem !important;
+                margin: 0 0 0.3rem !important;
+                text-align: left !important;
+            }
 
-            .coverage-summary {
-                margin-bottom: 0.5rem !important;
+            #familyNotesBox h3 { display: none !important; }
+
+            #familyNotesText {
                 font-size: 9pt !important;
+                color: #555 !important;
+                font-style: italic !important;
+                line-height: 1.25 !important;
+                margin: 0 !important;
             }
 
-            .coverage-dot {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            #familyNotesText::before {
+                content: 'Note from the family: ';
+                font-style: normal !important;
+                font-weight: 700 !important;
+                color: #333 !important;
             }
 
-            .coverage-dot.green { background: #D2691E !important; }
-            .coverage-dot.yellow { background: #B2BEB5 !important; }
-            .coverage-dot.red { background: #4caf50 !important; }
+            .coverage-bar,
+            .coverage-summary { display: none !important; }
 
-            /* Day cards — table-like */
+            /* ── Meal Calendar — left-aligned tabular schedule ── */
+            .calendar-section { margin: 0 !important; }
+
             .meal-calendar {
-                gap: 0.3rem !important;
+                display: block !important;
+                gap: 0 !important;
             }
 
             .meal-day-card {
+                display: block !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                border-left: 3px solid #999 !important;
+                border: none !important;
+                border-top: 0.5pt solid #ccc !important;
+                background: transparent !important;
+                padding: 0.18rem 0 0.22rem !important;
+                margin: 0 !important;
                 page-break-inside: avoid;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
-            .meal-day-card.day-full {
-                border-left-color: #f44336 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.day-partial {
-                border-left-color: #ff9800 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.day-empty {
-                border-left-color: #4caf50 !important;
-                background: white !important;
-            }
-
-            .meal-day-card.shabbat {
-                background: #f5f5f5 !important;
+            .meal-day-card:first-child {
+                border-top: none !important;
             }
 
             .meal-day-header {
-                padding: 0.35rem 0.6rem !important;
-                font-size: 10pt !important;
-                background: #f9f9f9 !important;
-                border-bottom: 1px solid #ddd !important;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-size: 11pt !important;
+                font-weight: 700 !important;
+                color: #111 !important;
+                padding: 0 0 0.1rem !important;
+                background: transparent !important;
+                border: none !important;
+                text-align: left !important;
+                display: block !important;
+                line-height: 1.15 !important;
+                letter-spacing: 0.01em;
             }
 
-            .meal-day-card.day-full .meal-day-header,
-            .meal-day-card.day-partial .meal-day-header,
-            .meal-day-card.day-empty .meal-day-header,
-            .meal-day-card.shabbat .meal-day-header {
-                background: #f9f9f9 !important;
-            }
+            /* Hide on-screen urgency badges and help status in print */
+            .urgent-badge,
+            .meal-day-header > span:not(:first-child),
+            .meal-slot .most-needed-label,
+            .most-needed { display: none !important; }
 
+            /* Meal rows — displayed as two columns, left-aligned */
             .meal-slots-grid {
+                display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
+                gap: 0 2rem !important;
+                margin: 0 !important;
             }
 
             .meal-slot {
-                padding: 0.4rem 0.6rem !important;
+                display: block !important;
+                padding: 0 !important;
                 min-height: auto !important;
-                border-left: none !important;
-            }
-
-            .meal-slot:first-child {
-                border-right: 1px solid #ddd !important;
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                text-align: left !important;
             }
 
             .meal-slot-label {
                 font-size: 7pt !important;
-                margin-bottom: 0.15rem;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #888 !important;
+                margin-bottom: 0.05rem !important;
+                display: block !important;
+                line-height: 1.1 !important;
             }
 
             .meal-slot.taken .vol-name {
-                font-size: 9pt !important;
+                font-family: 'Cormorant Garamond', Georgia, serif !important;
+                font-size: 10.5pt !important;
+                font-weight: 600 !important;
+                color: #111 !important;
+                margin: 0 !important;
+                line-height: 1.2 !important;
             }
 
+            /* Suppress "will serve ✓" — irrelevant on a fridge schedule.
+               Contributors (.vol-desc used for names) still print via
+               their own .signup-contributors selector below. */
             .meal-slot.taken .vol-desc {
-                font-size: 8pt !important;
-            }
-
-            .meal-slot.available {
-                background: white !important;
-                border-left: none !important;
-                cursor: default !important;
-            }
-
-            .meal-slot.available .slot-action {
                 display: none !important;
             }
+
+            .signup-contributors {
+                font-size: 8.5pt !important;
+                color: #666 !important;
+                font-style: normal !important;
+                margin-top: 0.1rem !important;
+                display: block !important;
+            }
+
+            .meal-slot.available .slot-action { display: none !important; }
 
             .meal-slot.available::after {
-                content: '(available)';
-                font-size: 8pt;
-                color: #999;
-                font-style: italic;
+                content: 'Open';
+                font-size: 10pt !important;
+                color: #aaa !important;
+                font-style: italic !important;
+                line-height: 1.2 !important;
             }
 
-            .shabbat-message {
-                font-size: 9pt !important;
-                padding: 0.4rem !important;
-            }
-
-            /* Shiva essentials banner */
-            .essentials-banner {
-                display: none !important;
-            }
-
-            /* Print color legend */
+            /* ── Legend — minimal, inline ── */
             .print-legend {
-                display: flex !important;
-                gap: 1rem;
-                align-items: center;
-                margin-top: 0.75rem;
-                padding: 0.4rem 0.6rem;
-                border: 1px solid #ddd;
-                border-radius: 0.3rem;
-                font-size: 8pt;
-                color: #333;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                display: block !important;
+                margin-top: 0.5rem !important;
+                padding-top: 0.3rem !important;
+                border-top: 0.5pt solid #ccc !important;
+                font-size: 7.5pt !important;
+                color: #888 !important;
+                text-align: left !important;
                 page-break-inside: avoid;
             }
 
-            .print-legend-item {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.25rem;
-            }
+            .print-legend strong { display: none !important; }
+            .print-legend-swatch { display: none !important; }
+            .print-legend-item { display: inline !important; margin-right: 1rem !important; }
 
-            .print-legend-swatch {
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                border-radius: 2px;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Print footer */
+            /* ── Footer ── */
             .print-footer {
                 display: block !important;
-                text-align: center;
-                margin-top: 1rem;
-                padding-top: 0.5rem;
-                border-top: 1px solid #ccc;
-                font-size: 8pt;
-                color: #999;
-            }
-
-            /* Page setup */
-            @page {
-                margin: 1.5cm;
-                size: portrait;
+                margin-top: 0.4rem !important;
+                font-size: 7.5pt !important;
+                color: #bbb !important;
+                font-style: italic !important;
+                text-align: left !important;
             }
         }
 
@@ -1554,6 +1656,7 @@
         } catch(e) {}
     };
     </script>
+    <script src="/share-buttons.js"></script>
 </head>
 <body>
 
@@ -1606,14 +1709,18 @@
             <a class="memorial-link" id="memorialLink" href="#" style="display: none;">View Memorial &#x2197;</a>
             <div class="hero-divider"></div>
 
-            <!-- Share Button -->
-            <div id="shivaShareBtn" style="display: none; margin-top: 1.25rem;">
-                <button type="button" id="shivaShareTrigger" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 2rem; border: 1.5px solid var(--sage); background: white; color: var(--dark-brown); font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Share
-                </button>
-            </div>
+            <!-- V3: Share bar — same shared component as the dashboard for app-wide consistency -->
+            <div id="shivaShareBar" data-share-target="true" style="display: none; margin-top: 1.25rem;"></div>
         </section>
+
+        <!-- Organizer contact card — how volunteers reach the organizer for
+             changes, questions, or cancellations (volunteers cannot self-cancel). -->
+        <div id="organizerContactCard" style="display: none; background: var(--cream); border: 1px solid var(--light-taupe); border-left: 4px solid var(--terracotta); border-radius: 0.6rem; padding: 0.85rem 1.1rem; margin: 0 0 1rem; font-size: 0.95rem; line-height: 1.5; color: var(--dark-brown);">
+            <div style="font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--terracotta); margin-bottom: 0.25rem;">Organizer</div>
+            <div id="organizerContactName" style="font-weight: 600;"></div>
+            <div id="organizerContactLinks" style="margin-top: 0.2rem;"></div>
+            <div style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.35rem; font-style: italic;">To cancel or change your signup, please contact the organizer directly.</div>
+        </div>
 
         <!-- Coverage Strip (above-the-fold mobile summary) -->
         <div class="coverage-strip" id="coverageStrip">
@@ -1626,47 +1733,9 @@
             Preparing for shiva? See our <a href="/help/supplies" style="color: var(--terracotta); text-decoration: none; font-weight: 500;">Shiva Essentials guide</a> for memorial candles, prayer books, and everything the community needs. &rarr;
         </div>
 
-        <!-- Private Page Notice (shown when page is private and visitor has no access) -->
-        <div id="privateNotice" style="display: none;">
-            <div style="background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin: 1.5rem 0; border: 1px solid var(--light-taupe);">
-                <p style="font-size: 1.1rem; line-height: 1.6; color: var(--dark-brown); margin-bottom: 1rem;">This shiva page is private. The family has chosen to coordinate meals through direct invitations.</p>
-                <p style="font-size: 0.95rem; color: var(--sage-dark); margin-bottom: 1.5rem;">If you know the family, you can request access below.</p>
-                <button onclick="showAccessForm()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer;">Request Access</button>
-            </div>
-            <div id="accessForm" style="display: none; background: white; border-radius: 1rem; padding: 2rem; margin-top: 1rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
-                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 1rem; color: var(--dark-brown);">Request Access</h3>
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Name</label>
-                    <input type="text" id="accessName" placeholder="Your full name" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">Your Email</label>
-                    <input type="email" id="accessEmail" placeholder="your@email.com" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box;">
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem;">How do you know the family? <span style="color: var(--sage-dark); font-weight: 400;">(optional)</span></label>
-                    <textarea id="accessMessage" placeholder="e.g., Neighbour, colleague, friend from shul..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: vertical;"></textarea>
-                </div>
-                <div id="accessError" style="display: none; color: var(--dark-brown); font-size: 0.9rem; margin-bottom: 1rem;"></div>
-                <button id="accessSubmitBtn" onclick="submitAccessRequest()" style="background: var(--terracotta); color: white; border: none; padding: 0.85rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; cursor: pointer; width: 100%;">Send Request</button>
-            </div>
-            <div id="accessSuccess" style="display: none; background: var(--cream); border-radius: 1rem; padding: 2rem; text-align: center; margin-top: 1rem;">
-                <p style="font-size: 1.1rem; color: var(--dark-brown); line-height: 1.6;">Your request has been sent. You'll receive an email when the organizer responds.</p>
-            </div>
-        </div>
-
-        <!-- Organizer Banner (compact) -->
-        <div class="organizer-banner" id="organizerBanner" style="display: none; padding: 0.75rem 1rem;">
-            <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="font-weight:600; font-size:0.9rem;">You're managing this page</span>
-                </div>
-                <p style="font-size:0.82rem; margin:0; opacity:0.9;">Share this link with friends so they can sign up for meals:</p>
-                <div style="display:flex; gap:0.4rem; align-items:center;">
-                    <input type="text" id="shareableLink" readonly aria-label="Link to share with volunteers" style="flex:1; padding:0.35rem 0.6rem; border:1px solid rgba(255,255,255,0.5); border-radius:0.3rem; font-size:0.78rem; color:#3E2723; background:rgba(255,255,255,0.85);">
-                    <button type="button" id="copyShareLink" style="padding:0.35rem 0.75rem; background:white; color:var(--terracotta); border:1px solid var(--terracotta); border-radius:0.3rem; cursor:pointer; font-size:0.78rem; white-space:nowrap; font-weight:500;">Copy Link</button>
-                </div>
-            </div>
+        <!-- Organizer Banner -->
+        <div class="organizer-banner" id="organizerBanner" style="display: none;">
+            <p>Organizer view &mdash; you can manage signups below</p>
         </div>
 
         <!-- From the Family (family_notes) -->
@@ -1681,11 +1750,100 @@
             <p id="organizerUpdateText" style="font-size: 0.95rem; color: var(--dark-brown); line-height: 1.5;"></p>
         </div>
 
-        <!-- Organizer Edit Section — hidden, functionality merged into postUpdateSection -->
-        <div id="organizerEditSection" style="display: none;">
-            <textarea id="organizerUpdateInput" style="display:none;"></textarea>
-            <span id="updateCharCount" style="display:none;"></span>
-            <div id="updateSuccess" style="display:none;"></div>
+        <!-- Organizer Edit Section (organizer only) -->
+        <div id="organizerEditSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.75rem;">Post an Update or Thank You</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share a note with visitors - a thank you, meal preference update, or any message.</p>
+            <textarea id="organizerUpdateInput" placeholder="e.g., Thank you so much for the outpouring of support. The family is truly grateful..." maxlength="280" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span id="updateCharCount" style="font-size: 0.8rem; color: var(--sage-dark);">0 / 280</span>
+                <button id="saveUpdateBtn" onclick="saveOrganizerUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Save Update</button>
+            </div>
+            <div id="updateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update saved!</div>
+        </div>
+
+        <!-- V2: Drop-off Instructions (organizer only) -->
+        <div id="dropOffSection" style="display: none; background: white; border: 2px solid #a5d6a7; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Drop-off Instructions</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Shared with confirmed meal volunteers in their reminder emails.</p>
+            <textarea id="dropOffInput" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204..." rows="2" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="text-align: right; margin-top: 0.5rem;">
+                <button onclick="saveDropOff()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save</button>
+            </div>
+            <div id="dropOffSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Drop-off instructions saved!</div>
+        </div>
+
+        <!-- V2: Notification Preferences (organizer only) -->
+        <div id="notifSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Email Notifications</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Choose which email updates you'd like to receive.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifInstant" checked style="width: 1.1rem; height: 1.1rem;">
+                    Instant notification when someone signs up
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifDailySummary" checked style="width: 1.1rem; height: 1.1rem;">
+                    Daily summary (8 PM)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--dark-brown); cursor: pointer;">
+                    <input type="checkbox" id="notifUncovered" checked style="width: 1.1rem; height: 1.1rem;">
+                    Alert for uncovered meal dates
+                </label>
+            </div>
+            <div style="text-align: right; margin-top: 0.75rem;">
+                <button onclick="saveNotifPrefs()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer;">Save Preferences</button>
+            </div>
+            <div id="notifSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Notification preferences saved!</div>
+        </div>
+
+        <!-- V2: Co-Organizer Management (organizer only) -->
+        <div id="coOrgSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Co-Organizers</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Invite someone to help manage this shiva page.</p>
+            <div id="coOrgList" style="margin-bottom: 0.75rem;"></div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <input type="text" id="coOrgName" placeholder="Name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                <input type="email" id="coOrgEmail" placeholder="Email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                <button onclick="inviteCoOrganizer()" style="background: var(--terracotta); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Invite</button>
+            </div>
+            <div id="coOrgSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="coOrgError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
+        <!-- V4: Pass Host Section (primary organizer only) -->
+        <div id="passHostSection" style="display: none; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Transfer Host Authority</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem; line-height: 1.5;">Hand over primary organizer control to someone else. You will remain as a co-organizer with view access. This cannot be undone once accepted.</p>
+            <div id="passHostForm">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                    <input type="text" id="passHostName" placeholder="New host's name" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                    <input type="email" id="passHostEmail" placeholder="New host's email" style="flex: 2; min-width: 180px; padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem;">
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button id="passHostBtn" onclick="initiatePassHost()" style="background: var(--dark-brown); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Transfer Host</button>
+                </div>
+            </div>
+            <div id="passHostPending" style="display: none; background: rgba(210,105,30,0.06); border-radius: 0.5rem; padding: 0.75rem; margin-top: 0.5rem;">
+                <p style="font-size: 0.88rem; color: var(--dark-brown); margin-bottom: 0.4rem;">Transfer pending &mdash; waiting for <span id="passHostPendingEmail" style="font-weight: 600;"></span> to accept.</p>
+                <button id="cancelTransferBtn" onclick="cancelTransfer()" style="font-size: 0.8rem; color: var(--dark-brown); background: none; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 0.2rem 0.6rem; cursor: pointer; font-family: inherit;">Cancel Transfer</button>
+            </div>
+            <div id="passHostSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="passHostError" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
+        </div>
+
+        <!-- V5: Extend Shiva Dates (organizer only) -->
+        <div id="extendDatesSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Extend Meal Coordination</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem; line-height: 1.5;">Need more time? Extend the meal coordination schedule. All existing signups will be preserved.</p>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <label style="font-size: 0.92rem; color: var(--dark-brown); font-weight: 500;">New end date:</label>
+                <input type="date" id="extendDatePicker" style="padding: 0.5rem 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown);">
+                <button id="extendDatesBtn" onclick="extendShivaDates()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;">Extend Dates</button>
+            </div>
+            <p id="extendDatesCurrentInfo" style="font-size: 0.82rem; color: var(--sage-dark); margin-top: 0.6rem;"></p>
+            <div id="extendDatesSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
+            <div id="extendDatesError" style="display: none; margin-top: 0.75rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;"></div>
         </div>
 
         <!-- V3: Updates Feed (visible to all visitors) -->
@@ -1694,178 +1852,43 @@
             <div id="updatesList"></div>
         </div>
 
-        <!-- ═══ Organizer Tools (collapsible) ═══ -->
-        <div id="organizerToolsWrapper" style="display: none; margin: 1.5rem 0;">
-            <button type="button" id="organizerToolsToggle" onclick="toggleOrganizerTools()" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; background: white; border: 2px solid var(--light-taupe); border-radius: 1rem; cursor: pointer; font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; color: var(--dark-brown); transition: all 0.2s;">
-                <span id="organizerToolsLabel">Manage Page (tap to expand)</span>
-                <svg id="organizerToolsArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div id="organizerToolsPanel" style="display: none; margin-top: 0.5rem;">
+        <!-- V3: Post Update (organizer only) -->
+        <div id="postUpdateSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Post an Update</h3>
+            <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Share an update with all visitors. You can also email it to signed-up volunteers.</p>
+            <textarea id="newUpdateInput" placeholder="e.g., The family prefers dairy-free meals. Thank you for the outpouring of support..." maxlength="500" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--sage-dark); cursor: pointer;">
+                    <input type="checkbox" id="emailUpdateCheckbox" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
+                    Also email to volunteers
+                </label>
+                <button id="postUpdateBtn" onclick="postUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">Post Update</button>
+            </div>
+            <div id="postUpdateSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--green-text); font-weight: 500;">Update posted!</div>
+        </div>
 
-                <!-- Drop-off Instructions -->
-                <div id="dropOffSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Drop-off Instructions</h3>
-                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem;">Shared with volunteers in their reminder emails.</p>
-                    <textarea id="dropOffInput" placeholder="e.g., Lunch by 11:30am, dinner by 5pm. Leave food on the porch, buzzer #204..." rows="2" style="width: 100%; padding: 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
-                    <div style="text-align: right; margin-top: 0.4rem;">
-                        <button onclick="saveDropOff()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
-                    </div>
-                    <div id="dropOffSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
-                </div>
+        <!-- V3: Thank-You Notes Button (organizer only) -->
+        <div id="thankYouSection" style="display: none; background: white; border: 2px solid var(--gold); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Thank-You Notes</h3>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">Send a personalized thank-you email to every volunteer who signed up.</p>
+            <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.75rem 2rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Send Thank-You Notes</button>
+            <div id="thankYouSuccess" style="display: none; margin-top: 0.75rem; font-size: 0.95rem; color: var(--green-text); font-weight: 500;"></div>
+            <div id="thankYouAlready" style="display: none; margin-top: 0.5rem; font-size: 0.9rem; color: var(--sage-dark); font-style: italic;">Thank-you notes have already been sent.</div>
+        </div>
 
-                <!-- Post Update -->
-                <div id="postUpdateSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Post an Update</h3>
-                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem;">Visible to all visitors. Optionally email to volunteers.</p>
-                    <textarea id="newUpdateInput" placeholder="e.g., The family prefers dairy-free meals..." maxlength="500" rows="2" style="width: 100%; padding: 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--dark-brown); resize: vertical; box-sizing: border-box;"></textarea>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; flex-wrap: wrap; gap: 0.4rem;">
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--sage-dark); cursor: pointer;">
-                            <input type="checkbox" id="emailUpdateCheckbox" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
-                            Also email volunteers
-                        </label>
-                        <button id="postUpdateBtn" onclick="postUpdate()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Post</button>
-                    </div>
-                    <div id="postUpdateSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Posted!</div>
-                </div>
-
-                <!-- Dietary Preferences -->
-                <div id="dietaryEditSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Dietary Preferences</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 0.75rem; margin-bottom: 0.75rem;">
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryKosher" value="kosher" style="width: 1rem; height: 1rem;"> Kosher
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryVegetarian" value="vegetarian" style="width: 1rem; height: 1rem;"> Vegetarian
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryVegan" value="vegan" style="width: 1rem; height: 1rem;"> Vegan
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryGlutenFree" value="gluten_free" style="width: 1rem; height: 1rem;"> Gluten-free
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryNutFree" value="nut_free" style="width: 1rem; height: 1rem;"> Nut-free
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="dietaryDairyFree" value="dairy_free" style="width: 1rem; height: 1rem;"> Dairy-free
-                        </label>
-                    </div>
-                    <input type="text" id="dietaryNotesInput" placeholder="e.g., 3 lactose intolerant, no shellfish" style="width: 100%; padding: 0.5rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; color: var(--dark-brown); box-sizing: border-box;">
-                    <div style="text-align: right; margin-top: 0.5rem;">
-                        <button id="saveDietaryBtn" onclick="saveDietaryPreferences()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
-                    </div>
-                    <div id="dietarySuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
-                    <div id="dietaryError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
-                </div>
-
-                <!-- Extend Dates -->
-                <div id="extendDatesSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Extend Dates</h3>
-                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                        <input type="date" id="extendDatePicker" style="padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; color: var(--dark-brown);">
-                        <button id="extendDatesBtn" onclick="extendShivaDates()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Extend</button>
-                    </div>
-                    <p id="extendDatesCurrentInfo" style="font-size: 0.8rem; color: var(--sage-dark); margin-top: 0.4rem;"></p>
-                    <div id="extendDatesSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Dates extended! Refreshing...</div>
-                    <div id="extendDatesError" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
-                </div>
-
-                <!-- Recommend Caterers -->
-                <div id="recommendCaterersSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Recommend Caterers</h3>
-                    <div id="selectedCatererTags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
-                    <button id="browseCaterersBtn" onclick="toggleCatererBrowser()" style="background: none; border: 1.5px solid var(--terracotta); color: var(--terracotta); padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Browse Caterers</button>
-                    <div id="catererBrowserGrid" style="display: none; margin-top: 0.75rem;">
-                        <div id="catererBrowserLoading" style="text-align: center; color: var(--sage-dark); font-size: 0.85rem; padding: 0.75rem;">Loading...</div>
-                        <div id="catererBrowserCards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.5rem;"></div>
-                        <p id="catererLimitMsg" style="display: none; font-size: 0.8rem; color: var(--terracotta); margin-top: 0.4rem; text-align: center;">Max 5 selected</p>
-                    </div>
-                    <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                        <button id="saveCaterersBtn" onclick="saveRecommendedCaterers()" style="display: none; background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
-                        <span id="saveCaterersSuccess" style="display: none; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</span>
-                        <span id="saveCaterersError" style="display: none; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></span>
-                    </div>
-                </div>
-
-                <!-- Co-Organizers -->
-                <div id="coOrgSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Co-Organizers</h3>
-                    <div id="coOrgList" style="margin-bottom: 0.5rem;"></div>
-                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                        <input type="text" id="coOrgName" placeholder="Name" style="flex: 1; min-width: 100px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
-                        <input type="email" id="coOrgEmail" placeholder="Email" style="flex: 2; min-width: 150px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
-                        <button onclick="inviteCoOrganizer()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Invite</button>
-                    </div>
-                    <div id="coOrgSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
-                    <div id="coOrgError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
-                </div>
-
-                <!-- Notification Preferences -->
-                <div id="notifSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Email Notifications</h3>
-                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="notifInstant" checked style="width: 1rem; height: 1rem;">
-                            When someone signs up
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="notifDailySummary" checked style="width: 1rem; height: 1rem;">
-                            Daily summary (8 PM)
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
-                            <input type="checkbox" id="notifUncovered" checked style="width: 1rem; height: 1rem;">
-                            Uncovered meal alerts
-                        </label>
-                    </div>
-                    <div style="text-align: right; margin-top: 0.5rem;">
-                        <button onclick="saveNotifPrefs()" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Save</button>
-                    </div>
-                    <div id="notifSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;">Saved!</div>
-                </div>
-
-                <!-- Thank-You Notes -->
-                <div id="thankYouSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem; text-align: center;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Thank-You Notes</h3>
-                    <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">Email a thank-you to every volunteer.</p>
-                    <button id="sendThankYouBtn" onclick="sendThankYouNotes()" style="background: var(--gold); color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 600; cursor: pointer;">Send Thank-You Notes</button>
-                    <div id="thankYouSuccess" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
-                    <div id="thankYouAlready" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--sage-dark); font-style: italic;">Already sent.</div>
-                </div>
-
-                <!-- Transfer Host -->
-                <div id="passHostSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem;">
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;">Transfer Host</h3>
-                    <p style="font-size: 0.82rem; color: var(--sage-dark); margin-bottom: 0.5rem; line-height: 1.4;">Hand over organizer control. You'll remain as co-organizer.</p>
-                    <div id="passHostForm">
-                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.4rem;">
-                            <input type="text" id="passHostName" placeholder="Name" style="flex: 1; min-width: 100px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
-                            <input type="email" id="passHostEmail" placeholder="Email" style="flex: 2; min-width: 150px; padding: 0.4rem 0.6rem; border: 1.5px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem;">
-                        </div>
-                        <div style="text-align: right;">
-                            <button id="passHostBtn" onclick="initiatePassHost()" style="background: var(--dark-brown); color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.85rem; cursor: pointer;">Transfer</button>
-                        </div>
-                    </div>
-                    <div id="passHostPending" style="display: none; background: rgba(210,105,30,0.06); border-radius: 0.5rem; padding: 0.5rem; margin-top: 0.4rem;">
-                        <p style="font-size: 0.82rem; color: var(--dark-brown); margin-bottom: 0.3rem;">Pending &mdash; waiting for <span id="passHostPendingEmail" style="font-weight: 600;"></span></p>
-                        <button id="cancelTransferBtn" onclick="cancelTransfer()" style="font-size: 0.78rem; color: var(--dark-brown); background: none; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 0.15rem 0.5rem; cursor: pointer; font-family: inherit;">Cancel</button>
-                    </div>
-                    <div id="passHostSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: var(--green-text); font-weight: 500;"></div>
-                    <div id="passHostError" style="display: none; margin-top: 0.4rem; font-size: 0.85rem; color: #d32f2f; font-weight: 500;"></div>
-                </div>
-
-                <!-- Donation Prompt -->
-                <div id="donationPromptSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 0.75rem; text-align: center;">
-                    <p style="font-size: 0.95rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.4rem;" id="donationPromptText">Neshama is free, always.</p>
-                    <p style="font-size: 0.85rem; color: var(--sage-dark); margin-bottom: 0.75rem;">A $18 chai contribution helps us serve the next family.</p>
-                    <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
-                        <a href="/sustain?ref=shiva_thankyou" target="_blank" style="display: inline-block; background: var(--gold); color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.9rem; font-weight: 600; text-decoration: none;">Give $18</a>
-                        <button onclick="dismissDonationPrompt()" style="background: none; border: none; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.82rem; cursor: pointer; text-decoration: underline;">Not now</button>
-                    </div>
-                </div>
-
-            </div><!-- end organizerToolsPanel -->
-        </div><!-- end organizerToolsWrapper -->
+        <!-- V4: Donation Prompt (organizer, after thank-yous sent) -->
+        <div id="donationPromptSection" style="display: none; background: white; border: 1px solid var(--light-taupe); border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; text-align: center;">
+            <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;" id="donationPromptText">
+                Neshama helped coordinate meals for this family, and it always will be free.
+            </p>
+            <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 1rem;">
+                If it made things a little easier, a $18 chai contribution helps us keep the lights on for the next family.
+            </p>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <a href="/sustain?ref=shiva_thankyou" target="_blank" style="display: inline-block; background: var(--gold); color: white; border: none; padding: 0.65rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer;">Give $18</a>
+                <button onclick="dismissDonationPrompt()" style="background: none; border: none; color: var(--sage-dark); font-family: 'Source Serif 4', serif; font-size: 0.88rem; cursor: pointer; text-decoration: underline; padding: 0.5rem;">Not now</button>
+            </div>
+        </div>
 
         <!-- Info Cards -->
         <div class="info-cards" id="infoCards"></div>
@@ -1902,9 +1925,6 @@
                     <div style="display: flex; align-items: center; gap: 0.35rem;">
                         <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--amber-light); border-left: 3px solid var(--amber-mid); flex-shrink: 0;"></span> Help needed
                     </div>
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #f8f5f0; border-left: 3px solid var(--gold); flex-shrink: 0;"></span> Shabbat
-                    </div>
                 </div>
             </div>
         </section>
@@ -1914,13 +1934,13 @@
             <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--sage-dark); text-align: center; margin-bottom: 0.75rem;">Can't cook or too far away?</p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;">
                 <a id="cantCookDirectoryLink" href="/help/food" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    Order a meal from a local caterer
+                    <span style="font-size: 1.1rem;">&#127869;</span> Send a meal from a local vendor
                 </a>
                 <a href="/help/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    Send a gift card
+                    <span style="font-size: 1.1rem;">&#127873;</span> Send a gift card
                 </a>
                 <a href="/help/gifts" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    Send something thoughtful
+                    <span style="font-size: 1.1rem;">&#10084;&#65039;</span> Send something thoughtful
                 </a>
             </div>
         </div>
@@ -1992,27 +2012,18 @@
             <div id="signupFormView">
                 <h2>Sign Up to Bring a Meal</h2>
                 <p class="modal-subtitle" id="modalSubtitle"></p>
+                <div style="background: var(--cream); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.75rem; font-size: 0.88rem; color: var(--sage-dark); line-height: 1.5;">
+                    When you sign up, the family and the organizer will see your name and what you're bringing — so meals don't overlap and every day is covered.
+                </div>
+
+                <!-- V3: read-only servings count, set by the organizer -->
+                <div id="signupServingsInfo" style="font-size: 0.92rem; color: var(--dark-brown); margin-bottom: 1rem; padding: 0.65rem 0.9rem; background: rgba(194, 98, 26, 0.08); border-left: 3px solid var(--terracotta); border-radius: 0.35rem;">
+                    This meal serves <strong id="signupServingsCount">—</strong> guests
+                </div>
 
                 <div class="form-group">
                     <label for="volName">Your Name</label>
                     <input type="text" id="volName" placeholder="Your full name" autocomplete="name">
-                </div>
-
-                <div class="form-group">
-                    <label>What are you bringing?</label>
-                    <div class="food-chips" id="foodChips">
-                        <button type="button" class="food-chip" data-food="Main dish">Main dish</button>
-                        <button type="button" class="food-chip" data-food="Soup">Soup</button>
-                        <button type="button" class="food-chip" data-food="Salad">Salad</button>
-                        <button type="button" class="food-chip" data-food="Side dish">Side dish</button>
-                        <button type="button" class="food-chip" data-food="Dessert">Dessert</button>
-                        <button type="button" class="food-chip" data-food="Full meal">Full meal</button>
-                    </div>
-                    <input type="text" id="mealCustom" placeholder="Or describe what you're bringing..." style="margin-top: 0.5rem;">
-                </div>
-
-                <div class="form-group" id="servingsDisplay" style="font-size:0.9rem;color:var(--sage-dark);margin-bottom:0.75rem;">
-                    <span id="servingsValue" style="font-weight:600;"></span> requested
                 </div>
 
                 <div class="form-group">
@@ -2021,40 +2032,37 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="volPhone">Phone <span class="optional">(optional)</span></label>
+                    <label for="volPhone">Your Phone</label>
                     <input type="tel" id="volPhone" placeholder="(416) 555-0123" autocomplete="tel">
                 </div>
 
-                <!-- Hidden: additional families (keep DOM for JS compatibility) -->
-                <div id="addFamilySection" style="display:none;">
-                    <button type="button" id="addFamilyBtn">+ Add another family</button>
-                    <div id="additionalFamilies"></div>
+                <!-- V3: What are you bringing? — caterer cards (from organizer picks) inline + free text -->
+                <div class="form-group">
+                    <label>What are you bringing?</label>
+                    <p id="signupCatererHelper" class="signup-caterer-helper" style="display: none;">Select one of the preferred catering options.</p>
+                    <div id="signupCatererCards" class="signup-caterer-cards" style="margin-top: 0.5rem;"></div>
+                    <p id="signupCustomLabel" class="signup-custom-label" style="display: none;">Tap a caterer above to auto-fill, or type what you're bringing below.</p>
+                    <input type="text" id="mealCustom" placeholder="e.g., Roast chicken + rice, or Ordering from Jem Salads" style="margin-top: 0.5rem;">
                 </div>
 
-                <!-- Alternative: not cooking -->
-                <div id="altContribSection" style="margin-bottom: 0.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <input type="checkbox" id="volAlternative" style="width: 1rem; height: 1rem; accent-color: var(--terracotta);">
-                        <label for="volAlternative" style="font-size: 0.9rem; color: var(--dark-brown); cursor: pointer;">
-                            Not cooking — I'll order or send something instead
-                        </label>
-                    </div>
-                    <div id="altOptions" style="display: none; margin-top: 0.5rem; padding-left: 1.5rem;">
-                        <input type="text" id="altNote" placeholder="e.g., Ordering from Nortown, sending a DoorDash card" style="width:100%;font-size:0.9rem;">
-                        <select id="altType" style="display:none;"><option value="vendor_meal">Vendor Meal</option><option value="gift_card">Gift Card</option><option value="gift_basket">Gift Basket</option></select>
-                    </div>
-                </div>
-
-                <div class="consent-row" style="margin-bottom: 0.5rem;">
+                <div class="consent-row" style="margin-bottom: 0.75rem;">
                     <input type="checkbox" id="volWillServe">
-                    <label for="volWillServe" style="color: var(--sage-dark); font-size: 0.88rem;">
-                        I can also help serve (set up, clean up)
+                    <label for="volWillServe" style="color: var(--dark-brown);">
+                        I can also help serve this meal <span style="color: var(--sage-dark); font-size: 0.88rem;">(set up, serve guests, clean up)</span>
                     </label>
+                </div>
+
+                <!-- Additional Families -->
+                <div id="addFamilySection" style="margin-bottom: 1rem;">
+                    <button type="button" id="addFamilyBtn" style="display: inline-flex; align-items: center; gap: 0.3rem; background: none; border: none; color: var(--terracotta); font-size: 0.9rem; font-weight: 500; cursor: pointer; padding: 0.25rem 0; font-family: inherit;">
+                        + Add another family to this meal
+                    </button>
+                    <div id="additionalFamilies" style="margin-top: 0.5rem;"></div>
                 </div>
 
                 <div class="consent-row">
                     <input type="checkbox" id="volConsent">
-                    <label for="volConsent" style="font-size: 0.88rem;">
+                    <label for="volConsent">
                         I consent to sharing my details with the family.
                         <a href="/privacy" target="_blank">Privacy Policy</a>
                     </label>
@@ -2075,6 +2083,15 @@
                     <h2>Thank You!</h2>
                     <p class="modal-subtitle" id="confirmSubtitle"></p>
 
+                    <!-- V3: Vendor order CTA — appears when volunteer picked a caterer card during signup -->
+                    <div id="confirmVendorCta" class="confirm-vendor-cta" style="display: none;">
+                        <p class="confirm-vendor-cta-label" id="confirmVendorCtaLabel"></p>
+                        <a id="confirmVendorCtaBtn" href="#" target="_blank" rel="noopener noreferrer" class="confirm-vendor-cta-btn">
+                            <span id="confirmVendorCtaText"></span>
+                            <span aria-hidden="true">&nbsp;&#8594;</span>
+                        </a>
+                    </div>
+
                     <div class="confirm-address" id="confirmAddress">
                         <div class="addr-label">Shiva Location</div>
                         <div class="addr-text" id="confirmAddrText"></div>
@@ -2082,29 +2099,17 @@
                     </div>
 
                     <a class="calendar-link" id="googleCalLink" href="#" target="_blank" rel="noopener noreferrer">
-                        Add to Google Calendar
+                        &#x1F4C5; Add to Google Calendar
                     </a>
 
                     <p style="text-align:center;margin-top:1.25rem;font-size:0.95rem;color:var(--sage-dark);font-style:italic;">
                         May their memory be a blessing
                     </p>
 
-                    <p style="text-align:center;margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">
+                    <!-- V3: Generic caterers fallback — only shows when no vendor was picked -->
+                    <p id="confirmGenericCaterers" style="text-align:center;margin-top:0.75rem;font-size:0.95rem;color:var(--sage-dark);">
                         Need help with your meal? <a href="/shiva/caterers">Browse local caterers</a>
                     </p>
-
-                    <!-- Opt-in subscribe (CASL compliant — unchecked by default) -->
-                    <div id="subscribeOptIn" style="margin-top:1.25rem; padding:1rem; background:var(--cream); border-radius:0.6rem; text-align:left;">
-                        <label style="display:flex; align-items:flex-start; gap:0.6rem; cursor:pointer; font-size:0.9rem; color:var(--dark-brown); line-height:1.5;">
-                            <input type="checkbox" id="volSubscribe" style="margin-top:0.25rem; min-width:18px; min-height:18px;">
-                            <span>Get notified about obituaries and shiva listings in
-                                <select id="volSubscribeCity" style="font-family:'Source Serif 4',serif; font-size:0.9rem; border:1px solid var(--light-taupe); border-radius:0.25rem; padding:0.15rem 0.3rem; color:var(--dark-brown); background:white;">
-                                    <option value="Toronto">Toronto</option>
-                                    <option value="Montreal">Montreal</option>
-                                </select>.
-                                You can unsubscribe anytime.</span>
-                        </label>
-                    </div>
 
                     <div class="modal-btn-row" style="justify-content: center; margin-top: 1.25rem;">
                         <button class="btn-primary" id="confirmDoneBtn">Done</button>
@@ -2174,18 +2179,12 @@
         var mealsData = [];
         var selectedDate = null;
         var selectedMealType = null;
-        var currentServings = 4;
+        // V3: currentServings removed — servings are now derived from the
+        // organizer's per-meal config via getMealServings(date, type).
         var isOrganizerMode = false;
         var organizerToken = null;
-        var accessToken = null;
-        var isPrivateLimited = false;
+        var editingSignupId = null;
         var lastSignupAddress = null;
-        var mealOverrides = {};
-        var blockedMealsSet = {};
-
-        function getMealOverride(date, mealType) {
-            return mealOverrides[date + '_' + mealType] || {};
-        }
 
         // ── URL Parsing ─────────────────────────────────
 
@@ -2239,21 +2238,6 @@
         }
 
         function show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
-
-        window.toggleOrganizerTools = function() {
-            var panel = document.getElementById('organizerToolsPanel');
-            var arrow = document.getElementById('organizerToolsArrow');
-            var label = document.getElementById('organizerToolsLabel');
-            if (panel.style.display === 'none') {
-                panel.style.display = '';
-                arrow.style.transform = 'rotate(180deg)';
-                if (label) label.textContent = 'Manage Page (tap to collapse)';
-            } else {
-                panel.style.display = 'none';
-                arrow.style.transform = '';
-                if (label) label.textContent = 'Manage Page (tap to expand)';
-            }
-        };
         function hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
 
         // ── Load Support Data ───────────────────────────
@@ -2273,10 +2257,6 @@
 
             isOrganizerMode = !!organizerToken;
 
-            // Check for access token (for private pages)
-            var params = new URLSearchParams(window.location.search);
-            accessToken = params.get('access') || null;
-
             if (!supportId) {
                 hide('pageLoading');
                 show('errorState');
@@ -2288,9 +2268,6 @@
             if (organizerToken) {
                 shivaUrl += '?token=' + encodeURIComponent(organizerToken);
                 mealsUrl += '?token=' + encodeURIComponent(organizerToken);
-            } else if (accessToken) {
-                shivaUrl += '?access=' + encodeURIComponent(accessToken);
-                mealsUrl += '?access=' + encodeURIComponent(accessToken);
             }
 
             Promise.all([
@@ -2307,30 +2284,15 @@
 
                 supportData = shivaResult.data;
                 mealsData = (mealsResult && mealsResult.data) || [];
-                isPrivateLimited = (shivaResult.access === 'limited');
 
                 if (supportData.status === 'archived') {
                     renderArchived();
                     return;
                 }
 
-                if (isPrivateLimited) {
-                    renderPrivateLimited();
-                    return;
-                }
-
                 renderPage();
             })
-            .catch(function(err) {
-                console.error('Shiva page load error:', err);
-                var errDetail = document.getElementById('errorDetail');
-                if (!errDetail) {
-                    errDetail = document.createElement('pre');
-                    errDetail.id = 'errorDetail';
-                    errDetail.style.cssText = 'color:red;font-size:12px;padding:1rem;max-width:90vw;overflow:auto;';
-                    document.getElementById('errorState').appendChild(errDetail);
-                }
-                errDetail.textContent = String(err) + '\n' + (err && err.stack ? err.stack : '');
+            .catch(function() {
                 hide('pageLoading');
                 show('errorState');
             });
@@ -2355,91 +2317,6 @@
             show('mainContent');
         }
 
-        // ── Render Private Limited View ─────────────────
-
-        function renderPrivateLimited() {
-            document.title = supportData.family_name + ' - Shiva Support - Neshama';
-            document.getElementById('familyName').textContent = supportData.family_name;
-
-            if (supportData.shiva_start_date && supportData.shiva_end_date) {
-                document.getElementById('shivaDates').textContent =
-                    formatDateRange(supportData.shiva_start_date, supportData.shiva_end_date);
-            }
-
-            if (supportData.obituary_id && supportData.obituary_id !== 'unknown') {
-                var ml = document.getElementById('memorialLink');
-                ml.href = '/memorial/' + encodeURIComponent(supportData.obituary_id);
-                ml.style.display = '';
-            }
-
-            // Hide sections that require access
-            hide('infoCards');
-            hide('addressReveal');
-            var calSec = document.getElementById('calendarSection');
-            if (calSec) calSec.style.display = 'none';
-
-            // Show private notice
-            show('privateNotice');
-
-            hide('pageLoading');
-            show('mainContent');
-        }
-
-        window.showAccessForm = function() {
-            show('accessForm');
-        };
-
-        window.submitAccessRequest = function() {
-            var name = document.getElementById('accessName').value.trim();
-            var email = document.getElementById('accessEmail').value.trim();
-            var message = document.getElementById('accessMessage').value.trim();
-            var errEl = document.getElementById('accessError');
-            var btn = document.getElementById('accessSubmitBtn');
-
-            errEl.style.display = 'none';
-
-            if (!name || !email) {
-                errEl.textContent = 'Please enter your name and email.';
-                errEl.style.display = '';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Sending...';
-
-            fetch('/api/shiva-access/request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    shiva_id: supportId,
-                    requester_name: name,
-                    requester_email: email,
-                    message: message
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.status === 'success') {
-                    hide('accessForm');
-                    show('accessSuccess');
-                } else if (result.status === 'already_approved' && result.access_token) {
-                    // Already approved — reload with token
-                    window.location.href = '/shiva/' + encodeURIComponent(supportId) + '?access=' + encodeURIComponent(result.access_token);
-                } else {
-                    errEl.textContent = result.message || 'We weren\'t able to send your request. Please try again.';
-                    errEl.style.display = '';
-                    btn.disabled = false;
-                    btn.textContent = 'Send Request';
-                }
-            })
-            .catch(function() {
-                errEl.textContent = 'Network error. Please try again.';
-                errEl.style.display = '';
-                btn.disabled = false;
-                btn.textContent = 'Send Request';
-            });
-        }
-
         // ── Render Main Page ────────────────────────────
 
         function renderPage() {
@@ -2452,19 +2329,28 @@
                 obEl.textContent = 'Organized by ' + supportData.organizer_name +
                     (supportData.organizer_relationship ? ' (' + supportData.organizer_relationship + ')' : '');
                 obEl.style.display = '';
+
+                // Organizer contact card (name + email + phone for volunteers)
+                var contactName = supportData.organizer_name +
+                    (supportData.organizer_relationship ? ' · ' + supportData.organizer_relationship : '');
+                document.getElementById('organizerContactName').textContent = contactName;
+                var contactBits = [];
+                if (supportData.organizer_email) {
+                    contactBits.push('<a href="mailto:' + encodeURIComponent(supportData.organizer_email) + '" style="color: var(--terracotta); text-decoration: underline;">' + escapeHtml(supportData.organizer_email) + '</a>');
+                }
+                if (supportData.organizer_phone) {
+                    contactBits.push('<a href="tel:' + encodeURIComponent(supportData.organizer_phone) + '" style="color: var(--terracotta); text-decoration: underline;">' + escapeHtml(supportData.organizer_phone) + '</a>');
+                }
+                if (contactBits.length) {
+                    document.getElementById('organizerContactLinks').innerHTML = contactBits.join(' &middot; ');
+                }
+                document.getElementById('organizerContactCard').style.display = '';
             }
 
             // Dates
             if (supportData.shiva_start_date && supportData.shiva_end_date) {
                 document.getElementById('shivaDates').textContent =
                     formatDateRange(supportData.shiva_start_date, supportData.shiva_end_date);
-            }
-
-            // Set servings display from organizer's guests_per_meal
-            currentServings = supportData.guests_per_meal || 20;
-            var servEl = document.getElementById('servingsValue');
-            if (servEl) {
-                servEl.textContent = currentServings + ' serving' + (currentServings !== 1 ? 's' : '');
             }
 
             // Memorial link
@@ -2489,25 +2375,6 @@
             // Organizer mode
             if (isOrganizerMode) {
                 show('organizerBanner');
-
-                // Populate shareable link (without the organizer token)
-                var baseUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
-                if (supportData.privacy === 'private' && supportData.share_token) {
-                    baseUrl += '?access=' + encodeURIComponent(supportData.share_token);
-                }
-                var shareInput = document.getElementById('shareableLink');
-                if (shareInput) shareInput.value = baseUrl;
-                var copyBtn = document.getElementById('copyShareLink');
-                if (copyBtn && shareInput) {
-                    copyBtn.addEventListener('click', function() {
-                        shareInput.select();
-                        navigator.clipboard.writeText(shareInput.value).then(function() {
-                            copyBtn.textContent = 'Copied!';
-                            setTimeout(function() { copyBtn.textContent = 'Copy Link'; }, 2000);
-                        });
-                    });
-                }
-
                 // Show organizer edit section
                 document.getElementById('organizerEditSection').style.display = '';
                 var updateInput = document.getElementById('organizerUpdateInput');
@@ -2541,32 +2408,6 @@
                     document.getElementById('passHostSection').style.display = '';
                 }
 
-                // Dietary Preferences section
-                document.getElementById('dietaryEditSection').style.display = '';
-                try {
-                    var dietaryRaw = supportData.dietary_restrictions;
-                    var dietaryArr = [];
-                    if (typeof dietaryRaw === 'string' && dietaryRaw) {
-                        dietaryArr = JSON.parse(dietaryRaw);
-                    } else if (Array.isArray(dietaryRaw)) {
-                        dietaryArr = dietaryRaw;
-                    }
-                    var dietaryMap = {
-                        'kosher': 'dietaryKosher',
-                        'vegetarian': 'dietaryVegetarian',
-                        'vegan': 'dietaryVegan',
-                        'gluten_free': 'dietaryGlutenFree',
-                        'nut_free': 'dietaryNutFree',
-                        'dairy_free': 'dietaryDairyFree'
-                    };
-                    for (var key in dietaryMap) {
-                        var el = document.getElementById(dietaryMap[key]);
-                        if (el) el.checked = dietaryArr.indexOf(key) !== -1;
-                    }
-                } catch(e) { console.error('Error parsing dietary_restrictions:', e); }
-                var dietaryNotesEl = document.getElementById('dietaryNotesInput');
-                if (dietaryNotesEl) dietaryNotesEl.value = supportData.dietary_notes || '';
-
                 // V5: Extend Dates section
                 document.getElementById('extendDatesSection').style.display = '';
                 var extendPicker = document.getElementById('extendDatePicker');
@@ -2587,12 +2428,6 @@
                 } catch(e) {}
                 document.getElementById('extendDatesCurrentInfo').textContent =
                     'Currently ends: ' + formatDate(supportData.shiva_end_date) + '. You may extend up to 30 days.';
-
-                // V6: Recommend Caterers section
-                initRecommendCaterersSection();
-
-                // Show the collapsible organizer tools wrapper
-                document.getElementById('organizerToolsWrapper').style.display = '';
             }
 
             // Address for organizer
@@ -2693,84 +2528,6 @@
             .catch(function() {
                 btn.disabled = false;
                 btn.textContent = 'Save Update';
-            });
-        };
-
-        // ── Global Guests Per Meal ────────────────────────
-        var _globalGuests = 20;
-        window.adjustGlobalGuests = function(delta) {
-            var el = document.getElementById('globalGuestsDisplay');
-            if (!el) return;
-            _globalGuests = Math.max(1, Math.min(200, (parseInt(el.textContent) || 20) + delta));
-            el.textContent = _globalGuests;
-        };
-        window.saveGlobalGuests = function() {
-            var el = document.getElementById('globalGuestsDisplay');
-            var val = parseInt(el.textContent) || 20;
-            fetch('/api/shiva/' + encodeURIComponent(supportId), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ magic_token: organizerToken, guests_per_meal: val })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(d) {
-                if (d.status === 'success') {
-                    supportData.guests_per_meal = val;
-                    currentServings = val;
-                    var s = document.getElementById('globalGuestsSuccess');
-                    if (s) { s.style.display = ''; setTimeout(function() { s.style.display = 'none'; }, 2000); }
-                }
-            })
-            .catch(function(e) { console.error('Failed to save guests:', e); });
-        };
-
-        // ── Save Dietary Preferences ─────────────────────
-        window.saveDietaryPreferences = function() {
-            var btn = document.getElementById('saveDietaryBtn');
-            var successEl = document.getElementById('dietarySuccess');
-            var errorEl = document.getElementById('dietaryError');
-            var checkboxIds = ['dietaryKosher', 'dietaryVegetarian', 'dietaryVegan', 'dietaryGlutenFree', 'dietaryNutFree', 'dietaryDairyFree'];
-            var selected = [];
-            for (var i = 0; i < checkboxIds.length; i++) {
-                var cb = document.getElementById(checkboxIds[i]);
-                if (cb && cb.checked) selected.push(cb.value);
-            }
-            var notes = document.getElementById('dietaryNotesInput').value.trim();
-
-            btn.disabled = true;
-            btn.textContent = 'Saving...';
-            successEl.style.display = 'none';
-            errorEl.style.display = 'none';
-
-            fetch('/api/shiva/' + encodeURIComponent(supportId), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    magic_token: organizerToken,
-                    dietary_restrictions: selected,
-                    dietary_notes: notes
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                btn.disabled = false;
-                btn.textContent = 'Save';
-                if (result.status === 'success') {
-                    successEl.style.display = '';
-                    setTimeout(function() { successEl.style.display = 'none'; }, 3000);
-                    supportData.dietary_restrictions = selected;
-                    supportData.dietary_notes = notes;
-                } else {
-                    errorEl.textContent = result.message || 'Could not save dietary preferences.';
-                    errorEl.style.display = '';
-                }
-            })
-            .catch(function(err) {
-                console.error('Error saving dietary preferences:', err);
-                btn.disabled = false;
-                btn.textContent = 'Save';
-                errorEl.textContent = 'Network error. Please try again.';
-                errorEl.style.display = '';
             });
         };
 
@@ -2998,59 +2755,22 @@
 
         // ── Share Button ────────────────────────────────
 
+        // V3: Share bar uses the shared share-buttons.js component for app-wide consistency.
+        // Same component renders on the dashboard so the visual treatment, options, and
+        // copy are identical no matter where someone shares from.
         function setupShareButton() {
-            var shareDiv = document.getElementById('shivaShareBtn');
-            var shareBtn = document.getElementById('shivaShareTrigger');
-            if (!shareDiv || !shareBtn) return;
+            var shareBar = document.getElementById('shivaShareBar');
+            if (!shareBar) return;
 
-            shareDiv.style.display = '';
             var pageUrl = window.location.origin + '/shiva/' + encodeURIComponent(supportId);
-            // For private shivas, include share_token so recipients get direct access
-            if (supportData.privacy === 'private' && supportData.share_token) {
-                pageUrl += '?access=' + encodeURIComponent(supportData.share_token);
+
+            shareBar.setAttribute('data-share-url', pageUrl);
+            shareBar.setAttribute('data-share-family', supportData.family_name || '');
+            shareBar.style.display = '';
+
+            if (window.NeshamaShare && window.NeshamaShare.renderInto) {
+                window.NeshamaShare.renderInto('#shivaShareBar');
             }
-            var familyName = supportData.family_name || 'the family';
-            var whatsAppMessage = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals \u2014 sign up for a day: ' + pageUrl;
-            var emailSubject = 'Shiva meals for the ' + familyName + ' family \u2014 sign up to help';
-            var emailBody = 'The ' + familyName + ' family is sitting shiva. Friends are organizing meals so the family is taken care of.\n\nIf you\u2019d like to sign up to bring a meal, you can do so here:\n' + pageUrl + '\n\nEvery meal makes a difference. Thank you for being part of this community.';
-            var smsMessage = 'The ' + familyName + ' family is sitting shiva. Sign up to bring a meal: ' + pageUrl;
-
-            // Build share menu with multiple options
-            var shareMenu = document.createElement('div');
-            shareMenu.id = 'shareMenu';
-            shareMenu.style.cssText = 'display:none; position:absolute; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(62,39,35,0.15); padding:0.5rem; margin-top:0.5rem; z-index:50; min-width:200px;';
-            var shareOptions = [
-                { label: 'WhatsApp', icon: '', action: function() { window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppMessage), '_blank'); } },
-                { label: 'Email', icon: '', action: function() { window.location.href = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody); } },
-                { label: 'Text Message', icon: '', action: function() { var ua = navigator.userAgent; var sep = /iPhone|iPad|iPod/i.test(ua) ? '&' : '?'; window.location.href = 'sms:' + sep + 'body=' + encodeURIComponent(smsMessage); } },
-                { label: 'Copy Link', icon: '', action: function() { navigator.clipboard.writeText(pageUrl).then(function() { var el = document.getElementById('copyConfirm'); if (el) { el.style.display = ''; setTimeout(function() { el.style.display = 'none'; }, 2000); } }); } }
-            ];
-            shareOptions.forEach(function(opt) {
-                var btn = document.createElement('button');
-                btn.style.cssText = 'display:flex; align-items:center; gap:0.6rem; width:100%; padding:0.6rem 0.75rem; border:none; background:none; font-family:inherit; font-size:0.95rem; color:var(--dark-brown); cursor:pointer; border-radius:8px; text-align:left;';
-                btn.onmouseover = function() { this.style.background = 'var(--cream)'; };
-                btn.onmouseout = function() { this.style.background = 'none'; };
-                btn.textContent = opt.icon + '  ' + opt.label;
-                btn.addEventListener('click', function() { opt.action(); shareMenu.style.display = 'none'; });
-                shareMenu.appendChild(btn);
-            });
-            var copyConfirm = document.createElement('div');
-            copyConfirm.id = 'copyConfirm';
-            copyConfirm.style.cssText = 'display:none; text-align:center; padding:0.4rem; font-size:0.85rem; color:var(--sage-dark);';
-            copyConfirm.textContent = 'Link copied!';
-            shareMenu.appendChild(copyConfirm);
-            shareDiv.style.position = 'relative';
-            shareDiv.appendChild(shareMenu);
-
-            shareBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                var menu = document.getElementById('shareMenu');
-                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-            });
-            document.addEventListener('click', function() {
-                var menu = document.getElementById('shareMenu');
-                if (menu) menu.style.display = 'none';
-            });
         }
 
         // ── Update Directory Link with Location ─────────
@@ -3060,19 +2780,12 @@
             if (!link || !supportData) return;
             var city = supportData.shiva_city;
             var subArea = supportData.shiva_sub_area;
-            var params = [];
-            if (city) params.push('city=' + encodeURIComponent(city));
-            if (subArea) params.push('area=' + encodeURIComponent(subArea));
-            if (supportData.dietary_restrictions) {
-                try {
-                    var restrictions = typeof supportData.dietary_restrictions === 'string'
-                        ? JSON.parse(supportData.dietary_restrictions) : supportData.dietary_restrictions;
-                    if (Array.isArray(restrictions) && restrictions.indexOf('kosher') >= 0) {
-                        params.push('kosher=1');
-                    }
-                } catch(e) {}
+            if (city || subArea) {
+                var params = [];
+                if (city) params.push('city=' + encodeURIComponent(city));
+                if (subArea) params.push('area=' + encodeURIComponent(subArea));
+                link.href = '/help/food?' + params.join('&');
             }
-            if (params.length) link.href = '/help/food?' + params.join('&');
         }
 
         // ── Render Info Cards ───────────────────────────
@@ -3082,44 +2795,11 @@
             if (supportData.guests_per_meal) {
                 html += '<div class="info-card"><h3>Guests per Meal</h3><p>' +
                     escapeHtml(String(supportData.guests_per_meal)) +
-                    ' people expected</p>';
-                if (isOrganizerMode) {
-                    html += '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">' +
-                        '<button type="button" onclick="adjustGlobalGuests(-1)" style="width:32px;height:32px;border:1px solid var(--light-taupe);border-radius:50%;background:white;font-size:1.1rem;cursor:pointer;color:var(--dark-brown);">-</button>' +
-                        '<span id="globalGuestsDisplay" style="font-weight:600;min-width:2rem;text-align:center;">' + (supportData.guests_per_meal || 20) + '</span>' +
-                        '<button type="button" onclick="adjustGlobalGuests(1)" style="width:32px;height:32px;border:1px solid var(--light-taupe);border-radius:50%;background:white;font-size:1.1rem;cursor:pointer;color:var(--dark-brown);">+</button>' +
-                        '<button type="button" onclick="saveGlobalGuests()" style="margin-left:0.5rem;padding:0.3rem 0.8rem;border:none;border-radius:1rem;background:var(--terracotta);color:white;font-size:0.8rem;cursor:pointer;">Save</button>' +
-                        '<span id="globalGuestsSuccess" style="display:none;font-size:0.8rem;color:var(--green-text);">Saved</span>' +
-                        '</div>';
-                }
-                html += '</div>';
+                    ' people expected</p></div>';
             }
-            // Structured dietary restrictions (V6)
-            var dietaryLabels = { kosher: 'Kosher', vegetarian: 'Vegetarian', vegan: 'Vegan', gluten_free: 'Gluten-free', nut_free: 'Nut-free', dairy_free: 'Dairy-free' };
-            var dietaryList = [];
-            if (supportData.dietary_restrictions) {
-                try {
-                    var restrictions = typeof supportData.dietary_restrictions === 'string'
-                        ? JSON.parse(supportData.dietary_restrictions)
-                        : supportData.dietary_restrictions;
-                    if (Array.isArray(restrictions)) {
-                        dietaryList = restrictions.map(function(r) { return dietaryLabels[r] || r; });
-                    }
-                } catch(e) {}
-            }
-            if (dietaryList.length || supportData.dietary_notes) {
-                html += '<div class="info-card"><h3>Dietary Requirements</h3>';
-                if (dietaryList.length) {
-                    html += '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:' + (supportData.dietary_notes ? '0.5rem' : '0') + ';">';
-                    dietaryList.forEach(function(label) {
-                        html += '<span style="display:inline-block;padding:0.25rem 0.65rem;background:rgba(210,105,30,0.1);border:1px solid rgba(210,105,30,0.3);border-radius:1rem;font-size:0.85rem;color:#3E2723;font-weight:500;">' + escapeHtml(label) + '</span>';
-                    });
-                    html += '</div>';
-                }
-                if (supportData.dietary_notes) {
-                    html += '<p style="margin:0;font-size:0.92rem;color:#556258;">' + escapeHtml(supportData.dietary_notes) + '</p>';
-                }
-                html += '</div>';
+            if (supportData.dietary_notes) {
+                html += '<div class="info-card"><h3>Dietary Notes</h3><p>' +
+                    escapeHtml(supportData.dietary_notes) + '</p></div>';
             }
             if (supportData.donation_url && /^https?:\/\//i.test(supportData.donation_url)) {
                 html += '<div class="info-card"><h3>' +
@@ -3142,110 +2822,15 @@
             }
 
             if (!slugs || !slugs.length) {
-                // Auto-surface featured vendors from the family's city
+                // Show generic fallback
+                section.className = 'caterer-section';
                 var catererLink = '/help/food' + (supportData.shiva_city ? '?city=' + encodeURIComponent(supportData.shiva_city) : '');
-
-                if (!supportData.shiva_city) {
-                    // No city — show generic fallback
-                    section.className = 'caterer-section';
-                    section.innerHTML =
-                        '<h2 class="section-heading">Need Meal Ideas?</h2>' +
-                        '<div class="caterer-fallback">' +
-                        '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
-                        '</div>';
-                    section.style.display = '';
-                    return;
-                }
-
-                var featuredUrl = '/api/vendors?city=' + encodeURIComponent(supportData.shiva_city);
-                fetch(featuredUrl)
-                .then(function(r) { return r.json(); })
-                .then(function(result) {
-                    if (!result || result.status !== 'success' || !result.data) {
-                        // No data — show generic fallback
-                        section.className = 'caterer-section';
-                        section.innerHTML =
-                            '<h2 class="section-heading">Need Meal Ideas?</h2>' +
-                            '<div class="caterer-fallback">' +
-                            '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
-                            '</div>';
-                        section.style.display = '';
-                        return;
-                    }
-
-                    var featured = result.data.filter(function(v) { return v.featured === 1; });
-                    if (!featured.length) {
-                        // No featured vendors — show generic fallback
-                        section.className = 'caterer-section';
-                        section.innerHTML =
-                            '<h2 class="section-heading">Need Meal Ideas?</h2>' +
-                            '<div class="caterer-fallback">' +
-                            '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
-                            '</div>';
-                        section.style.display = '';
-                        return;
-                    }
-
-                    // If dietary restrictions exist, prioritize matching vendors
-                    var dietary = supportData.dietary_restrictions;
-                    if (dietary) {
-                        var dietaryLower = dietary.toLowerCase();
-                        featured.sort(function(a, b) {
-                            var aMatch = 0;
-                            var bMatch = 0;
-                            if (dietaryLower.indexOf('kosher') !== -1) {
-                                if (a.kosher_status && a.kosher_status !== 'not_certified') aMatch = 1;
-                                if (b.kosher_status && b.kosher_status !== 'not_certified') bMatch = 1;
-                            }
-                            return bMatch - aMatch;
-                        });
-                    }
-
-                    // Show up to 4 featured vendor cards
-                    var toShow = featured.slice(0, 4);
-
-                    var html = '<h2 class="section-heading">Local Caterers Ready to Help</h2>';
-                    html += '<p style="text-align:center;color:var(--sage-dark);font-size:0.95rem;margin-top:-0.75rem;">Featured caterers in ' + escapeHtml(supportData.shiva_city) + '</p>';
-                    html += '<div class="caterer-grid">';
-
-                    toShow.forEach(function(v) {
-                        var dest = v.website || ('/directory/' + encodeURIComponent(v.slug));
-                        var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
-                            '&dest=' + encodeURIComponent(dest);
-
-                        html += '<a class="caterer-rec-card" href="' + escapeHtml(trackUrl) +
-                            '" target="_blank" rel="noopener noreferrer">';
-                        html += '<div class="caterer-rec-name">' + escapeHtml(v.name) + '</div>';
-                        if (v.neighborhood) {
-                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
-                        }
-                        if (v.kosher_status && v.kosher_status !== 'not_certified') {
-                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
-                        }
-                        if (v.phone) {
-                            html += '<div class="caterer-rec-detail">' + escapeHtml(v.phone) + '</div>';
-                        }
-                        html += '</a>';
-                    });
-
-                    html += '</div>';
-                    html += '<div class="caterer-fallback"><a href="' + catererLink + '">Browse all caterers &#8594;</a></div>';
-
-                    section.className = 'caterer-section';
-                    section.innerHTML = html;
-                    section.style.display = '';
-                })
-                .catch(function(err) {
-                    console.error('Failed to load featured caterers:', err);
-                    // On error — show generic fallback
-                    section.className = 'caterer-section';
-                    section.innerHTML =
-                        '<h2 class="section-heading">Need Meal Ideas?</h2>' +
-                        '<div class="caterer-fallback">' +
-                        '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
-                        '</div>';
-                    section.style.display = '';
-                });
+                section.innerHTML =
+                    '<h2 class="section-heading">Need Meal Ideas?</h2>' +
+                    '<div class="caterer-fallback">' +
+                    '<a href="' + catererLink + '">Browse caterers in your area &#8594;</a>' +
+                    '</div>';
+                section.style.display = '';
                 return;
             }
 
@@ -3280,8 +2865,8 @@
                     if (v.neighborhood) {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.neighborhood) + '</div>';
                     }
-                    if (v.kosher_status && v.kosher_status !== 'not_certified') {
-                        html += '<div class="caterer-rec-detail">' + escapeHtml(v.kosher_status) + '</div>';
+                    if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                        html += '<div class="caterer-rec-detail">Kosher (' + v.kosher_status + ')</div>';
                     }
                     if (v.phone) {
                         html += '<div class="caterer-rec-detail">' + escapeHtml(v.phone) + '</div>';
@@ -3298,199 +2883,6 @@
             })
             .catch(function() {
                 // Silently fail - not critical
-            });
-        }
-
-        // ── Recommend Caterers (Organizer) ──────────────
-
-        var selectedCatererSlugs = [];
-        var availableCaterers = [];
-        var catererBrowserOpen = false;
-
-        window.toggleCatererBrowser = function() {
-            var grid = document.getElementById('catererBrowserGrid');
-            catererBrowserOpen = !catererBrowserOpen;
-            grid.style.display = catererBrowserOpen ? '' : 'none';
-            document.getElementById('browseCaterersBtn').textContent =
-                catererBrowserOpen ? 'Hide Caterers' : 'Browse Caterers';
-
-            if (catererBrowserOpen && availableCaterers.length === 0) {
-                loadAvailableCaterers();
-            }
-        };
-
-        function loadAvailableCaterers() {
-            var url = '/api/vendors';
-            if (supportData.shiva_city) {
-                url += '?city=' + encodeURIComponent(supportData.shiva_city);
-            }
-            document.getElementById('catererBrowserLoading').style.display = '';
-            document.getElementById('catererBrowserCards').innerHTML = '';
-
-            fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                document.getElementById('catererBrowserLoading').style.display = 'none';
-                if (!result || result.status !== 'success' || !result.data || !result.data.length) {
-                    document.getElementById('catererBrowserCards').innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: var(--sage-dark); font-size: 0.9rem;">No caterers found in this area yet.</p>';
-                    return;
-                }
-                availableCaterers = result.data;
-                renderCatererBrowserCards();
-            })
-            .catch(function(err) {
-                console.error('Failed to load caterers:', err);
-                document.getElementById('catererBrowserLoading').style.display = 'none';
-                document.getElementById('catererBrowserCards').innerHTML =
-                    '<p style="grid-column: 1/-1; text-align: center; color: #d32f2f; font-size: 0.9rem;">Could not load caterers. Please try again.</p>';
-            });
-        }
-
-        function renderCatererBrowserCards() {
-            var container = document.getElementById('catererBrowserCards');
-            var html = '';
-            availableCaterers.forEach(function(v) {
-                var isSelected = selectedCatererSlugs.indexOf(v.slug) !== -1;
-                html += '<div onclick="toggleCatererSelection(\'' + escapeHtml(v.slug) + '\')"' +
-                    ' style="border: 2px solid ' + (isSelected ? 'var(--terracotta)' : 'var(--light-taupe)') +
-                    '; background: ' + (isSelected ? 'rgba(210,105,30,0.06)' : 'var(--cream)') +
-                    '; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s;' +
-                    ((!isSelected && selectedCatererSlugs.length >= 5) ? ' opacity: 0.4; pointer-events: none;' : '') +
-                    '">';
-                html += '<div style="font-family: \'Cormorant Garamond\', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark-brown); margin-bottom: 0.25rem;">' + escapeHtml(v.name) + '</div>';
-                if (v.neighborhood) {
-                    html += '<div style="font-size: 0.82rem; color: var(--sage-dark);">' + escapeHtml(v.neighborhood) + '</div>';
-                }
-                if (v.kosher_status && v.kosher_status !== 'not_certified') {
-                    html += '<div style="font-size: 0.82rem; color: var(--sage-dark);">' + escapeHtml(v.kosher_status) + '</div>';
-                }
-                if (isSelected) {
-                    html += '<div style="font-size: 0.78rem; color: var(--terracotta); font-weight: 600; margin-top: 0.3rem;">&#10003; Selected</div>';
-                }
-                html += '</div>';
-            });
-            container.innerHTML = html;
-            document.getElementById('catererLimitMsg').style.display =
-                selectedCatererSlugs.length >= 5 ? '' : 'none';
-        }
-
-        window.toggleCatererSelection = function(slug) {
-            var idx = selectedCatererSlugs.indexOf(slug);
-            if (idx !== -1) {
-                selectedCatererSlugs.splice(idx, 1);
-            } else {
-                if (selectedCatererSlugs.length >= 5) return;
-                selectedCatererSlugs.push(slug);
-            }
-            renderSelectedCatererTags();
-            renderCatererBrowserCards();
-            document.getElementById('saveCaterersBtn').style.display = '';
-            document.getElementById('saveCaterersSuccess').style.display = 'none';
-            document.getElementById('saveCaterersError').style.display = 'none';
-        };
-
-        window.removeCatererTag = function(slug) {
-            var idx = selectedCatererSlugs.indexOf(slug);
-            if (idx !== -1) selectedCatererSlugs.splice(idx, 1);
-            renderSelectedCatererTags();
-            if (catererBrowserOpen) renderCatererBrowserCards();
-            document.getElementById('saveCaterersBtn').style.display = '';
-            document.getElementById('saveCaterersSuccess').style.display = 'none';
-        };
-
-        function renderSelectedCatererTags() {
-            var container = document.getElementById('selectedCatererTags');
-            if (!selectedCatererSlugs.length) {
-                container.innerHTML = '<span style="font-size: 0.85rem; color: var(--sage-dark); font-style: italic;">No caterers selected yet</span>';
-                return;
-            }
-            var html = '';
-            selectedCatererSlugs.forEach(function(slug) {
-                var name = slug;
-                for (var i = 0; i < availableCaterers.length; i++) {
-                    if (availableCaterers[i].slug === slug) {
-                        name = availableCaterers[i].name;
-                        break;
-                    }
-                }
-                html += '<span style="display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(210,105,30,0.08); border: 1px solid var(--terracotta); border-radius: 2rem; padding: 0.3rem 0.75rem; font-size: 0.85rem; color: var(--dark-brown);">' +
-                    escapeHtml(name) +
-                    ' <span onclick="removeCatererTag(\'' + escapeHtml(slug) + '\')" style="cursor: pointer; color: var(--terracotta); font-weight: 700; font-size: 1rem; line-height: 1;">&times;</span>' +
-                    '</span>';
-            });
-            container.innerHTML = html;
-        }
-
-        window.saveRecommendedCaterers = function() {
-            var btn = document.getElementById('saveCaterersBtn');
-            var successEl = document.getElementById('saveCaterersSuccess');
-            var errorEl = document.getElementById('saveCaterersError');
-
-            btn.disabled = true;
-            btn.textContent = 'Saving...';
-            successEl.style.display = 'none';
-            errorEl.style.display = 'none';
-
-            fetch('/api/shiva/' + encodeURIComponent(supportId), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    magic_token: organizerToken,
-                    recommended_vendors: selectedCatererSlugs
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                btn.disabled = false;
-                btn.textContent = 'Save Recommendations';
-                if (result.status === 'success') {
-                    successEl.style.display = '';
-                    btn.style.display = 'none';
-                    // Update local data and re-render volunteer view
-                    supportData.recommended_vendors = JSON.stringify(selectedCatererSlugs);
-                    renderRecommendedCaterers();
-                } else {
-                    errorEl.textContent = result.message || 'Could not save. Please try again.';
-                    errorEl.style.display = '';
-                }
-            })
-            .catch(function(err) {
-                console.error('Failed to save recommended caterers:', err);
-                btn.disabled = false;
-                btn.textContent = 'Save Recommendations';
-                errorEl.textContent = 'Could not save. Please try again.';
-                errorEl.style.display = '';
-            });
-        };
-
-        function initRecommendCaterersSection() {
-            // Parse existing selections
-            var raw = supportData.recommended_vendors;
-            selectedCatererSlugs = [];
-            if (raw) {
-                try { selectedCatererSlugs = JSON.parse(raw); } catch(e) {}
-            }
-            if (!Array.isArray(selectedCatererSlugs)) selectedCatererSlugs = [];
-
-            document.getElementById('recommendCaterersSection').style.display = '';
-            renderSelectedCatererTags();
-
-            // Pre-load caterers so tag names resolve even before browser is opened
-            var url = '/api/vendors';
-            if (supportData.shiva_city) {
-                url += '?city=' + encodeURIComponent(supportData.shiva_city);
-            }
-            fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result && result.status === 'success' && result.data) {
-                    availableCaterers = result.data;
-                    renderSelectedCatererTags();
-                }
-            })
-            .catch(function(err) {
-                console.error('Failed to pre-load caterers:', err);
             });
         }
 
@@ -3512,7 +2904,7 @@
             });
 
             // Parse blocked meals
-            blockedMealsSet = {};
+            var blockedMealsSet = {};
             try {
                 var blockedList = supportData.blocked_meals ? JSON.parse(supportData.blocked_meals) : [];
                 blockedList.forEach(function(bm) {
@@ -3524,13 +2916,6 @@
                 return !!blockedMealsSet[date + '_' + mealType];
             }
 
-            // Parse per-meal overrides (guests, notes, serving_time)
-            mealOverrides = {};
-            try {
-                mealOverrides = supportData.meal_schedule ? JSON.parse(supportData.meal_schedule) : {};
-                if (typeof mealOverrides !== 'object') mealOverrides = {};
-            } catch(e) { mealOverrides = {}; }
-
             var html = '';
             var current = new Date(start);
             var totalSlots = 0;
@@ -3541,68 +2926,54 @@
 
             while (current <= end) {
                 var dateStr = current.toISOString().split('T')[0];
-                var dayOfWeek = current.getDay();
-                var isShabbat = dayOfWeek === 5 || dayOfWeek === 6;
-                var isPaused = isShabbat && supportData.pause_shabbat;
 
                 var lunchBlocked = isBlocked(dateStr, 'Lunch');
                 var dinnerBlocked = isBlocked(dateStr, 'Dinner');
 
                 var dayClass = 'meal-day-card';
-                if (isPaused) {
-                    dayClass += ' shabbat';
-                } else {
-                    var lunchSignups = signupMap[dateStr + '_Lunch'] || [];
-                    var dinnerSignups = signupMap[dateStr + '_Dinner'] || [];
-                    var hasLunch = lunchSignups.length > 0 || lunchBlocked;
-                    var hasDinner = dinnerSignups.length > 0 || dinnerBlocked;
-                    if (!lunchBlocked) totalSlots++;
-                    if (!dinnerBlocked) totalSlots++;
-                    if (!lunchBlocked && lunchSignups.length > 0) filledSlots++;
-                    if (!dinnerBlocked && dinnerSignups.length > 0) filledSlots++;
-                    if (hasLunch && hasDinner) { dayClass += ' day-full'; fullDays++; }
-                    else if (hasLunch || hasDinner) { dayClass += ' day-partial'; partialDays++; }
-                    else { dayClass += ' day-empty'; emptyDays++; }
-                }
+                var lunchSignups = signupMap[dateStr + '_Lunch'] || [];
+                var dinnerSignups = signupMap[dateStr + '_Dinner'] || [];
+                var hasLunch = lunchSignups.length > 0 || lunchBlocked;
+                var hasDinner = dinnerSignups.length > 0 || dinnerBlocked;
+                if (!lunchBlocked) totalSlots++;
+                if (!dinnerBlocked) totalSlots++;
+                if (!lunchBlocked && lunchSignups.length > 0) filledSlots++;
+                if (!dinnerBlocked && dinnerSignups.length > 0) filledSlots++;
+                if (hasLunch && hasDinner) { dayClass += ' day-full'; fullDays++; }
+                else if (hasLunch || hasDinner) { dayClass += ' day-partial'; partialDays++; }
+                else { dayClass += ' day-empty'; emptyDays++; }
 
                 // Status badge for header
                 var statusBadge = '';
-                if (!isPaused) {
-                    var lunchS = signupMap[dateStr + '_Lunch'] || [];
-                    var dinnerS = signupMap[dateStr + '_Dinner'] || [];
-                    if (lunchS.length > 0 && dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
-                    } else if (lunchS.length > 0 || dinnerS.length > 0) {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
-                    } else {
-                        statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
-                    }
+                var lunchS = signupMap[dateStr + '_Lunch'] || [];
+                var dinnerS = signupMap[dateStr + '_Dinner'] || [];
+                if (lunchS.length > 0 && dinnerS.length > 0) {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
+                } else if (lunchS.length > 0 || dinnerS.length > 0) {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
+                } else {
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
                 }
 
                 html += '<div class="' + dayClass + '">';
                 html += '<div class="meal-day-header"><span>' + formatDateShort(dateStr) + '</span>';
-                if (isPaused) html += '<span class="shabbat-badge">Shabbat</span>';
-                else html += statusBadge;
+                html += statusBadge;
                 html += '</div>';
 
-                if (!isPaused) {
-                    html += '<div class="meal-slots-grid">';
-                    if (lunchBlocked) {
-                        html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Lunch</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
-                    } else {
-                        var lunchFirst = (signupMap[dateStr + '_Lunch'] || [])[0] || null;
-                        html += renderSlot(dateStr, 'Lunch', lunchFirst);
-                    }
-                    if (dinnerBlocked) {
-                        html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Dinner</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
-                    } else {
-                        var dinnerFirst = (signupMap[dateStr + '_Dinner'] || [])[0] || null;
-                        html += renderSlot(dateStr, 'Dinner', dinnerFirst);
-                    }
-                    html += '</div>';
+                html += '<div class="meal-slots-grid">';
+                if (lunchBlocked) {
+                    html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Lunch</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
                 } else {
-                    html += '<div class="shabbat-message">Paused for Shabbat</div>';
+                    var lunchFirst = (signupMap[dateStr + '_Lunch'] || [])[0] || null;
+                    html += renderSlot(dateStr, 'Lunch', lunchFirst);
                 }
+                if (dinnerBlocked) {
+                    html += '<div class="meal-slot" style="opacity:0.4;background:#f5f0eb;"><div class="meal-slot-label">Dinner</div><div class="vol-name" style="color:var(--sage-dark);font-style:italic;">Not needed</div></div>';
+                } else {
+                    var dinnerFirst = (signupMap[dateStr + '_Dinner'] || [])[0] || null;
+                    html += renderSlot(dateStr, 'Dinner', dinnerFirst);
+                }
+                html += '</div>';
 
                 html += '</div>';
                 current.setDate(current.getDate() + 1);
@@ -3628,7 +2999,7 @@
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {
-                    summaryEl.innerHTML += '<p style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
+                    summaryEl.innerHTML += '<p class="coverage-cta-text" style="text-align:center;color:var(--dark-brown);font-family:\'Source Serif 4\',serif;font-size:0.95rem;margin-top:0.75rem;opacity:0.85;">This family could really use your help. Tap any available slot to sign up for a meal.</p>';
                 }
             }
 
@@ -3660,26 +3031,27 @@
             return mySignups.some(function(s) { return s.signup_id == signupId; });
         }
 
-        function getMySignupEmail(signupId) {
-            if (!supportId) return '';
+        function getMySignupEntry(signupId) {
+            if (!supportId) return null;
             var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-            var match = mySignups.find(function(s) { return s.signup_id == signupId; });
-            return match ? match.email : '';
+            return mySignups.find(function(s) { return s.signup_id == signupId; }) || null;
         }
 
-        function renderOverrideInfo(dateStr, mealType) {
-            var ov = getMealOverride(dateStr, mealType);
-            var info = '';
-            if (ov.guests) {
-                info += '<span style="font-size:0.75rem;color:var(--sage-dark);">' + ov.guests + ' guests</span>';
+        function getMySignupEmail(signupId) {
+            var entry = getMySignupEntry(signupId);
+            return entry ? entry.email : '';
+        }
+
+        function saveMySignupEntry(signupId, updates) {
+            if (!supportId) return;
+            var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
+            var idx = mySignups.findIndex(function(s) { return s.signup_id == signupId; });
+            if (idx >= 0) {
+                mySignups[idx] = Object.assign({}, mySignups[idx], updates);
+            } else {
+                mySignups.push(Object.assign({ signup_id: signupId }, updates));
             }
-            if (ov.note) {
-                info += (info ? ' &middot; ' : '') + '<span style="font-size:0.75rem;color:var(--sage-dark);font-style:italic;">' + escapeHtml(ov.note) + '</span>';
-            }
-            if (ov.serving_time) {
-                info += (info ? ' &middot; ' : '') + '<span style="font-size:0.75rem;color:var(--sage-dark);">' + escapeHtml(ov.serving_time) + '</span>';
-            }
-            return info ? '<div style="margin-top:0.2rem;">' + info + '</div>' : '';
+            sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
         }
 
         function renderSlot(dateStr, mealType, signup) {
@@ -3687,24 +3059,10 @@
                 var isMine = isMySignup(signup.id);
                 var h = '<div class="meal-slot taken">';
                 h += '<div class="meal-slot-label">' + mealType + '</div>';
-                h += renderOverrideInfo(dateStr, mealType);
                 h += '<div class="vol-name">' + escapeHtml(signup.volunteer_name);
                 // Show meal description inline with servings count
                 if (signup.meal_description) {
-                    var descText = signup.meal_description;
-                    var labelMap = {'vendor_meal': 'Vendor Meal', 'gift_card': 'Gift Card', 'gift_basket': 'Gift Basket'};
-                    var descLower = descText.toLowerCase();
-                    if (labelMap[descLower]) {
-                        descText = labelMap[descLower];
-                    } else {
-                        for (var k in labelMap) {
-                            if (descLower.indexOf(k + ' - ') === 0) {
-                                descText = labelMap[k] + descText.substring(k.length);
-                                break;
-                            }
-                        }
-                    }
-                    h += ' &mdash; ' + escapeHtml(descText);
+                    h += ' &mdash; ' + escapeHtml(signup.meal_description);
                 }
                 if (signup.num_servings && signup.num_servings > 0) {
                     h += ' <span style="font-size:0.78rem;color:var(--sage-dark);font-weight:400;">(' + signup.num_servings + ' servings)</span>';
@@ -3717,31 +3075,21 @@
                             JSON.parse(signup.additional_contributors) : signup.additional_contributors;
                         if (contribs && contribs.length) {
                             var names = contribs.map(function(c) { return escapeHtml(c.name); }).join(', ');
-                            h += '<div class="vol-desc" style="font-size:0.8rem;color:var(--sage-dark);">+ ' + names + '</div>';
+                            h += '<div class="signup-contributors" style="font-size:0.8rem;color:var(--sage-dark);">+ ' + names + '</div>';
                         }
                     } catch(e) {}
-                }
-                // Show contact info to organizer
-                if (isOrganizerMode && (signup.volunteer_email || signup.volunteer_phone)) {
-                    h += '<div style="font-size:0.75rem;color:var(--sage-dark);margin-top:0.15rem;">';
-                    if (signup.volunteer_email) h += escapeHtml(signup.volunteer_email);
-                    if (signup.volunteer_email && signup.volunteer_phone) h += ' &middot; ';
-                    if (signup.volunteer_phone) h += escapeHtml(signup.volunteer_phone);
-                    h += '</div>';
                 }
                 if (signup.will_serve) {
                     h += '<div class="vol-desc" style="color: var(--green-text); font-weight: 500;">will serve \u2713</div>';
                 }
                 if (isOrganizerMode && signup.id) {
-                    h += '<div style="display:flex;gap:0.4rem;margin-top:0.3rem;flex-wrap:wrap;">';
                     h += '<button class="remove-btn" data-signup-id="' + signup.id + '">Remove</button>';
-                    h += '<button class="remove-btn meal-edit-btn" data-date="' + dateStr + '" data-meal="' + mealType + '" style="background:var(--cream);color:var(--terracotta);border:1px solid var(--terracotta);">Edit Meal</button>';
-                    h += '</div>';
                 }
-                // V4: Volunteer self-edit / cancel buttons
+                // Volunteer self-edit: "Edit my signup" button. Per plan,
+                // volunteers cannot cancel — they must contact the organizer.
                 if (!isOrganizerMode && isMine && signup.id) {
                     h += '<div style="display:flex;gap:0.4rem;margin-top:0.3rem;">';
-                    h += '<button class="remove-btn vol-cancel-btn" data-signup-id="' + signup.id + '" style="font-size:0.7rem;">Cancel my signup</button>';
+                    h += '<button class="remove-btn vol-edit-btn" data-signup-id="' + signup.id + '" style="font-size:0.7rem;">Edit my signup</button>';
                     h += '</div>';
                 }
                 h += '</div>';
@@ -3750,41 +3098,29 @@
             // Empty slot — check if this is the first empty/urgent slot
             var urgentBadge = '';
             if (!_firstEmptySlotMarked) {
-                urgentBadge = '<div style="font-size:0.65rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem;">Most needed</div>';
+                urgentBadge = '<div class="urgent-badge" style="font-size:0.65rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem;">Most needed</div>';
                 _firstEmptySlotMarked = true;
-            }
-            var editBtn = '';
-            if (isOrganizerMode) {
-                editBtn = '<button class="remove-btn meal-edit-btn" data-date="' + dateStr + '" data-meal="' + mealType + '" style="font-size:0.7rem;background:var(--cream);color:var(--terracotta);border:1px solid var(--terracotta);margin-top:0.3rem;">Edit</button>';
             }
             return '<div class="meal-slot available" data-date="' + dateStr + '" data-meal="' + mealType + '" role="button" tabindex="0" aria-label="Sign up for ' + mealType + ' on ' + formatDateShort(dateStr) + '">' +
                 urgentBadge +
                 '<div class="meal-slot-label">' + mealType + '</div>' +
-                renderOverrideInfo(dateStr, mealType) +
                 '<div class="slot-action"><span class="plus">+</span> Help needed</div>' +
-                editBtn +
                 '</div>';
         }
 
         // ── Event Delegation for Calendar ───────────────
 
         document.addEventListener('click', function(e) {
-            // Organizer: edit individual meal (check FIRST — button is inside slot div)
-            var editBtn = e.target.closest('.meal-edit-btn');
-            if (editBtn) {
-                openMealEdit(editBtn.getAttribute('data-date'), editBtn.getAttribute('data-meal'));
-                return;
-            }
             // Available slot click
             var slot = e.target.closest('.meal-slot.available');
             if (slot) {
                 openSignup(slot.getAttribute('data-date'), slot.getAttribute('data-meal'));
                 return;
             }
-            // Volunteer self-cancel (check BEFORE organizer remove since it also has .remove-btn)
-            var volCancelBtn = e.target.closest('.vol-cancel-btn');
-            if (volCancelBtn) {
-                cancelMySignup(volCancelBtn.getAttribute('data-signup-id'));
+            // Volunteer self-edit (check BEFORE organizer remove since it also has .remove-btn)
+            var volEditBtn = e.target.closest('.vol-edit-btn');
+            if (volEditBtn) {
+                openEditSignup(volEditBtn.getAttribute('data-signup-id'));
                 return;
             }
             // Organizer remove button click
@@ -3809,50 +3145,41 @@
         // ── Open Signup ─────────────────────────────────
 
         function openSignup(date, mealType) {
+            editingSignupId = null;
             selectedDate = date;
             selectedMealType = mealType;
-            var ov = getMealOverride(date, mealType);
-            currentServings = ov.guests || supportData.guests_per_meal || 20;
 
             document.getElementById('modalSubtitle').textContent =
                 mealType + ' \u00b7 ' + formatDate(date);
 
+            // V3: servings count comes from the organizer (default guests_per_meal,
+            // overridden per-meal if meal_guest_overrides has an entry for this slot).
+            var servingsCount = getMealServings(date, mealType);
+            document.getElementById('signupServingsCount').textContent = servingsCount;
+
             // Reset form
             document.getElementById('volName').value = '';
-            document.getElementById('volEmail').value = '';
+            var emailField = document.getElementById('volEmail');
+            emailField.value = '';
+            emailField.readOnly = false;
             document.getElementById('volPhone').value = '';
             document.getElementById('mealCustom').value = '';
-            var servEl = document.getElementById('servingsValue');
-            if (servEl) servEl.textContent = currentServings + ' serving' + (currentServings !== 1 ? 's' : '');
             document.getElementById('volWillServe').checked = false;
             document.getElementById('volConsent').checked = false;
-            var subBox = document.getElementById('volSubscribe');
-            if (subBox) subBox.checked = false;
-            // Reset alternative contribution
-            document.getElementById('volAlternative').checked = false;
-            document.getElementById('altOptions').style.display = 'none';
-            document.getElementById('altNote').value = '';
-            // Re-show food/servings sections
-            var foodSection = document.getElementById('foodChips').parentElement;
-            var servingsDisplay = document.getElementById('servingsDisplay');
-            var willServeRow = document.getElementById('volWillServe').parentElement;
-            foodSection.style.display = '';
-            if (servingsDisplay) servingsDisplay.style.display = '';
-            willServeRow.style.display = '';
-            if (document.getElementById('mealCustom').parentElement) {
-                document.getElementById('mealCustom').parentElement.style.display = '';
-            }
             document.getElementById('signupError').classList.remove('active');
             document.getElementById('signupSubmitBtn').disabled = false;
             document.getElementById('signupSubmitBtn').textContent = 'Sign Up';
 
-            // Reset chips
-            var chips = document.querySelectorAll('.food-chip');
-            for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
-
             // Reset additional families
             document.getElementById('additionalFamilies').innerHTML = '';
             additionalFamilyCount = 0;
+
+            // Reset any stashed vendor selection from a previous open
+            var catererContainer = document.getElementById('signupCatererCards');
+            if (catererContainer) catererContainer._selectedVendor = null;
+
+            // Render caterer cards from the organizer's recommended_vendors picks
+            renderSignupCatererCards();
 
             show('signupFormView');
             hide('signupConfirmView');
@@ -3861,6 +3188,157 @@
             document.body.style.overflow = 'hidden';
 
             setTimeout(function() { document.getElementById('volName').focus(); }, 150);
+        }
+
+        // V3: Look up servings count for a specific meal slot. Uses
+        // meal_guest_overrides if present, otherwise the shiva default.
+        function getMealServings(date, mealType) {
+            var defaultGuests = parseInt(supportData.guests_per_meal, 10) || 20;
+            try {
+                var raw = supportData.meal_guest_overrides;
+                if (raw) {
+                    var overrides = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (Array.isArray(overrides)) {
+                        for (var i = 0; i < overrides.length; i++) {
+                            var o = overrides[i];
+                            if (o.date === date && o.meal_type === mealType) {
+                                return parseInt(o.guest_count, 10) || defaultGuests;
+                            }
+                        }
+                    }
+                }
+            } catch (e) {}
+            return defaultGuests;
+        }
+
+        // V3: Render caterer cards inside the signup modal. Cards come from
+        // the organizer's recommended_vendors picks (set during shiva setup).
+        // Click a card to auto-fill the meal description with "Ordering from <name>".
+        // If the organizer didn't pick any, show a fallback link to the directory.
+        var _signupVendorsCache = null;
+        function renderSignupCatererCards() {
+            var container = document.getElementById('signupCatererCards');
+            var helperEl = document.getElementById('signupCatererHelper');
+            var customLabelEl = document.getElementById('signupCustomLabel');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Default: hide helper text + custom label. They only show if there
+            // are actually caterers to choose from.
+            if (helperEl) helperEl.style.display = 'none';
+            if (customLabelEl) customLabelEl.style.display = 'none';
+
+            var slugs = [];
+            try {
+                var raw = supportData.recommended_vendors;
+                if (raw) {
+                    var parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                    if (Array.isArray(parsed)) slugs = parsed;
+                }
+            } catch (e) {}
+
+            if (!slugs.length) {
+                // No caterers picked — just show the free-text input. The text
+                // input is always present below, so nothing extra needed here.
+                // (We deliberately do NOT show a "Browse local caterers" link
+                // anymore — when the organizer didn't pick any, the volunteer
+                // just types what they're bringing.)
+                return;
+            }
+
+            // Fetch vendor data once per modal open
+            function paint(allVendors) {
+                var picks = [];
+                slugs.forEach(function(slug) {
+                    for (var i = 0; i < allVendors.length; i++) {
+                        if (allVendors[i].slug === slug) { picks.push(allVendors[i]); return; }
+                    }
+                });
+                if (!picks.length) {
+                    // Slugs exist but no matching vendors found in directory —
+                    // treat the same as no picks
+                    return;
+                }
+
+                var html = '';
+                picks.forEach(function(v) {
+                    html += '<div class="signup-caterer-card" data-slug="' + escapeHtml(v.slug) + '" data-name="' + escapeHtml(v.name) + '">';
+                    html += '<div class="signup-caterer-name">' + escapeHtml(v.name) + '</div>';
+                    if (v.category) {
+                        html += '<div class="signup-caterer-detail signup-caterer-category">' + escapeHtml(v.category) + '</div>';
+                    }
+                    if (v.neighborhood) html += '<div class="signup-caterer-detail">' + escapeHtml(v.neighborhood) + '</div>';
+                    if (v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                        html += '<div class="signup-caterer-detail">Kosher (' + v.kosher_status + ')</div>';
+                    }
+                    if (v.website) {
+                        // Route through /api/track-click so caterer outbound
+                        // clicks land in vendor_clicks for analytics.
+                        var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(v.slug) +
+                                       '&dest=' + encodeURIComponent(v.website) +
+                                       '&type=caterer-menu';
+                        html += '<a class="signup-caterer-menu-link" href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener noreferrer">View menu &rarr;</a>';
+                    }
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+
+                // Show helper text + "Not using a caterer" label since we have caterers
+                if (helperEl) helperEl.style.display = '';
+                if (customLabelEl) customLabelEl.style.display = '';
+
+                // Wire up click-to-select / auto-fill behavior. Stash the
+                // selected vendor's full record on the container so the submit
+                // handler can pass it through to showConfirmation for the
+                // post-signup vendor CTA.
+                container.querySelectorAll('.signup-caterer-card').forEach(function(card) {
+                    card.addEventListener('click', function(e) {
+                        // Clicks on "View menu" should open the site, not
+                        // auto-fill the meal description. Let the anchor handle it.
+                        if (e.target.closest('.signup-caterer-menu-link')) return;
+                        var slug = this.getAttribute('data-slug');
+                        var name = this.getAttribute('data-name');
+                        var input = document.getElementById('mealCustom');
+                        var alreadySelected = this.classList.contains('selected');
+                        container.querySelectorAll('.signup-caterer-card').forEach(function(c) {
+                            c.classList.remove('selected');
+                        });
+                        if (alreadySelected) {
+                            // Toggle off — clear the auto-filled text + stashed selection
+                            if (input.value === 'Ordering from ' + name) input.value = '';
+                            container._selectedVendor = null;
+                        } else {
+                            this.classList.add('selected');
+                            input.value = 'Ordering from ' + name;
+                            // Find full vendor record for the post-signup CTA
+                            var picked = null;
+                            for (var i = 0; i < picks.length; i++) {
+                                if (picks[i].slug === slug) { picked = picks[i]; break; }
+                            }
+                            container._selectedVendor = picked;
+                        }
+                    });
+                });
+            }
+
+            if (_signupVendorsCache) {
+                paint(_signupVendorsCache);
+                return;
+            }
+
+            fetch('/api/vendors')
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.status === 'success' && result.data) {
+                        _signupVendorsCache = result.data;
+                        paint(result.data);
+                    } else {
+                        container.innerHTML = '<a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" class="signup-caterer-fallback">Browse local caterers &#8594;</a>';
+                    }
+                })
+                .catch(function() {
+                    container.innerHTML = '<a href="/shiva/caterers" target="_blank" rel="noopener noreferrer" class="signup-caterer-fallback">Browse local caterers &#8594;</a>';
+                });
         }
 
         // ── Additional Families ───────────────────────────
@@ -3895,31 +3373,14 @@
         }
 
         function closeSignup() {
+            editingSignupId = null;
+            var emailField = document.getElementById('volEmail');
+            if (emailField) emailField.readOnly = false;
             document.getElementById('signupModal').classList.remove('active');
             document.body.style.overflow = '';
         }
 
         function closeSignupAndReveal() {
-            // If volunteer opted in to subscribe, fire the subscribe call
-            var subBox = document.getElementById('volSubscribe');
-            if (subBox && subBox.checked) {
-                var volEmail = document.getElementById('volEmail').value.trim().toLowerCase();
-                if (volEmail) {
-                    var subCity = document.getElementById('volSubscribeCity');
-                    var subLocation = (subCity && subCity.value) ? subCity.value.toLowerCase() : 'toronto';
-                    fetch('/api/subscribe', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: volEmail,
-                            frequency: 'daily',
-                            locations: subLocation,
-                            consent: true
-                        })
-                    }).catch(function() {}); // silent — don't block the close
-                }
-            }
-
             closeSignup();
             if (lastSignupAddress) {
                 document.getElementById('addressReveal').classList.add('active');
@@ -3929,45 +3390,38 @@
             }
         }
 
-        // ── Food Chips ──────────────────────────────────
-
-        document.getElementById('foodChips').addEventListener('click', function(e) {
-            var chip = e.target.closest('.food-chip');
-            if (!chip) return;
-            chip.classList.toggle('selected');
-        });
-
-        function getSelectedFoods() {
-            var custom = document.getElementById('mealCustom').value.trim();
-            if (custom) return custom;
-            var chips = document.querySelectorAll('.food-chip.selected');
-            var foods = [];
-            for (var i = 0; i < chips.length; i++) {
-                foods.push(chips[i].getAttribute('data-food'));
-            }
-            return foods.join(', ');
-        }
-
-        // ── Servings (read-only, set by organizer) ────────────────────────────
-        // Servings are controlled by the host via guests_per_meal.
-        // Volunteers see the value but cannot change it.
+        // V3: Food chips and +/- servings counter removed.
+        // - Meal description: free-text or auto-filled by clicking a recommended caterer card
+        // - Servings: read-only, derived from supportData via getMealServings(date, type)
+        // - Alternative contribution toggle removed (caterer cards replace it)
 
         // ── Submit Signup ───────────────────────────────
 
         document.getElementById('signupSubmitBtn').addEventListener('click', function() {
             var name = document.getElementById('volName').value.trim();
             var email = document.getElementById('volEmail').value.trim();
+            var phone = document.getElementById('volPhone').value.trim();
             var consent = document.getElementById('volConsent').checked;
             var errEl = document.getElementById('signupError');
             var btn = document.getElementById('signupSubmitBtn');
 
-            if (!name || !email) {
-                errEl.textContent = 'Please fill in your name and email.';
+            if (!name) {
+                errEl.textContent = 'Please enter your name.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (!email) {
+                errEl.textContent = 'Please enter your email.';
                 errEl.classList.add('active');
                 return;
             }
             if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
                 errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('active');
+                return;
+            }
+            if (!phone) {
+                errEl.textContent = 'Please enter your phone number.';
                 errEl.classList.add('active');
                 return;
             }
@@ -3978,30 +3432,74 @@
             }
 
             btn.disabled = true;
-            btn.textContent = 'Signing up...';
+            btn.textContent = editingSignupId ? 'Saving...' : 'Signing up...';
             errEl.classList.remove('active');
 
-            var mealDescription = getSelectedFoods();
+            // V3: meal description is whatever's in the free-text input
+            // (auto-filled by caterer card click, or hand-typed by the volunteer).
+            var mealDescription = document.getElementById('mealCustom').value.trim();
+            // Servings is set by the organizer, never the volunteer.
+            var servingsCount = getMealServings(selectedDate, selectedMealType);
 
-            var isAlt = document.getElementById('volAlternative').checked;
+            // V3: capture the vendor the volunteer picked (if any) before submit,
+            // so the confirmation view can show a "Place your order" CTA.
+            var pickedVendor = null;
+            var catContainer = document.getElementById('signupCatererCards');
+            if (catContainer && catContainer._selectedVendor) {
+                pickedVendor = catContainer._selectedVendor;
+            }
+
+            if (editingSignupId) {
+                // Edit existing signup — PUT to edit endpoint.
+                var editPayload = {
+                    volunteer_email: email,
+                    meal_description: mealDescription,
+                    num_servings: servingsCount,
+                    will_serve: document.getElementById('volWillServe').checked,
+                    volunteer_phone: phone,
+                    additional_contributors: getAdditionalContributors()
+                };
+                var editId = editingSignupId;
+                fetch('/api/shiva/' + encodeURIComponent(supportId) + '/signup/' + encodeURIComponent(editId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(editPayload)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        // Persist updated values to sessionStorage so subsequent
+                        // edit opens see the new phone / contributors.
+                        saveMySignupEntry(editId, {
+                            phone: phone,
+                            contributors: getAdditionalContributors()
+                        });
+                        closeSignup();
+                        refreshMeals();
+                    } else {
+                        throw new Error(data.message || 'We weren\'t able to save your changes. Please try again.');
+                    }
+                })
+                .catch(function(err) {
+                    btn.disabled = false;
+                    btn.textContent = 'Save changes';
+                    errEl.textContent = err.message || 'We weren\'t able to save your changes. Please try again.';
+                    errEl.classList.add('active');
+                });
+                return;
+            }
+
             var payload = {
                 volunteer_name: name,
                 volunteer_email: email,
-                volunteer_phone: document.getElementById('volPhone').value.trim(),
+                volunteer_phone: phone,
                 meal_date: selectedDate,
                 meal_type: selectedMealType,
-                meal_description: isAlt ? '' : mealDescription,
-                num_servings: isAlt ? 0 : (supportData.guests_per_meal || 20),
-                will_serve: isAlt ? false : document.getElementById('volWillServe').checked,
-                privacy_consent: true,
-                access_token: accessToken || ''
+                meal_description: mealDescription,
+                num_servings: servingsCount,
+                will_serve: document.getElementById('volWillServe').checked,
+                privacy_consent: true
             };
-            if (isAlt) {
-                payload.alternative_type = document.getElementById('altType').value;
-                payload.alternative_note = document.getElementById('altNote').value.trim();
-                payload.meal_description = document.getElementById('altType').selectedOptions[0].text +
-                    (payload.alternative_note ? ' - ' + payload.alternative_note : '');
-            }
 
             // Additional contributors (multiple families)
             var contributors = getAdditionalContributors();
@@ -4017,7 +3515,7 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.status === 'success') {
-                    showConfirmation(data, name, mealDescription);
+                    showConfirmation(data, name, mealDescription, pickedVendor);
                     refreshMeals();
                 } else {
                     throw new Error(data.message || 'We weren\'t able to complete your signup. Please try again.');
@@ -4033,21 +3531,47 @@
 
         // ── Show Confirmation ───────────────────────────
 
-        function showConfirmation(data, volunteerName, mealDescription) {
+        function showConfirmation(data, volunteerName, mealDescription, pickedVendor) {
             var addrText = data.shiva_address || '';
             if (data.shiva_city) addrText += ', ' + data.shiva_city;
             lastSignupAddress = addrText;
 
+            // V3: Vendor order CTA. If the volunteer picked a caterer card during
+            // signup, show a prominent "Order from [Vendor] →" button that opens
+            // the vendor's website in a new tab. The click is tracked via
+            // /api/track-click for vendor analytics. If no vendor was picked,
+            // show the generic "Browse local caterers" link instead.
+            var vendorCta = document.getElementById('confirmVendorCta');
+            var vendorCtaLabel = document.getElementById('confirmVendorCtaLabel');
+            var vendorCtaBtn = document.getElementById('confirmVendorCtaBtn');
+            var vendorCtaText = document.getElementById('confirmVendorCtaText');
+            var genericFallback = document.getElementById('confirmGenericCaterers');
+            if (pickedVendor && pickedVendor.website) {
+                vendorCtaLabel.textContent = 'Don\'t forget to place your order';
+                vendorCtaText.textContent = 'Order from ' + pickedVendor.name;
+                var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(pickedVendor.slug) +
+                               '&source=signup_confirm&dest=' + encodeURIComponent(pickedVendor.website);
+                vendorCtaBtn.href = trackUrl;
+                vendorCta.style.display = '';
+                if (genericFallback) genericFallback.style.display = 'none';
+            } else if (pickedVendor) {
+                // Vendor selected but no website URL — fall back to phone if available, otherwise generic link
+                vendorCta.style.display = 'none';
+                if (genericFallback) genericFallback.style.display = '';
+            } else {
+                vendorCta.style.display = 'none';
+                if (genericFallback) genericFallback.style.display = '';
+            }
+
             // V4: Store signup in sessionStorage for self-edit
             if (data.signup_id && supportId) {
-                var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-                mySignups.push({
-                    signup_id: data.signup_id,
+                saveMySignupEntry(data.signup_id, {
                     email: document.getElementById('volEmail').value.trim().toLowerCase(),
                     date: selectedDate,
-                    meal_type: selectedMealType
+                    meal_type: selectedMealType,
+                    phone: document.getElementById('volPhone').value.trim(),
+                    contributors: getAdditionalContributors()
                 });
-                sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
             }
 
             // Update persistent address reveal
@@ -4062,14 +3586,8 @@
             }
             document.getElementById('confirmSubtitle').textContent = confirmText;
 
-            var confirmAddr = document.getElementById('confirmAddress');
-            if (addrText && addrText.trim()) {
-                document.getElementById('confirmAddrText').textContent = addrText;
-                document.getElementById('confirmInstructions').textContent = data.special_instructions || '';
-                confirmAddr.style.display = '';
-            } else {
-                confirmAddr.style.display = 'none';
-            }
+            document.getElementById('confirmAddrText').textContent = addrText;
+            document.getElementById('confirmInstructions').textContent = data.special_instructions || '';
 
             // Calendar link
             document.getElementById('googleCalLink').href =
@@ -4084,8 +3602,9 @@
             var endHour = mealType === 'Lunch' ? '13' : '19';
             var dateClean = date.replace(/-/g, '');
             var title = 'Bring ' + mealType.toLowerCase() + ' to ' + (supportData.family_name || 'shiva');
+            var servingsForCal = getMealServings(date, mealType);
             var details = 'You signed up to bring: ' + (description || 'a meal') +
-                '\nServings: ' + currentServings +
+                '\nServings: ' + servingsForCal +
                 '\n\nOrganized via Neshama';
 
             return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
@@ -4131,195 +3650,86 @@
             });
         }
 
-        // ── Organizer: Edit Individual Meal ─────────────────
+        // ── Volunteer: Edit Own Signup ───────────────────
 
-        function openMealEdit(dateStr, mealType) {
-            var key = dateStr + '_' + mealType;
-            var ov = mealOverrides[key] || {};
-            var currentGuests = ov.guests || supportData.guests_per_meal || 20;
-            var currentNote = ov.note || '';
-            var currentTime = ov.serving_time || '';
-
-            var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;" id="mealEditOverlay">';
-            html += '<div style="background:white;border-radius:1rem;padding:1.5rem;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">';
-            html += '<h3 style="font-family:Cormorant Garamond,serif;font-size:1.3rem;color:#3E2723;margin:0 0 0.25rem 0;">' + mealType + ' &mdash; ' + formatDateShort(dateStr) + '</h3>';
-            html += '<p style="font-size:0.85rem;color:#556258;margin:0 0 1rem 0;">Adjust this specific meal. Changes only affect this slot.</p>';
-
-            // Check if this meal is currently blocked
-            var blockedKey = dateStr + '_' + mealType;
-            var isCurrentlyBlocked = !!(blockedMealsSet && blockedMealsSet[blockedKey]);
-
-            html += '<div style="margin-bottom:1rem;padding:0.75rem;background:#f9f6f2;border-radius:0.5rem;border:1px solid #e8e0d8;">';
-            html += '<label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;font-size:0.9rem;font-weight:600;color:#3E2723;">';
-            html += '<input type="checkbox" id="mealEditNoNeed" onchange="toggleMealNeeded()" ' + (isCurrentlyBlocked ? 'checked' : '') + ' style="width:18px;height:18px;accent-color:#D2691E;cursor:pointer;">';
-            html += 'No meal needed for this slot';
-            html += '</label>';
-            html += '<p style="font-size:0.8rem;color:#556258;margin:0.3rem 0 0 2.1rem;">When checked, volunteers won\'t be able to sign up for this meal.</p>';
-            html += '</div>';
-
-            var fieldsDisabled = isCurrentlyBlocked ? 'opacity:0.4;pointer-events:none;' : '';
-
-            html += '<div id="mealEditFields" style="' + fieldsDisabled + '">';
-
-            html += '<div style="margin-bottom:1rem;">';
-            html += '<label style="font-size:0.9rem;font-weight:600;color:#3E2723;display:block;margin-bottom:0.3rem;">Guests for this meal</label>';
-            html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
-            html += '<button type="button" onclick="adjustMealEditGuests(-1)" style="width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:white;font-size:1.1rem;cursor:pointer;">&minus;</button>';
-            html += '<span id="mealEditGuests" style="font-size:1.1rem;font-weight:600;min-width:2rem;text-align:center;">' + currentGuests + '</span>';
-            html += '<button type="button" onclick="adjustMealEditGuests(1)" style="width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:white;font-size:1.1rem;cursor:pointer;">+</button>';
-            html += '</div></div>';
-
-            html += '<div style="margin-bottom:1rem;">';
-            html += '<label style="font-size:0.9rem;font-weight:600;color:#3E2723;display:block;margin-bottom:0.3rem;">Note for volunteers</label>';
-            html += '<input type="text" id="mealEditNote" value="' + escapeHtml(currentNote) + '" placeholder="e.g. Family only tonight, Ferne\'s coworkers handling this" maxlength="80" style="width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:0.4rem;font-size:0.9rem;box-sizing:border-box;">';
-            html += '</div>';
-
-            html += '<div style="margin-bottom:1rem;">';
-            html += '<label style="font-size:0.9rem;font-weight:600;color:#3E2723;display:block;margin-bottom:0.3rem;">Serving time</label>';
-            html += '<select id="mealEditTime" style="padding:0.5rem;border:1px solid #ddd;border-radius:0.4rem;font-size:0.9rem;">';
-            var times = mealType === 'Lunch' ? ['11:30','12:00','12:30','1:00','1:30'] : ['5:00','5:30','6:00','6:30','7:00','7:30'];
-            html += '<option value="">Not set</option>';
-            times.forEach(function(t) {
-                html += '<option value="' + t + '"' + (currentTime === t ? ' selected' : '') + '>' + t + (mealType === 'Lunch' ? ' PM' : ' PM') + '</option>';
-            });
-            html += '</select></div>';
-
-            html += '</div>'; // close #mealEditFields
-
-            html += '<div style="display:flex;gap:0.5rem;justify-content:flex-end;">';
-            html += '<button type="button" onclick="closeMealEdit()" style="padding:0.5rem 1rem;border:1px solid #ddd;border-radius:2rem;background:white;cursor:pointer;font-size:0.9rem;">Cancel</button>';
-            html += '<button type="button" onclick="saveMealEdit(\'' + dateStr + '\',\'' + mealType + '\')" style="padding:0.5rem 1.25rem;border:none;border-radius:2rem;background:#D2691E;color:white;cursor:pointer;font-size:0.9rem;font-weight:500;">Save</button>';
-            html += '</div></div></div>';
-
-            document.body.insertAdjacentHTML('beforeend', html);
+        function findMySignup(signupId) {
+            for (var i = 0; i < mealsData.length; i++) {
+                if (mealsData[i].id == signupId) return mealsData[i];
+            }
+            return null;
         }
 
-        window.toggleMealNeeded = function() {
-            var cb = document.getElementById('mealEditNoNeed');
-            var fields = document.getElementById('mealEditFields');
-            if (!cb || !fields) return;
-            if (cb.checked) {
-                fields.style.opacity = '0.4';
-                fields.style.pointerEvents = 'none';
-            } else {
-                fields.style.opacity = '1';
-                fields.style.pointerEvents = 'auto';
+        function openEditSignup(signupId) {
+            var signup = findMySignup(signupId);
+            if (!signup) {
+                alert('We could not find this signup. Please reload the page.');
+                return;
             }
-        };
-
-        window._mealEditGuests = 20;
-        window.adjustMealEditGuests = function(delta) {
-            var el = document.getElementById('mealEditGuests');
-            if (!el) return;
-            var val = Math.max(1, Math.min(200, parseInt(el.textContent) + delta));
-            el.textContent = val;
-        };
-
-        window.closeMealEdit = function() {
-            var overlay = document.getElementById('mealEditOverlay');
-            if (overlay) overlay.remove();
-        };
-
-        window.saveMealEdit = function(dateStr, mealType) {
-            var key = dateStr + '_' + mealType;
-            var noNeedChecked = document.getElementById('mealEditNoNeed') && document.getElementById('mealEditNoNeed').checked;
-
-            // Update meal overrides (guests, note, time) regardless
-            var guests = parseInt(document.getElementById('mealEditGuests').textContent) || 20;
-            var note = (document.getElementById('mealEditNote').value || '').trim();
-            var servingTime = document.getElementById('mealEditTime').value || '';
-
-            var entry = {};
-            if (guests) entry.guests = guests;
-            if (note) entry.note = note;
-            if (servingTime) entry.serving_time = servingTime;
-
-            mealOverrides[key] = entry;
-
-            // Update blocked_meals list
-            var blockedList = [];
-            try {
-                blockedList = supportData.blocked_meals ? JSON.parse(supportData.blocked_meals) : [];
-                if (!Array.isArray(blockedList)) blockedList = [];
-            } catch(e) { blockedList = []; }
-
-            // Remove any existing entry for this date+meal_type
-            blockedList = blockedList.filter(function(bm) {
-                return !(bm.date === dateStr && bm.meal_type === mealType);
-            });
-
-            // Add it back if "no meal needed" is checked
-            if (noNeedChecked) {
-                blockedList.push({ date: dateStr, meal_type: mealType });
-            }
-
-            // Save to server
-            fetch('/api/shiva/' + encodeURIComponent(supportId), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    magic_token: organizerToken,
-                    meal_schedule: mealOverrides,
-                    blocked_meals: blockedList
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                closeMealEdit();
-                if (data.status === 'success') {
-                    // Update local supportData and re-render
-                    supportData.meal_schedule = JSON.stringify(mealOverrides);
-                    supportData.blocked_meals = JSON.stringify(blockedList);
-                    // Rebuild local blockedMealsSet
-                    blockedMealsSet = {};
-                    blockedList.forEach(function(bm) {
-                        blockedMealsSet[bm.date + '_' + bm.meal_type] = true;
-                    });
-                    refreshMeals();
-                } else {
-                    alert(data.message || 'Could not save. Please try again.');
-                }
-            })
-            .catch(function() {
-                closeMealEdit();
-                alert('Could not save. Please try again.');
-            });
-        };
-
-        // ── Volunteer: Cancel Own Signup ─────────────────
-
-        function cancelMySignup(signupId) {
-            if (!confirm('Cancel your meal signup? The organizer will be notified so they can find a replacement.')) return;
-
-            var volunteerEmail = getMySignupEmail(signupId);
+            var entry = getMySignupEntry(signupId);
+            var volunteerEmail = entry ? entry.email : '';
             if (!volunteerEmail) {
                 alert('We could not verify this signup belongs to you. Please contact the organizer directly.');
                 return;
             }
 
-            fetch('/api/shiva/' + encodeURIComponent(supportId) + '/cancel-signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    signup_id: parseInt(signupId),
-                    volunteer_email: volunteerEmail
-                })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.status === 'success') {
-                    // Remove from sessionStorage
-                    var mySignups = JSON.parse(sessionStorage.getItem('my_signups_' + supportId) || '[]');
-                    mySignups = mySignups.filter(function(s) { return s.signup_id != signupId; });
-                    sessionStorage.setItem('my_signups_' + supportId, JSON.stringify(mySignups));
-                    refreshMeals();
-                } else {
-                    alert(data.message || 'We were not able to cancel this signup. Please try again.');
+            editingSignupId = signupId;
+            selectedDate = signup.meal_date;
+            selectedMealType = signup.meal_type;
+
+            document.getElementById('modalSubtitle').textContent =
+                signup.meal_type + ' \u00b7 ' + formatDate(signup.meal_date);
+
+            var servingsCount = getMealServings(signup.meal_date, signup.meal_type);
+            document.getElementById('signupServingsCount').textContent = servingsCount;
+
+            // Pre-fill from existing signup. Email stays locked because the
+            // backend verifies identity by matching it against the stored row.
+            // Phone + contributors are pulled from sessionStorage because the
+            // public meals API strips them for privacy.
+            document.getElementById('volName').value = signup.volunteer_name || '';
+            var emailField = document.getElementById('volEmail');
+            emailField.value = volunteerEmail;
+            emailField.readOnly = true;
+            document.getElementById('volPhone').value = (entry && entry.phone) || '';
+            document.getElementById('mealCustom').value = signup.meal_description || '';
+            document.getElementById('volWillServe').checked = !!signup.will_serve;
+            document.getElementById('volConsent').checked = true;
+            document.getElementById('signupError').classList.remove('active');
+
+            var btn = document.getElementById('signupSubmitBtn');
+            btn.disabled = false;
+            btn.textContent = 'Save changes';
+
+            // Pre-fill existing additional contributors so the volunteer can
+            // edit, add, or remove them. Pulled from sessionStorage because
+            // the public meals API strips contributors for privacy.
+            document.getElementById('additionalFamilies').innerHTML = '';
+            additionalFamilyCount = 0;
+            var existingContribs = entry && entry.contributors;
+            if (Array.isArray(existingContribs)) {
+                for (var i = 0; i < existingContribs.length; i++) {
+                    var c = existingContribs[i] || {};
+                    document.getElementById('addFamilyBtn').click();
+                    var rows = document.querySelectorAll('.additional-family-row');
+                    var row = rows[rows.length - 1];
+                    if (row) {
+                        row.querySelector('.af-name').value = c.name || '';
+                        row.querySelector('.af-email').value = c.email || '';
+                    }
                 }
-            })
-            .catch(function() {
-                alert('Something went wrong. Please try again or contact the organizer directly.');
-            });
+            }
+
+            // Caterer cards stay available so volunteer can switch their pick.
+            var catererContainer = document.getElementById('signupCatererCards');
+            if (catererContainer) catererContainer._selectedVendor = null;
+            renderSignupCatererCards();
+
+            show('signupFormView');
+            hide('signupConfirmView');
+
+            document.getElementById('signupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(function() { document.getElementById('mealCustom').focus(); }, 150);
         }
 
         // ── Refresh Meals ───────────────────────────────
@@ -4407,32 +3817,10 @@
             });
         });
 
-        // ── Alternative Contribution Toggle ──────────────
-
-        (function() {
-            var altCheckbox = document.getElementById('volAlternative');
-            var altOptions = document.getElementById('altOptions');
-            if (altCheckbox && altOptions) {
-                altCheckbox.addEventListener('change', function() {
-                    altOptions.style.display = this.checked ? '' : 'none';
-                    // When alternative is toggled, hide/show food chips + servings
-                    var foodSection = document.getElementById('foodChips').parentElement;
-                    var servingsDisplay = document.getElementById('servingsDisplay');
-                    var willServeRow = document.getElementById('volWillServe').parentElement;
-                    if (this.checked) {
-                        foodSection.style.display = 'none';
-                        if (servingsDisplay) servingsDisplay.style.display = 'none';
-                        willServeRow.style.display = 'none';
-                        document.getElementById('mealCustom').parentElement.style.display = 'none';
-                    } else {
-                        foodSection.style.display = '';
-                        if (servingsDisplay) servingsDisplay.style.display = '';
-                        willServeRow.style.display = '';
-                        document.getElementById('mealCustom').parentElement.style.display = '';
-                    }
-                });
-            }
-        })();
+        // V3: Alternative contribution toggle removed — caterer cards in the
+        // signup modal now serve the same purpose (volunteer either picks a
+        // caterer card or types what they're bringing in plain text). No
+        // separate "I'd rather send something thoughtful" path needed.
 
         // ── V3: Updates Feed ──────────────────────────────
 
@@ -4487,23 +3875,6 @@
                 btn.disabled = false;
                 btn.textContent = 'Post Update';
                 if (result.status === 'success') {
-                    // Also save as pinned organizer update (visible to all visitors)
-                    fetch('/api/shiva/' + encodeURIComponent(supportId), {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: organizerToken, organizer_update: message })
-                    }).then(function(r) { return r.json(); }).then(function(d) {
-                        if (d.status === 'success') {
-                            supportData.organizer_update = message;
-                            var updateBox = document.getElementById('organizerUpdateBox');
-                            var updateText = document.getElementById('organizerUpdateText');
-                            if (updateBox && updateText) {
-                                updateText.textContent = message;
-                                updateBox.style.display = '';
-                            }
-                        }
-                    }).catch(function(e) { console.error('Failed to pin update:', e); });
-
                     input.value = '';
                     document.getElementById('emailUpdateCheckbox').checked = false;
                     successEl.textContent = emailVols ? 'Update posted and emailed to volunteers!' : 'Update posted!';
@@ -4512,8 +3883,7 @@
                     loadUpdatesFeed();
                 }
             })
-            .catch(function(e) {
-                console.error('Failed to post update:', e);
+            .catch(function() {
                 btn.disabled = false;
                 btn.textContent = 'Post Update';
             });

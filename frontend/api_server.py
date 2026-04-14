@@ -247,6 +247,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/index.html': ('index.html', 'text/html'),
         '/app.js': ('app.js', 'application/javascript'),
         '/footer-subscribe.js': ('footer-subscribe.js', 'application/javascript'),
+        '/share-buttons.js': ('share-buttons.js', 'application/javascript'),
         '/about': ('about.html', 'text/html'),
         '/about.html': ('about.html', 'text/html'),
         '/faq': ('faq.html', 'text/html'),
@@ -327,6 +328,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/yahrzeit': ('yahrzeit.html', 'text/html'),
         '/yahrzeit.html': ('yahrzeit.html', 'text/html'),
         '/find-my-page': ('find-my-page.html', 'text/html'),
+        '/shiva/dashboard': ('shiva-dashboard.html', 'text/html'),
+        '/shiva/dashboard.html': ('shiva-dashboard.html', 'text/html'),
         '/dashboard': ('dashboard.html', 'text/html'),
         '/cofounder': ('dashboard.html', 'text/html'),
         '/dashboard.html': ('dashboard.html', 'text/html'),
@@ -428,11 +431,6 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         # Vendor detail pages (/directory/slug)
         elif path.startswith('/directory/') and path != '/directory/' and path not in self.STATIC_FILES:
             self.serve_vendor_page()
-        # Shiva access request routes (must be before /api/shiva/ catch-all)
-        elif path == '/api/shiva-access/approve':
-            self.handle_access_approve()
-        elif path == '/api/shiva-access/deny':
-            self.handle_access_deny()
         # V2: Email verification
         elif path == '/api/shiva/verify-email':
             self.handle_verify_email()
@@ -617,9 +615,9 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_track_referral(body)
         elif path == '/api/find-my-page':
             self.handle_find_my_page(body)
-        elif path == '/api/shiva-access/request':
-            self.handle_access_request(body)
-        # Care coordination POST routes
+        # Care coordination POST routes (kept from main — vertical preserved
+        # for future use per operator decision). Shiva access-request route
+        # removed in V3 Phase 5 (private shiva feature gone).
         elif path == '/api/care':
             self.handle_create_care_page(body)
         elif path.startswith('/api/care/') and path.endswith('/updates'):
@@ -3680,16 +3678,14 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'not_found'})
             return
         try:
-            # Check for organizer token or access token in query params
             parsed_path = urlparse(self.path)
             query_params = parse_qs(parsed_path.query)
             token = query_params.get('token', [None])[0]
-            access_token = query_params.get('access', [None])[0]
 
             if token:
                 result = shiva_mgr.get_support_for_organizer(support_id, token)
             else:
-                result = shiva_mgr.get_support_by_id(support_id, access_token=access_token)
+                result = shiva_mgr.get_support_by_id(support_id)
             self.send_json_response(result)
         except Exception as e:
             if 'no such table' in str(e):
@@ -3779,7 +3775,8 @@ button:hover{background:#c45a1a}</style></head>
 
         base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
         shiva_page_url = f"{base_url}/shiva/{shiva_id}"
-        edit_url = f"{shiva_page_url}?token={magic_token}"
+        # V3: organizer link is the new dashboard, not the volunteer view with organizer mode.
+        edit_url = f"{base_url}/shiva/dashboard?id={shiva_id}&token={magic_token}"
 
         import urllib.parse
         share_text = f"Help coordinate meals for the {family_name} shiva: {shiva_page_url}"
@@ -4189,7 +4186,8 @@ button:hover{background:#c45a1a}</style></head>
         if result['status'] == 'success':
             shiva_mgr._trigger_backup()
             base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
-            dashboard_url = f"{base_url}/shiva/{result['shiva_id']}?token={result['new_magic_token']}"
+            # V3: redirect to the new organizer dashboard, not the volunteer view
+            dashboard_url = f"{base_url}/shiva/dashboard?id={result['shiva_id']}&token={result['new_magic_token']}"
             self._serve_access_result_page(
                 'You Are Now the Host',
                 f'You are now the primary organizer for the <strong>{html_mod.escape(result["family_name"])}</strong> shiva page. '
@@ -5044,99 +5042,6 @@ button:hover{background:#c45a1a}</style></head>
         else:
             self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
 
-    # ── API: Shiva Access Requests ────────────────────────────
-
-    def handle_access_request(self, body):
-        """Handle access request for a private shiva page"""
-        if not SHIVA_AVAILABLE:
-            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
-            return
-        try:
-            data = json.loads(body)
-            result = shiva_mgr.create_access_request(data)
-
-            email_sent = False
-            if result['status'] == 'success':
-                shiva_mgr._trigger_backup()
-                # Only attempt email if organizer has an email address
-                if result.get('organizer_email'):
-                    email_sent = self._send_access_request_email(result)
-                else:
-                    logging.warning(f"[Access] No organizer email for shiva {data.get('shiva_id')} — cannot notify")
-
-            status_code = 200 if result['status'] in ('success', 'already_approved') else 400
-            # Don't expose organizer_email/key to client
-            safe_result = {
-                'status': result['status'],
-                'message': result.get('message', '')
-            }
-            if result['status'] == 'already_approved':
-                safe_result['access_token'] = result['access_token']
-            if result['status'] == 'success' and not email_sent:
-                safe_result['message'] = 'Your request was saved. The organizer will be notified when they next check the page.'
-            self.send_json_response(safe_result, status_code)
-        except json.JSONDecodeError:
-            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
-        except Exception as e:
-            self.send_error_response(str(e))
-
-    def handle_access_approve(self):
-        """Approve an access request via organizer email link"""
-        if not SHIVA_AVAILABLE:
-            self.send_error_response('Not available', 503)
-            return
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        request_id = query_params.get('request_id', [''])[0]
-        organizer_key = query_params.get('organizer_key', [''])[0]
-
-        if not request_id or not organizer_key:
-            self._serve_access_result_page('Error', 'Invalid approval link.')
-            return
-
-        result = shiva_mgr.approve_access_request(request_id, organizer_key)
-
-        if result['status'] == 'success':
-            shiva_mgr._trigger_backup()
-            # Send approval email to requester
-            self._send_access_approved_email(result)
-            safe_name = html_mod.escape(str(result.get("requester_name", "")))
-            safe_family = html_mod.escape(str(result.get("family_name", "")))
-            self._serve_access_result_page(
-                'Access Granted',
-                f'{safe_name} can now view the full {safe_family} shiva page.'
-            )
-        else:
-            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
-
-    def handle_access_deny(self):
-        """Deny an access request via organizer email link"""
-        if not SHIVA_AVAILABLE:
-            self.send_error_response('Not available', 503)
-            return
-        parsed_path = urlparse(self.path)
-        query_params = parse_qs(parsed_path.query)
-        request_id = query_params.get('request_id', [''])[0]
-        organizer_key = query_params.get('organizer_key', [''])[0]
-
-        if not request_id or not organizer_key:
-            self._serve_access_result_page('Error', 'Invalid link.')
-            return
-
-        result = shiva_mgr.deny_access_request(request_id, organizer_key)
-
-        if result['status'] == 'success':
-            shiva_mgr._trigger_backup()
-            # Send denial email to requester
-            self._send_access_denied_email(result)
-            safe_name = html_mod.escape(str(result.get("requester_name", "")))
-            self._serve_access_result_page(
-                'Request Declined',
-                f'The request from {safe_name} has been declined.'
-            )
-        else:
-            self._serve_access_result_page('Error', result.get('message', 'Something went wrong.'))
-
     def _serve_access_result_page(self, title, message):
         """Serve a simple result page for approve/deny actions"""
         safe_title = html_mod.escape(str(title))
@@ -5170,158 +5075,6 @@ button:hover{background:#c45a1a}</style></head>
         self.send_header('Content-Length', str(len(content)))
         self.end_headers()
         self.wfile.write(content)
-
-    def _send_access_request_email(self, result):
-        """Send email to organizer about new access request. Returns True if sent."""
-        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            logging.info(f"[Access] Would email {result['organizer_email']}: access request from {result['requester_name']}")
-            return False
-
-        try:
-            from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail, Email, To, Content
-            esc = lambda v: html_mod.escape(str(v)) if v else ''
-
-            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
-            approve_url = f"{base_url}/api/shiva-access/approve?request_id={result['request_id']}&organizer_key={result['organizer_key']}"
-            deny_url = f"{base_url}/api/shiva-access/deny?request_id={result['request_id']}&organizer_key={result['organizer_key']}"
-
-            msg_line = ''
-            if result.get('requester_message'):
-                msg_line = f'<p style="background:#FAF9F6;padding:1rem;border-radius:0.5rem;border-left:3px solid #D2691E;margin:1rem 0;">They wrote: &ldquo;{esc(result["requester_message"])}&rdquo;</p>'
-
-            safe_name = esc(result.get('requester_name'))
-            safe_email = esc(result.get('requester_email'))
-            safe_family = esc(result.get('family_name'))
-
-            html = f"""
-            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
-                <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Request</h2>
-                <p><strong>{safe_name}</strong> ({safe_email}) is requesting access to the <strong>{safe_family}</strong> shiva page.</p>
-                {msg_line}
-                <div style="margin:2rem 0;">
-                    <a href="{approve_url}" style="display:inline-block;background:#4CAF50;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;margin-right:1rem;font-size:1rem;">Approve</a>
-                    <a href="{deny_url}" style="display:inline-block;background:#f44336;color:white;padding:0.75rem 2rem;border-radius:2rem;text-decoration:none;font-size:1rem;">Deny</a>
-                </div>
-                <p style="font-size:0.85rem;color:#B2BEB5;">You are receiving this because you organized the {safe_family} shiva page on Neshama.</p>
-            </div>"""
-
-            plain_text = _html_to_plain(html)
-            message = Mail(
-                from_email=Email('updates@neshama.ca', 'Neshama'),
-                to_emails=To(result['organizer_email']),
-                subject=f"Shiva access request from {safe_name}",
-                plain_text_content=Content("text/plain", plain_text),
-                html_content=Content("text/html", html)
-            )
-            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            response = sg.send(message)
-            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            logging.info(f"[Access] Sent request email to organizer: {result['organizer_email']}")
-
-            if EMAIL_QUEUE_AVAILABLE:
-                try:
-                    shiva_id = result.get('shiva_id') or result.get('request_id', '')
-                    log_immediate_email(DB_PATH, shiva_id, 'access_request',
-                                        result['organizer_email'], None,
-                                        sendgrid_message_id=msg_id)
-                except Exception:
-                    logging.exception("[Access] Failed to log email")
-            return True
-        except Exception as e:
-            logging.error(f"[Access] Failed to send request email: {e}")
-            return False
-
-    def _send_access_approved_email(self, result):
-        """Send approval email to requester with access link"""
-        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            logging.info(f"[Access] Would email {result['requester_email']}: approved for {result['family_name']}")
-            return
-
-        try:
-            from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail, Email, To, Content
-            esc = lambda v: html_mod.escape(str(v)) if v else ''
-
-            base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
-            access_url = f"{base_url}/shiva/{result['shiva_id']}?access={result['access_token']}"
-            safe_family = esc(result.get('family_name'))
-
-            html = f"""
-            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
-                <h2 style="color:#D2691E;font-size:1.5rem;">You've Been Approved</h2>
-                <p>The organizer of the <strong>{safe_family}</strong> shiva has approved your request.</p>
-                <p>You can now view the full shiva details including address, dietary information, and sign up to bring a meal.</p>
-                <div style="margin:2rem 0;text-align:center;">
-                    <a href="{access_url}" style="display:inline-block;background:#D2691E;color:white;padding:0.85rem 2.5rem;border-radius:2rem;text-decoration:none;font-size:1.1rem;">View Shiva Details</a>
-                </div>
-                <p style="font-size:0.9rem;color:#B2BEB5;">Bookmark this link to access the page again later.</p>
-            </div>"""
-
-            plain_text = _html_to_plain(html)
-            message = Mail(
-                from_email=Email('updates@neshama.ca', 'Neshama'),
-                to_emails=To(result['requester_email']),
-                subject=f"You've been approved \u2014 {safe_family} shiva details",
-                plain_text_content=Content("text/plain", plain_text),
-                html_content=Content("text/html", html)
-            )
-            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            response = sg.send(message)
-            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            logging.info(f"[Access] Sent approval email to: {result['requester_email']}")
-
-            if EMAIL_QUEUE_AVAILABLE:
-                try:
-                    log_immediate_email(DB_PATH, result.get('shiva_id', ''), 'access_approved',
-                                        result['requester_email'], result.get('requester_name'),
-                                        sendgrid_message_id=msg_id)
-                except Exception:
-                    logging.exception("[Access] Failed to log email")
-        except Exception as e:
-            logging.error(f"[Access] Failed to send approval email: {e}")
-
-    def _send_access_denied_email(self, result):
-        """Send denial email to requester"""
-        if not EMAIL_AVAILABLE or not subscription_mgr.sendgrid_api_key:
-            logging.info(f"[Access] Would email {result['requester_email']}: denied for {result['family_name']}")
-            return
-
-        try:
-            from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail, Email, To, Content
-            safe_family = html_mod.escape(str(result.get('family_name', '')))
-
-            html = f"""
-            <div style="font-family:Georgia,serif;max-width:500px;margin:0 auto;color:#3E2723;">
-                <h2 style="color:#D2691E;font-size:1.5rem;">Shiva Access Update</h2>
-                <p>The organizer of the <strong>{safe_family}</strong> shiva has chosen to manage meal coordination privately.</p>
-                <p>Thank you for your thoughtfulness. Your care and compassion mean a great deal to the family during this difficult time.</p>
-                <p style="font-size:0.9rem;color:#B2BEB5;margin-top:2rem;">Neshama \u2014 Every soul remembered</p>
-            </div>"""
-
-            plain_text = _html_to_plain(html)
-            message = Mail(
-                from_email=Email('updates@neshama.ca', 'Neshama'),
-                to_emails=To(result['requester_email']),
-                subject='Shiva access update',
-                plain_text_content=Content("text/plain", plain_text),
-                html_content=Content("text/html", html)
-            )
-            sg = SendGridAPIClient(subscription_mgr.sendgrid_api_key)
-            response = sg.send(message)
-            msg_id = response.headers.get('X-Message-Id', '') if response.headers else ''
-            logging.info(f"[Access] Sent denial email to: {result['requester_email']}")
-
-            if EMAIL_QUEUE_AVAILABLE:
-                try:
-                    log_immediate_email(DB_PATH, result.get('shiva_id', ''), 'access_denied',
-                                        result['requester_email'], result.get('requester_name'),
-                                        sendgrid_message_id=msg_id)
-                except Exception:
-                    logging.exception("[Access] Failed to log email")
-        except Exception as e:
-            logging.error(f"[Access] Failed to send denial email: {e}")
 
     # ── Helpers ──────────────────────────────────────────────
 
