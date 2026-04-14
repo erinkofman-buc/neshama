@@ -2738,12 +2738,138 @@ button:hover{background:#c45a1a}</style></head>
             result = shiva_mgr.submit_caterer_application(data)
             if result['status'] == 'success':
                 shiva_mgr._trigger_backup()
+                # Fire notification emails — admin + applicant confirmation.
+                # Wrapped so a SendGrid failure never breaks the submission.
+                try:
+                    self._send_caterer_apply_notifications(data)
+                except Exception as e:
+                    logging.error(f"[Caterer Apply Email] Notification pipeline failed: {e}")
             status_code = 200 if result['status'] == 'success' else 400
             self.send_json_response(result, status_code)
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def _send_caterer_apply_notifications(self, data):
+        """Send admin notification to contact@neshama.ca + confirmation to applicant."""
+        business_name = (data.get('business_name') or 'Unknown').strip()
+        contact_name = (data.get('contact_name') or 'Unknown').strip()
+        applicant_email = (data.get('email') or '').strip()
+        phone = (data.get('phone') or '').strip()
+        website = (data.get('website') or '').strip()
+        delivery_area = (data.get('delivery_area') or '').strip()
+        kosher_level = (data.get('kosher_level') or '').strip()
+        kosher_labels = {
+            'certified_kosher': 'Certified Kosher',
+            'kosher_style': 'Kosher Style',
+            'not_kosher': 'Not Kosher',
+        }
+        kosher_display = kosher_labels.get(kosher_level, kosher_level or '—')
+        menu_description = (data.get('shiva_menu_description') or '').strip()
+
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        if not sendgrid_key:
+            logging.info(f"[Caterer Apply Email] TEST MODE — would notify contact@neshama.ca about {business_name} + confirm to {applicant_email}")
+            return
+
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+        except Exception as e:
+            logging.error(f"[Caterer Apply Email] SendGrid import failed: {e}")
+            return
+
+        sg = SendGridAPIClient(sendgrid_key)
+
+        # ─── Admin notification to contact@neshama.ca ─────────────────
+        # Strip CRLF from subject to prevent header injection (defense in depth;
+        # shiva_manager sanitizes before insert but we use raw data here).
+        subject_safe_name = business_name.replace('\r', ' ').replace('\n', ' ')[:150]
+        admin_subject = f"New caterer application: {subject_safe_name}"
+        admin_plain = (
+            f"New Caterer Application — {business_name}\n\n"
+            f"Contact: {contact_name}\n"
+            f"Email: {applicant_email}\n"
+            f"Phone: {phone or '—'}\n"
+            f"Website: {website or '—'}\n"
+            f"Delivery Area: {delivery_area or '—'}\n"
+            f"Kosher Status: {kosher_display}\n\n"
+            f"Shiva Menu Description:\n{menu_description or '—'}\n\n"
+            f"Status: pending review\n"
+            f"Neshama · neshama.ca"
+        )
+        admin_html = f'''<!DOCTYPE html>
+<html><body style="font-family: Georgia, serif; max-width: 600px; margin: 40px auto; color: #3E2723; background: #FFF8F0; padding: 40px;">
+<h2 style="color: #D2691E; margin-bottom: 20px; font-family: 'Cormorant Garamond', Georgia, serif;">New Caterer Application</h2>
+<p style="line-height: 1.6;">A new caterer has applied via neshama.ca/shiva/caterers/apply. Review pending applications via the admin dashboard.</p>
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: white;">
+<tr><td style="padding: 10px; font-weight: bold; width: 35%; border-bottom: 1px solid #E8DDD4;">Business Name:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(business_name)}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #E8DDD4;">Contact Name:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(contact_name)}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #E8DDD4;">Email:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(applicant_email)}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #E8DDD4;">Phone:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(phone or '—')}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #E8DDD4;">Website:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(website or '—')}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold; border-bottom: 1px solid #E8DDD4;">Delivery Area:</td><td style="padding: 10px; border-bottom: 1px solid #E8DDD4;">{html_mod.escape(delivery_area or '—')}</td></tr>
+<tr><td style="padding: 10px; font-weight: bold;">Kosher Status:</td><td style="padding: 10px;">{html_mod.escape(kosher_display)}</td></tr>
+</table>
+<div style="margin: 20px 0;">
+<strong>Shiva Menu Description:</strong>
+<p style="padding: 15px; background: white; border-left: 3px solid #D2691E; margin-top: 8px; line-height: 1.6;">{html_mod.escape(menu_description or '—')}</p>
+</div>
+<p style="color: #8B7355; font-size: 13px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #D4C5B9;">Application status: pending review<br>Neshama · neshama.ca</p>
+</body></html>'''
+
+        try:
+            admin_msg = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To('contact@neshama.ca'),
+                subject=admin_subject,
+                plain_text_content=Content(MimeType.text, admin_plain),
+                html_content=Content(MimeType.html, admin_html),
+            )
+            response = sg.send(admin_msg)
+            logging.info(f"[Caterer Apply Email] Admin notified about {business_name} (status {response.status_code})")
+        except Exception as e:
+            logging.error(f"[Caterer Apply Email] Admin notify failed: {e}")
+
+        # ─── Confirmation email to the applicant ──────────────────────
+        if not applicant_email:
+            return
+
+        applicant_subject = "Thank you for applying — Neshama"
+        applicant_plain = (
+            f"Thank you, {contact_name},\n\n"
+            f"Thank you for applying to be part of the Neshama caterer directory. Your application for {business_name} has been received, and Erin or Jordana will review it personally in the next few days.\n\n"
+            f"Once approved, your listing will appear in the directory alongside other caterers serving Jewish families across Toronto and Montreal during shiva.\n\n"
+            f"If you have any questions in the meantime, please reply to this email or write to contact@neshama.ca.\n\n"
+            f"With gratitude,\n"
+            f"Erin & Jordana\n"
+            f"Neshama\n\n"
+            f"neshama.ca\n"
+            f"Community support when it matters most"
+        )
+        applicant_html = f'''<!DOCTYPE html>
+<html><body style="font-family: Georgia, serif; max-width: 600px; margin: 40px auto; color: #3E2723; background: #FFF8F0; padding: 40px;">
+<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; color: #3E2723; font-weight: 500; font-size: 28px;">Thank you, {html_mod.escape(contact_name)}</h2>
+<p style="line-height: 1.7;">Thank you for applying to be part of the Neshama caterer directory. Your application for <strong>{html_mod.escape(business_name)}</strong> has been received, and Erin or Jordana will review it personally in the next few days.</p>
+<p style="line-height: 1.7;">Once approved, your listing will appear in the directory alongside other caterers serving Jewish families across Toronto and Montreal during shiva.</p>
+<p style="line-height: 1.7;">If you have any questions in the meantime, please reply to this email or write to <a href="mailto:contact@neshama.ca" style="color: #D2691E;">contact@neshama.ca</a>.</p>
+<p style="line-height: 1.7; margin-top: 30px;">With gratitude,<br>Erin &amp; Jordana<br><em>Neshama</em></p>
+<p style="color: #8B7355; font-size: 13px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #D4C5B9;">Neshama · neshama.ca<br>Community support when it matters most</p>
+</body></html>'''
+
+        try:
+            applicant_msg = Mail(
+                from_email=Email('updates@neshama.ca', 'Neshama'),
+                to_emails=To(applicant_email),
+                subject=applicant_subject,
+                plain_text_content=Content(MimeType.text, applicant_plain),
+                html_content=Content(MimeType.html, applicant_html),
+            )
+            response = sg.send(applicant_msg)
+            logging.info(f"[Caterer Apply Email] Confirmation sent to {applicant_email} (status {response.status_code})")
+        except Exception as e:
+            logging.error(f"[Caterer Apply Email] Applicant confirmation failed: {e}")
 
     def handle_caterer_approve(self, caterer_id):
         """Approve a caterer application (admin only)"""
