@@ -136,7 +136,7 @@ try:
     import sys as _sys
     if sys_path_parent not in _sys.path:
         _sys.path.insert(0, sys_path_parent)
-    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images, backfill_vendor_cities
+    from seed_vendors import seed_vendors, create_tables as create_vendor_tables, backfill_vendor_emails, enrich_vendor_images, backfill_vendor_cities, backfill_vendor_logistics
     from city_config import get_cities_for_api, get_valid_location_set, get_city_slugs, get_city_by_slug
     VENDORS_AVAILABLE = True
 except Exception as e:
@@ -2915,7 +2915,7 @@ button:hover{background:#c45a1a}</style></head>
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT * FROM vendors WHERE vendor_type IN ('food', 'services') ORDER BY featured DESC, name ASC")
+                cursor.execute("SELECT * FROM vendors WHERE vendor_type IN ('food', 'services', 'gift') ORDER BY featured DESC, name ASC")
             except Exception:
                 cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
             vendors = [dict(row) for row in cursor.fetchall()]
@@ -6511,6 +6511,7 @@ def run_server(port=None):
             backfill_vendor_emails(DB_PATH)
             enrich_vendor_images(DB_PATH)
             backfill_vendor_cities(DB_PATH)
+            backfill_vendor_logistics(DB_PATH)
             logging.info(f" Vendor directory: Seeded + enriched")
         except Exception as e:
             logging.info(f" Vendor seed: {e}")
@@ -6528,6 +6529,12 @@ def run_server(port=None):
             logging.info(" Migrations: added source column to vendors")
         except Exception:
             pass  # Column already exists
+
+        # V3 (Apr 2026): Legacy pre-V3 vendor migrations DISABLED.
+        # seed_vendors.py is the single source of truth for vendor data going forward.
+        # The historical migrations below re-introduced old-category vendors on every
+        # startup, undoing the V3 3-category cleanup. They have served their purpose.
+        raise RuntimeError("Legacy migrations skipped for V3 — see seed_vendors.py")
 
         # Migration 2026-02-28: Fix vendor miscategorizations
         vendor_updates = [
@@ -6795,6 +6802,11 @@ def run_server(port=None):
         conn = _connect_db()
         cursor = conn.cursor()
         total_changed = 0
+
+        # V3 (Apr 2026): Legacy pre-V3 cleanup migrations DISABLED.
+        # These re-added "Candy Catchers" (Gift Baskets — old category) and other
+        # legacy-category vendors on every startup. seed_vendors.py V3 is authoritative.
+        raise RuntimeError("Legacy cleanup skipped for V3 — see seed_vendors.py VENDORS_TO_REMOVE")
 
         # Remove vendors that don't belong
         for slug in ['kosher-quality-bakery-deli', 'mattis-kitchen', 'jojos-pizza', 'longos', 'scaramouche-restaurant', 'whole-foods-market-yorkville']:

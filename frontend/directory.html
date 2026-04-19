@@ -203,6 +203,8 @@
             display: flex;
             justify-content: center;
             gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .filter-secondary {
@@ -466,6 +468,19 @@
             padding-top: 0.5rem;
         }
 
+        /* Order logistics line: min order · lead time */
+        .vendor-meta {
+            font-family: 'Source Serif 4', serif;
+            font-size: 0.95rem;
+            color: var(--sage-dark);
+            padding-top: 0.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem 0.5rem;
+        }
+        .vendor-meta .meta-dot { color: var(--light-taupe); }
+        .vendor-meta .meta-item { white-space: nowrap; }
+
         /* Single full-width CTA (Task 4) */
         .vendor-card-cta {
             display: block;
@@ -571,6 +586,11 @@
             .vendor-card-img { height: 150px; }
             .vendor-card h3 { font-size: 1.35rem; }
             .footer-links { gap: 1.25rem; }
+
+            /* Compact filter pills on mobile (keep 44px tap target for a11y) */
+            .filter-toggle { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
+            .filter-bar { gap: 0.35rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .filter-pills-row, .filter-secondary { gap: 0.35rem; }
         }
         .show-more-wrapper {
             grid-column: 1 / -1;
@@ -638,11 +658,10 @@
     <main id="main-content">
     <header class="hero">
         <h1>Local Vendors Ready to Help</h1>
-        <p class="subtitle">Caterers, bakeries, food vendors, and event services &mdash; here when your community needs them most.</p>
-        <p id="heroCount" class="hero-count"></p>
+        <p class="subtitle">Caterers, restaurants, and gift platters across Toronto and Montreal.</p>
         <div class="hero-search">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="searchInput" placeholder="Search by name, cuisine, or neighborhood..." aria-label="Search vendors">
+            <input type="text" id="searchInput" placeholder="Search by name or neighbourhood..." aria-label="Search vendors by name or delivery area">
         </div>
     </header>
 
@@ -654,42 +673,28 @@
             <button class="filter-toggle" id="cityMontreal" onclick="setCity('montreal',this)">Montreal</button>
         </div>
 
-        <!-- Category pills (Task 2) -->
-        <div class="category-pills" id="categoryPills" role="radiogroup" aria-label="Filter by category">
-            <button class="cat-pill active" data-cat="" onclick="setCat('',this)">
-                <span class="cat-pill-icon">&#9776;</span> All
-            </button>
-            <button class="cat-pill" data-cat="Caterers" onclick="setCat('Caterers',this)">
-                <span class="cat-pill-icon">&#127858;</span> Caterers
-            </button>
-            <button class="cat-pill" data-cat="Delis &amp; Restaurants" onclick="setCat('Delis &amp; Restaurants',this)">
-                <span class="cat-pill-icon">&#129386;</span> Delis
-            </button>
-            <button class="cat-pill" data-cat="Bagel Shops &amp; Bakeries" onclick="setCat('Bagel Shops &amp; Bakeries',this)">
-                <span class="cat-pill-icon">&#127838;</span> Bakeries
-            </button>
-            <button class="cat-pill" data-cat="Middle Eastern &amp; Israeli" onclick="setCat('Middle Eastern &amp; Israeli',this)">
-                <span class="cat-pill-icon">&#129474;</span> Middle Eastern
-            </button>
-            <button class="cat-pill" data-cat="Italian &amp; Pizza" onclick="setCat('Italian &amp; Pizza',this)">
-                <span class="cat-pill-icon">&#127829;</span> Italian &amp; Pizza
-            </button>
-            <button class="cat-pill" data-cat="Event Staff &amp; Services" onclick="setCat('Event Staff &amp; Services',this)">
-                <span class="cat-pill-icon">&#128188;</span> Event Staff
-            </button>
+        <!-- Type pills -->
+        <div class="filter-pills-row" role="group" aria-label="Filter by vendor type">
+            <button class="filter-toggle active" id="typeAll" type="button" onclick="setType('all',this)">All Types</button>
+            <button class="filter-toggle" id="typeCaterers" type="button" onclick="setType('Caterers',this)">Caterers</button>
+            <button class="filter-toggle" id="typeRestaurants" type="button" onclick="setType('Restaurants',this)">Restaurants</button>
+            <button class="filter-toggle" id="typeGifts" type="button" onclick="setType('Gifts &amp; Platters',this)">Gifts &amp; Platters</button>
+        </div>
+
+        <!-- Fulfillment pills -->
+        <div class="filter-pills-row" role="group" aria-label="Filter by fulfillment">
+            <button class="filter-toggle active" id="fulfillAll" type="button" onclick="setFulfill('all',this)">All</button>
+            <button class="filter-toggle" id="fulfillDelivers" type="button" onclick="setFulfill('delivers',this)">Delivers</button>
+            <button class="filter-toggle" id="fulfillPickup" type="button" onclick="setFulfill('pickup',this)">Pickup only</button>
         </div>
 
         <!-- Secondary filters -->
         <div class="filter-secondary">
-            <select class="filter-select" id="neighborhoodFilter" aria-label="Filter by area">
-                <option value="">All Areas</option>
-            </select>
-            <button class="filter-toggle" id="kosherToggle" aria-label="Show kosher certified only" aria-pressed="false">Kosher Certified</button>
-            <button class="filter-toggle" id="deliveryToggle" aria-label="Show delivery available only" aria-pressed="false">Delivers</button>
+            <button class="filter-toggle" id="kosherToggle" aria-label="Show kosher certified only" aria-pressed="false">Kosher Certified Only</button>
         </div>
     </div>
 
-    <p class="result-count" id="resultCount" aria-live="polite" aria-atomic="true"></p>
+    <p class="result-count" id="resultCount" aria-live="polite" aria-atomic="true" style="display:none"></p>
 
     <div class="vendor-grid" id="vendorGrid">
         <div class="no-results" id="loadingMsg">Loading vendors...</div>
@@ -732,17 +737,15 @@
         var allVendors = [];
         var displayLimit = 12;
         var activeCity = 'all';
-        var activeCategory = '';
+        var activeType = 'all';
+        var activeFulfill = 'all';
         var searchInput = document.getElementById('searchInput');
-        var neighborhoodFilter = document.getElementById('neighborhoodFilter');
         var kosherToggle = document.getElementById('kosherToggle');
-        var deliveryToggle = document.getElementById('deliveryToggle');
         var vendorGrid = document.getElementById('vendorGrid');
         var resultCount = document.getElementById('resultCount');
         var kosherActive = false;
-        var deliveryActive = false;
 
-        // Apply URL query params (e.g. /directory?filter=kosher&category=Caterers&city=toronto)
+        // Apply URL query params (e.g. /directory?filter=kosher&city=toronto)
         (function() {
             var params = new URLSearchParams(window.location.search);
             var filter = params.get('filter');
@@ -752,22 +755,9 @@
                 kosherToggle.setAttribute('aria-pressed', 'true');
             }
             if (filter === 'delivery') {
-                deliveryActive = true;
-                deliveryToggle.classList.add('active');
-                deliveryToggle.setAttribute('aria-pressed', 'true');
-            }
-
-            // Pre-select category from URL param
-            var categoryParam = params.get('category');
-            if (categoryParam) {
-                var pills = document.querySelectorAll('.cat-pill');
-                pills.forEach(function(p) {
-                    if (p.getAttribute('data-cat') === categoryParam) {
-                        pills.forEach(function(pp) { pp.classList.remove('active'); });
-                        p.classList.add('active');
-                        activeCategory = categoryParam;
-                    }
-                });
+                activeFulfill = 'delivers';
+                document.querySelectorAll('#fulfillAll,#fulfillDelivers,#fulfillPickup').forEach(function(b){ b.classList.remove('active'); });
+                document.getElementById('fulfillDelivers').classList.add('active');
             }
 
             // Pre-select city from URL param
@@ -792,16 +782,6 @@
             'mount royal','plateau','saint-henri','old montreal','côte-des-neiges',
             'cote-des-neiges','saint-laurent'];
 
-        var torontoNeighborhoods = ['Annex','Bathurst Manor','Bayview Village','Bloor West',
-            'Cabbagetown','Church-Wellesley','Don Mills','Downsview','Eglinton West',
-            'Forest Hill','GTA-wide','Harbord Village','Kensington','Lawrence Heights',
-            'Lawrence Park','Leslieville','Liberty Village','Little Italy','Midtown',
-            'North York','Ossington','Queen West','Richmond Hill','Summerhill',
-            'Thornhill','Toronto','Yorkville'];
-        var montrealNeighborhoods = ['Côte-des-Neiges','Côte-Saint-Luc','Dollard-des-Ormeaux',
-            'Downtown','Mile End','Mount Royal','Old Montreal','Outremont',
-            'Plateau Mont-Royal','Saint-Henri','Saint-Laurent','Snowdon'];
-
         function isMontrealVendor(v) {
             var nb = (v.neighborhood || '').toLowerCase();
             var da = (v.delivery_area || '').toLowerCase();
@@ -816,33 +796,26 @@
             var btns = document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal');
             btns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
-            updateNeighborhoodDropdown();
             filterVendors();
         };
 
-        window.setCat = function(cat, btn) {
-            activeCategory = cat;
+        window.setType = function(type, btn) {
+            activeType = type;
             displayLimit = 12;
-            var pills = document.querySelectorAll('.cat-pill');
+            var pills = document.querySelectorAll('#typeAll,#typeCaterers,#typeRestaurants,#typeGifts');
             pills.forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
             filterVendors();
         };
 
-        function updateNeighborhoodDropdown() {
-            var html = '<option value="">All Areas</option>';
-            if (activeCity === 'all' || activeCity === 'toronto') {
-                if (activeCity === 'all') html += '<optgroup label="Toronto">';
-                torontoNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
-                if (activeCity === 'all') html += '</optgroup>';
-            }
-            if (activeCity === 'all' || activeCity === 'montreal') {
-                if (activeCity === 'all') html += '<optgroup label="Montreal">';
-                montrealNeighborhoods.forEach(function(n) { html += '<option value="' + n + '">' + n + '</option>'; });
-                if (activeCity === 'all') html += '</optgroup>';
-            }
-            neighborhoodFilter.innerHTML = html;
-        }
+        window.setFulfill = function(mode, btn) {
+            activeFulfill = mode;
+            displayLimit = 12;
+            var pills = document.querySelectorAll('#fulfillAll,#fulfillDelivers,#fulfillPickup');
+            pills.forEach(function(p) { p.classList.remove('active'); });
+            btn.classList.add('active');
+            filterVendors();
+        };
 
         function fetchVendors() {
             fetch('/api/vendors')
@@ -851,7 +824,6 @@
                     if (data.status === 'success') {
                         allVendors = data.data;
                         document.getElementById('heroCount').textContent = data.data.length + ' vendors across Toronto & Montreal';
-                        updateNeighborhoodDropdown();
                         filterVendors();
                     } else {
                         vendorGrid.innerHTML = '<div class="no-results"><h3>We couldn\'t load the listings right now</h3><p>Please try again in a moment.</p></div>';
@@ -906,7 +878,11 @@
                 return defaultColor;
             }
 
-            var visible = vendors.slice(0, displayLimit);
+            // Featured vendors sort to the top; stable within each group.
+            var sorted = vendors.slice().sort(function(a, b) {
+                return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+            });
+            var visible = sorted;
             var html = '';
             for (var i = 0; i < visible.length; i++) {
                 var v = visible[i];
@@ -940,12 +916,9 @@
                 }
 
                 // Badge overlays on image (Task 4)
-                var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery || v.featured);
+                var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery);
                 if (hasBadges) {
                     html += '<div class="vendor-card-badges">';
-                    if (v.featured) {
-                        html += '<span class="featured-badge">Community Pick</span>';
-                    }
                     if (v.kosher_status === 'COR') {
                         html += '<span class="badge kosher" title="Kosher certified by the Council of Orthodox Rabbis (Toronto)">Kosher (COR)</span>';
                     } else if (v.kosher_status === 'MK') {
@@ -965,6 +938,13 @@
                 if (v.neighborhood) {
                     html += '<div class="vendor-location">' + escapeHtml(v.neighborhood) + '</div>';
                 }
+                // Meta line: min order · lead time (only render if at least one is present)
+                var metaParts = [];
+                if (v.min_order) metaParts.push('<span class="meta-item">' + escapeHtml(v.min_order) + '</span>');
+                if (v.lead_time) metaParts.push('<span class="meta-item">' + escapeHtml(v.lead_time) + '</span>');
+                if (metaParts.length) {
+                    html += '<div class="vendor-meta">' + metaParts.join('<span class="meta-dot">·</span>') + '</div>';
+                }
                 html += '</div>'; // close vendor-card-body
                 html += '</a>'; // close clickable area
 
@@ -974,44 +954,30 @@
                 html += '</div>'; // close vendor-card
             }
 
-            // Show More button if there are more vendors
-            if (vendors.length > displayLimit) {
-                var remaining = vendors.length - displayLimit;
-                var nextBatch = remaining < 12 ? remaining : 12;
-                html += '<div class="show-more-wrapper">';
-                html += '<button class="show-more-btn" onclick="window.showMoreVendors()">Show ' + nextBatch + ' More Vendors</button>';
-                html += '<p class="show-more-count">Showing ' + displayLimit + ' of ' + vendors.length + ' vendors</p>';
-                html += '</div>';
-            }
-
             vendorGrid.innerHTML = html;
         }
 
-        window.showMoreVendors = function() {
-            displayLimit += 12;
-            filterVendors();
-        };
-
         function filterVendors() {
             var query = searchInput.value.toLowerCase().trim();
-            var category = activeCategory;
-            var neighborhood = neighborhoodFilter.value;
 
             var filtered = allVendors.filter(function(v) {
                 // City filter
                 if (activeCity === 'toronto' && isMontrealVendor(v)) return false;
                 if (activeCity === 'montreal' && !isMontrealVendor(v)) return false;
-                // Search
-                if (query && v.name.toLowerCase().indexOf(query) === -1 &&
-                    (v.description || '').toLowerCase().indexOf(query) === -1 &&
-                    (v.category || '').toLowerCase().indexOf(query) === -1 &&
-                    (v.neighborhood || '').toLowerCase().indexOf(query) === -1) {
-                    return false;
+                // Type filter
+                if (activeType !== 'all' && v.category !== activeType) return false;
+                // Fulfillment filter
+                if (activeFulfill === 'delivers' && !v.delivery) return false;
+                if (activeFulfill === 'pickup' && v.delivery) return false;
+                // Search (haystack: name + neighborhood + delivery_area + category)
+                if (query) {
+                    var haystack = (v.name + ' ' +
+                        (v.neighborhood || '') + ' ' +
+                        (v.delivery_area || '') + ' ' +
+                        (v.category || '')).toLowerCase();
+                    if (haystack.indexOf(query) === -1) return false;
                 }
-                if (category && v.category !== category) return false;
-                if (neighborhood && (v.neighborhood || '') !== neighborhood) return false;
                 if (kosherActive && v.kosher_status !== 'COR' && v.kosher_status !== 'MK') return false;
-                if (deliveryActive && !v.delivery) return false;
                 return true;
             });
 
@@ -1025,21 +991,12 @@
         }
 
         searchInput.addEventListener('input', function() { displayLimit = 12; filterVendors(); });
-        neighborhoodFilter.addEventListener('change', function() { displayLimit = 12; filterVendors(); });
 
         kosherToggle.addEventListener('click', function() {
             kosherActive = !kosherActive;
             displayLimit = 12;
             this.classList.toggle('active', kosherActive);
             this.setAttribute('aria-pressed', kosherActive);
-            filterVendors();
-        });
-
-        deliveryToggle.addEventListener('click', function() {
-            deliveryActive = !deliveryActive;
-            displayLimit = 12;
-            this.classList.toggle('active', deliveryActive);
-            this.setAttribute('aria-pressed', deliveryActive);
             filterVendors();
         });
 
