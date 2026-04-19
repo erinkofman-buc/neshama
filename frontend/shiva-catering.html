@@ -548,22 +548,47 @@
         }
 
         @media (max-width: 600px) {
-            .hero h1 { font-size: 2rem; }
-            .hero { padding: 1.5rem 1.5rem 0.75rem; }
-            .hero .subtitle { font-size: 1.05rem; }
+            .hero h1 { font-size: 1.85rem; line-height: 1.1; }
+            .hero { padding: 1.25rem 1.5rem 0.5rem; max-width: 100%; }
+            .hero .subtitle { font-size: 1rem; line-height: 1.45; }
             .vendor-card-img { height: 150px; }
             .vendor-card h3 { font-size: 1.35rem; }
             .footer-links { gap: 1.25rem; }
-            .trust-bar { gap: 0.4rem 1rem; font-size: 0.9rem; padding: 0.6rem 1rem; }
-            .trust-bar .trust-num { font-size: 1.1rem; }
 
-            /* Compact filter pills on mobile (matches /directory V3) */
-            .filter-toggle { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
-            .filter-bar { gap: 0.35rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-            .filter-pills-row, .filter-secondary { gap: 0.35rem; }
+            /* Trust bar — show only vendor count + "Free for families" inline on mobile */
+            .trust-bar {
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                padding: 0.45rem 0.85rem;
+                margin-top: 0.75rem;
+                flex-wrap: nowrap;
+                justify-content: center;
+            }
+            .trust-bar .trust-num { font-size: 1rem; margin-right: 0.3rem; }
+            .trust-bar .trust-badge { padding: 0.2rem 0.6rem; font-size: 0.78rem; }
+            .trust-item-desktop { display: none; }
 
-            .coord-section { padding: 1.25rem 1.25rem; }
-            .faq-item h3 { font-size: 1.15rem; }
+            /* Compact filter pills on mobile */
+            .filter-toggle { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 40px; }
+            .filter-bar { gap: 0.3rem; padding: 0.4rem 1rem 0.5rem; margin-top: 0.5rem; }
+            .filter-pills-row, .filter-secondary { gap: 0.3rem; }
+
+            /* Filter-secondary: keep inline on mobile (don't stack) — saves a row of vertical space */
+            .filter-secondary {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .filter-secondary .filter-select { width: auto; min-width: 0; max-width: 56vw; padding: 0.4rem 1.75rem 0.4rem 0.75rem; font-size: 0.85rem; min-height: 40px; }
+            .filter-secondary .filter-toggle { width: auto; }
+
+            .vendor-grid { margin-top: 0.5rem; padding-bottom: 1.5rem; }
+            .result-count { padding: 0.3rem 1rem 0; font-size: 0.85rem; }
+
+            .coord-section { padding: 1.25rem 1.25rem; margin-top: 1.5rem; }
+            .faq-section { margin-top: 2rem; }
+            .faq-section h2 { font-size: 1.5rem; }
+            .faq-item h3 { font-size: 1.1rem; }
+            .faq-item { padding: 1rem 1.15rem; }
         }
     </style>
     <script defer data-domain="neshama.ca" src="https://plausible.io/js/script.js"></script>
@@ -609,8 +634,8 @@
 
     <div class="trust-bar" id="trustBar" aria-live="polite">
         <span class="trust-item"><span class="trust-num" id="vendorCountNum">&mdash;</span>vendors</span>
-        <span class="trust-item"><span class="trust-num">2</span>cities</span>
-        <span class="trust-item"><span class="trust-num" id="kosherCountNum">&mdash;</span>kosher certified</span>
+        <span class="trust-item trust-item-desktop"><span class="trust-num">2</span>cities</span>
+        <span class="trust-item trust-item-desktop"><span class="trust-num" id="kosherCountNum">&mdash;</span>kosher certified</span>
         <span class="trust-item"><span class="trust-badge">Free for families</span></span>
     </div>
 
