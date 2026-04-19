@@ -823,7 +823,6 @@
                 .then(function(data) {
                     if (data.status === 'success') {
                         allVendors = data.data;
-                        document.getElementById('heroCount').textContent = data.data.length + ' vendors across Toronto & Montreal';
                         filterVendors();
                     } else {
                         vendorGrid.innerHTML = '<div class="no-results"><h3>We couldn\'t load the listings right now</h3><p>Please try again in a moment.</p></div>';
