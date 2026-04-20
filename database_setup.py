@@ -76,6 +76,11 @@ class NeshamaDatabase:
             ('country', "TEXT DEFAULT 'CA'"),
             ('region', 'TEXT'),
             ('first_seen', 'TEXT'),
+            # Obituary snippet — 1-2 line emotional-pull field, populated by Haiku extraction
+            # at scrape time (per HANDOFF-obituaries.md). snippet_reviewed: 0=pending, 1=approved, -1=rejected.
+            ('obituary_snippet', 'TEXT'),
+            ('snippet_reviewed', 'INTEGER DEFAULT 0'),
+            ('snippet_generated_at', 'TIMESTAMP'),
         ]:
             try:
                 self.cursor.execute(f'ALTER TABLE obituaries ADD COLUMN {col} {col_type}')
