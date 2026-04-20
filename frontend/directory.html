@@ -574,8 +574,6 @@
         /* ── Responsive (Task 7) ── */
         @media (max-width: 768px) {
             .vendor-grid { grid-template-columns: 1fr; max-width: 520px; }
-            .filter-secondary { flex-direction: column; }
-            .filter-secondary > * { width: 100%; justify-content: center; }
             .category-pills { justify-content: flex-start; }
         }
 
@@ -589,8 +587,17 @@
 
             /* Compact filter pills on mobile (keep 44px tap target for a11y) */
             .filter-toggle { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
-            .filter-bar { gap: 0.35rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .filter-bar { gap: 0.35rem; padding: 0.5rem 1rem; }
             .filter-pills-row, .filter-secondary { gap: 0.35rem; }
+            /* Kosher row stays centered, NOT full-width */
+            .filter-secondary { justify-content: center; }
+        }
+
+        @media (max-width: 400px) {
+            /* Tightest pill mode for iPhone SE / small phones */
+            .filter-toggle { padding: 0.4rem 0.7rem; font-size: 0.8rem; gap: 0.25rem; }
+            .filter-bar { padding: 0.5rem 0.75rem; }
+            .filter-pills-row, .filter-secondary { gap: 0.3rem; }
         }
         .show-more-wrapper {
             grid-column: 1 / -1;
