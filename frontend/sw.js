@@ -1,5 +1,5 @@
 // Neshama Service Worker - Basic offline caching
-const CACHE_NAME = 'neshama-v2';
+const CACHE_NAME = 'neshama-v3';
 const STATIC_ASSETS = [
   '/',
   '/feed',
