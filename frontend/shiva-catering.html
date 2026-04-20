@@ -635,8 +635,7 @@
     <div class="trust-bar" id="trustBar" aria-live="polite">
         <span class="trust-item"><span class="trust-num" id="vendorCountNum">&mdash;</span>vendors</span>
         <span class="trust-item trust-item-desktop"><span class="trust-num">2</span>cities</span>
-        <span class="trust-item trust-item-desktop"><span class="trust-num" id="kosherCountNum">&mdash;</span>kosher certified</span>
-        <span class="trust-item"><span class="trust-badge">Free for families</span></span>
+        <span class="trust-item"><span class="trust-num" id="kosherCountNum">&mdash;</span>kosher certified</span>
     </div>
 
     <div class="filter-bar">
@@ -737,6 +736,9 @@
     var kosherActive = false;
 
     // 5 vendors with known wrong websites (per data-quality-backlog) — hide until cleaned up.
+    // ⚠️ MAINTENANCE: When a vendor's website is corrected in the DB, REMOVE its slug
+    // from this array. There's no automatic check — this list will go stale silently.
+    // Audit quarterly OR after any data-quality cleanup pass.
     var BAD_WEBSITE_SLUGS = [
         'baskets-n-stuf',
         'jojos-pizza',
