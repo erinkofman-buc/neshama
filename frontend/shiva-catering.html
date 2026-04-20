@@ -647,6 +647,13 @@
             <button class="filter-toggle" id="cityMontreal" type="button" onclick="setCity('montreal',this)">Montreal</button>
         </div>
 
+        <!-- Fulfillment pills -->
+        <div class="filter-pills-row" role="group" aria-label="Filter by fulfillment">
+            <button class="filter-toggle active" id="fulfillAll" type="button" onclick="setFulfill('all',this)">All</button>
+            <button class="filter-toggle" id="fulfillDelivers" type="button" onclick="setFulfill('delivers',this)">Delivers</button>
+            <button class="filter-toggle" id="fulfillPickup" type="button" onclick="setFulfill('pickup',this)">Pickup only</button>
+        </div>
+
         <!-- Secondary filters -->
         <div class="filter-secondary">
             <select class="filter-select" id="zoneFilter" aria-label="Filter by delivery zone">
@@ -725,6 +732,7 @@
     // ── Per-page config ────────────────────────────────────────
     var allVendors = [];
     var activeCity = 'all';
+    var activeFulfill = 'all';
     var activeZone = '';
     var kosherActive = false;
 
@@ -821,6 +829,19 @@
         zoneFilter.value = '';
         activeZone = '';
         populateZoneDropdown();
+        filterVendors();
+    };
+
+    window.setFulfill = function(mode, btn) {
+        activeFulfill = mode;
+        var btns = document.querySelectorAll('#fulfillAll,#fulfillDelivers,#fulfillPickup');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        // If Pickup only, the zone filter is irrelevant — clear it for clarity
+        if (mode === 'pickup') {
+            zoneFilter.value = '';
+            activeZone = '';
+        }
         filterVendors();
     };
 
@@ -951,14 +972,17 @@
             // City filter
             if (activeCity === 'toronto' && isMontrealVendor(v)) return false;
             if (activeCity === 'montreal' && !isMontrealVendor(v)) return false;
+            // Fulfillment filter
+            if (activeFulfill === 'delivers' && !v.delivery) return false;
+            if (activeFulfill === 'pickup' && v.delivery) return false;
             // Kosher filter
             if (kosherActive && v.kosher_status !== 'COR' && v.kosher_status !== 'MK') return false;
             // Delivery zone filter — match against neighborhood OR delivery_area
-            if (activeZone) {
+            // (Skipped when Pickup only — zone is irrelevant for pickup)
+            if (activeZone && activeFulfill !== 'pickup') {
                 var zoneLower = activeZone.toLowerCase();
                 var nb = (v.neighborhood || '').toLowerCase();
                 var da = (v.delivery_area || '').toLowerCase();
-                // Match if neighborhood == zone, or delivery_area contains zone, or vendor delivers GTA-wide / city-wide
                 var gtaWide = (da.indexOf('gta-wide') !== -1 || da === 'toronto' || da === 'montreal');
                 if (nb !== zoneLower && da.indexOf(zoneLower) === -1 && !gtaWide) return false;
             }
