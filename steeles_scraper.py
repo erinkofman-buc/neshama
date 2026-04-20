@@ -355,6 +355,13 @@ class SteelesScraper:
                     else:
                         logging.info(f"  ⏭️  Unchanged: {obit_data['deceased_name']}")
 
+                    # Populate obituary_snippet via Haiku if not already done.
+                    # Idempotent + fails quiet (never blocks the scraper).
+                    if action in ('inserted', 'updated'):
+                        obit_text = obit_data.get('obituary_text')
+                        if obit_text:
+                            self.db.populate_snippet_if_missing(obit_id, obit_text)
+
                     # Extract and save comments
                     comments = self.extract_comments(link)
                     new_comments = 0

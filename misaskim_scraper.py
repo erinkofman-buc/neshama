@@ -444,6 +444,14 @@ class MisakimScraper:
                     else:
                         logging.info(f"  Unchanged: {listing['name']}")
 
+                    # Populate obituary_snippet via Haiku if not already done.
+                    # Idempotent + fails quiet (never blocks the scraper). Note:
+                    # misaskim is module-level (not class instance) so uses bare `db`.
+                    if action in ('inserted', 'updated'):
+                        obit_text = obit_data.get('obituary_text')
+                        if obit_text:
+                            db.populate_snippet_if_missing(obit_id, obit_text)
+
                     # Be polite — small delay between DB writes
                     _time.sleep(0.2)
 
