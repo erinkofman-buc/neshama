@@ -746,6 +746,59 @@
         var resultCount = document.getElementById('resultCount');
         var kosherActive = false;
 
+        // Track whether the user arrived via a /shiva-catering* SEO entry point.
+        // Used to (a) update <title>/canonical/meta for SEO, (b) pre-filter city for variants,
+        // (c) tag outbound vendor clicks with utm_source=shiva-catering-landing for analytics separation.
+        var seoEntryPoint = null;
+
+        // Apply pathname-based SEO entry points (/shiva-catering, /shiva-caterers-toronto, /shiva-caterers-montreal)
+        (function() {
+            var p = window.location.pathname;
+            var titles = {
+                '/shiva-catering':           'Shiva Catering Toronto & Montreal | Kosher & Non-Kosher Delivery | Neshama',
+                '/shiva-caterers-toronto':   'Shiva Catering Toronto | Kosher & Non-Kosher Delivery | Neshama',
+                '/shiva-caterers-montreal':  'Shiva Catering Montreal | Kosher & Non-Kosher Delivery | Neshama'
+            };
+            var descs = {
+                '/shiva-catering':           'Order shiva food from caterers serving Toronto and Montreal. Kosher and non-kosher options, delivery and pickup. Curated directory, free for families.',
+                '/shiva-caterers-toronto':   'Order shiva food from Toronto-area caterers. Kosher and non-kosher options, delivery and pickup. Curated directory, free for families.',
+                '/shiva-caterers-montreal':  'Order shiva food from Montreal-area caterers. Kosher and non-kosher options, delivery and pickup. Curated directory, free for families.'
+            };
+            if (titles[p]) {
+                seoEntryPoint = p.replace(/^\//, '');
+                // Swap title (browser tab + Google search snippet for JS-rendered indexing)
+                document.title = titles[p];
+                // Swap canonical so each SEO URL gets its own authority (not consolidated to /directory)
+                var canonical = document.querySelector('link[rel="canonical"]');
+                if (canonical) canonical.href = 'https://neshama.ca' + p;
+                // Swap meta description
+                var metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) metaDesc.setAttribute('content', descs[p]);
+                var ogDesc = document.querySelector('meta[property="og:description"]');
+                if (ogDesc) ogDesc.setAttribute('content', descs[p]);
+                var ogTitle = document.querySelector('meta[property="og:title"]');
+                if (ogTitle) ogTitle.setAttribute('content', titles[p]);
+                var ogUrl = document.querySelector('meta[property="og:url"]');
+                if (ogUrl) ogUrl.setAttribute('content', 'https://neshama.ca' + p);
+                // Pre-select city pill for variants
+                if (p === '/shiva-caterers-toronto') {
+                    activeCity = 'toronto';
+                    setTimeout(function() {
+                        document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal').forEach(function(b){ b.classList.remove('active'); });
+                        var btn = document.getElementById('cityToronto');
+                        if (btn) btn.classList.add('active');
+                    }, 0);
+                } else if (p === '/shiva-caterers-montreal') {
+                    activeCity = 'montreal';
+                    setTimeout(function() {
+                        document.querySelectorAll('#cityAll,#cityToronto,#cityMontreal').forEach(function(b){ b.classList.remove('active'); });
+                        var btn = document.getElementById('cityMontreal');
+                        if (btn) btn.classList.add('active');
+                    }, 0);
+                }
+            }
+        })();
+
         // Apply URL query params (e.g. /directory?filter=kosher&city=toronto)
         (function() {
             var params = new URLSearchParams(window.location.search);
@@ -888,7 +941,8 @@
                 var v = visible[i];
                 var color = getCatColor(v.category);
                 var initial = escapeHtml(v.name.charAt(0));
-                var detailUrl = '/directory/' + encodeURIComponent(v.slug) + '?from=directory';
+                var detailUrl = '/directory/' + encodeURIComponent(v.slug) + '?from=' +
+                    (seoEntryPoint ? seoEntryPoint + '&utm_source=shiva-catering-landing' : 'directory');
 
                 html += '<div class="vendor-card">';
 
