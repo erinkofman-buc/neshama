@@ -236,6 +236,14 @@ class BaseScraper(ABC):
                     stats['unchanged'] += 1
                     logger.info(f"  = Unchanged: {obit_data['deceased_name']}")
 
+                # Populate obituary_snippet via Haiku if not already done.
+                # Idempotent (skips rows with snippet) + fails quiet (never blocks scraper).
+                # Only on inserted/updated — unchanged rows already had a chance.
+                if action in ('inserted', 'updated'):
+                    obit_text = obit_data.get('obituary_text')
+                    if obit_text:
+                        self.db.populate_snippet_if_missing(obit_id, obit_text)
+
                 # Extract and save comments
                 comments = self.extract_comments(obit_data.get('source_url'))
                 new_comments = 0

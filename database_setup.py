@@ -350,6 +350,60 @@ class NeshamaDatabase:
         self.close()
         return obit_id, action
 
+    def populate_snippet_if_missing(self, obit_id, obituary_text):
+        """
+        Generate and store an obituary snippet via Haiku extraction, if not already populated.
+        Idempotent — safe to call on every scrape; skips rows that already have a snippet.
+        Fails QUIET — snippet is nice-to-have; never blocks the scraper.
+        """
+        if not obituary_text or len(obituary_text.strip()) < 80:
+            return  # not enough content to extract from
+
+        self.connect()
+        try:
+            row = self.cursor.execute(
+                "SELECT obituary_snippet FROM obituaries WHERE id = ?",
+                (obit_id,),
+            ).fetchone()
+            if row and row[0]:
+                return  # already have one — don't waste an API call
+        except sqlite3.OperationalError:
+            # column missing — schema migration hasn't run yet
+            return
+        finally:
+            # don't close conn yet — we may write below
+            pass
+
+        # Lazy import — keeps scrapers working even if the snippet module / API key is unavailable
+        try:
+            from snippet import extract_snippet
+            from datetime import datetime as _dt
+        except ImportError as e:
+            logging.getLogger(__name__).warning(
+                "[snippet] import failed (skipping for obit %s): %s", obit_id, e
+            )
+            self.close()
+            return
+
+        snippet = extract_snippet(obituary_text)
+        try:
+            self.cursor.execute(
+                """
+                UPDATE obituaries
+                SET obituary_snippet = ?,
+                    snippet_reviewed = 0,
+                    snippet_generated_at = ?
+                WHERE id = ?
+                """,
+                (snippet, _dt.utcnow().isoformat(), obit_id),
+            )
+            self.conn.commit()
+        except sqlite3.OperationalError:
+            # column missing again? — rare race, ignore
+            pass
+        finally:
+            self.close()
+
     def upsert_comment(self, obituary_id, comment_data):
         """Insert comment if it doesn't already exist"""
         self.connect()
