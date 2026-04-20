@@ -603,7 +603,7 @@
         refs.forEach(function(r) {
             var page = r.referrer_page || 'Direct';
             // Clean up referrer URLs to show friendly names
-            if (page.indexOf('/directory') >= 0) page = 'Trusted Partners';
+            if (page.indexOf('/directory') >= 0) page = 'Directory';
             else if (page.indexOf('/gifts') >= 0) page = 'Gifts Page';
             else if (page.indexOf('/shiva') >= 0) page = 'Shiva Pages';
             else if (page.indexOf('/what-to-bring') >= 0) page = 'What to Bring Guide';
