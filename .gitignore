@@ -1,5 +1,26 @@
 # Database
 neshama.db
+neshama.db-shm
+neshama.db-wal
+neshama*.db.bak*
+neshama*.db-wal
+neshama*.db-shm
+
+# iCloud conflict copies — numbered duplicates like "file 2.html", "file 3.py"
+# Never commit. Review on disk first (may contain MSI work) before deleting.
+* 2.*
+* 3.*
+* 4.*
+.backup */
+.backup\ *
+
+# iCloud offloaded placeholders (download stubs, not content)
+.*.icloud
+*.icloud
+
+# Desktop temp / old bundles (not code)
+NESHAMA-ONE-PAGER.pdf
+deploy-v3.sh
 
 # Python
 __pycache__/

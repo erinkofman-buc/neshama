@@ -7076,9 +7076,9 @@ def run_server(port=None):
             "aish-tanoor": "http://aishtanoor.com/wp-content/uploads/2019/08/home-pic-2.jpg",
             "apex-kosher-catering": "https://static.wixstatic.com/media/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/58d4dc_8b5cbafea88a4fd8a4e96ce7601c27e6%7Emv2.jpg",
             "aroma-espresso-bar": "https://www.aromaespressobar.ca/wp-content/uploads/2025/01/cropped-aroma-favicon-1.png",
-            "ba-li-laffa": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/website/images/header-logo.png",
+            # ba-li-laffa removed 2026-04-21 — logo only, placeholder renders better (photo audit)
             "beautys-luncheonette": "http://static1.squarespace.com/static/6633b66c8902e916bd868d86/t/66f57916d4f3b30a3b03dc88/1727363350434/Beautys-1942-navy-drop.png?format=1500w",
-            "beyond-delish": "https://www.beyonddelish.ca/logo-for-facebook.png",
+            # beyond-delish removed 2026-04-21 — logo-for-facebook.png is a logo, placeholder renders better
             "bistro-grande": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg",
             "bubbys": "https://static.wixstatic.com/media/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png/v1/fill/w_2500,h_3196,al_c/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png",
             "candy-catchers": "http://candycatchers.com/cdn/shop/files/Logo-01_copy_9c297b14-751d-488e-8f22-f4388e1b0dc0.png?height=628&pad_color=ffffff&v=1630532191&width=1200",
@@ -7089,7 +7089,7 @@ def run_server(port=None):
             "daiters-kitchen": "https://www.daiterskitchen.ca/media/2020/02/cor4.png",
             "deli-770": "https://deli770.com/wp-content/uploads/2024/07/Smoked-Meat-.png",
             "deli-boyz": "https://restaurantdeliboyz.com/wp-content/uploads/2023/12/cropped-favicon-32x32-1.png",
-            "f-b-kosher-catering": "https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Home-Background.jpg",
+            # f-b-kosher-catering removed 2026-04-21 — unpicked in photo audit, placeholder renders better
             "gibbys": "https://www.gibbys.com/wp-content/uploads/2025/06/cropped-_GB-Shooting2avril128-2.jpg",
             "harry-david": "https://images.contentstack.io/v3/assets/blt89dbf1c763ec00a6/bltc724c01a1c03ea6f/67d3211a1aa7755631b1b3c9/20_4202_30E_05.jpg",
             "la-marguerite-catering": "http://www.lamarguerite.ca/cdn/shop/files/SHOPIFY_1200x1200.png?v=1683573799",
@@ -7103,14 +7103,14 @@ def run_server(port=None):
             "nosherz": "http://nosherz.com/cdn/shop/files/Nosherz_Sticker-Logo_Final_1200x1200.jpg?v=1629121749",
             "oinegs-kosher": "https://static.wixstatic.com/media/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg",
             "olive-et-gourmando": "http://oliveetgourmando.com/cdn/shop/files/Olive_LOGO.svg?height=628&pad_color=ffffff&v=1720203290&width=1200",
-            "pancers-original-deli": "https://static.wixstatic.com/media/ccc15e_a59923da2656400984c425b7afb4ce04.png/v1/fit/w_2500,h_1330,al_c/ccc15e_a59923da2656400984c425b7afb4ce04.png",
+            # pancers-original-deli removed 2026-04-21 — Shutterstock stock photo, placeholder renders better
             "paradise-kosher-catering": "https://www.paradisekosher.com/wp-content/uploads/2018/07/kosher350.png",
             "parallel": "https://cdn.sanity.io/images/x07rp3eb/production/26e17ca9c79d53e2d548d75d2334c10c29c8384a-1737x1172.jpg",
             "pickle-barrel": "https://www.picklebarrel.ca/content/dam/cara/en/pickle-barrel-image-library/pb-share-image.jpg",
-            "pizza-gourmetti": "https://i.ibb.co/ZW3nCyT/gourmetti-logo.png",
+            # pizza-gourmetti removed 2026-04-21 — logo only, placeholder renders better
             "prc-caterers": "https://prccaterers.com/wp-content/uploads/2024/09/01HERB1-scaled.jpg",
             "purdys-chocolatier": "https://www.purdys.com/media/og_image/stores/1/logo.png",
-            "pusateris-fine-foods": "https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg",
+            # pusateris-fine-foods removed 2026-04-21 — Odoo ERP URL likely broken, placeholder renders better
             "richmond-kosher-bakery": "https://richmondkosherbakery.com/wp-content/uploads/2023/08/Share.jpg",
             "royal-dairy-cafe-catering": "https://royaldairycafe.com/wp-content/uploads/2025/12/Royal-Dairy-Cafe-Logo-Main.svg",
             "schwartzs-deli": "http://schwartzsdeli.com/cdn/shop/t/9/assets/logo.png?v=974",
