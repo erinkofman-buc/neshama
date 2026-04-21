@@ -219,6 +219,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.restaurantcateringsystems.com/web/documents/kivasbb/images/kiva_home_page.jpg',
     },
     {
         'name': 'Hermes Bakery',
@@ -244,6 +245,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://unitedbakers.ca/cdn/shop/files/united-bakers-catering-for-30_1200x.jpg?v=1748883399',
     },
     # Caterers (kosher + non-kosher, distinguished by kosher_status field)
     {
@@ -259,6 +261,7 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA',
         'featured': 0,
+        'image_url': 'https://static.wixstatic.com/media/597c20_4c0a53468f474a85b30efaffe597bfab~mv2.png/v1/fill/w_326,h_380,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_5640.png',
     },
     {
         'name': 'Bistro Grande',
@@ -271,7 +274,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
-        'image_url': 'https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg',
+        'image_url': 'https://bistrogrande.com/wp-content/uploads/2020/02/mil6277_sm-scaled.jpg',
     },
     # Miami Grill — REMOVED Mar 9 (no longer exists, per Jordana)
 
@@ -286,6 +289,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': '',
     },
     {
         'name': 'Matti\'s Kitchen',
@@ -310,7 +314,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
-        'image_url': 'https://static.wixstatic.com/media/004dff_862ddb7fc1c74e42b3462816becebaf1.jpg/v1/fill/w_288,h_183,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/004dff_862ddb7fc1c74e42b3462816becebaf1.jpg',
+        'image_url': 'https://static3.grubbio.com/10522g-albums-2.jpg',
     },
     {
         'name': "Milk 'N Honey",
@@ -323,7 +327,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
-        'image_url': 'https://milknhoney.ca/wp-content/uploads/2015/07/hero3.jpg',
+        'image_url': 'https://milknhoney.ca/wp-content/uploads/2016/12/IMG_3118-Small.jpg',
     },
     {
         'name': 'Kosher Gourmet',
@@ -336,6 +340,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
+        'image_url': 'https://cdn11.bigcommerce.com/s-93wuni90xs/images/stencil/390x485/products/176/487/Chicken_Wrap_Box__60284.1686677424.jpg?c=1',
     },
     {
         'name': 'Yummy Market',
@@ -348,7 +353,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
-        'image_url': 'https://yummymarket.com/wp-content/uploads/2022/01/2022-family-day.jpg',
+        'image_url': 'https://yummymarket.com/wp-content/uploads/2020/10/partyplatters-header.jpg',
     },
     {
         'name': "Daiter's Kitchen",
@@ -361,7 +366,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
-        'image_url': 'https://www.daiterskitchen.ca/media/2020/03/salad2.jpg',
+        'image_url': 'https://www.daiterskitchen.ca/media/2020/03/daiters-675x450.jpg',
     },
     {
         'name': 'Orly\'s Kitchen',
@@ -374,6 +379,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://orlyskitchen.com/assets/hero-bg-TNk09rP1.jpg',
     },
     {
         'name': 'Cafe Sheli',
@@ -412,6 +418,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York,Thornhill/Vaughan,Hamilton,GTA',
+        'image_url': '',
     },
     # Italian & Pizza
     # Village Pizza Kosher — REMOVED Mar 9 (no longer exists, per Jordana)
@@ -428,6 +435,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': '',
     },
     {
         'name': 'Terroni',
@@ -440,7 +448,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
-        'image_url': 'https://cdn.prod.website-files.com/62fc4f857fe9ad71232c190f/68265cae97b495d0e2e98da9_adewebsite.jpg',
+        'image_url': 'https://labottegaditerroni.com/cdn/shop/files/Catering_Hero_2_300x.jpg?v=1746822618',
     },
     {
         'name': 'Tutto Pronto',
@@ -453,6 +461,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA',
+        'image_url': 'https://tuttopronto.ca/wp-content/uploads/2019/11/header-platters.jpg',
     },
     # Middle Eastern / Israeli
     {
@@ -466,6 +475,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,GTA',
+        'image_url': 'https://s3.amazonaws.com/curbngo-menu-items/thumbs/76416CEB-E44C-440C-AB7E-BBDA1195DE5B.jpeg',
     },
     {
         'name': 'Dr. Laffa',
@@ -478,7 +488,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
-        'image_url': 'https://drlaffa.com/wp-content/uploads/2020/12/Cropped_Dr-Laffa-Engagement-Photography-Toronto1.jpg',
+        'image_url': '',
     },
     {
         'name': 'Aish Tanoor',
@@ -516,6 +526,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York',
+        'image_url': 'https://lirp.cdn-website.com/ed3e1e79/dms3rep/multi/opt/BANNER-BOWLS-2304w.jpg',
     },
     # Pita Box — REMOVED (no longer exists, per Jordana Mar 2026)
     # ── New vendors added per Jordana feedback — Mar 2026 ──
@@ -532,6 +543,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': '',
     },
     {
         'name': 'Summerhill Market',
@@ -544,7 +556,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
-        'image_url': 'http://static1.squarespace.com/static/6478a38999812546babb8e36/t/67bf42b0d7ee0406f0c5f769/1724096196631/5.png',
+        'image_url': 'http://static1.squarespace.com/static/6478a38999812546babb8e36/t/67bf42b0d7ee0406f0c5f769/1724096196631/5.png?format=1500w',
     },
     {
         'name': 'Pickle Barrel',
@@ -557,7 +569,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
-        'image_url': 'https://www.picklebarrel.ca/content/dam/cara/en/pickle-barrel-image-library/pb-share-image.jpg',
+        'image_url': 'https://picklebarrelcatering.com/wp-content/uploads/2022/03/breakfast-category-300x300.jpg',
     },
     {
         'name': 'Harbord Bakery',
@@ -570,6 +582,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://www.harbordbakery.ca/images/cakes.jpg',
     },
     {
         'name': 'Centre Street Deli',
@@ -582,6 +595,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York,Toronto',
+        'image_url': 'https://static.wixstatic.com/media/a9a0b8_55595057ce8349c4b65d2b44ccb65580~mv2.jpg/v1/crop/x_126,y_1,w_1201,h_792/fill/w_896,h_591,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/pic14_edited.jpg',
     },
     {
         'name': 'Nortown Foods',
@@ -595,6 +609,7 @@ VENDORS = [
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
         'featured': 1,
+        'image_url': '',
     },
     {
         'name': 'Cheese Boutique',
@@ -607,6 +622,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': '',
     },
     # Additional vendors — Feb 2026
     {
@@ -633,7 +649,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
-        'image_url': 'https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg',
+        'image_url': '',
     },
     {
         'name': 'Schmaltz Appetizing',
@@ -697,7 +713,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
-        'image_url': 'https://cdn.shopify.com/s/files/1/0440/1673/0274/files/locations-bg_a01118b0-1d5b-4079-af4a-bad1e1b37a60.jpg',
+        'image_url': 'https://abc1b6b80c540b51da78.cdn6.editmysite.com/uploads/b/abc1b6b80c540b51da789408a28545b34ec20047c9af1dec09dea835a581d0ec/IG_4.7.2026_69d56d7acbbe64.15870355.jpeg?width=2400&optimize=medium',
     },
     {
         'name': 'Toben Food by Design',
@@ -750,6 +766,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York',
+        'image_url': '',
     },
     {
         'name': 'PRC Caterers',
@@ -775,6 +792,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'GTA-wide',
+        'image_url': '',
     },
     {
         'name': 'Marron Bistro',
@@ -787,7 +805,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
-        'image_url': 'https://www.marronbistro.com/wp-content/uploads/2016/11/banner_002.jpg',
+        'image_url': 'https://www.marronbistro.com/wp-content/uploads/2016/11/catering_001.jpg',
     },
     # ── New vendors added Mar 9, 2026 (per Jordana) ──
     {
@@ -801,6 +819,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': '',
     },
     {
         'name': 'Aroma Espresso Bar',
@@ -813,6 +832,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://www.aromaespressobar.ca/wp-content/uploads/2024/11/Bowls-x-3-scene.jpg',
     },
     {
         'name': 'Chop Hop',
@@ -825,6 +845,7 @@ VENDORS = [
         'kosher_status': '',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://d24gls5t8gwt4z.cloudfront.net/images/item/86e281b4-3d39-4ff0-8c71-22acbc66ed66',
     },
     {
         'name': 'Slice n Bites',
@@ -837,6 +858,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://slicenbites.com/wp-content/uploads/2023/01/g02-scaled.jpg',
     },
     # ── Outscraper pipeline vendors — Mar 9, 2026 ──
     # Beyond Delish duplicate removed — already listed above (line ~737)
@@ -851,6 +873,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York,Thornhill/Vaughan',
+        'image_url': 'https://static.wixstatic.com/media/58d4dc_f8ae1ad9eed84dd1980cdaa6f070869f~mv2.jpg/v1/fill/w_247,h_247,q_75,enc_avif,quality_auto/58d4dc_f8ae1ad9eed84dd1980cdaa6f070869f~mv2.jpg',
     },
     {
         'name': 'Mitzuyan Kosher Catering',
@@ -863,6 +886,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://mitzuyankoshercatering.com/wp-content/uploads/2023/02/Pulled-Brisket_Mitzuyan-Kosher_Catering.jpg',
     },
     {
         'name': 'F + B Kosher Catering',
@@ -875,6 +899,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York,GTA-wide',
+        'image_url': '',
     },
     {
         'name': 'Menchens Glatt Kosher Catering',
@@ -887,6 +912,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York,Thornhill/Vaughan,GTA-wide',
+        'image_url': 'https://menchens.ca/img/cocktail_reception1.jpg',
     },
     {
         'name': 'Noah Kosher Sushi',
@@ -899,6 +925,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': 'North York',
+        'image_url': 'https://noah-kosher-sushi.vercel.app/images/og-thumbnail.webp',
     },
     {
         'name': 'Royal Dairy Cafe & Catering',
@@ -911,6 +938,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan,North York',
+        'image_url': 'https://royaldairycafe.com/wp-content/uploads/2025/12/RDC-Salad-800600px-v2-copy.webp',
     },
     {
         'name': "Pancer's Original Deli",
@@ -923,6 +951,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': '',
     },
     {
         'name': "Zelden's Deli and Desserts",
@@ -935,6 +964,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': '',
     },
     {
         'name': 'Richmond Kosher Bakery',
@@ -947,6 +977,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': 'North York',
+        'image_url': 'https://richmondkosherbakery.com/wp-content/uploads/2023/08/rustic-baguettes-baked-in-bakery-country-kitchen-FLZTJXD-768x512.jpg',
     },
     {
         'name': "Aba's Bagel Company",
@@ -959,6 +990,7 @@ VENDORS = [
         'kosher_status': '',
         'delivery': 0,
         'delivery_area': 'Toronto',
+        'image_url': 'https://img1.wsimg.com/isteam/ip/b9fc4f49-b834-4894-b337-fadb0b8205fa/Aba-0140.jpg/:/cr=t:5.36%25,l:20.23%25,w:59.54%25,h:89.29%25/rs=w:360,h:360,cg:true,m',
     },
     {
         'name': 'Zuchter Berk Kosher Caterers',
@@ -984,6 +1016,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Thornhill/Vaughan',
+        'image_url': '',
     },
     {
         'name': 'Umami Sushi',
@@ -1010,6 +1043,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': '',
     },
     {
         'name': "Bubby's Bagels",
@@ -1022,6 +1056,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': 'https://static.wixstatic.com/media/88e84c_073feaa2390445f79dad02f5c1c7a992~mv2_d_5184_3456_s_4_2.jpg/v1/fill/w_422,h_282,q_90,enc_avif,quality_auto/88e84c_073feaa2390445f79dad02f5c1c7a992~mv2_d_5184_3456_s_4_2.jpg',
     },
     {
         'name': 'Golden Chopsticks',
@@ -1034,6 +1069,7 @@ VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto,North York',
+        'image_url': '',
     },
     # Yehudales Falafel and Pizza — removed Mar 2026 (permanently closed per Yelp Dec 2025)
     {
@@ -1061,6 +1097,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA',
+        'image_url': 'https://sofram.ca/wp-content/uploads/2024/02/S_Home_Desktop.webp',
     },
     # Italian & Pizza
     {
@@ -1074,6 +1111,7 @@ VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'GTA',
+        'image_url': 'https://farm6.staticflickr.com/5340/30436264196_6456981ebc_b.jpg',
     },
     # New Toronto vendors added Apr 18, 2026 — verified via web research against vendor sites, Yelp, BlogTO, MK/COR directories
     {
@@ -1141,6 +1179,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Côte-Saint-Luc,Westmount',
+        'image_url': 'https://www.blossombylaplaza.com/cdn/shop/products/5928_sq_300x.jpg?v=1613827994',
     },
     {
         'name': 'Paradise Kosher Catering',
@@ -1153,6 +1192,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Côte-Saint-Luc,Hampstead,Snowdon',
+        'image_url': 'https://www.paradisekosher.com/wp-content/uploads/2018/07/kosher350.png',
     },
     {
         'name': 'Kosher Quality Bakery & Deli',
@@ -1165,6 +1205,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Snowdon,Côte-Saint-Luc',
+        'image_url': '',
     },
     # Delis & Restaurants
     {
@@ -1178,6 +1219,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal',
+        'image_url': '',
     },
     {
         'name': 'Deli 365',
@@ -1190,7 +1232,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont,Mile End',
-        'image_url': 'https://deli365.ca/wp-content/uploads/2016/05/20150128_151023-e1465485459800.jpg',
+        'image_url': 'https://deli365.ca/wp-content/uploads/2016/06/About-us-pic-2-e1465482294424.jpg',
     },
     {
         'name': 'Schwartz\'s Deli',
@@ -1203,6 +1245,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://schwartzsdeli.com/cdn/shop/files/page-catering-services-1.jpg?v=1646472771',
     },
     {
         'name': 'Lester\'s Deli',
@@ -1215,7 +1258,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont',
-        'image_url': 'https://i0.wp.com/lestersdeli.com/wp-content/uploads/2023/10/Homepage-Lesters.webp',
+        'image_url': 'https://i0.wp.com/lestersdeli.com/wp-content/uploads/2023/10/DSC02152.jpg',
     },
     # Bagel Shops & Bakeries
     {
@@ -1242,6 +1285,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal,Canada-wide',
+        'image_url': 'https://stviateurbagel.com/cdn/shop/files/StViateurBagel_AdrianoCiampoli_BagelBin-1.jpg?v=1732896354&width=3840',
     },
     {
         'name': 'Fairmount Bagel',
@@ -1254,6 +1298,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal',
+        'image_url': 'https://fairmountbagel.com/wp-content/uploads/2018/03/hand-bagel-291x300.png',
     },
     {
         'name': 'Montreal Kosher Bakery',
@@ -1266,6 +1311,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Côte-des-Neiges,Snowdon',
+        'image_url': '',
     },
     # Comfort Food & Prepared Meals
     {
@@ -1279,6 +1325,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal,Côte-Saint-Luc,Hampstead',
+        'image_url': 'http://nosherz.com/cdn/shop/collections/platter-2009590_1920_1200x1200.jpg?v=1638390047',
     },
     # Iconic Montreal Restaurants
     {
@@ -1305,20 +1352,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
-        'image_url': 'https://www.gibbys.com/wp-content/uploads/2025/06/GB-Shooting30oct.automne-010.jpg',
-    },
-    {
-        'name': 'Moishes',
-        'category': 'Restaurants',
-        'description': "Legendary Montreal steakhouse and a fixture of the city's Jewish community since 1938. Now at their new downtown location. Famous for dry-aged steaks and old-school elegance.",
-        'address': '1001 Rue du Square-Victoria, Montréal, QC',
-        'neighborhood': 'Downtown',
-        'phone': '(514) 360-4221',
-        'website': 'https://www.moishes.ca',
-        'kosher_status': 'not_certified',
-        'delivery': 0,
-        'delivery_area': '',
-        'image_url': 'https://moishes.ca/wp-content/uploads/2023/11/moishes-vue-densemble-bw_accueil_v2.jpg',
+        'image_url': 'https://www.gibbys.com/wp-content/uploads/2025/06/cropped-_GB-Shooting2avril005-2500x1406.jpg',
     },
     {
         'name': "Beauty's Luncheonette",
@@ -1380,6 +1414,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://images.squarespace-cdn.com/content/v1/5b2bc2a1da02bc3b1c3e2fe9/1662498388633-2TYP8RF6N48NORW9L369/image-asset.jpeg',
     },
     {
         'name': 'Arthurs Nosh Bar',
@@ -1392,6 +1427,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://images.tastet.ca/_/rs:fit:1080:720:false:0/plain/https://sesame.tastet.ca/assets/383e3e27-86a5-4704-9b53-279b2d2bbaef.jpg@jpg',
     },
     {
         'name': 'Hof Kelsten',
@@ -1404,7 +1440,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
-        'image_url': 'https://cdn.shopify.com/s/files/1/1074/9666/files/fullsizeoutput_1c63_d19cd57f-630d-4cda-b70d-d557ff69eb05.jpg',
+        'image_url': 'https://tastet.ca/wp-content/uploads/2017/10/hof-kelsten-boulevard-st-laurent-montreal-jeffrey-finkelstein-15-e1508441445538.jpg',
     },
     {
         'name': 'Olive et Gourmando',
@@ -1417,6 +1453,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Montreal',
+        'image_url': 'https://oliveetgourmando.com/cdn/shop/files/DO01220577.jpg?v=1773931332&width=1500',
     },
     # ── New verified Montreal vendors — Feb 2026 (Sprint 6) ──
     {
@@ -1430,7 +1467,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mount Royal,Snowdon',
-        'image_url': 'https://districtbagel.com/wp-content/uploads/2023/07/menu.webp',
+        'image_url': 'https://districtbagel.com/wp-content/uploads/2021/01/bagels.jpeg',
     },
     {
         'name': "JoJo's Pizza",
@@ -1443,6 +1480,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mile End,Outremont',
+        'image_url': '',
     },
     {
         'name': 'La Marguerite Catering',
@@ -1455,6 +1493,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Côte-Saint-Luc,Hampstead,Westmount',
+        'image_url': 'http://www.lamarguerite.ca/cdn/shop/files/Grilledvegetables_1200x1200.png?v=1770924633',
     },
     {
         'name': "Oineg's Kosher",
@@ -1468,6 +1507,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Mile End,Outremont',
+        'image_url': 'https://static.wixstatic.com/media/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/9bf085_f157f2f766774660a07c0ff5d1073c58%7Emv2.jpg',
     },
     {
         'name': "Chenoy's Deli",
@@ -1480,6 +1520,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://static.goto-where.com/7042-albums-7.jpg',
     },
     # ── New Montreal vendors from MK research — Mar 4, 2026 ──
     # Citrus Traiteur — REMOVED Mar 9 (per Jordana)
@@ -1495,6 +1536,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Outremont,Mile End,Côte-Saint-Luc',
+        'image_url': '',
     },
     # ── Montreal restaurants (MK-certified, added Mar 4 research) ──
     {
@@ -1508,6 +1550,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Hampstead,Cote-Saint-Luc',
+        'image_url': '',
     },
     # Benny & Fils Downtown REMOVED per Jordana Mar 25 — keep Queen Mary only
     {
@@ -1521,6 +1564,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
+        'image_url': 'https://linnysluncheonette.com/assets/images/social.png',
     },
     # ── New vendors from Jordana — Mar 25, 2026 ──
     {
@@ -1547,7 +1591,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 0,
         'delivery_area': '',
-        'image_url': 'https://www.jerusalemrestaurant.ca/restaurants/jerusalem/gallery/1.jpg',
+        'image_url': 'https://eglinton.jerusalemrestaurant.ca/restaurants/jerusalem/gallery/1.jpg',
     },
     {
         'name': 'Tabule',
@@ -1560,7 +1604,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Midtown,Toronto',
-        'image_url': 'https://tabule.ca/wp-content/uploads/2025/09/Tabule_Midtown_Seating_6-scaled.jpg',
+        'image_url': 'https://tabule.ca/wp-content/uploads/2025/09/tabule-menu_feat-image-rect.png',
     },
     {
         'name': 'Deli 770',
@@ -1573,6 +1617,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc',
+        'image_url': 'https://deli770.com/wp-content/uploads/2024/07/Smoked-Meat-.png',
     },
     {
         'name': 'Deli Boyz',
@@ -1585,6 +1630,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Cote-Saint-Luc,Hampstead,Snowdon',
+        'image_url': 'https://restaurantdeliboyz.com/wp-content/uploads/2023/12/Combo-poulet-BBQ-BBQ-Chicken-Combo-1.png',
     },
     {
         'name': 'Chiyoko',
@@ -1597,6 +1643,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Saint-Laurent,Cote-des-Neiges,Town of Mount Royal',
+        'image_url': 'https://static.wixstatic.com/media/98cfe8_de8423a9d5634a47871ef721c1a9c0bb~mv2_d_3888_2592_s_4_2.jpg/v1/fit/w_480,h_321,q_90,enc_avif,quality_auto/98cfe8_de8423a9d5634a47871ef721c1a9c0bb~mv2_d_3888_2592_s_4_2.jpg',
     },
     {
         'name': 'LeFalafel Plus',
@@ -1622,6 +1669,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Saint-Laurent,Cote-des-Neiges,Town of Mount Royal',
+        'image_url': '',
     },
     {
         'name': 'Pizza Pita Prime',
@@ -1634,6 +1682,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Snowdon,Cote-des-Neiges,Cote-Saint-Luc,Hampstead',
+        'image_url': '',
     },
     # Gift Baskets
     {
@@ -1648,6 +1697,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'MK',
         'delivery': 1,
         'delivery_area': 'Montreal,Canada-wide',
+        'image_url': 'http://giftingkosher.ca/cdn/shop/files/DecadentFlourlessChocolateCake_600x.png?v=1745435270',
     },
     # ── Jordana additions — Mar 12, 2026 (food vendors, NOT gift) ──
     {
@@ -1661,6 +1711,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'not_certified',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://mevamekitchenexpress.ca/wp-content/themes/mevamekitchenexpress/assets/img/menu/2022/variety_plates.webp',
     },
     # Orly's Kitchen duplicate removed — original entry at line ~326 with full details
     # Umami Sushi already exists above (line ~945) with full details — removed duplicate
@@ -1675,6 +1726,7 @@ MONTREAL_VENDORS = [
         'kosher_status': 'COR',
         'delivery': 1,
         'delivery_area': 'Toronto',
+        'image_url': 'https://pantryfoods.ca/img/background1.jpg',
     },
 ]
 
