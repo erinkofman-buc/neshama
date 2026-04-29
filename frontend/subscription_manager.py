@@ -81,6 +81,9 @@ class EmailSubscriptionManager:
         if 'locations' not in columns:
             cursor.execute("ALTER TABLE subscribers ADD COLUMN locations TEXT DEFAULT 'toronto,montreal'")
             logging.info(" DB migration: added 'locations' column to subscribers")
+        if 'source' not in columns:
+            cursor.execute("ALTER TABLE subscribers ADD COLUMN source TEXT DEFAULT NULL")
+            logging.info(" DB migration: added 'source' column to subscribers (lead-magnet attribution)")
 
         # Create index for faster lookups
         cursor.execute('''
@@ -577,7 +580,142 @@ class EmailSubscriptionManager:
 
         except Exception as e:
             logging.error(f" Failed to send already-subscribed email: {str(e)}")
-    
+
+    # ── Lead-magnet flow ─────────────────────────────────────
+    # Lead-magnet subscribers skip double opt-in: the offer is the PDF and they
+    # need it now. Confirmed=TRUE on insert, source tag for analytics, send the
+    # welcome with the PDF link immediately.
+
+    def subscribe_to_lead_magnet(self, email, source='lead-magnet-shiva-guide'):
+        """Subscribe via lead magnet — immediate confirmation, no double opt-in.
+        Returns: {'status': 'success'/'error', 'message': '...'}"""
+        email = (email or '').lower().strip()
+
+        # Rate limit (same as regular subscribe): max 3 per email per 10 minutes
+        now = datetime.now()
+        attempts = self._subscribe_attempts.get(email, [])
+        attempts = [t for t in attempts if (now - t).total_seconds() < 600]
+        if len(attempts) >= 3:
+            return {'status': 'error', 'message': 'Too many attempts. Please try again in a few minutes.'}
+        attempts.append(now)
+        self._subscribe_attempts[email] = attempts
+
+        if not re.match(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$', email):
+            return {'status': 'error', 'message': 'Please enter a valid email address.'}
+
+        # Sanitize source tag — short, alphanumeric+dashes only, capped length
+        source = re.sub(r'[^a-zA-Z0-9_-]', '', (source or 'lead-magnet').strip())[:64] or 'lead-magnet'
+
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        cursor = conn.cursor()
+        try:
+            now_iso = now.isoformat()
+            # INSERT OR IGNORE: if email already subscribed, just resend the welcome
+            cursor.execute('''
+                INSERT OR IGNORE INTO subscribers
+                (email, confirmed, subscribed_at, confirmed_at, frequency, locations, source)
+                VALUES (?, TRUE, ?, ?, 'weekly', 'toronto,montreal', ?)
+            ''', (email, now_iso, now_iso, source))
+            inserted = cursor.rowcount > 0
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            logging.error(f"[LeadMagnet] DB error for {email}: {e}")
+            return {'status': 'error', 'message': 'Something went wrong. Please try again.'}
+        conn.close()
+
+        # Always send the welcome+PDF — new subscribers AND repeat clicks
+        try:
+            self.send_lead_magnet_welcome_email(email)
+        except Exception as e:
+            logging.error(f"[LeadMagnet] Email send failed for {email}: {e}")
+            # Don't fail the request — they're subscribed. They can re-request.
+
+        msg = 'Check your email — your guide is on the way.' if inserted \
+            else 'You were already on our list. Sending your guide again now.'
+        return {'status': 'success', 'message': msg}
+
+    def send_lead_magnet_welcome_email(self, email):
+        """Send The Shiva Guide PDF link as a warm welcome email.
+        PDF is linked (not attached) — simpler delivery, no attachment-size concerns,
+        and the link works as a re-download anytime."""
+        if not self.sendgrid_api_key:
+            logging.info(f"[LeadMagnet] TEST MODE — would send Shiva Guide welcome to {email}")
+            logging.info(f"[LeadMagnet] PDF link would be: https://neshama.ca/shiva-guide.pdf")
+            return
+
+        pdf_url = "https://neshama.ca/shiva-guide.pdf"
+        landing_url = "https://neshama.ca/shiva-guide"
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background:#ffffff; -webkit-font-smoothing:antialiased;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:40px 20px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px; width:100%;">
+
+    <tr><td style="padding-bottom:32px; border-bottom:1px solid #e8e0d8;">
+        <span style="font-family:Georgia,'Times New Roman',serif; font-size:22px; color:#3E2723; letter-spacing:0.02em;">Neshama</span>
+    </td></tr>
+
+    <tr><td style="padding:32px 0; font-family:Georgia,'Times New Roman',serif; font-size:16px; line-height:1.7; color:#3E2723;">
+        <p style="margin:0 0 20px 0;">Thank you for downloading The Shiva Guide.</p>
+
+        <p style="margin:0 0 28px 0;">Save it somewhere you'll find it later — your phone, your saved files, your inbox starred folder. The most useful time to read it is before you need to.</p>
+
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 32px 0;">
+        <tr><td style="background-color:#D2691E; border-radius:4px;">
+            <a href="{pdf_url}" style="display:inline-block; padding:13px 32px; font-family:Georgia,'Times New Roman',serif; font-size:15px; color:#ffffff; text-decoration:none; letter-spacing:0.02em;">Download The Shiva Guide (PDF)</a>
+        </td></tr>
+        </table>
+
+        <p style="margin:0 0 14px 0;">A few things to know:</p>
+
+        <p style="margin:0 0 14px 0;">&middot; If a friend or family member is sitting shiva right now, the meal coordination tool at <a href="https://neshama.ca/shiva/organize" style="color:#D2691E;">neshama.ca/shiva/organize</a> takes about five minutes to set up. It saves families from the lasagna pile-up.</p>
+
+        <p style="margin:0 0 14px 0;">&middot; If you'd like to set a yahrzeit reminder for someone you love, you can do that at <a href="https://neshama.ca/yahrzeit" style="color:#D2691E;">neshama.ca/yahrzeit</a>.</p>
+
+        <p style="margin:0 0 28px 0;">&middot; If you ever have a question, just reply to this email. We read every one.</p>
+
+        <p style="margin:0 0 8px 0;">Thank you for being part of this. Neshama exists because our community shows up for each other.</p>
+
+        <p style="margin:0 0 4px 0;">Warmly,</p>
+        <p style="margin:0 0 28px 0;">Jordana &amp; Erin<br><span style="color:#9e9488; font-size:14px;">Founders, Neshama</span></p>
+
+        <p style="margin:0; font-size:13px; color:#9e9488; line-height:1.6;">P.S. If this guide is useful to someone you know, please share it. The PDF is yours to forward freely, or send them to <a href="{landing_url}" style="color:#9e9488;">{landing_url}</a>.</p>
+    </td></tr>
+
+    <tr><td style="padding-top:28px; border-top:1px solid #e8e0d8;">
+        <p style="margin:0; font-family:Georgia,'Times New Roman',serif; font-size:13px; color:#9e9488; line-height:1.6;">Neshama &middot; Toronto, ON &middot; <a href="mailto:contact@neshama.ca" style="color:#9e9488;">contact@neshama.ca</a></p>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+        try:
+            plain_text = _html_to_plain(html_content)
+            message = Mail(
+                from_email=Email(self.from_email, self.from_name),
+                to_emails=To(email),
+                subject='Your Shiva Guide is here',
+                plain_text_content=Content(MimeType.text, plain_text),
+                html_content=Content(MimeType.html, html_content)
+            )
+            sg = SendGridAPIClient(self.sendgrid_api_key)
+            sg.send(message)
+            logging.info(f"[LeadMagnet] Welcome+PDF email sent to {email}")
+        except Exception as e:
+            logging.error(f"[LeadMagnet] SendGrid send error for {email}: {e}")
+            raise
+
     def get_confirmed_subscribers(self):
         """Get list of all confirmed subscribers"""
         conn = sqlite3.connect(self.db_path, timeout=30)

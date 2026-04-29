@@ -531,8 +531,16 @@
             } else {
                 button.disabled = false;
                 button.textContent = 'Send me the guide';
-                const data = await response.json().catch(function() { return {}; });
-                errorMsg.textContent = data.error || 'Something went wrong. Please try again or email contact@neshama.ca.';
+                let errorText = 'Something went wrong. Please try again or email contact@neshama.ca.';
+                try {
+                    const data = await response.json();
+                    if (typeof data.message === 'string' && data.message.length) {
+                        errorText = data.message;
+                    } else if (typeof data.error === 'string' && data.error.length) {
+                        errorText = data.error;
+                    }
+                } catch(e) { /* keep default */ }
+                errorMsg.textContent = errorText;
                 errorMsg.style.display = 'block';
             }
         } catch (err) {
