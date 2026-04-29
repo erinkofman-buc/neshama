@@ -280,6 +280,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
         '/shiva/guide': ('shiva-guide.html', 'text/html'),
         '/shiva-guide.html': ('shiva-guide.html', 'text/html'),
+        '/shiva-guide': ('the-shiva-guide.html', 'text/html'),
+        '/the-shiva-guide.html': ('the-shiva-guide.html', 'text/html'),
+        '/shiva-guide.pdf': ('the-shiva-guide.pdf', 'application/pdf'),
+        '/the-shiva-guide.pdf': ('the-shiva-guide.pdf', 'application/pdf'),
         '/shiva/caterers': ('shiva-caterers.html', 'text/html'),
         '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
         '/shiva/caterers/apply': ('shiva-caterer-apply.html', 'text/html'),
@@ -514,13 +518,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_subscribers()
         elif path == '/admin/unlock-db':
             self.handle_admin_unlock_db()
-        # Redirects
-        elif path == '/shiva-guide':
-            self.send_response(301)
-            self.send_header('Location', '/what-to-bring-to-a-shiva')
-            self.end_headers()
-            self._log_request('GET', path, 301, _req_start)
-            return
+        # Redirects (none currently — /shiva-guide now serves The Shiva Guide lead-magnet landing page)
         # City landing pages (e.g. /toronto, /south-florida)
         elif VENDORS_AVAILABLE and path.strip('/') in get_city_slugs():
             self.serve_city_landing(path.strip('/'))
