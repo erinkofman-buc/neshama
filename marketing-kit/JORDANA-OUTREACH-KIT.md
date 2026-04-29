@@ -239,6 +239,30 @@ Auto-refreshes every 60 seconds. Works on mobile.
 
 All copy-paste ready. Organized by channel.
 
+### 🆕 The Shiva Guide PDF — Launching Apr 30 / May 1
+
+We're launching a free PDF lead magnet — **The Shiva Guide** — to capture email subscribers BEFORE they have an active grief need. When someone downloads it, they enter our welcome email sequence and stay connected to the community. This is the "holding pattern" entry point, the missing piece that turns one-time visits into ongoing relationships.
+
+**Use these shares AFTER Apr 30 launch (when the PDF is live on neshama.ca):**
+
+**WhatsApp — community groups:**
+
+> Sharing this in case it's useful — a free guide for our community on what to do when someone passes away. Funeral home contacts, how shiva works, what to bring, what to say.
+>
+> The most useful time to read it is before you need to.
+>
+> neshama.ca
+
+**WhatsApp — personal contacts:**
+
+> Hey [name] — Erin and I just put together a free PDF with everything you need to know about shiva — who to call, what to bring, what to say. Save it for the day you'll (sadly) need it, or share it with someone who already does. neshama.ca
+
+**Why this works:** It's a *give*, not an *ask*. You're sharing something useful, not promoting Neshama. The PDF does the introduction for you.
+
+**Full distribution playbook for all 7 platforms** (IG carousel, IG single, FB post, WhatsApp, email, Substack, LinkedIn): vault path `01-Projects/Neshama/Marketing/lead-magnet-atomized-2026-04-28.md`
+
+---
+
 ### WhatsApp Groups — Casual Drop
 
 Hey everyone, wanted to share something. My friend Erin built neshama.ca — it pulls together all the Jewish obituaries from the funeral home sites (Steeles, Benjamin's, Paperman's) so you're not checking three different places. There's also a tool to sign up to bring meals during shiva so you don't end up with 6 people on Monday and nobody on Thursday. Free, no sign-up. Worth bookmarking before you need it. neshama.ca

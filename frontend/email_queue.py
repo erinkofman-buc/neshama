@@ -74,6 +74,28 @@ def _format_date(date_str):
         return date_str
 
 
+def _first_word_titled(name):
+    """First word of a name, stripped + title-cased.
+    Returns 'Friend' for empty/None. Prevents lowercase 'erin' in personalization."""
+    if not name or not name.strip():
+        return 'Friend'
+    return name.strip().split()[0].title()
+
+
+def _normalize_family(name):
+    """Normalize family name for templates that wrap with 'the ... family'.
+    Strips leading 'The ' and trailing ' Family' so 'the cohen family' renders as
+    'Cohen' (template re-adds 'the ... family')."""
+    if not name:
+        return name
+    n = name.strip().title()
+    if n.startswith('The '):
+        n = n[4:].strip()
+    if n.endswith(' Family'):
+        n = n[:-7].strip()
+    return n
+
+
 def _send_via_sendgrid(sendgrid_key, to_email, to_name, subject, html_content):
     """Send one email via SendGrid. Returns (success, sendgrid_message_id, error_msg)."""
     plain_text = _html_to_plain(html_content)
@@ -106,7 +128,7 @@ def _send_via_sendgrid(sendgrid_key, to_email, to_name, subject, html_content):
 
 def _day_before_reminder_html(vol_name, meal_type, meal_date, family_name,
                                address, drop_off_instructions, support_id=None):
-    first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
+    first = html_mod.escape(_first_word_titled(vol_name))
     instructions_block = ''
     if drop_off_instructions:
         instructions_block = f'''
@@ -145,7 +167,7 @@ def _day_before_reminder_html(vol_name, meal_type, meal_date, family_name,
 
 def _morning_of_reminder_html(vol_name, meal_type, meal_date, family_name,
                                address, drop_off_instructions, support_id=None):
-    first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
+    first = html_mod.escape(_first_word_titled(vol_name))
     instructions_block = ''
     if drop_off_instructions:
         instructions_block = f'''
@@ -247,7 +269,7 @@ def _daily_summary_html(family_name, today_str, summary_data, shiva_url):
 
 def _guestbook_digest_html(organizer_name, family_name, new_count, breakdown, memorial_url):
     """Guestbook digest email — warm summary of new tributes for the organizer."""
-    first = html_mod.escape(organizer_name.split()[0]) if organizer_name else 'Friend'
+    first = html_mod.escape(_first_word_titled(organizer_name))
     # Build breakdown line: e.g. "3 condolences, 1 memory, 1 candle lit"
     parts = []
     for entry_type, count in breakdown.items():
@@ -292,7 +314,7 @@ def _guestbook_digest_html(organizer_name, family_name, new_count, breakdown, me
 
 
 def _thank_you_html(vol_name, family_name, shiva_url):
-    first = html_mod.escape(vol_name.split()[0]) if vol_name else 'Friend'
+    first = html_mod.escape(_first_word_titled(vol_name))
     return _email_wrapper(f"""
     <div style="text-align:center;margin-bottom:1.5rem;">
         <h1 style="font-size:1.8rem;font-weight:400;color:#3E2723;margin:0;">Thank You, {first}</h1>
@@ -418,6 +440,7 @@ def _process_day_before_reminders(cursor, sendgrid_key, now_toronto):
     for row in rows:
         signup_id, vol_name, vol_email, meal_type, meal_date, support_id, \
             family_name, address, city, drop_off = row
+        family_name = _normalize_family(family_name)
         if city:
             address = f'{address}, {city}'
 
@@ -461,6 +484,7 @@ def _process_morning_of_reminders(cursor, sendgrid_key, now_toronto):
     for row in rows:
         signup_id, vol_name, vol_email, meal_type, meal_date, support_id, \
             family_name, address, city, drop_off = row
+        family_name = _normalize_family(family_name)
         if city:
             address = f'{address}, {city}'
 
@@ -499,6 +523,7 @@ def _process_uncovered_alerts(cursor, sendgrid_key, now_toronto):
     for shiva in shivas:
         shiva_id, family_name, org_email, org_name, start_date, end_date, \
             notif_prefs, magic_token = shiva
+        family_name = _normalize_family(family_name)
 
         # Check notification preference
         try:
@@ -577,6 +602,7 @@ def _process_daily_summaries(cursor, sendgrid_key, now_toronto):
     for shiva in shivas:
         shiva_id, family_name, org_email, org_name, start_date, end_date, \
             notif_prefs, magic_token = shiva
+        family_name = _normalize_family(family_name)
 
         try:
             import json as _json
@@ -661,6 +687,7 @@ def _process_guestbook_digests(cursor, sendgrid_key, now_toronto):
     for shiva in shivas:
         shiva_id, obituary_id, family_name, org_email, org_name, \
             notif_prefs, magic_token = shiva
+        family_name = _normalize_family(family_name)
 
         # Check notification preference
         try:
@@ -743,6 +770,7 @@ def _process_thank_yous(cursor, sendgrid_key, now_toronto):
     sent = 0
     for shiva in shivas:
         shiva_id, family_name, end_date = shiva
+        family_name = _normalize_family(family_name)
 
         # Dedup: skip if thank_you already sent for this shiva
         if _already_sent(cursor, shiva_id, 'thank_you'):
@@ -833,6 +861,7 @@ def _rebuild_email_for_retry(cursor, shiva_id, email_type, recipient_email,
     if not shiva:
         return None, None
     family_name, address, city, drop_off, magic_token = shiva
+    family_name = _normalize_family(family_name)
     if city:
         address = f'{address}, {city}'
     base_url = os.environ.get('BASE_URL', 'https://neshama.ca')
@@ -1001,7 +1030,7 @@ def _process_welcome_drips(cursor, sendgrid_key, now_toronto):
             continue
 
         html = _welcome_drip_day3_html().replace('{{email}}', email)
-        subject = 'Three ways to help when someone is grieving'
+        subject = 'Four ways to show up when someone is grieving'
         email_id = _log_email(cursor, 'welcome_drip', 'welcome_drip_day3', email, None)
         ok, msg_id, err = _send_via_sendgrid(sendgrid_key, email, None, subject, html)
         if ok:

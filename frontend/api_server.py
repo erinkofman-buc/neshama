@@ -280,6 +280,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva-organize.html': ('shiva-organize.html', 'text/html'),
         '/shiva/guide': ('shiva-guide.html', 'text/html'),
         '/shiva-guide.html': ('shiva-guide.html', 'text/html'),
+        '/shiva-guide': ('the-shiva-guide.html', 'text/html'),
+        '/the-shiva-guide.html': ('the-shiva-guide.html', 'text/html'),
+        '/shiva-guide.pdf': ('the-shiva-guide.pdf', 'application/pdf'),
+        '/the-shiva-guide.pdf': ('the-shiva-guide.pdf', 'application/pdf'),
         '/shiva/caterers': ('shiva-caterers.html', 'text/html'),
         '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
         '/shiva/caterers/apply': ('shiva-caterer-apply.html', 'text/html'),
@@ -514,13 +518,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_admin_subscribers()
         elif path == '/admin/unlock-db':
             self.handle_admin_unlock_db()
-        # Redirects
-        elif path == '/shiva-guide':
-            self.send_response(301)
-            self.send_header('Location', '/what-to-bring-to-a-shiva')
-            self.end_headers()
-            self._log_request('GET', path, 301, _req_start)
-            return
+        # Redirects (none currently — /shiva-guide now serves The Shiva Guide lead-magnet landing page)
         # City landing pages (e.g. /toronto, /south-florida)
         elif VENDORS_AVAILABLE and path.strip('/') in get_city_slugs():
             self.serve_city_landing(path.strip('/'))
@@ -595,6 +593,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_yahrzeit_subscribe(body)
         elif path == '/api/subscribe':
             self.handle_subscribe(body)
+        elif path == '/api/lead-magnet/subscribe':
+            self.handle_lead_magnet_subscribe(body)
         elif path == '/api/unsubscribe-feedback':
             self.handle_unsubscribe_feedback(body)
         elif path == '/api/tributes':
@@ -1065,6 +1065,42 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_lead_magnet_subscribe(self, body):
+        """Handle The Shiva Guide lead-magnet email gate.
+        Skips double opt-in (delivers PDF immediately) and tags subscriber
+        with `source` for analytics. Welcome email goes via SendGrid with the
+        PDF link inline."""
+        try:
+            client_ip = self._get_client_ip()
+            if not _check_rate_limit(client_ip, 'lead-magnet', max_calls=5, window=300):
+                self._send_rate_limit_error()
+                return
+
+            data = json.loads(body)
+            email = (data.get('email') or '').strip().lower()
+            source = (data.get('source') or 'lead-magnet-shiva-guide').strip()
+
+            if not email or '@' not in email:
+                self.send_json_response({'status': 'error', 'message': 'Please enter a valid email.'}, 400)
+                return
+
+            if not EMAIL_AVAILABLE:
+                self.send_json_response({'status': 'error', 'message': 'Email service unavailable. Please email contact@neshama.ca for the guide.'}, 503)
+                return
+
+            result = subscription_mgr.subscribe_to_lead_magnet(email, source)
+            status_code = 200 if result.get('status') == 'success' else 400
+            self.send_json_response(result, status_code)
+
+            if result.get('status') == 'success' and SHIVA_AVAILABLE:
+                shiva_mgr._trigger_backup()
+
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid request.'}, 400)
+        except Exception as e:
+            logging.exception(f"[LeadMagnet] handler error: {e}")
             self.send_error_response(str(e))
 
     def handle_confirm(self, token):

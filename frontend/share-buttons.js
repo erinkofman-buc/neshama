@@ -28,6 +28,11 @@
         targets.forEach(renderShareBar);
     }
 
+    function addUtm(url, source) {
+        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+        return url + sep + 'utm_source=' + encodeURIComponent(source) + '&utm_medium=share';
+    }
+
     function defaultShortText(family, url) {
         var f = family ? ('The ' + family.replace(/^The\s+/i, '') + ' family') : 'The family';
         return f + ' is sitting shiva. Friends are organizing meals — sign up to bring one: ' + url;
@@ -52,11 +57,13 @@
 
         var url = target.getAttribute('data-share-url') || window.location.href;
         var family = target.getAttribute('data-share-family') || '';
-        var shortText = target.getAttribute('data-share-short-text') || defaultShortText(family, url);
+        var customShort = target.getAttribute('data-share-short-text');
+        var shortText = customShort || defaultShortText(family, url);                       // SMS keeps current behavior
+        var waText    = customShort || defaultShortText(family, addUtm(url, 'whatsapp'));   // WhatsApp gets UTM
         var emailSubject = target.getAttribute('data-share-email-subject') || defaultEmailSubject(family);
         var emailBody = target.getAttribute('data-share-email-body') || defaultEmailBody(family, url);
 
-        var waUrl = 'https://wa.me/?text=' + encodeURIComponent(shortText);
+        var waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
         var emailUrl = 'mailto:?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody);
         var smsUrl = 'sms:?&body=' + encodeURIComponent(shortText);
 
