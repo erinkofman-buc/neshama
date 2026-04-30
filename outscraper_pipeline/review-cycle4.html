@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neshama Vendor Photo Review — Jordana</title>
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --terracotta: #D2691E;
+    --brown: #3E2723;
+    --sage: #8A9A5B;
+    --border: #E8DDD0;
+    --pick: #2E7D32;
+    --reject: #C62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    margin: 0;
+    padding: 0 16px 120px;
+    line-height: 1.5;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    background: var(--cream);
+    padding: 16px 0 12px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 16px;
+    z-index: 100;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; color: var(--terracotta); }
+  .sub { font-size: 14px; color: var(--brown); opacity: 0.7; }
+  .progress {
+    font-size: 14px;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--sage);
+    transition: width 0.3s;
+  }
+  button.primary {
+    background: var(--terracotta);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  button.primary:hover { opacity: 0.9; }
+
+  .vendor {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .vendor h2 {
+    font-size: 17px;
+    margin: 0 0 2px;
+    color: var(--brown);
+  }
+  .meta {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  .meta a { color: var(--terracotta); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  .city-fix {
+    display: inline-block;
+    background: #FFF3E0;
+    color: #E65100;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+
+  .candidates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .candidate {
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--cream);
+  }
+  .candidate:hover { border-color: var(--sage); }
+  .candidate.picked {
+    border-color: var(--pick);
+    background: #E8F5E9;
+    box-shadow: 0 0 0 2px var(--pick);
+  }
+  .candidate img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f0f0f0;
+    display: block;
+  }
+  .candidate .lbl {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    text-align: center;
+  }
+  .none-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .none-option.picked {
+    background: #FFEBEE;
+    border-color: var(--reject);
+    border-style: solid;
+  }
+  .none-option input { margin: 0; }
+  .no-cand {
+    background: #FFF3E0;
+    border-left: 4px solid #E65100;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+  textarea.notes {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 40px;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 2px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+  }
+  .status {
+    font-size: 13px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Vendor Photo Review</h1>
+  <div class="sub">
+    38 vendors · 27 with photo options · 11 need new source
+  </div>
+  <div class="progress">
+    <span id="progress-text">0 / 38 reviewed</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</header>
+
+<main id="vendors"></main>
+
+<footer>
+  <span class="status" id="status">Picks auto-save to your browser. Safe to close and come back.</span>
+  <button class="primary" onclick="exportCSV()">Export picks as CSV</button>
+</footer>
+
+<script>
+const DATA = [{"vendor_name": "Sonny Langers Dairy & Vegetarian Caterers", "city": "180 Steeles Ave W Unit 12", "city_corrected": false, "city_original": null, "source_url": "http://www.sonnylangers.com", "candidates": ["http://www.sonnylangers.com/images/page_headers/home.gif", "http://www.sonnylangers.com/images/page_headers/services.gif", "http://www.sonnylangers.com/images/page_headers/sample_menu.gif"], "has_any": true}, {"vendor_name": "Mehadrin Meats", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://mehadrinmeats.ca", "candidates": ["https://mehudar.ca/api/content/images/uploads/EBE2382D-5045-40BA-BF15-DB0390E3D779_Delivery.jpg", "https://mehudar.ca/api/content/images/uploads/CD1DCA7F-5E75-47BC-ACE1-4D7B712EB461_Shabbos.jpg", "https://mehudar.ca/api/content/images/uploads/FD257B31-061D-4D07-A99F-B47BE4D1CEFA_Prime%20Canadian%20Beef.jpg"], "has_any": true}, {"vendor_name": "Montreal Kosher Bakery", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://montrealkosher.ca", "candidates": ["https://cdn-cookieyes.com/assets/images/revisit.svg", "https://cdn-cookieyes.com/assets/images/close.svg", "https://cdn-cookieyes.com/assets/images/poweredbtcky.svg"], "has_any": true}, {"vendor_name": "Snowdon Deli", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://www.snowdondeli.com", "candidates": ["https://uploads.bettysuite.com/snowdon-deli/inst.png", "https://uploads.bettysuite.com/snowdon-deli/fb.png", "https://uploads.bettysuite.com/snowdon-deli/swirl-motif.png"], "has_any": true}, {"vendor_name": "Zera Cafe", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://zeracafe.ca", "candidates": ["https://cdn.userway.org/widgetapp/images/spin_wh.svg", "https://cdn.userway.org/widgetapp/images/body_wh.svg", "https://zeracafe.ca/wp-content/uploads/2021/07/beneficiary-of-FCJA-02.png"], "has_any": true}, {"vendor_name": "Edible Arrangements", "city": "Multiple GTA locations", "city_corrected": false, "city_original": null, "source_url": "https://www.ediblearrangements.ca", "candidates": ["https://rescloud.ediblearrangements.com/image/upload/Creative-Marketing/site_support/assets/canadian_flag.webp", "https://rescloud.ediblearrangements.com/image/upload/v1776864244/banners/ED_MD_Promo-01_Web_H1_Desktop_10_5200x1440_v3.jpg", "https://rescloud.ediblearrangements.com/image/upload/v1749072257/Creative-Marketing/site_support/noimage_new.webp"], "has_any": true}, {"vendor_name": "Indigo", "city": "Multiple locations across Canada", "city_corrected": false, "city_original": null, "source_url": "https://www.indigo.ca", "candidates": ["https://assets.indigoimages.ca/transform/e88aab5d-427d-4154-b79b-7c9cb48288ee/Hero_FY27-WK05_HMR-MdayGifts___m_EN", "https://dynamic.indigoimages.ca/v1/books/books/1552674037/1.jpg?width=435&amp;maxHeight=435&amp;quality=85", "https://assets.indigoimages.ca/transform/43776662-c0b0-4696-a722-3a7789b080f3/ELP_FY27_pokemon-april__EN"], "has_any": true}, {"vendor_name": "Purdys Chocolatier", "city": "Multiple locations across Canada", "city_corrected": false, "city_original": null, "source_url": "https://www.purdys.com", "candidates": ["https://www.purdys.com/static/version1777475462/frontend/Purdys2/hyva/en_US/images/register-success-img.png"], "has_any": true}, {"vendor_name": "Ely's Fine Foods Gift Baskets", "city": "North York", "city_corrected": false, "city_original": null, "source_url": "https://elysfinefoods.com", "candidates": ["https://elysfinefoods.com/cdn/shop/files/004-spaguetti.png?v=1618237413", "https://elysfinefoods.com/cdn/shop/files/001-bread.png?v=1618237412", "https://elysfinefoods.com/cdn/shop/files/003-food-serving.png?v=1618237412"], "has_any": true}, {"vendor_name": "F + B Kosher Catering", "city": "North York", "city_corrected": false, "city_original": null, "source_url": "https://fbkosher.com", "candidates": ["https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Home-Background.jpg"], "has_any": true}, {"vendor_name": "Pancer's Original Deli", "city": "North York", "city_corrected": false, "city_original": null, "source_url": "http://www.pancersoriginaldeli.com", "candidates": ["https://static.wixstatic.com/media/ccc15e_a59923da2656400984c425b7afb4ce04.png/v1/fit/w_2500,h_1330,al_c/ccc15e_a59923da2656400984c425b7afb4ce04.png", "https://static.wixstatic.com/media/ccc15e_52ab9209516d44c295dd9fbe4c09621b.jpg/v1/crop/x_4,y_20,w_154,h_166/fill/w_214,h_232,al_c,lg_1,q_80,enc_avif,quality_auto/ccc15e_52ab9209516d44c295dd9fbe4c09621b.jpg", "https://static.wixstatic.com/media/ccc15e_5447a82e0d044003aa6ff3afe600deaa~mv2.png/v1/fill/w_307,h_121,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/frame555_edited_edited.png"], "has_any": true}, {"vendor_name": "Hickory Farms", "city": "Online + seasonal retail locations", "city_corrected": false, "city_original": null, "source_url": "https://www.hickoryfarms.com", "candidates": ["https://www.hickoryfarms.com/images/homepage/B-Features/005182_BCreative_410x310.jpg$staticlink$"], "has_any": true}, {"vendor_name": "Baskets Galore", "city": "Online — ships Canada-wide", "city_corrected": false, "city_original": null, "source_url": "https://basketsgalore.com", "candidates": ["https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-infobar-close.svg", "https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-star-white.svg", "https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-heart-white.svg"], "has_any": true}, {"vendor_name": "Wolferman's Bakery", "city": "Online — ships North America", "city_corrected": false, "city_original": null, "source_url": "https://www.wolfermans.com", "candidates": ["https://www.wolfermans.com/chat/floraChatJuly2025.svg", "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/bltd703eea967bed839/69dfd32e8c1f8943d0172519/More_Ways_to_Make.svg?auto=pjpg", "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/bltc315e8ab80ccab8a/679c00fb5b90ca4f634e5f71/Large_Black_Shop_Now.svg?auto=pjpg"], "has_any": true}, {"vendor_name": "Beyond Delish", "city": "Richmond Hill", "city_corrected": false, "city_original": null, "source_url": "https://www.beyonddelish.ca", "candidates": ["https://www.beyonddelish.ca/_next/image?url=%2Fcharoset-front-page-image.jpg&amp;w=3840&amp;q=90"], "has_any": true}, {"vendor_name": "Pizza Gourmetti", "city": "Saint-Laurent", "city_corrected": false, "city_original": null, "source_url": "https://www.pizzagourmetti.com", "candidates": ["https://www.pizzagourmetti.com/images/plate-fork-knife.png"], "has_any": true}, {"vendor_name": "Howie T's Burger Bar", "city": "Thornhill", "city_corrected": false, "city_original": null, "source_url": "https://howiets.ca", "candidates": ["https://howiets.ca/wp-content/uploads/2025/09/Group-21678.png"], "has_any": true}, {"vendor_name": "Cheese Boutique", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.cheeseboutique.com", "candidates": ["https://cdn.sanity.io/images/dmwz2ivl/production/230ceb83b91227e5634de8e59e284d5adb93f0b4-364x364.png?w=360&amp;auto=format", "https://cdn.sanity.io/images/dmwz2ivl/production/19068ed5c985e2d053fed3c6dcfdc754c6ef4798-364x364.png?w=360&amp;auto=format", "https://cdn.sanity.io/images/dmwz2ivl/production/6f8e1fc9c22236e01794f214b2b6d2b24666ea65-364x364.png?w=360&amp;auto=format"], "has_any": true}, {"vendor_name": "Dr. Laffa", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://drlaffa.com/", "candidates": ["https://drlaffa.com/wp-content/uploads/2020/12/Cropped_Dr-Laffa-Engagement-Photography-Toronto1.jpg", "https://drlaffa.com/wp-content/uploads/2020/12/bbbq-free-img.png", "https://drlaffa.com/wp-content/uploads/2020/12/divider-free-img-1.png"], "has_any": true}, {"vendor_name": "Fruitate", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://fruitate.com/", "candidates": ["https://fruitate.com/cdn/shop/t/5/assets/loader.gif?v=38408244440897529091485031957", "https://fruitate.com/cdn/shop/files/Delicate_840x780_840x.jpg?v=1613571453", "https://fruitate.com/cdn/shop/files/Happy_Birthday_840x780_840x.jpg?v=1613570183"], "has_any": true}, {"vendor_name": "Levy's Catering", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.levyskoshercatering.com", "candidates": ["http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"], "has_any": true}, {"vendor_name": "Nortown Foods", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.nortownfoods.com", "candidates": ["https://www.nortownfoods.com/pictures/banners/image14.jpg", "https://www.nortownfoods.com/user_files/upload/Header%20575px(1).jpg", "https://www.nortownfoods.com/img/location_link1.png"], "has_any": true}, {"vendor_name": "Pizza Cafe", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.pizzacafe.ca", "candidates": ["https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu1.jpg?resize=1024%2C576", "https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu3.jpg?resize=1024%2C576", "https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu2.jpg?resize=1024%2C576"], "has_any": true}, {"vendor_name": "Pusateri's Fine Foods", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.pusateris.com", "candidates": ["https://pusaterisit-erp-production-18817983.dev.odoo.com/web/image/2057-c69ebfaa/Avenue_Road_1.jpg", "https://www.pusateris.com/web/image/2169-dfc6850c/Catering_Events_4.webp", "https://www.pusateris.com/web/image/website.library_image_03"], "has_any": true}, {"vendor_name": "Sushi Inn", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.sushiinn.net/", "candidates": ["https://imagedelivery.net/aPDHOWLzkdlEAMvg3YLQug/production-jot0zy7i1il4xwwoi9pyvfmv0bxy/blur=1,fit=contain,width=32", "https://imagedelivery.net/aPDHOWLzkdlEAMvg3YLQug/production-924uoxyg52eqveaepid9l1e68r5t/blur=1,fit=contain,width=32", "https://imagedelivery.net/aPDHOWLzkdlEAMvg3YLQug/production-l9xicbu087fbaefq33jvkgawmjxs/blur=1,fit=contain,width=32"], "has_any": true}, {"vendor_name": "Tov-Li Pizza & Falafel", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://tov-li.com/", "candidates": ["https://tov-li.com/img/icon-close.png", "https://tov-li.com/img/icon-pin.png"], "has_any": true}, {"vendor_name": "Zelden's Deli and Desserts", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "http://www.zeldensdelianddesserts.com", "candidates": ["http://zeldensdelianddesserts.com/wp-content/uploads/2023/10/Zeldens_front-sign.jpg", "http://zeldensdelianddesserts.com/wp-content/uploads/2020/01/ruben-300x300.jpg", "http://zeldensdelianddesserts.com/wp-content/uploads/2020/01/platter.jpg"], "has_any": true}, {"vendor_name": "Adar", "city": "Côte-Saint-Luc", "city_corrected": false, "city_original": null, "source_url": "https://www.adar.ca", "candidates": [], "has_any": false}, {"vendor_name": "Pizza Pita Prime", "city": "Montreal", "city_corrected": false, "city_original": null, "source_url": "https://pizzapitaprime.order-online.ai/", "candidates": [], "has_any": false}, {"vendor_name": "Europea", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://jeromeferrer.ca/en/", "candidates": [], "has_any": false}, {"vendor_name": "JoJos Pizza", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://www.umamisushi.ca/", "candidates": [], "has_any": false}, {"vendor_name": "Pizza Pita", "city": "Montréal", "city_corrected": false, "city_original": null, "source_url": "https://pizzapitaprime.order-online.ai/", "candidates": [], "has_any": false}, {"vendor_name": "Baskets n' Stuf", "city": "North York", "city_corrected": false, "city_original": null, "source_url": "https://orly-grill.com/", "candidates": [], "has_any": false}, {"vendor_name": "AB Cookies", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "", "candidates": [], "has_any": false}, {"vendor_name": "Good Person Biscotti", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "", "candidates": [], "has_any": false}, {"vendor_name": "Haymishe Bakery", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "https://www.instagram.com/haymishebakeryto/", "candidates": [], "has_any": false}, {"vendor_name": "Skye Dough Cookies", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "", "candidates": [], "has_any": false}, {"vendor_name": "Zuchter Berk Kosher Caterers", "city": "Toronto", "city_corrected": false, "city_original": null, "source_url": "http://www.zbcaterers.com", "candidates": [], "has_any": false}];
+const STORAGE_KEY = 'jordana-vendor-picks-cycle4';
+const picks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+function savePicks() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(picks));
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = DATA.length;
+  const done = Object.keys(picks).filter(k => picks[k] && picks[k].choice !== undefined).length;
+  document.getElementById('progress-text').textContent = done + ' / ' + total + ' reviewed';
+  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+}
+
+function pickImage(vendorName, index) {
+  picks[vendorName] = picks[vendorName] || {};
+  picks[vendorName].choice = index;
+  picks[vendorName].picked_url = DATA.find(v => v.vendor_name === vendorName).candidates[index] || '';
+  savePicks();
+  render();
+}
+
+function pickNone(vendorName) {
+  picks[vendorName] = picks[vendorName] || {};
+  picks[vendorName].choice = 'none';
+  picks[vendorName].picked_url = '';
+  savePicks();
+  render();
+}
+
+function updateNote(vendorName, note) {
+  picks[vendorName] = picks[vendorName] || {};
+  picks[vendorName].note = note;
+  savePicks();
+}
+
+function escapeHTML(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render() {
+  const container = document.getElementById('vendors');
+  container.innerHTML = DATA.map(v => {
+    const p = picks[v.vendor_name] || {};
+    const cityFix = v.city_corrected
+      ? `<span class="city-fix">CITY FIX: ${escapeHTML(v.city_original)} → ${escapeHTML(v.city)}</span>`
+      : '';
+
+    let body;
+    if (!v.has_any) {
+      body = `<div class="no-cand">⚠️ No usable candidates found. You'll need to source a new photo manually.</div>`;
+    } else {
+      const cards = v.candidates.map((url, i) => {
+        const picked = p.choice === i ? ' picked' : '';
+        return `<div class="candidate${picked}" onclick="pickImage(${escapeHTML(JSON.stringify(v.vendor_name))}, ${i})">
+          <img src="${escapeHTML(url)}" alt="candidate ${i+1}" loading="lazy" onerror="this.style.background='#fde';this.alt='(image failed to load)'">
+          <div class="lbl">Option ${i+1}</div>
+        </div>`;
+      }).join('');
+      body = `<div class="candidates">${cards}</div>`;
+    }
+
+    const nonePicked = p.choice === 'none' ? ' picked' : '';
+    const noneLabel = v.has_any
+      ? 'None of these work — need a new photo'
+      : 'Confirmed — need to source manually';
+
+    return `<div class="vendor">
+      <h2>${escapeHTML(v.vendor_name)}${cityFix}</h2>
+      <div class="meta">
+        ${escapeHTML(v.city)}
+        ${v.source_url ? ` · <a href="${escapeHTML(v.source_url)}" target="_blank" rel="noopener">source page ↗</a>` : ''}
+      </div>
+      ${body}
+      <label class="none-option${nonePicked}">
+        <input type="checkbox" ${p.choice === 'none' ? 'checked' : ''} onchange="pickNone(${escapeHTML(JSON.stringify(v.vendor_name))})">
+        <span>${noneLabel}</span>
+      </label>
+      <textarea class="notes" placeholder="Optional note (e.g. 'logo only', 'wrong vendor')..." onchange="updateNote(${escapeHTML(JSON.stringify(v.vendor_name))}, this.value)">${escapeHTML(p.note || '')}</textarea>
+    </div>`;
+  }).join('');
+  updateProgress();
+}
+
+function exportCSV() {
+  const rows = [['Vendor Name', 'City', 'City Corrected', 'Choice', 'Picked URL', 'Source Page', 'Note']];
+  DATA.forEach(v => {
+    const p = picks[v.vendor_name] || {};
+    let choiceLabel = '';
+    if (p.choice === 'none') choiceLabel = 'NEEDS NEW SOURCE';
+    else if (typeof p.choice === 'number') choiceLabel = 'Option ' + (p.choice + 1);
+    rows.push([
+      v.vendor_name,
+      v.city,
+      v.city_corrected ? 'YES (was ' + v.city_original + ')' : '',
+      choiceLabel,
+      p.picked_url || '',
+      v.source_url || '',
+      p.note || '',
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => {
+    const s = String(c ?? '');
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const ts = new Date().toISOString().slice(0,10);
+  a.download = `vendor-photo-picks-${ts}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+render();
+</script>
+
+</body>
+</html>
