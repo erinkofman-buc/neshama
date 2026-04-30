@@ -6827,6 +6827,33 @@ def run_server(port=None):
         except Exception as e:
             logging.info(f" Migration caterer-partners-dedup: {e}")
 
+        # Migration 2026-04-30: Correct wrong-vendor website URLs in vendors table
+        # seed_vendors.py edits only affect FRESH seeds. Existing prod rows still
+        # carry the wrong URLs surfaced during today's photo audit (Baskets n' Stuf
+        # photos came back as a restaurant interior because seed pointed to a
+        # different business). UPDATE only triggers when the row currently has the
+        # known-wrong URL — idempotent and a no-op if already corrected manually.
+        # Slugs verified against prod /api/vendors Apr 30 PM.
+        wrong_url_corrections = [
+            # (slug, wrong_url_currently_in_db, corrected_url_or_empty)
+            ('mattis-kitchen', 'https://bistrogrande.com/', ''),
+            ('orlys-kitchen',  'http://hermesbakery.com/',  'https://orlyskitchen.com/'),
+            ('baskets-n-stuf', 'https://orly-grill.com/',   ''),
+        ]
+        try:
+            url_fixed = 0
+            for slug, wrong, corrected in wrong_url_corrections:
+                cursor.execute(
+                    "UPDATE vendors SET website = ? WHERE slug = ? AND website = ?",
+                    (corrected, slug, wrong),
+                )
+                url_fixed += cursor.rowcount
+            if url_fixed:
+                conn.commit()
+                logging.info(f" Migrations: corrected {url_fixed} wrong-vendor website URL(s)")
+        except Exception as e:
+            logging.info(f" Migration vendor-wrong-url-fix: {e}")
+
         # Migration 2026-04-30 (Phase 1): Prune scraper_log + add indexes (one-shot, idempotent)
         # Background: scraper_log was 644K rows on prod, 98% health_check noise. Plan locked
         # at 01-Projects/Neshama/render-memory-fix-plan-2026-04-27.md. After this migration,
