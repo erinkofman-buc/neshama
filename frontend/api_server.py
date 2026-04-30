@@ -6854,6 +6854,27 @@ def run_server(port=None):
         except Exception as e:
             logging.info(f" Migration vendor-wrong-url-fix: {e}")
 
+        # Migration 2026-04-30 PM: Remove duplicate vendor rows (Erin's Apr 30 PM calls).
+        # Pizza Pita / Pizza Pita Prime share phone+address+URL → keep prime per Erin.
+        # Ely's Fine Foods / Ely's Fine Foods Gift Baskets share address+phone (single
+        # business, dual listing was unintentional) → keep just Ely's Fine Foods per Erin.
+        # Idempotent: re-running finds no rows once deleted.
+        duplicate_vendor_slugs = [
+            'pizza-pita',                    # keep pizza-pita-prime
+            'elys-fine-foods-gift-baskets',  # keep elys-fine-foods
+        ]
+        try:
+            placeholders_v = ','.join(['?'] * len(duplicate_vendor_slugs))
+            cursor.execute(
+                f"DELETE FROM vendors WHERE slug IN ({placeholders_v})",
+                duplicate_vendor_slugs,
+            )
+            if cursor.rowcount:
+                conn.commit()
+                logging.info(f" Migrations: removed {cursor.rowcount} duplicate vendor rows (Pizza Pita, Ely's Gift Baskets)")
+        except Exception as e:
+            logging.info(f" Migration vendor-dedup-apr30pm: {e}")
+
         # Migration 2026-04-30 (Phase 1): Prune scraper_log + add indexes (one-shot, idempotent)
         # Background: scraper_log was 644K rows on prod, 98% health_check noise. Plan locked
         # at 01-Projects/Neshama/render-memory-fix-plan-2026-04-27.md. After this migration,

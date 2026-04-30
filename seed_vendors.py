@@ -1746,18 +1746,8 @@ GIFT_VENDORS = [
         'delivery': 1,
         'delivery_area': 'GTA',
     },
-    {
-        'name': 'Ely\'s Fine Foods Gift Baskets',
-        'category': 'Gifts & Platters',
-        'description': 'Kosher shiva platters and fine food gift baskets from Ely\'s Fine Foods. COR-certified prepared meals, deli trays, and curated gift packages for mourning families.',
-        'address': '3537A Bathurst St, North York, ON',
-        'neighborhood': 'Bathurst Manor',
-        'phone': '(416) 782-3231',
-        'website': 'https://elysfinefoods.com',
-        'kosher_status': 'COR',
-        'delivery': 1,
-        'delivery_area': 'GTA',
-    },
+    # 'Ely\'s Fine Foods Gift Baskets' removed Apr 30 — duplicate of Ely's Fine Foods
+    # (same address + phone + website). Erin's call to keep just one listing.
     {
         'name': 'Nutcracker Sweet / Baskits',
         'category': 'Gifts & Platters',
@@ -2138,21 +2128,8 @@ GIFT_VENDORS = [
         'delivery_area': 'Montreal',
         'featured': 0,
     },
-    {
-        'name': 'Pizza Pita',
-        'category': 'Caterers',
-        'vendor_type': 'food',
-        'description': 'Long-standing Montreal kosher pizzeria and dairy restaurant. Pizza, pita, pasta, and Middle Eastern-style dairy dishes. MK certified. Dine-in, takeout, and delivery.',
-        'address': '5345 Avenue Vezina, Montréal, QC H3X 4A8',
-        'neighborhood': 'Montreal',
-        'phone': '(514) 731-7482',
-        'website': 'https://pizzapitaprime.order-online.ai/',
-        'instagram': '',
-        'kosher_status': 'MK',
-        'delivery': 1,
-        'delivery_area': 'Montreal',
-        'featured': 0,
-    },
+    # 'Pizza Pita' removed Apr 30 — duplicate of Pizza Pita Prime (same phone +
+    # address + website). Erin's call to keep prime.
     {
         'name': 'Zera Cafe',
         'category': 'Caterers',
