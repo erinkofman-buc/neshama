@@ -227,8 +227,8 @@
 <!-- Plant a Tree Banner -->
 <div class="tree-banner" id="treeBanner" style="margin: 0 auto 1.5rem; padding-left: 1.5rem; padding-right: 1.5rem;">
     <h3>&#127795; Plant a Tree in Israel</h3>
-    <p>A living memorial through JNF Canada. A certificate is sent to the family. One of the most meaningful Jewish memorial traditions.</p>
-    <a href="https://jnf.ca/shop/treebank/?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener">Plant a Tree &rarr;</a>
+    <p>A living memorial through Friends of JNF Canada. A card is sent to the family. One of the most meaningful Jewish memorial traditions.</p>
+    <a href="https://www.friendsofjnfca.org/purchaseacard/?utm_source=neshama&utm_medium=referral&utm_campaign=gifts" target="_blank" rel="noopener">Plant a Tree &rarr;</a>
 </div>
 
 <div id="sectionedVendors">
@@ -561,10 +561,10 @@
         html += '<div class="vendor-badges">';
         if (v.featured) html += '<span class="badge badge-featured">Featured</span>';
         html += '<span class="badge badge-category">' + escapeHtml(v.category) + '</span>';
-        if (v.kosher_status === 'COR') {
-            html += '<span class="badge badge-kosher">COR Certified</span>';
-        } else if (v.kosher_status === 'MK') {
-            html += '<span class="badge badge-kosher">MK Certified</span>';
+        // Apr 29 2026: binary kosher per feedback_no_kosher_style. Catches new 'Kosher' value
+        // and legacy 'COR'/'MK'/'Kosher certified' until Saturday SQL migration.
+        if (v.kosher_status === 'Kosher' || v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.kosher_status === 'Kosher certified') {
+            html += '<span class="badge badge-kosher">Kosher</span>';
         }
         if (v.delivery_area) {
             html += '<span class="badge badge-delivery">' + escapeHtml(v.delivery_area) + '</span>';

@@ -26,18 +26,43 @@
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "The Shiva Guide",
-      "description": "Free guide to shiva — Jewish mourning customs, funeral homes, what to bring, what to say.",
+      "headline": "The Shiva Guide: A Free Resource for Jewish Families",
+      "alternativeHeadline": "What to Bring, What to Say, and What to Do During Shiva",
+      "description": "A free guide to shiva for Jewish families in Toronto and Montreal. Covers Jewish mourning customs, the four major funeral homes (Steeles, Benjamin's, Paperman's, Misaskim), what to bring to a shiva, what to say, what to avoid, and how shiva works across Conservative, Orthodox, Reform, and Reconstructionist families.",
       "image": "https://neshama.ca/og-image.png",
-      "author": { "@type": "Organization", "name": "Neshama" },
+      "url": "https://neshama.ca/shiva-guide",
+      "mainEntityOfPage": "https://neshama.ca/shiva-guide",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "author": { "@type": "Organization", "name": "Neshama", "url": "https://neshama.ca" },
       "publisher": {
         "@type": "Organization",
         "name": "Neshama",
         "logo": { "@type": "ImageObject", "url": "https://neshama.ca/og-image.png" }
       },
-      "datePublished": "2026-04-30",
-      "about": "Jewish mourning customs",
-      "audience": { "@type": "Audience", "audienceType": "Jewish community" }
+      "datePublished": "2026-04-28",
+      "dateModified": "2026-04-29",
+      "about": [
+        {"@type": "Thing", "name": "Shiva"},
+        {"@type": "Thing", "name": "Jewish mourning customs"},
+        {"@type": "Thing", "name": "Jewish funeral practices"}
+      ],
+      "keywords": ["shiva guide", "Jewish mourning", "shiva Toronto", "shiva Montreal", "Jewish funeral", "what to bring shiva", "what to say at shiva", "Jewish bereavement"],
+      "audience": { "@type": "Audience", "audienceType": "Jewish community in Toronto and Montreal" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "DigitalDocument",
+      "name": "The Shiva Guide",
+      "description": "Free downloadable PDF guide to shiva for Jewish families in Toronto and Montreal.",
+      "url": "https://neshama.ca/shiva-guide.pdf",
+      "encodingFormat": "application/pdf",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "Neshama" },
+      "datePublished": "2026-04-28"
     }
     </script>
 
@@ -412,7 +437,7 @@
         <header class="hero">
             <div class="hero-rule" aria-hidden="true"></div>
             <h1>The Shiva Guide</h1>
-            <p class="hero-subtitle">A free resource on Jewish mourning customs — what to bring, what to say, who to call.</p>
+            <p class="hero-subtitle">A free resource on Jewish mourning customs. What to bring, what to say, who to call.</p>
         </header>
 
         <section class="gate" id="lead-magnet-gate">
@@ -550,6 +575,25 @@
             errorMsg.style.display = 'block';
         }
     });
+    </script>
+
+    <!-- Referral tracking (matches index.html — fires on UTM or ref params) -->
+    <script>
+    (function(){
+        var params = new URLSearchParams(window.location.search);
+        var ref = params.get('ref') || params.get('utm_source');
+        if (ref) {
+            var key = 'neshama_ref_' + ref;
+            if (!sessionStorage.getItem(key)) {
+                sessionStorage.setItem(key, '1');
+                fetch('/api/track-referral', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ref: ref, page: window.location.pathname})
+                }).catch(function(){});
+            }
+        }
+    })();
     </script>
 </body>
 </html>

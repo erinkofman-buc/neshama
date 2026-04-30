@@ -9,7 +9,7 @@ class NeshamaApp {
         this.currentSource = localStorage.getItem('neshama_source') || 'all';
         this.searchQuery = '';
         this.allObituaries = [];
-        this.displayedCount = 5;
+        this.displayedCount = 20;
         this.tributeCounts = {};
         this.scrollObserver = null;
         this.userClickedTab = false;
@@ -108,7 +108,7 @@ class NeshamaApp {
         this.currentCity = e.target.dataset.city;
         localStorage.setItem('neshama_city', this.currentCity);
         this.setCityActive(this.currentCity);
-        this.displayedCount = 5;
+        this.displayedCount = 20;
         this.render();
     }
 
@@ -122,7 +122,7 @@ class NeshamaApp {
         this.currentSource = e.target.dataset.source;
         localStorage.setItem('neshama_source', this.currentSource);
         this.setSourceActive(this.currentSource);
-        this.displayedCount = 5;
+        this.displayedCount = 20;
         this.render();
     }
 
@@ -138,13 +138,13 @@ class NeshamaApp {
         this.currentTab = e.target.dataset.tab;
         this.userClickedTab = true;
         this.fallbackNotice = '';
-        this.displayedCount = 5;
+        this.displayedCount = 20;
         this.render();
     }
 
     handleSearch(e) {
         this.searchQuery = e.target.value.toLowerCase().trim();
-        this.displayedCount = 5;
+        this.displayedCount = 20;
         this.render();
     }
 
@@ -192,26 +192,22 @@ class NeshamaApp {
         // Auto-fallback only on initial load (not explicit user tab clicks)
         if (periodFiltered.length === 0 && filtered.length > 0 && !this.searchQuery && !this.userClickedTab) {
             var periods = ['today', 'week', 'month'];
-            var periodLabels = { today: 'in the last 24 hours', week: 'this week', month: 'this month' };
-            var originalTab = this.currentTab;
             var currentIdx = periods.indexOf(this.currentTab);
             if (currentIdx >= 0) {
                 for (var i = currentIdx + 1; i < periods.length; i++) {
                     periodFiltered = this.filterByPeriod(filtered, periods[i]);
                     if (periodFiltered.length > 0) {
                         this.currentTab = periods[i];
-                        this.fallbackNotice = 'No new listings ' + periodLabels[originalTab] + ' \u2014 showing ' + periodLabels[periods[i]];
                         document.querySelectorAll('.tab').forEach(function(t) {
                             t.classList.toggle('active', t.dataset.tab === periods[i]);
                         });
                         break;
                     }
                 }
-                // If all periods empty, show everything
+                // If all periods empty, show everything under "month"
                 if (periodFiltered.length === 0) {
                     periodFiltered = filtered;
                     this.currentTab = 'month';
-                    this.fallbackNotice = 'No new listings ' + periodLabels[originalTab] + ' \u2014 showing all recent listings';
                     document.querySelectorAll('.tab').forEach(function(t) {
                         t.classList.toggle('active', t.dataset.tab === 'month');
                     });
@@ -277,11 +273,6 @@ class NeshamaApp {
 
         const toDisplay = filtered.slice(0, this.displayedCount);
         var html = '';
-
-        // Show fallback notice if auto-escalation happened
-        if (this.fallbackNotice) {
-            html += '<div class="feed-notice">' + this.escapeHtml(this.fallbackNotice) + '</div>';
-        }
 
         // Render cards with inline email signup after 6th card
         for (var i = 0; i < toDisplay.length; i++) {
@@ -591,7 +582,7 @@ class NeshamaApp {
 // Load more functionality
 function loadMore() {
     if (window.app) {
-        window.app.displayedCount += 5;
+        window.app.displayedCount += 20;
         window.app.render();
     }
 }

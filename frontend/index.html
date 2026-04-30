@@ -59,6 +59,28 @@
       }
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Neshama",
+      "alternateName": "נשמה",
+      "url": "https://neshama.ca",
+      "logo": "https://neshama.ca/og-image.png",
+      "description": "Free community resource for Jewish families in Toronto and Montreal navigating shiva, funerals, and bereavement. Aggregated obituaries from Steeles, Benjamin's, Paperman's, and Misaskim, plus shiva meal coordination, vendor directory, and yahrzeit reminders.",
+      "areaServed": [
+        {"@type": "City", "name": "Toronto", "containedInPlace": {"@type": "AdministrativeArea", "name": "Ontario, Canada"}},
+        {"@type": "City", "name": "Montreal", "containedInPlace": {"@type": "AdministrativeArea", "name": "Quebec, Canada"}}
+      ],
+      "knowsAbout": ["Jewish mourning customs", "shiva", "yahrzeit", "kosher catering", "Hebrew calendar", "Jewish funeral practices"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@neshama.ca",
+        "contactType": "customer service",
+        "availableLanguage": ["English"]
+      }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
@@ -2294,6 +2316,7 @@
         <div class="hero-actions">
             <a href="/feed" class="hero-cta hero-cta-primary">Find an obituary</a>
             <a href="/shiva/organize" class="hero-cta hero-cta-secondary">Coordinate shiva meals</a>
+            <a href="/shiva-guide" class="hero-cta hero-cta-secondary">Read the Shiva Guide</a>
         </div>
     </section>
 
@@ -2330,7 +2353,6 @@
             <div class="filter-group">
                 <span class="filter-label">Period</span>
                 <div class="tabs">
-                    <button class="tab" data-tab="today">New</button>
                     <button class="tab active" data-tab="week">This Week</button>
                     <button class="tab" data-tab="month">This Month</button>
                 </div>
@@ -2767,8 +2789,10 @@
     <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
     <script>
     (function(){
+        // Track both ?ref=X (legacy) AND ?utm_source=X (industry standard).
+        // Prefer ref if both are present; fall back to utm_source.
         var params = new URLSearchParams(window.location.search);
-        var ref = params.get('ref');
+        var ref = params.get('ref') || params.get('utm_source');
         if (ref) {
             var key = 'neshama_ref_' + ref;
             if (!sessionStorage.getItem(key)) {

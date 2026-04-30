@@ -528,27 +528,36 @@
                 <h2>Service Details</h2>
 
                 <div class="form-group">
-                    <label for="deliveryArea">Delivery Area</label>
-                    <input type="text" id="deliveryArea" placeholder="e.g., Greater Toronto Area, North York, Thornhill" required>
-                    <div class="form-hint">Cities or neighborhoods you serve</div>
+                    <label for="deliveryArea">Service area</label>
+                    <input type="text" id="deliveryArea" placeholder="e.g., Toronto, Montreal, GTA" required>
+                    <div class="form-hint">City or region you serve. Specific delivery zones are part of the Featured tier.</div>
                 </div>
 
                 <div class="form-group">
-                    <label>Kosher Level</label>
+                    <label>Kosher Status</label>
                     <div class="radio-group">
                         <label class="radio-option">
-                            <input type="radio" name="kosherLevel" value="certified_kosher">
-                            <span>Certified Kosher</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="kosherLevel" value="kosher_style" checked>
-                            <span>Kosher-style</span>
+                            <input type="radio" name="kosherLevel" value="kosher">
+                            <span>Kosher</span>
                         </label>
                         <label class="radio-option">
                             <input type="radio" name="kosherLevel" value="not_kosher">
-                            <span>Not Kosher</span>
+                            <span>Not kosher</span>
                         </label>
                     </div>
+                    <div class="form-hint">If you have a kosher certification (COR, MK, OU, etc.), mention it in your description below — we don't track cert detail at the directory level.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="kosherCertDetails">Kosher certification details (optional)</label>
+                    <input type="text" id="kosherCertDetails" placeholder="e.g., COR, MK, Star-K, OU — or leave blank if not certified">
+                    <div class="form-hint">For our records only; helps Jordana verify before publishing.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceDetails">Service details (optional)</label>
+                    <textarea id="serviceDetails" rows="3" placeholder="e.g., Delivery only, $100 minimum, 48 hours notice. Or skip and we'll ask if we need more."></textarea>
+                    <div class="form-hint">Anything you'd want a family to know before they call. All optional.</div>
                 </div>
 
                 <div class="toggle-row">
@@ -558,6 +567,7 @@
                     </label>
                     <span class="toggle-label">We offer delivery</span>
                 </div>
+                <div class="form-hint" style="margin: -0.5rem 0 1rem 0;">For specific delivery zones and fees, upgrade to Featured.</div>
 
                 <div class="toggle-row">
                     <label class="toggle-switch">
@@ -623,6 +633,10 @@
             <div class="form-error" id="formError"></div>
 
             <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Send Application</button>
+
+            <p style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.5rem; font-size: 0.9rem; color: var(--dark-brown); line-height: 1.6;">
+                <strong>Featured tier (optional, after listing).</strong> If you'd like priority placement at the top of your category, a photo gallery, structured filters (delivery zones, lead time, minimum order), a contact button, and a monthly traffic dashboard, ask about the Featured tier after you submit. Founding rate $49/month with a 12-month rate lock. Reply to your application confirmation email with "Featured tier" and we'll send details.
+            </p>
         </div>
 
         <div class="success-card" id="successCard">
@@ -693,9 +707,16 @@
                 return;
             }
 
-            var kosherLevel = 'kosher_style';
+            var kosherLevel = '';
             var kosherRadios = document.querySelectorAll('input[name="kosherLevel"]');
             kosherRadios.forEach(function(r) { if (r.checked) kosherLevel = r.value; });
+            if (!kosherLevel) {
+                errEl.textContent = 'Please indicate whether your business is kosher or not kosher.';
+                errEl.classList.add('active');
+                return;
+            }
+
+            var serviceDetails = document.getElementById('serviceDetails').value.trim();
 
             var priceRange = '$$';
             var priceRadios = document.querySelectorAll('input[name="priceRange"]');
@@ -710,6 +731,11 @@
                 instagram: document.getElementById('instagram').value.trim(),
                 delivery_area: deliveryArea,
                 kosher_level: kosherLevel,
+                kosher_cert_details: document.getElementById('kosherCertDetails').value.trim(),
+                service_type: serviceType,
+                min_order: document.getElementById('minOrder').value.trim(),
+                lead_time: document.getElementById('leadTime').value.trim(),
+                delivery_fee: document.getElementById('deliveryFee').value.trim(),
                 has_delivery: document.getElementById('hasDelivery').checked,
                 has_online_ordering: document.getElementById('hasOnlineOrdering').checked,
                 price_range: priceRange,

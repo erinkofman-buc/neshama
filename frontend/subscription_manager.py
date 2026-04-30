@@ -610,13 +610,20 @@ class EmailSubscriptionManager:
         cursor = conn.cursor()
         try:
             now_iso = now.isoformat()
+            unsubscribe_token = self.generate_token()
             # INSERT OR IGNORE: if email already subscribed, just resend the welcome
             cursor.execute('''
                 INSERT OR IGNORE INTO subscribers
-                (email, confirmed, subscribed_at, confirmed_at, frequency, locations, source)
-                VALUES (?, TRUE, ?, ?, 'weekly', 'toronto,montreal', ?)
-            ''', (email, now_iso, now_iso, source))
+                (email, confirmed, subscribed_at, confirmed_at, unsubscribe_token, frequency, locations, source)
+                VALUES (?, TRUE, ?, ?, ?, 'weekly', 'toronto,montreal', ?)
+            ''', (email, now_iso, now_iso, unsubscribe_token, source))
             inserted = cursor.rowcount > 0
+            # Backfill unsubscribe_token for any existing subscriber missing one (CASL hygiene)
+            cursor.execute('''
+                UPDATE subscribers
+                SET unsubscribe_token = ?
+                WHERE email = ? AND (unsubscribe_token IS NULL OR unsubscribe_token = '')
+            ''', (unsubscribe_token, email))
             conn.commit()
         except Exception as e:
             conn.rollback()
@@ -647,6 +654,15 @@ class EmailSubscriptionManager:
 
         pdf_url = "https://neshama.ca/shiva-guide.pdf"
         landing_url = "https://neshama.ca/shiva-guide"
+
+        # Fetch unsubscribe token for CASL-compliant footer
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        cursor = conn.cursor()
+        cursor.execute('SELECT unsubscribe_token FROM subscribers WHERE email = ?', (email,))
+        row = cursor.fetchone()
+        conn.close()
+        unsubscribe_token = row[0] if row and row[0] else ''
+        unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}" if unsubscribe_token else "mailto:contact@neshama.ca?subject=Unsubscribe"
 
         html_content = f"""<!DOCTYPE html>
 <html>
@@ -691,7 +707,8 @@ class EmailSubscriptionManager:
     </td></tr>
 
     <tr><td style="padding-top:28px; border-top:1px solid #e8e0d8;">
-        <p style="margin:0; font-family:Georgia,'Times New Roman',serif; font-size:13px; color:#9e9488; line-height:1.6;">Neshama &middot; Toronto, ON &middot; <a href="mailto:contact@neshama.ca" style="color:#9e9488;">contact@neshama.ca</a></p>
+        <p style="margin:0 0 8px 0; font-family:Georgia,'Times New Roman',serif; font-size:13px; color:#9e9488; line-height:1.6;">You're receiving this because you downloaded The Shiva Guide. <a href="{unsubscribe_url}" style="color:#9e9488; text-decoration:underline;">Unsubscribe</a> any time.</p>
+        <p style="margin:0; font-family:Georgia,'Times New Roman',serif; font-size:13px; color:#9e9488; line-height:1.6;">Neshama &middot; Toronto, ON, Canada &middot; <a href="mailto:contact@neshama.ca" style="color:#9e9488;">contact@neshama.ca</a></p>
     </td></tr>
 
 </table>

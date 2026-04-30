@@ -249,6 +249,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/footer-subscribe.js': ('footer-subscribe.js', 'application/javascript'),
         '/share-buttons.js': ('share-buttons.js', 'application/javascript'),
         '/about': ('about.html', 'text/html'),
+        '/contact': ('contact.html', 'text/html'),
         '/about.html': ('about.html', 'text/html'),
         '/faq': ('faq.html', 'text/html'),
         '/faq.html': ('faq.html', 'text/html'),
@@ -644,6 +645,10 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/shiva/') and path.endswith('/extend'):
             support_id = path[len('/api/shiva/'):-len('/extend')]
             self.handle_extend_shiva(support_id, body)
+        # Apr 29 2026: Link/relink shiva page to a memorial listing (organizer-initiated)
+        elif path.startswith('/api/shiva/') and path.endswith('/link-memorial'):
+            support_id = path[len('/api/shiva/'):-len('/link-memorial')]
+            self.handle_link_shiva_to_memorial(support_id, body)
         # V4: Transfer host
         elif path.startswith('/api/shiva/') and path.endswith('/transfer-host'):
             support_id = path[len('/api/shiva/'):-len('/transfer-host')]
@@ -1781,24 +1786,25 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass
 
-            # Vendor click tracking
+            # Vendor click tracking — start from vendors table so vendors with zero clicks
+            # also appear (the all-147 view, not just the ~50 with clicks).
             vendor_clicks = []
             try:
                 cursor.execute('''
                     SELECT
-                        vc.vendor_slug,
+                        v.slug as vendor_slug,
                         COUNT(vc.id) as click_count,
                         MAX(vc.created_at) as last_click,
                         COALESCE(vv.view_count, 0) as view_count
-                    FROM vendor_clicks vc
+                    FROM vendors v
+                    LEFT JOIN vendor_clicks vc ON vc.vendor_slug = v.slug
                     LEFT JOIN (
                         SELECT vendor_slug, COUNT(*) as view_count
                         FROM vendor_views
                         GROUP BY vendor_slug
-                    ) vv ON vc.vendor_slug = vv.vendor_slug
-                    GROUP BY vc.vendor_slug
-                    ORDER BY click_count DESC
-                    LIMIT 50
+                    ) vv ON v.slug = vv.vendor_slug
+                    GROUP BY v.slug
+                    ORDER BY click_count DESC, v.slug ASC
                 ''')
                 vendor_clicks = [dict(row) for row in cursor.fetchall()]
                 cursor.execute('SELECT COUNT(*) FROM vendor_clicks')
@@ -2800,12 +2806,21 @@ button:hover{background:#c45a1a}</style></head>
         website = (data.get('website') or '').strip()
         delivery_area = (data.get('delivery_area') or '').strip()
         kosher_level = (data.get('kosher_level') or '').strip()
+        # Binary kosher_level (Apr 29 2026 update per feedback_no_kosher_style.md):
+        # Old labels (certified_kosher / kosher_style) preserved for backward compat
+        # but new submissions use binary kosher / not_kosher.
         kosher_labels = {
-            'certified_kosher': 'Certified Kosher',
-            'kosher_style': 'Kosher Style',
-            'not_kosher': 'Not Kosher',
+            'kosher': 'Kosher',
+            'not_kosher': 'Not kosher',
+            'certified_kosher': 'Kosher (legacy: certified_kosher)',
+            'kosher_style': 'Kosher (legacy: kosher_style — re-verify)',
         }
         kosher_display = kosher_labels.get(kosher_level, kosher_level or '—')
+        kosher_cert_details = (data.get('kosher_cert_details') or '').strip()
+        service_type = (data.get('service_type') or '').strip()
+        min_order = (data.get('min_order') or '').strip()
+        lead_time = (data.get('lead_time') or '').strip()
+        delivery_fee = (data.get('delivery_fee') or '').strip()
         menu_description = (data.get('shiva_menu_description') or '').strip()
 
         sendgrid_key = os.environ.get('SENDGRID_API_KEY')
@@ -2834,7 +2849,12 @@ button:hover{background:#c45a1a}</style></head>
             f"Phone: {phone or '—'}\n"
             f"Website: {website or '—'}\n"
             f"Delivery Area: {delivery_area or '—'}\n"
-            f"Kosher Status: {kosher_display}\n\n"
+            f"Kosher Status: {kosher_display}\n"
+            f"Kosher Cert Details: {kosher_cert_details or '—'}\n"
+            f"Service Type: {service_type or '—'}\n"
+            f"Min Order: {min_order or '—'}\n"
+            f"Lead Time: {lead_time or '—'}\n"
+            f"Delivery Fee: {delivery_fee or '—'}\n\n"
             f"Shiva Menu Description:\n{menu_description or '—'}\n\n"
             f"Status: pending review\n"
             f"Neshama · neshama.ca"
@@ -3272,14 +3292,14 @@ button:hover{background:#c45a1a}</style></head>
                         pass
                 known_domains.add('instagram.com')  # always allow IG links
                 # Trusted affiliate/partner domains
-                known_domains.update(['amazon.ca', 'amazon.com', 'amzn.to', 'jnf.ca', 'jnfusa.org'])
+                known_domains.update(['amazon.ca', 'amazon.com', 'amzn.to', 'jnf.ca', 'jnfusa.org', 'friendsofjnfca.org'])
                 if dest_domain not in known_domains:
                     logging.warning(f"[Click] Blocked redirect to unknown domain: {dest_url} (vendor: {vendor_slug})")
                     self.send_404()
                     return
             else:
                 # Vendor slug not in DB — allow if it's a trusted domain (affiliate links)
-                trusted_domains = {'amazon.ca', 'amazon.com', 'amzn.to', 'instagram.com', 'jnf.ca', 'jnfusa.org'}
+                trusted_domains = {'amazon.ca', 'amazon.com', 'amzn.to', 'instagram.com', 'jnf.ca', 'jnfusa.org', 'friendsofjnfca.org'}
                 if dest_domain not in trusted_domains:
                     logging.warning(f"[Click] Unknown vendor slug and untrusted domain: {vendor_slug} -> {dest_domain}")
                     self.send_404()
@@ -4886,6 +4906,36 @@ button:hover{background:#c45a1a}</style></head>
 
     # ── API: V5 — Extend Shiva Dates ──────────────────────────
 
+    def handle_link_shiva_to_memorial(self, support_id, body):
+        """Apr 29 2026: Organizer-initiated relink of a shiva page to a memorial listing.
+        Closes the gap from scraper-integrity-plan.md (Harvey Lipman case): shiva pages
+        created standalone could only be relinked via manual DB UPDATE. Now organizer can
+        do it themselves from /shiva/dashboard.
+
+        Auth: requires the same magic_token used for /shiva/dashboard editing.
+        Allows update even if obituary_id is already set (organizer fixes wrong choice).
+        """
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Shiva support not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            token = data.get('magic_token', '') or data.get('token', '')
+            if not token:
+                self.send_json_response({'status': 'error', 'message': 'Authorization token required'}, 401)
+                return
+            obituary_id = (data.get('obituary_id') or '').strip()
+            # Allow empty obituary_id to UNLINK (revert to standalone)
+            result = shiva_mgr.link_to_memorial(support_id, token, obituary_id)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            status_code = 200 if result['status'] == 'success' else 400
+            self.send_json_response(result, status_code)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     def handle_extend_shiva(self, support_id, body):
         """Handle extending shiva end date"""
         if not SHIVA_AVAILABLE:
@@ -6313,7 +6363,7 @@ def run_server(port=None):
                 'delivery_area': 'Toronto & GTA',
                 'kosher_level': 'not_kosher',
                 'has_delivery': True,
-                'has_online_ordering': False,
+                'has_online_ordering': True,
                 'price_range': '$$',
                 'shiva_menu_description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.',
             },
@@ -6324,7 +6374,7 @@ def run_server(port=None):
                 'phone': '(647) 344-8323',
                 'website': 'https://www.tobenfoodbydesign.com',
                 'delivery_area': 'Toronto & GTA',
-                'kosher_level': 'kosher_style',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': True,
                 'price_range': '$$$',
@@ -6363,7 +6413,7 @@ def run_server(port=None):
                 'phone': '(416) 789-2921',
                 'website': 'https://www.nortownfoods.com',
                 'delivery_area': 'Toronto & GTA',
-                'kosher_level': 'kosher_style',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': False,
                 'price_range': '$$$',
@@ -6389,7 +6439,7 @@ def run_server(port=None):
                 'phone': '(905) 731-8037',
                 'website': 'https://www.centrestreetdeli.com',
                 'delivery_area': 'Thornhill & GTA',
-                'kosher_level': 'kosher_style',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': False,
                 'price_range': '$$',
@@ -6402,7 +6452,7 @@ def run_server(port=None):
                 'phone': '(416) 789-0519',
                 'website': 'https://www.unitedbakers.ca',
                 'delivery_area': 'Toronto',
-                'kosher_level': 'kosher_style',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': True,
                 'price_range': '$$',
@@ -6415,7 +6465,7 @@ def run_server(port=None):
                 'phone': '(416) 661-4460',
                 'website': 'https://encorecatering.com',
                 'delivery_area': 'Toronto & GTA',
-                'kosher_level': 'kosher_style',
+                'kosher_level': 'not_kosher',
                 'has_delivery': True,
                 'has_online_ordering': True,
                 'price_range': '$$',
@@ -6569,6 +6619,17 @@ def run_server(port=None):
             logging.info(" Migrations: added source column to vendors")
         except Exception:
             pass  # Column already exists
+
+        # Migration 2026-04-29: Correct Jem Salads has_online_ordering (was seeded False, actually offers online ordering)
+        try:
+            cursor.execute(
+                "UPDATE caterer_partners SET has_online_ordering = 1 WHERE email = 'jem.salads@gmail.com'"
+            )
+            if cursor.rowcount:
+                conn.commit()
+                logging.info(f" Migrations: updated Jem Salads has_online_ordering=1 ({cursor.rowcount} row)")
+        except Exception as e:
+            logging.info(f" Migration jem-salads-online: {e}")
 
         # V3 (Apr 2026): Legacy pre-V3 vendor migrations DISABLED.
         # seed_vendors.py is the single source of truth for vendor data going forward.

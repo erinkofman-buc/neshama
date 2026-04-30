@@ -871,19 +871,24 @@
 
         <!-- Search Section (shown when no obituary context) -->
         <div id="searchSection" style="display: none; margin-bottom: 2rem;">
+            <!-- Equal-weight skip option at TOP — many users won't have a listing yet -->
+            <div style="background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08); margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                <div style="flex: 1; min-width: 220px;">
+                    <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--dark-brown); margin: 0 0 0.2rem 0;">Don't have an existing listing?</p>
+                    <p style="font-size: 0.9rem; color: var(--sage-dark); margin: 0;">Skip the search and set up a new shiva page from scratch.</p>
+                </div>
+                <button type="button" onclick="skipSearch()" style="background: var(--terracotta); border: 2px solid var(--terracotta); color: white; padding: 0.65rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">Set up without a listing &rarr;</button>
+            </div>
+
             <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08);">
-                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Find the family</h2>
-                <p style="font-size: 0.92rem; color: var(--sage-dark); margin-bottom: 1rem;">Search for the family to link their shiva page to their memorial listing.</p>
+                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; color: var(--dark-brown); margin-bottom: 0.5rem;">Or find the family in our listings</h2>
+                <p style="font-size: 0.92rem; color: var(--sage-dark); margin-bottom: 1rem;">If the family is in our obituary feed (Steeles, Benjamin's, Paperman's, or Misaskim), search here to link the shiva page to their memorial listing.</p>
                 <input type="text" id="obiSearchBox" placeholder="Search by family name..." aria-label="Search by family name" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--light-taupe); border-radius: 0.5rem; font-family: 'Source Serif 4', serif; font-size: 1rem; color: var(--dark-brown); box-sizing: border-box; transition: border-color 0.2s;" autocomplete="off">
                 <div id="searchResults" style="margin-top: 0.75rem; max-height: 280px; overflow-y: auto;"></div>
                 <div id="recentFamilies" style="margin-top: 1rem;">
                     <p style="font-size: 0.88rem; color: var(--sage-dark); margin-bottom: 0.5rem; font-weight: 500;">Or select from recent listings:</p>
                     <div id="recentList" style="max-height: 160px; overflow-y: auto;"></div>
                 </div>
-            </div>
-            <div style="text-align: center; margin-top: 1rem;">
-                <p style="font-size: 0.92rem; color: var(--sage-dark);">Don't see the family listed?</p>
-                <button type="button" onclick="skipSearch()" style="background: transparent; border: 2px solid var(--light-taupe); color: var(--dark-brown); padding: 0.6rem 1.5rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 1.15rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;">Set up without a listing &rarr;</button>
             </div>
         </div>
 

@@ -1,0 +1,1598 @@
+{
+  "generated_at": "2026-04-29 18:20:57",
+  "csv_source": "chunks 1+2+3 merged",
+  "stats": {
+    "merged_chunks": 3,
+    "total_results": 72
+  },
+  "results": [
+    {
+      "vendor_name": "Tov-Li Pizza & Falafel",
+      "city": "Toronto",
+      "source_url": "https://tov-li.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://tov-li.com/img/icon-close.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://tov-li.com/img/icon-pin.png",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Matti's Kitchen",
+      "city": "Toronto",
+      "source_url": "https://bistrogrande.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6103_sm-1024x683.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6127_sm-1024x683.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://bistrogrande.com/wp-content/uploads/2020/02/mil6181_sm-1-1024x683.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Main Event Catering",
+      "city": "Toronto",
+      "source_url": "https://maineventmauzone.shop",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://maineventmauzone.shop/img/signature.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://maineventmauzone.shop/img/bg_testimonial.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://maineventmauzone.shop/img/portfolio/thumbs/18__ARP9128%20(3).jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Sonny Langers Dairy & Vegetarian Caterers",
+      "city": "Toronto",
+      "source_url": "http://www.sonnylangers.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://www.sonnylangers.com/images/page_headers/home.gif",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "http://www.sonnylangers.com/images/page_headers/services.gif",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "http://www.sonnylangers.com/images/page_headers/sample_menu.gif",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Paisanos",
+      "city": "Toronto",
+      "source_url": "https://thepaisanos.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://thepaisanos.ca/images/slider/1.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://thepaisanos.ca/images/slider/3.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://thepaisanos.ca/images/instagram/2.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Dr. Laffa",
+      "city": "Toronto",
+      "source_url": "https://drlaffa.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://drlaffa.com/wp-content/uploads/2020/12/Cropped_Dr-Laffa-Engagement-Photography-Toronto1.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://drlaffa.com/wp-content/uploads/2020/12/bbbq-free-img.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://drlaffa.com/wp-content/uploads/2020/12/divider-free-img-1.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Aish Tanoor",
+      "city": "Toronto",
+      "source_url": "https://aishtanoor.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://aishtanoor.com/wp-content/uploads/2019/08/home-pic-2.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://aishtanoor.com/wp-content/uploads/2021/06/aish-avoid-apps-scaled.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://aishtanoor.com/wp-content/uploads/2019/08/aish-tanoor-slider-7-600x300.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Parallel",
+      "city": "Toronto",
+      "source_url": "https://www.parallelrestaurant.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn.sanity.io/images/x07rp3eb/production/26e17ca9c79d53e2d548d75d2334c10c29c8384a-1737x1172.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn.sanity.io/images/x07rp3eb/production/54ef4bb1457f90a4d42908b151512a1e95a4f7b8-2048x1366.webp?q=75&amp;fit=clip&amp;auto=format",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://parallelrestaurant.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcrispy.08j_v.m_ag~33.png&amp;w=750&amp;q=75",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Sushi Inn",
+      "city": "Toronto",
+      "source_url": "https://www.sushiinn.net/",
+      "url_type": "website",
+      "candidates": [],
+      "status": "scrape_error",
+      "error": "DNS resolution failed for hostname \"www.sushiinn.net\". This means the domain name could not be translated to an IP address. Possible causes: (1) The domain name is misspelled (check for typos), (2) Th"
+    },
+    {
+      "vendor_name": "Nortown Foods",
+      "city": "Toronto",
+      "source_url": "https://www.nortownfoods.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.nortownfoods.com/pictures/banners/image14.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://www.nortownfoods.com/user_files/upload/Header%20575px(1).jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://www.nortownfoods.com/img/location_link1.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Cheese Boutique",
+      "city": "Toronto",
+      "source_url": "https://www.cheeseboutique.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn.sanity.io/images/dmwz2ivl/production/230ceb83b91227e5634de8e59e284d5adb93f0b4-364x364.png?w=360&amp;auto=format",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn.sanity.io/images/dmwz2ivl/production/19068ed5c985e2d053fed3c6dcfdc754c6ef4798-364x364.png?w=360&amp;auto=format",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cdn.sanity.io/images/dmwz2ivl/production/6f8e1fc9c22236e01794f214b2b6d2b24666ea65-364x364.png?w=360&amp;auto=format",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Paramount Fine Foods",
+      "city": "Toronto",
+      "source_url": "https://paramountfinefoods.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://paramountfinefoods.com/wp-content/uploads/2019/10/Paramount-Middle-Eastern-Kitchen_White.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://paramountfinefoods.com/wp-content/uploads/2019/10/Paramount-Lebanese-Kitchen_White.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://paramountfinefoods.com/wp-content/uploads/2019/10/group-5-1-e1599585546187.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "McEwan Fine Foods",
+      "city": "Toronto",
+      "source_url": "https://www.mcewangroup.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.mcewangroup.ca/wp-content/uploads/2025/04/Home-page-banner-bymark-uai-1920x576.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://www.mcewangroup.ca/wp-content/uploads/2025/04/Home-Page-Port--uai-1920x576.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://www.mcewangroup.ca/wp-content/uploads/2025/04/04-2-uai-1920x576.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Ba-Li Laffa",
+      "city": "Toronto",
+      "source_url": "https://www.balilaffa.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/gallery/1.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/gallery/2.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://www.balilaffa.com/restaurants/ba-li-laffa-north/gallery/3.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Beyond Delish",
+      "city": "",
+      "source_url": "https://www.beyonddelish.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.beyonddelish.ca/_next/image?url=%2Fcharoset-front-page-image.jpg&amp;w=3840&amp;q=90",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Pizza Cafe",
+      "city": "Toronto",
+      "source_url": "https://www.pizzacafe.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu1.jpg?resize=1024%2C576",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu3.jpg?resize=1024%2C576",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://i0.wp.com/www.pizzacafe.ca/wp-content/uploads/2023/10/menu2.jpg?resize=1024%2C576",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "F + B Kosher Catering",
+      "city": "Toronto",
+      "source_url": "https://fbkosher.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Home-Background.jpg",
+          "source": "og_image",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Zuchter Berk Kosher Caterers",
+      "city": "Toronto",
+      "source_url": "http://www.zbcaterers.com",
+      "url_type": "website",
+      "candidates": [],
+      "status": "no_candidates",
+      "error": null
+    },
+    {
+      "vendor_name": "Haymishe Bakery",
+      "city": "Toronto",
+      "source_url": "https://www.haymishebakery.com/",
+      "url_type": "website",
+      "candidates": [],
+      "status": "scrape_error",
+      "error": "Internal Server Error: Failed to scrape. All scraping engines failed to retrieve content from this URL. Engines tried: [index, fire-engine;chrome-cdp, fire-engine(retry);chrome-cdp, fire-engine;tlscli"
+    },
+    {
+      "vendor_name": "Golden Chopsticks",
+      "city": "Toronto",
+      "source_url": "https://goldenchopstick.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://goldenchopstick.ca/wp-content/uploads/2025/08/family-300x94.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://goldenchopstick.ca/wp-content/uploads/2025/08/COR_Kosher_Symbol.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://goldenchopstick.ca/wp-content/uploads/2025/08/steamed-rice.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Joe Boos Kosher Event Catering",
+      "city": "Toronto",
+      "source_url": "https://joeboos.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://joeboos.com/wp-content/uploads/2025/02/french-roast-kosher-cater.webp",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://joeboos.com/wp-content/uploads/2025/02/venue2.webp",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Pantry by Food Dudes",
+      "city": "Toronto",
+      "source_url": "https://orderpantry.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://ambassador-media-library-assets.s3.us-east-1.amazonaws.com/d41c6efb-7a09-4e2e-af66-2fe014c41482.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://orderpantry.com/wp-content/uploads/2025/05/COMBO-TEST-1-1-scaled.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://orderpantry.com/wp-content/uploads/2025/05/COMBO-TEST-2-scaled.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Limon Restaurant",
+      "city": "Toronto",
+      "source_url": "https://www.limonbeaches.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://images.squarespace-cdn.com/content/v1/684a673391b775583ab83321/1749706554435-4QWIGRZ22YMBER15S4FR/limon_shape.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://images.squarespace-cdn.com/content/v1/684a673391b775583ab83321/1749706554438-FIFZ7A3FDYJ6RKF50ZLP/limon_shape.png",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Kosher Quality Bakery & Deli",
+      "city": "",
+      "source_url": "https://www.bubbysbagels.com/menu",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://static.wixstatic.com/media/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png/v1/fill/w_2500,h_3196,al_c/88e84c_550bc4790d924e47b33ba668d1c10ba3~mv2.png",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://static.wixstatic.com/media/88e84c_62be67e0f9f04131bd551a49e36c01fc~mv2_d_5184_3456_s_4_2.jpg/v1/fill/w_1905,h_993,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/88e84c_62be67e0f9f04131bd551a49e36c01fc~mv2_d_5184_3456_s_4_2.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://static.wixstatic.com/media/88e84c_e4680b75451845888d4c49c19cfbffd9~mv2.jpeg/v1/fill/w_1191,h_468,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/9A45379C-916C-4BE8-9CDD-78504673E2DF_1_201_a.jpeg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Snowdon Deli",
+      "city": "",
+      "source_url": "https://www.snowdondeli.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://uploads.bettysuite.com/snowdon-deli/inst.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://uploads.bettysuite.com/snowdon-deli/fb.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://uploads.bettysuite.com/snowdon-deli/swirl-motif.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Boulangerie Cheskie",
+      "city": "Montreal",
+      "source_url": "https://michaeleats.com/2022/11/01/boulangerie-cheskie/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://michaeleats.com/wp-content/uploads/2022/10/bc3.jpg?w=760",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://i0.wp.com/michaeleats.com/wp-content/uploads/2024/09/lb3.jpg?resize=350%2C200&amp;ssl=1",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://michaeleatsdotcom.files.wordpress.com/2023/02/mbf2.jpg?w=350&amp;h=200&amp;crop=1",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Montreal Kosher Bakery",
+      "city": "Montreal",
+      "source_url": "https://montrealkosher.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn-cookieyes.com/assets/images/revisit.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn-cookieyes.com/assets/images/close.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cdn-cookieyes.com/assets/images/poweredbtcky.svg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Rôtisserie Laurier",
+      "city": "Montreal",
+      "source_url": "https://www.lauriergordonramsay.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://web.archive.org/web/20120201112004im_/http://www.lauriergordonramsay.com/wp-content/uploads/2011/06/image_accueil_small.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://web.archive.org/web/20120201112004im_/http://lauriergordonramsay.com/wp-content/themes/laurierbbq/images/9aout/THlafond_5688.jpg",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Europea",
+      "city": "Montreal",
+      "source_url": "https://jeromeferrer.ca/en/",
+      "url_type": "website",
+      "candidates": [],
+      "status": "no_candidates",
+      "error": null
+    },
+    {
+      "vendor_name": "Mehadrin Meats",
+      "city": "Montreal",
+      "source_url": "https://mehadrinmeats.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://mehudar.ca/api/content/images/uploads/EBE2382D-5045-40BA-BF15-DB0390E3D779_Delivery.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://mehudar.ca/api/content/images/uploads/CD1DCA7F-5E75-47BC-ACE1-4D7B712EB461_Shabbos.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://mehudar.ca/api/content/images/uploads/FD257B31-061D-4D07-A99F-B47BE4D1CEFA_Prime%20Canadian%20Beef.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Benny & Fils",
+      "city": "Montreal",
+      "source_url": "http://www.bennyetfils.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://www.bennyetfils.com/img/about/about_us.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "http://www.bennyetfils.com/img/about/tomato.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "http://www.bennyetfils.com/img/menu/vege.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "LeFalafel Plus",
+      "city": "Montreal",
+      "source_url": "https://www.restomontreal.ca/resto/lefalafel-notre-dame-de-grace-ndg/19700/en/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://media.restodata.ca/_restoimages/18/19700-photo372.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://portal.restodata.ca/simplement-fee-bar-a-crepes/gallery/images/SquareSmall/01_simplement-_999-2026-04-21.jpg?315",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://portal.restodata.ca/castel-resto/gallery/images/SquareSmall/01_castel-rest_552-2024-09-07.jpg?315",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Pizza Gourmetti",
+      "city": "Montreal",
+      "source_url": "https://www.pizzagourmetti.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.pizzagourmetti.com/images/plate-fork-knife.png",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Pizza Pita Prime",
+      "city": "Montreal",
+      "source_url": "https://pizzapitaprime.order-online.ai/",
+      "url_type": "website",
+      "candidates": [],
+      "status": "no_candidates",
+      "error": null
+    },
+    {
+      "vendor_name": "Baskets n' Stuf",
+      "city": "Toronto",
+      "source_url": "https://orly-grill.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://orly-grill.com/wp-content/uploads/2017/10/slider-img.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://orly-grill.com/wp-content/uploads/2017/10/slider-img-1.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://orly-grill.com/wp-content/uploads/2017/10/slider-img-2.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Ely's Fine Foods Gift Baskets",
+      "city": "Toronto",
+      "source_url": "https://elysfinefoods.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://elysfinefoods.com/cdn/shop/files/004-spaguetti.png?v=1618237413",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://elysfinefoods.com/cdn/shop/files/001-bread.png?v=1618237412",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://elysfinefoods.com/cdn/shop/files/003-food-serving.png?v=1618237412",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Nutcracker Sweet / Baskits",
+      "city": "Toronto",
+      "source_url": "https://www.baskits.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn7.bigcommerce.com/s-v0xtrjmuve/product_images/theme_images/mothers-day-collection_main_desktop__33137.jpg?c=2",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn7.bigcommerce.com/s-v0xtrjmuve/content/webp/webp-all-gifts-345__78030.webp",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cdn7.bigcommerce.com/s-v0xtrjmuve/content/webp/webp-gourmet_345%20%281%29__75528.webp",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Romi's Bakery",
+      "city": "Toronto",
+      "source_url": "https://romisbakery.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://static.wixstatic.com/media/e1c23a_1f020c64b93048c9ad59a1eef075ee64%7Emv2.png/v1/fit/w_2500,h_1330,al_c/e1c23a_1f020c64b93048c9ad59a1eef075ee64%7Emv2.png",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://static.wixstatic.com/media/e1c23a_b74092981c794c5d9c5d34ea7a7f4ac6~mv2.jpg/v1/fill/w_363,h_395,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/WhatsApp%20Image%202025-03-08%20at%2012_05_edite.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://static.wixstatic.com/media/e1c23a_0b62a9bdb2b94a908a7a9995e20c72dd~mv2.jpg/v1/fill/w_363,h_395,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/challah%20with%20love.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Edible Arrangements",
+      "city": "Toronto",
+      "source_url": "https://www.ediblearrangements.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://rescloud.ediblearrangements.com/image/upload/Creative-Marketing/site_support/assets/canadian_flag.webp",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://rescloud.ediblearrangements.com/image/upload/v1776864244/banners/ED_MD_Promo-01_Web_H1_Desktop_10_5200x1440_v3.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://rescloud.ediblearrangements.com/image/upload/v1749072257/Creative-Marketing/site_support/noimage_new.webp",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Fruitate",
+      "city": "Toronto",
+      "source_url": "https://fruitate.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://fruitate.com/cdn/shop/t/5/assets/loader.gif?v=38408244440897529091485031957",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://fruitate.com/cdn/shop/files/Delicate_840x780_840x.jpg?v=1613571453",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://fruitate.com/cdn/shop/files/Happy_Birthday_840x780_840x.jpg?v=1613570183",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Epic Baskets",
+      "city": "Toronto",
+      "source_url": "https://www.epicbaskets.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn11.bigcommerce.com/s-00kfbby/images/stencil/original/image-manager/mother-s-day-banner.jpg?t=1777407380",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn11.bigcommerce.com/s-00kfbby/images/stencil/original/image-manager/rda-photography-905973.jpg?t=1770319078",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cdn11.bigcommerce.com/s-00kfbby/images/stencil/original/image-manager/wine-basket-toronto.jpg?t=1728430362",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "My Baskets",
+      "city": "Toronto",
+      "source_url": "https://www.mybaskets.ca/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.mybaskets.ca/cdn/shop/files/fre-shipping-ontario-quebec_1200x.jpg?v=1618421181",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://www.mybaskets.ca/cdn/shop/files/free-shiping-ontario-quebec_2000x.jpg?v=1614329355",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://www.mybaskets.ca/cdn/shop/files/Neutral-Org_1_1600x.jpg?v=1757087299",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Purdys Chocolatier",
+      "city": "Toronto",
+      "source_url": "https://www.purdys.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.purdys.com/static/version1777475462/frontend/Purdys2/hyva/en_US/images/register-success-img.png",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Laura Secord",
+      "city": "Toronto",
+      "source_url": "https://www.laurasecord.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://laurasecord.ca/",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://laurasecord.ca/images/stencil/original/image-manager/su-0156-rose.jpg?t",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://laurasecord.ca/images/stencil/original/image-manager/sping-summer.png?t",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Boards by Dani",
+      "city": "Toronto",
+      "source_url": "https://boardsbydani.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://boardsbydani.com/cdn/shop/files/Dani---stickers---print-_1.png?height=628&pad_color=fbe8ec&v=1681131469&width=1200",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://boardsbydani.com/cdn/shop/files/IMG_5051.jpg?v=1685626066&amp;width=3840",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://boardsbydani.com/cdn/shop/files/IMG_6964.jpg?v=1737645017&amp;width=1500",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Baskets Galore",
+      "city": "Toronto",
+      "source_url": "https://basketsgalore.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-infobar-close.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-star-white.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://basketsgalore.com/skin/frontend/basketsgalore/bgcom/images/icon-heart-white.svg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Indigo",
+      "city": "Toronto",
+      "source_url": "https://www.indigo.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://assets.indigoimages.ca/transform/e88aab5d-427d-4154-b79b-7c9cb48288ee/Hero_FY27-WK05_HMR-MdayGifts___m_EN",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://dynamic.indigoimages.ca/v1/books/books/1552674037/1.jpg?width=435&amp;maxHeight=435&amp;quality=85",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://assets.indigoimages.ca/transform/43776662-c0b0-4696-a722-3a7789b080f3/ELP_FY27_pokemon-april__EN",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Harry & David",
+      "city": "Toronto",
+      "source_url": "https://www.harryanddavid.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://images.contentstack.io/v3/assets/blt89dbf1c763ec00a6/bltc724c01a1c03ea6f/67d3211a1aa7755631b1b3c9/20_4202_30E_05.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://www.harryanddavid.com/chat/floraChatJuly2025.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://images.contentstack.io/v3/assets/blt89dbf1c763ec00a6/bltd27e2441c3c65a81/66428a8c16e6bf068358d9fa/Large_White.svg?auto=pjpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "The Fruit Company",
+      "city": "Toronto",
+      "source_url": "https://www.thefruitcompany.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn.userway.org/widgetapp/images/spin_wh.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn.userway.org/widgetapp/images/body_wh.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://www.thefruitcompany.com/cdn/shop/collections/mountain-blueberries.jpg?v=1776082238&amp;width=1500",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Hickory Farms",
+      "city": "Toronto",
+      "source_url": "https://www.hickoryfarms.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.hickoryfarms.com/images/homepage/B-Features/005182_BCreative_410x310.jpg$staticlink$",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "1-800-Baskets",
+      "city": "",
+      "source_url": "https://www.1800baskets.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://images.contentstack.io/v3/assets/bltc699f5c4977942f7/blt8afadb9aace1d727/601c6c964b8030688c37b81f/baskets-com.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://www.1800baskets.com/chat/floraChatJuly2025.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://images.contentstack.io/v3/assets/bltc699f5c4977942f7/blt0a94935b4a9dc9a3/6810eb4f733c4a1e48329ed6/250417-18B-Hero-1400x500-20_-off-select-Mother_s-Day-20MOTHER_notext.jpg?auto=webp",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Wolferman's Bakery",
+      "city": "",
+      "source_url": "https://www.wolfermans.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.wolfermans.com/chat/floraChatJuly2025.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/bltd703eea967bed839/69dfd32e8c1f8943d0172519/More_Ways_to_Make.svg?auto=pjpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://images.contentstack.io/v3/assets/blt72739032ac3bdcc6/bltc315e8ab80ccab8a/679c00fb5b90ca4f634e5f71/Large_Black_Shop_Now.svg?auto=pjpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Cheryl's Cookies",
+      "city": "",
+      "source_url": "https://www.cheryls.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://www.cheryls.com/chat/floraChatJuly2025.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://images.contentstack.io/v3/assets/blt9f0a9533818afd99/blt1b5c013ab90cb99c/69efb57be0947c81bbc9096f/260428-CCO-Hero-1400x500-Mother_s-Day-Gifts-for-Amazing-Moms-start-at--19.99-no-text.jpg?auto=webp",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cdn2.cheryls.com/wcsstore/CherylAndCompany/images/catalog/cco_SPR25_278151x.jpg?height=456&amp;width=418&amp;sharpen=a0.5,r1,t1&amp;auto=webp",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Candy Catchers",
+      "city": "Toronto",
+      "source_url": "https://candycatchers.com/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://candycatchers.com/cdn/shop/files/rsz_12adobestock_61464781.jpg?v=1613734341&amp;width=3840",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://candycatchers.com/cdn/shop/files/16_84ca01c7-80f7-4f8d-88bf-462394679200.png?v=1753123542&amp;width=533",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://candycatchers.com/cdn/shop/files/15_b6935a7a-7afe-4aa2-96a0-26be8b8a7b9c.png?v=1753123541&amp;width=533",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Box and Board",
+      "city": "Toronto",
+      "source_url": "https://www.boxandboard.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://static.wixstatic.com/media/da0519_923985ed51cc4175a9886c2c8072f898~mv2.png/v1/fill/w_1745,h_598,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/da0519_923985ed51cc4175a9886c2c8072f898~mv2.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://static.wixstatic.com/media/da0519_4c29705b055d4612bbf88c6f3914ce5f~mv2.jpg/v1/fill/w_1905,h_485,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/da0519_4c29705b055d4612bbf88c6f3914ce5f~mv2.jpg",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Becked Goods",
+      "city": "Toronto",
+      "source_url": "https://beckedgoods.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://beckedgoods.com/cdn/shop/files/IMG_7624_f5df0c21-9bb5-4123-8aae-33879db0e196.jpg?v=1705426246&amp;width=3840",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://beckedgoods.com/cdn/shop/files/IMG_7675_43aaa3c6-6915-4a6d-8fae-c9941e35d86b.jpg?v=1705426247&amp;width=3840",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://beckedgoods.com/cdn/shop/files/IMG_7636_57ad3db9-12ea-4507-ad38-7a1b392c9caa.jpg?v=1705426247&amp;width=3840",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Falafel St. Jacques",
+      "city": "",
+      "source_url": "https://falafelstjacques.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://falafelstjacques.ca/images/og-image.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://falafelstjacques.ca/_astro/falafel.DWYU5N9k_Z23iRtP.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://falafelstjacques.ca/_astro/falafel.D0hWRWDy_Z1dMXS.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Fressers",
+      "city": "",
+      "source_url": "https://www.restomontreal.ca/resto/fressers-cote-des-neiges/19167/en/",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://media.restodata.ca/_restoimages/18/19167-photo512.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://portal.restodata.ca/sammi-soupe-dumpling-centre-ville/gallery/images/SquareSmall/01_sammi-sou_557-2026-02-08.jpg?315",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://portal.restodata.ca/allo-mon-coco-cnd/gallery/images/SquareSmall/01_all-mon-c_538-2024-12-02.png?315",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "David Sacks Catering",
+      "city": "Montreal",
+      "source_url": "https://davidsackscatering.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://davidsackscatering.com/img/about/party-platters.jpg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://davidsackscatering.com/img/food/breakfast.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://davidsackscatering.com/img/food/corporate.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Cote St Luc BBQ",
+      "city": "",
+      "source_url": "https://cotestlucbbq.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cotestlucbbq.com/wp-content/uploads/2021/02/CSL-Badge-Sm-320x266.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cotestlucbbq.com/wp-content/uploads/2020/12/Half-Chicken-Transparent-Used-320x213.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://cotestlucbbq.com/wp-content/uploads/2020/12/Coleslaw-transparent-used-320x213.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Beso",
+      "city": "",
+      "source_url": "https://besomontreal.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://besomontreal.ca/wp-content/uploads/2025/07/BTrack_portraits-718_NEW-TEAM-NO-CS.png?_t=1753978642",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://besomontreal.ca/wp-content/uploads/2025/07/BTrack_portraits-718_NEW-TEAM-NO-CS.png",
+          "source": "img_tag",
+          "rank": 2
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Adar",
+      "city": "",
+      "source_url": "https://www.adar.ca",
+      "url_type": "website",
+      "candidates": [],
+      "status": "no_candidates",
+      "error": null
+    },
+    {
+      "vendor_name": "Pizza Pita",
+      "city": "",
+      "source_url": "https://pizzapitaprime.order-online.ai/",
+      "url_type": "website",
+      "candidates": [],
+      "status": "no_candidates",
+      "error": null
+    },
+    {
+      "vendor_name": "Zera Cafe",
+      "city": "",
+      "source_url": "https://zeracafe.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://cdn.userway.org/widgetapp/images/spin_wh.svg",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://cdn.userway.org/widgetapp/images/body_wh.svg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://zeracafe.ca/wp-content/uploads/2021/07/beneficiary-of-FCJA-02.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Yans Deli",
+      "city": "",
+      "source_url": "https://yansdeli.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://yansdeli.com/cdn/shop/files/home-yans_796dc25b-2435-4853-81a8-13859fa761c9.jpg?v=1755461841",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://yansdeli.com/cdn/shop/files/yans-hannukah_special.jpg?v=1764038164&amp;width=1500",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://yansdeli.com/cdn/shop/files/home-yans.jpg?v=1754279039&amp;width=3840",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Eatz Chez Vouz",
+      "city": "",
+      "source_url": "https://eatzchezvouz.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://eatzchezvouz.com/wp-content/uploads/2021/03/pret-a-manger.png",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://eatzchezvouz.com/wp-content/uploads/2021/03/corporate-luches.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://eatzchezvouz.com/wp-content/uploads/2021/03/catering-services.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Cuisine Pronto MTL",
+      "city": "",
+      "source_url": "https://prontomtl.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://prontomtl.com/wp-content/uploads/2026/02/DSC09854.jpg",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Clarke Cafe",
+      "city": "",
+      "source_url": "https://clarkecafe.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "http://static1.squarespace.com/static/5fc2758dc6d96458362bf34f/t/5fc27bd84f98375720301186/1606581220103/TheSAVCollective_Clarke13.JPG?format=1500w",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://images.squarespace-cdn.com/content/v1/5fc2758dc6d96458362bf34f/6c9e740a-1cdd-4147-8804-b6f9a96d464e/9e64bdce-2c14-4712-bbbc-d335dc976c54.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://images.squarespace-cdn.com/content/v1/5fc2758dc6d96458362bf34f/1e4baa9d-5afc-460c-b509-c53750dfa8bc/9e7cb4f4-5263-44c4-bf3f-be77eaa0e0b6.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "3 Soeurs",
+      "city": "",
+      "source_url": "https://www.3soeurs.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://static.wixstatic.com/media/15960f_6d54196fd96648d69e62b7cab3c11056~mv2.png/v1/fill/w_317,h_345,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/3SOEURS-enter.png",
+          "source": "img_tag",
+          "rank": 1
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Solomos",
+      "city": "",
+      "source_url": "https://solomos.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://solomos.ca/wp-content/uploads/2025/12/facebook-thumbnail.jpg",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://solomos.ca/wp-content/uploads/2025/02/divider.png",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://solomos.ca/wp-content/uploads/2025/02/home-about-solomos.jpg",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Bagels on Greene",
+      "city": "Montreal",
+      "source_url": "https://bagelsongreene.com",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://bagelsongreene.com/cdn/shop/files/croissantw_egg_300x300.jpg?v=1705285832",
+          "source": "img_tag",
+          "rank": 1
+        },
+        {
+          "url": "https://bagelsongreene.com/cdn/shop/files/Bagels_copy_300x300.jpg?v=1614300203",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://bagelsongreene.com/cdn/shop/files/Indian_Butter_Chicken_300x300.jpg?v=1614300203",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    },
+    {
+      "vendor_name": "Bossa",
+      "city": "",
+      "source_url": "https://www.bossa.ca",
+      "url_type": "website",
+      "candidates": [
+        {
+          "url": "https://static.wixstatic.com/media/900ec9_60f7363d728e46f29d6bd6198725b707%7Emv2.png/v1/fit/w_2500,h_1330,al_c/900ec9_60f7363d728e46f29d6bd6198725b707%7Emv2.png",
+          "source": "og_image",
+          "rank": 1
+        },
+        {
+          "url": "https://static.wixstatic.com/media/900ec9_4a314822647d459d8c1d2d4bd119e330~mv2.jpg/v1/fill/w_1905,h_934,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/900ec9_4a314822647d459d8c1d2d4bd119e330~mv2.jpg",
+          "source": "img_tag",
+          "rank": 2
+        },
+        {
+          "url": "https://static.wixstatic.com/media/900ec9_9612d8816c6940c89ea070258c25a79f~mv2.png/v1/fill/w_600,h_333,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/900ec9_9612d8816c6940c89ea070258c25a79f~mv2.png",
+          "source": "img_tag",
+          "rank": 3
+        }
+      ],
+      "status": "ok",
+      "error": null
+    }
+  ]
+}

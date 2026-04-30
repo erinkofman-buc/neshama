@@ -5,14 +5,14 @@
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neshama — Toronto & Montreal Jewish Obituaries</title>
-    <meta name="description" content="Neshama brings together obituaries and memorials from Toronto and Montreal's Jewish funeral homes — comforting families and connecting community.">
+    <meta name="description" content="Free community resource for Jewish families in Toronto and Montreal. Aggregated obituaries from the four major funeral homes, shiva meal coordination, vendor directory, yahrzeit reminders, and a free downloadable Shiva Guide.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="canonical" href="https://neshama.ca">
     <meta property="og:title" content="Neshama — Comforting Our Community">
-    <meta property="og:description" content="Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.">
+    <meta property="og:description" content="Free Jewish community resource for Toronto and Montreal. Obituaries, shiva meal coordination, vendor directory, and a free Shiva Guide.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca">
     <meta property="og:site_name" content="Neshama">
@@ -21,17 +21,42 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Neshama — Every Soul Remembered">
-    <meta name="twitter:description" content="Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.">
+    <meta name="twitter:description" content="Free Jewish community resource for Toronto and Montreal. Obituaries, shiva meal coordination, vendor directory, and a free Shiva Guide.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Neshama",
+      "alternateName": "נשמה",
       "url": "https://neshama.ca",
-      "description": "Free community resource for Jewish families in Toronto and Montreal. Obituaries, shiva meal coordination, and local vendor directory.",
-      "areaServed": ["Toronto", "Montreal"],
+      "logo": "https://neshama.ca/og-image.png",
+      "description": "Free community resource for Jewish families in Toronto and Montreal navigating shiva, funerals, and bereavement. Aggregated obituaries from Steeles, Benjamin's, Paperman's, and Misaskim, plus shiva meal coordination, vendor directory, yahrzeit reminders, and a free downloadable Shiva Guide.",
+      "areaServed": [
+        {"@type": "City", "name": "Toronto", "containedInPlace": {"@type": "AdministrativeArea", "name": "Ontario, Canada"}},
+        {"@type": "City", "name": "Montreal", "containedInPlace": {"@type": "AdministrativeArea", "name": "Quebec, Canada"}}
+      ],
+      "knowsAbout": ["Jewish mourning customs", "shiva", "yahrzeit", "kosher catering", "Hebrew calendar", "Jewish funeral practices"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@neshama.ca",
+        "contactType": "customer service",
+        "availableLanguage": ["English"]
+      },
       "sameAs": ["https://www.instagram.com/neshama.ca"]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Neshama",
+      "url": "https://neshama.ca",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://neshama.ca/feed?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -276,6 +301,7 @@
                     <span class="btn-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
                 </a>
                 <a href="/shiva/organize" class="btn btn-secondary">Organize Shiva Meals</a>
+                <a href="/shiva-guide" class="btn btn-secondary">Read the Shiva Guide</a>
             </div>
         </div>
     </section>
@@ -353,7 +379,7 @@
             <div class="features-grid reveal reveal-d2" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
                 <a href="/help/food" style="text-decoration:none; background:white; border-radius:14px; padding:1.5rem; border:1px solid var(--light-border); transition: transform 0.2s, box-shadow 0.2s; display:block;">
                     <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--dark); margin-bottom:0.4rem;">Caterers &amp; Food</h3>
-                    <p style="font-size:0.92rem; color:rgba(44,32,23,0.6); line-height:1.5;">128+ vendors across Toronto &amp; Montreal</p>
+                    <p style="font-size:0.92rem; color:rgba(44,32,23,0.6); line-height:1.5;">Local vendors across Toronto &amp; Montreal</p>
                 </a>
                 <a href="/help/gifts" style="text-decoration:none; background:white; border-radius:14px; padding:1.5rem; border:1px solid var(--light-border); transition: transform 0.2s, box-shadow 0.2s; display:block;">
                     <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--dark); margin-bottom:0.4rem;">Send Something Thoughtful</h3>
@@ -686,8 +712,10 @@ if (hamburgerBtn && navLinks) {
     <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
     <script>
     (function(){
+        // Track both ?ref=X (legacy) AND ?utm_source=X (industry standard).
+        // Prefer ref if both are present; fall back to utm_source.
         var params = new URLSearchParams(window.location.search);
-        var ref = params.get('ref');
+        var ref = params.get('ref') || params.get('utm_source');
         if (ref) {
             var key = 'neshama_ref_' + ref;
             if (!sessionStorage.getItem(key)) {

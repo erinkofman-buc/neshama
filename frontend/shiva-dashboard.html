@@ -987,6 +987,35 @@
                 <div class="contact-count" id="contactCount"></div>
             </div>
 
+            <!-- 5b. Link to Memorial Listing (collapsible) — closes the "Harvey Lipman" gap from scraper-integrity-plan.md -->
+            <div class="section-card" id="linkMemorialSection">
+                <div class="collapsible-header" onclick="toggleCollapsible('linkMemorialBody', 'linkMemorialArrow')">
+                    <h2>Link to Memorial Listing</h2>
+                    <svg class="collapse-arrow" id="linkMemorialArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="collapsible-body" id="linkMemorialBody">
+                    <p style="color: var(--sage-dark); font-size: 0.95rem; margin-bottom: 1rem;">
+                        Link this shiva page to the family's memorial listing on Neshama. When linked, the meal coordinator and the obituary page will share traffic — visitors can find your shiva from the obituary and vice versa.
+                    </p>
+
+                    <div id="currentLinkStatus" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.95rem;">
+                        <span id="currentLinkLabel">Not currently linked to a memorial listing.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="linkSearchBox">Search for a memorial listing</label>
+                        <input type="text" id="linkSearchBox" placeholder="Search by family name..." style="width: 100%; padding: 0.6rem 0.9rem; border: 2px solid var(--light-taupe); border-radius: 0.4rem; font-size: 1rem; box-sizing: border-box;" autocomplete="off">
+                        <div id="linkSearchResults" style="margin-top: 0.5rem; max-height: 240px; overflow-y: auto;"></div>
+                    </div>
+
+                    <div id="linkUnlinkContainer" style="margin-top: 0.75rem; display: none;">
+                        <button type="button" id="unlinkBtn" onclick="unlinkMemorial()" style="background: transparent; border: 1.5px solid var(--light-taupe); color: var(--dark-brown); padding: 0.55rem 1.25rem; border-radius: 2rem; font-family: 'Source Serif 4', serif; font-size: 0.95rem; cursor: pointer;">Unlink (remove memorial connection)</button>
+                    </div>
+
+                    <div id="linkMemorialMessage" role="status" aria-live="polite" style="margin-top: 0.75rem; font-size: 0.92rem;"></div>
+                </div>
+            </div>
+
             <!-- 5. Edit Shiva Details (collapsible) -->
             <div class="section-card" id="editSection">
                 <div class="collapsible-header" onclick="toggleCollapsible('editBody', 'editArrow')">
@@ -1257,6 +1286,11 @@
                         return;
                     }
                     supportData = result.data;
+
+                    // Initialize the Link to Memorial Listing UI (Apr 29 2026)
+                    if (typeof window.__initLinkMemorialUI === 'function') {
+                        try { window.__initLinkMemorialUI(supportData); } catch (e) {}
+                    }
 
                     // Parse blocked meals
                     if (supportData.blocked_meals) {
@@ -2143,6 +2177,139 @@
                 closeConfirmDialog();
             }
         });
+
+        // ── Link to Memorial Listing (Apr 29 2026) ──────────────────
+        // Closes the manual-DB-update gap from scraper-integrity-plan.md.
+        // Organizer can now relink/unlink their shiva page to a memorial listing
+        // from the dashboard, no email required.
+
+        var linkSearchTimeout = null;
+
+        function updateLinkStatus(obituaryId, obituaryName) {
+            var label = document.getElementById('currentLinkLabel');
+            var container = document.getElementById('linkUnlinkContainer');
+            if (!label || !container) return;
+            if (obituaryId) {
+                label.innerHTML = 'Currently linked to: <strong>' + escapeHtml(obituaryName || '(unknown)') + '</strong>';
+                container.style.display = 'block';
+            } else {
+                label.textContent = 'Not currently linked to a memorial listing.';
+                container.style.display = 'none';
+            }
+        }
+
+        // (escapeHtml is defined elsewhere in this file's IIFE scope — reusing it.)
+
+        function setupLinkMemorial() {
+            var box = document.getElementById('linkSearchBox');
+            var results = document.getElementById('linkSearchResults');
+            if (!box || !results) return;
+
+            box.addEventListener('input', function() {
+                var q = box.value.trim();
+                clearTimeout(linkSearchTimeout);
+                if (q.length < 2) {
+                    results.innerHTML = '';
+                    return;
+                }
+                linkSearchTimeout = setTimeout(function() {
+                    fetch('/api/search?q=' + encodeURIComponent(q))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            results.innerHTML = '';
+                            // /api/search returns { status: 'success', data: [{ id, deceased_name, funeral_home, ... }] }
+                            var obits = (data && data.data) || [];
+                            if (obits.length === 0) {
+                                results.innerHTML = '<p style="color: var(--sage-dark); font-size: 0.9rem; padding: 0.5rem;">No matching memorial listings.</p>';
+                                return;
+                            }
+                            obits.slice(0, 8).forEach(function(o) {
+                                var name = o.deceased_name || o.name || '';
+                                var div = document.createElement('div');
+                                div.style.cssText = 'border: 1px solid var(--light-taupe); border-radius: 0.4rem; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;';
+                                div.innerHTML = '<div><div style="font-weight: 600;">' + escapeHtml(name) + '</div><div style="font-size: 0.85rem; color: var(--sage-dark);">' + escapeHtml(o.funeral_home || '') + '</div></div>' +
+                                                '<button type="button" style="background: var(--terracotta); color: white; border: none; padding: 0.4rem 0.9rem; border-radius: 1rem; font-family: \'Source Serif 4\', serif; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Link &rarr;</button>';
+                                div.querySelector('button').addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    if (!confirm('Link this shiva page to ' + (name || 'this memorial listing') + '?')) return;
+                                    linkMemorial(o.id, name);
+                                });
+                                results.appendChild(div);
+                            });
+                        })
+                        .catch(function() {
+                            results.innerHTML = '<p style="color: #b00; font-size: 0.9rem; padding: 0.5rem;">Search failed. Please try again.</p>';
+                        });
+                }, 300);
+            });
+        }
+
+        function linkMemorial(obituaryId, obituaryName) {
+            var msg = document.getElementById('linkMemorialMessage');
+            msg.style.color = 'var(--sage-dark)';
+            msg.textContent = 'Linking…';
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/link-memorial', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ magic_token: magicToken, obituary_id: obituaryId })
+            }).then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+              .then(function(res) {
+                  if (res.ok && res.body.status === 'success') {
+                      msg.style.color = '#558b2f';
+                      msg.textContent = res.body.message || 'Linked.';
+                      updateLinkStatus(obituaryId, obituaryName);
+                      document.getElementById('linkSearchBox').value = '';
+                      document.getElementById('linkSearchResults').innerHTML = '';
+                  } else {
+                      msg.style.color = '#b00';
+                      msg.textContent = res.body.message || 'Could not link. Please try again.';
+                  }
+              }).catch(function() {
+                  msg.style.color = '#b00';
+                  msg.textContent = 'Network error. Please try again.';
+              });
+        }
+
+        function unlinkMemorial() {
+            if (!confirm('Unlink this shiva page from the memorial listing? You can re-link any time.')) return;
+            var msg = document.getElementById('linkMemorialMessage');
+            msg.style.color = 'var(--sage-dark)';
+            msg.textContent = 'Unlinking…';
+            fetch('/api/shiva/' + encodeURIComponent(shivaId) + '/link-memorial', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ magic_token: magicToken, obituary_id: '' })
+            }).then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+              .then(function(res) {
+                  if (res.ok && res.body.status === 'success') {
+                      msg.style.color = '#558b2f';
+                      msg.textContent = res.body.message || 'Unlinked.';
+                      updateLinkStatus(null, null);
+                  } else {
+                      msg.style.color = '#b00';
+                      msg.textContent = res.body.message || 'Could not unlink. Please try again.';
+                  }
+              }).catch(function() {
+                  msg.style.color = '#b00';
+                  msg.textContent = 'Network error. Please try again.';
+              });
+        }
+
+        // After dashboard data loads, set up the search + show current link status.
+        // Uses family_name from supportData rather than fetching obituary by ID
+        // (no /api/obituaries/{id} endpoint exists; family_name is good enough for display).
+        function initLinkMemorialUI(shivaData) {
+            if (shivaData && shivaData.obituary_id) {
+                updateLinkStatus(shivaData.obituary_id, shivaData.family_name || '(linked)');
+            } else {
+                updateLinkStatus(null, null);
+            }
+            setupLinkMemorial();
+        }
+
+        // Hook into existing loadPage flow — find shivaData and call initLinkMemorialUI
+        // We do this by exposing the function and calling from the page-load success path.
+        window.__initLinkMemorialUI = initLinkMemorialUI;
 
         // -- Init --
         setupNav();

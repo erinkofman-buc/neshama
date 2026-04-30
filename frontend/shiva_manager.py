@@ -855,6 +855,64 @@ class ShivaManager:
 
     # ── Extend Shiva Dates ────────────────────────────────────
 
+    def link_to_memorial(self, support_id, magic_token, obituary_id):
+        """Apr 29 2026: Organizer-initiated relink of a shiva page to a memorial listing.
+        Closes the manual-DB-update gap from scraper-integrity-plan.md.
+
+        Allows:
+        - Setting obituary_id when currently NULL (organizer found the listing later)
+        - Updating obituary_id if previously linked to wrong obituary
+        - Unlinking (passing empty string) to revert to standalone
+
+        If obituary_id is non-empty, validates it exists in obituaries table.
+        Logs the change for audit trail.
+        """
+        conn = self._get_conn()
+        cursor = conn.cursor()
+
+        # Verify organizer auth via magic_token (uses hmac.compare_digest internally)
+        row = self._verify_organizer(cursor, support_id, magic_token)
+        if not row:
+            conn.close()
+            return {'status': 'error', 'message': 'Invalid support ID or token'}
+
+        # Normalize obituary_id (treat 'unknown', empty as unlink)
+        new_obit_id = self._normalize_obituary_id(obituary_id)
+
+        # If linking (not unlinking), validate the obituary exists
+        if new_obit_id:
+            cursor.execute('SELECT id, name FROM obituaries WHERE id = ?', (new_obit_id,))
+            obit_row = cursor.fetchone()
+            if not obit_row:
+                conn.close()
+                return {'status': 'error', 'message': 'No memorial listing found with that ID. Try searching again.'}
+            obit_name = obit_row['name'] if 'name' in obit_row.keys() else '(unknown)'
+        else:
+            obit_name = None
+
+        # Capture previous link for audit
+        previous_obit_id = row['obituary_id']
+
+        # Do the update
+        cursor.execute('UPDATE shiva_support SET obituary_id = ? WHERE id = ?',
+                       (new_obit_id, support_id))
+        conn.commit()
+
+        # Audit log (best-effort, don't fail the request if logging fails)
+        try:
+            import logging
+            action = 'unlinked' if not new_obit_id else ('relinked' if previous_obit_id else 'linked')
+            logging.info(f"[ShivaLink] {action} shiva={support_id} previous_obituary_id={previous_obit_id!r} new_obituary_id={new_obit_id!r}")
+        except Exception:
+            pass
+
+        conn.close()
+
+        if new_obit_id:
+            return {'status': 'success', 'message': f'Linked to {obit_name}', 'obituary_id': new_obit_id}
+        else:
+            return {'status': 'success', 'message': 'Unlinked from memorial listing', 'obituary_id': None}
+
     def extend_dates(self, support_id, magic_token, new_end_date):
         """Extend the shiva end date. Only moves the date forward, never back.
         Max 30 days extension from the current end date.
@@ -1643,7 +1701,10 @@ class ShivaManager:
         if data.get('website', '').strip() and not website:
             return {'status': 'error', 'message': 'Website must start with http:// or https://'}
 
-        valid_kosher = ('certified_kosher', 'kosher_style', 'not_kosher')
+        # Apr 29 2026: kosher_status is now binary per feedback_no_kosher_style.md
+        # ('kosher' / 'not_kosher'). Legacy values preserved for backward compat
+        # until the Sat May 2 SQL migration retires them from the DB.
+        valid_kosher = ('kosher', 'not_kosher', 'certified_kosher', 'kosher_style')
         kosher = data.get('kosher_level', '').strip()
         if kosher not in valid_kosher:
             return {'status': 'error', 'message': 'Invalid kosher level'}
@@ -1767,7 +1828,9 @@ class ShivaManager:
         params = []
 
         if filters.get('kosher'):
-            conditions.append("kosher_level IN ('certified_kosher', 'kosher_style')")
+            # Apr 29 2026: includes new binary 'kosher' value alongside legacy 'certified_kosher'/'kosher_style'.
+            # After Sat May 2 SQL migration, only 'kosher' will remain in the DB.
+            conditions.append("kosher_level IN ('kosher', 'certified_kosher', 'kosher_style')")
         if filters.get('delivery'):
             conditions.append('has_delivery = 1')
         if filters.get('online_ordering'):
@@ -1817,7 +1880,7 @@ class ShivaManager:
                 data.get('website'),
                 data.get('instagram'),
                 data.get('delivery_area', ''),
-                data.get('kosher_level', 'kosher_style'),
+                data.get('kosher_level', 'not_kosher'),  # Apr 29 2026: default to 'not_kosher' (binary) instead of legacy 'kosher_style'
                 1 if data.get('has_delivery') else 0,
                 1 if data.get('has_online_ordering') else 0,
                 data.get('price_range', '$$'),

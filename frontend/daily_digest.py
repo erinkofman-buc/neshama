@@ -329,7 +329,7 @@ class DailyDigestSender:
 
         return html
     
-    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None):
+    def send_digest_to_subscriber(self, email, unsubscribe_token, html_content, locations=None, obit_count=None):
         """Send digest email to a single subscriber"""
         if not self.sendgrid_api_key:
             logging.error(f"[DailyDigest] CANNOT send to {email} — no SendGrid API key (TEST MODE)")
@@ -339,7 +339,10 @@ class DailyDigestSender:
         unsubscribe_url = f"https://neshama.ca/unsubscribe/{unsubscribe_token}"
         html_with_unsubscribe = html_content.replace('{{unsubscribe_url}}', unsubscribe_url)
 
-        # Location-aware subject line
+        # Location-aware, action-signaling subject line.
+        # Research finding: count-led subjects beat date-only. "4 obituaries today" reads as
+        # information; "Today in the Jewish community — April 28" reads as filler.
+        # Em dash removed (brand voice). Middle dot is a clean separator, not a dash.
         loc_list = [l.strip() for l in (locations or 'toronto,montreal').split(',')]
         if loc_list == ['toronto']:
             community = 'the Toronto Jewish community'
@@ -347,7 +350,13 @@ class DailyDigestSender:
             community = 'the Montreal Jewish community'
         else:
             community = 'the Jewish community'
-        subject = f'Today in {community} — {datetime.now().strftime("%B %d, %Y")}'
+
+        if obit_count is None or obit_count == 0:
+            subject = f'Quiet day · {community}'
+        elif obit_count == 1:
+            subject = f'1 obituary today · {community}'
+        else:
+            subject = f'{obit_count} obituaries today · {community}'
 
         try:
             plain_text = _html_to_plain(html_with_unsubscribe)
@@ -428,6 +437,11 @@ class DailyDigestSender:
                     if o['id'] not in seen:
                         seen.add(o['id'])
                         unique_obits.append(o)
+                # Cross-location dedup: same person scraped by two funeral homes (e.g., Steeles + Misaskim)
+                # has different DB ids, so id-dedup misses them. Re-run name-normalized dedup over the
+                # combined toronto+montreal list to catch these. Naomi Bendon shipped twice in Apr 28 send
+                # because of this gap. `deduplicate_obituaries` is conservative — keeps both when in doubt.
+                unique_obits = deduplicate_obituaries(unique_obits)
                 unique_obits.sort(key=lambda x: x.get('first_seen') or x.get('last_updated', ''), reverse=True)
 
                 if not unique_obits:
@@ -438,7 +452,9 @@ class DailyDigestSender:
                 else:
                     # Generate per-subscriber email HTML
                     html_content = self.generate_email_html(unique_obits)
-            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations)
+            # Pass obit count so subject line can use action-signal format ("4 obituaries today · ...")
+            obit_count_for_subject = 0 if quiet_day else len(unique_obits)
+            result = self.send_digest_to_subscriber(email, unsubscribe_token, html_content, locations, obit_count=obit_count_for_subject)
 
             if result.get('success'):
                 sent_count += 1

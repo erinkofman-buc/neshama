@@ -182,20 +182,17 @@
 
         /* ── Filter Bar (Task 3) ── */
         .filter-bar {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
+            /* Full-width sticky bar so background covers the screen edge-to-edge,
+               preventing vendor cards from bleeding past the bar at wider breakpoints. */
+            margin: 0;
+            padding: 0.75rem 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
             position: sticky;
             top: 56px;
             z-index: 100;
-            background: rgba(250, 249, 246, 0.97);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
+            background: var(--cream);
             border-bottom: 1px solid rgba(212, 197, 185, 0.3);
         }
 
@@ -308,6 +305,10 @@
         }
 
         /* ── Vendor Grid ── */
+        /* Default: 2 columns up to ~1280px (matches V3 directory rebuild Apr 19).
+           At wider breakpoints, scale to 3 then 4 columns so wide screens don't
+           waste horizontal whitespace. Cap at 4 columns + 1600px max-width so
+           ultra-wide screens don't make cards uselessly narrow. */
         .vendor-grid {
             max-width: 960px;
             margin: 1.5rem auto 0;
@@ -315,6 +316,20 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.25rem;
+        }
+
+        @media (min-width: 1100px) {
+            .vendor-grid {
+                max-width: 1280px;
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1500px) {
+            .vendor-grid {
+                max-width: 1600px;
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .vendor-card {
@@ -977,13 +992,13 @@
                 }
 
                 // Badge overlays on image (Task 4)
-                var hasBadges = (v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery);
+                var hasBadges = (v.kosher_status === 'Kosher' || v.kosher_status === 'COR' || v.kosher_status === 'MK' || v.delivery);
                 if (hasBadges) {
                     html += '<div class="vendor-card-badges">';
-                    if (v.kosher_status === 'COR') {
-                        html += '<span class="badge kosher" title="Kosher certified by the Council of Orthodox Rabbis (Toronto)">Kosher (COR)</span>';
-                    } else if (v.kosher_status === 'MK') {
-                        html += '<span class="badge kosher" title="Kosher certified by Montreal Kosher / Vaad Ha\'ir">Kosher (MK)</span>';
+                    // Apr 29 2026: binary kosher per feedback_no_kosher_style. Catches new 'Kosher' value
+                    // and legacy 'COR'/'MK' until Saturday SQL migration retires them.
+                    if (v.kosher_status === 'Kosher' || v.kosher_status === 'COR' || v.kosher_status === 'MK') {
+                        html += '<span class="badge kosher" title="Kosher">Kosher</span>';
                     }
                     if (v.delivery) {
                         html += '<span class="badge delivery">Delivery</span>';
