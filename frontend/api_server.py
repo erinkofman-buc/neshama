@@ -3617,28 +3617,50 @@ button:hover{background:#c45a1a}</style></head>
 
     def get_referral_stats(self):
         """Get referral tracking stats (GET /api/referral-stats).
-        Public (no PII) — only channel names and visit counts."""
+        Public (no PII) — only channel names and visit counts.
+
+        Filters internal test codes (smoke-test, test, browser-test, anything
+        starting with 'test-') so the dashboard reflects real-world referrals.
+        Pass ?include_test=1 to bypass for debugging."""
         try:
+            # Detect ?include_test=1 query param
+            from urllib.parse import urlparse, parse_qs
+            qs = parse_qs(urlparse(self.path).query)
+            include_test = qs.get('include_test', ['0'])[0] == '1'
+
             db_path = self.get_db_path()
             conn = _connect_db(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
+            # Test codes to exclude from production view
+            test_codes = ('smoke-test', 'test', 'browser-test', 'test-verify')
+            test_filter = "" if include_test else (
+                "WHERE ref_code NOT IN ({}) AND ref_code NOT LIKE 'test-%'"
+                .format(','.join(['?'] * len(test_codes)))
+            )
+            test_filter_and = "" if include_test else (
+                "AND ref_code NOT IN ({}) AND ref_code NOT LIKE 'test-%'"
+                .format(','.join(['?'] * len(test_codes)))
+            )
+            test_args = () if include_test else test_codes
+
             # Overall stats by ref_code
             by_channel = []
             total = 0
             try:
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT ref_code,
                            COUNT(*) as visits,
                            MIN(created_at) as first_visit,
                            MAX(created_at) as last_visit
                     FROM referrals
+                    {test_filter}
                     GROUP BY ref_code
                     ORDER BY visits DESC
-                ''')
+                ''', test_args)
                 by_channel = [dict(row) for row in cursor.fetchall()]
-                cursor.execute('SELECT COUNT(*) FROM referrals')
+                cursor.execute(f'SELECT COUNT(*) FROM referrals {test_filter}', test_args)
                 total = cursor.fetchone()[0]
             except Exception:
                 pass
@@ -3646,15 +3668,15 @@ button:hover{background:#c45a1a}</style></head>
             # Last 7 days trend
             daily_trend = []
             try:
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT DATE(created_at) as day,
                            ref_code,
                            COUNT(*) as visits
                     FROM referrals
-                    WHERE created_at >= DATE('now', '-7 days')
+                    WHERE created_at >= DATE('now', '-7 days') {test_filter_and}
                     GROUP BY day, ref_code
                     ORDER BY day DESC, visits DESC
-                ''')
+                ''', test_args)
                 daily_trend = [dict(row) for row in cursor.fetchall()]
             except Exception:
                 pass
