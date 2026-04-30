@@ -89,6 +89,26 @@ _RATE_LIMIT_MAX_CALLS = 3  # max 3 email-sends per 5 min per IP
 _rate_limit_last_cleanup = 0  # epoch time of last full cleanup
 _RATE_LIMIT_CLEANUP_INTERVAL = 600  # full cleanup every 10 minutes
 
+# Health-check write-probe rate limiting (Phase 1 fix, 2026-04-30)
+# Background: /api/health used to INSERT into scraper_log on every hit. Render polls every
+# ~4.3s, so prod was running ~840 INSERTs/hr (98% of scraper_log volume). The write storm
+# contended with scraper subprocess WAL writes and pushed /api/health response time past
+# Render's 5s timeout, triggering ~3.4 silent restarts/day. Plan locked at
+# 01-Projects/Neshama/render-memory-fix-plan-2026-04-27.md.
+_LAST_WRITE_PROBE_TIME = 0.0      # epoch time of last actual INSERT
+_LAST_WRITE_PROBE_OK = True       # cached result of last probe (default True so first hit doesn't false-alarm)
+_LAST_WRITE_PROBE_ERROR = None    # cached error from last failed probe
+_LAST_WRITE_PROBE_DETAIL = {}     # cached diagnostic detail (only populated on failure)
+_WRITE_PROBE_INTERVAL = 60        # seconds between actual INSERTs
+
+# Per-IP rate limit + response cache for /api/health
+# Render and any external pollers hit this endpoint; cache the full response so we don't
+# re-run all the read-side checks on every hit either.
+_HEALTH_CHECK_IP_LAST = {}        # client_ip -> epoch time of last allowed run
+_HEALTH_CHECK_IP_LAST_MAX = 1000  # bounded LRU; evict oldest on insert when full
+_HEALTH_CHECK_MIN_INTERVAL = 5    # seconds per IP between full re-runs
+_HEALTH_CHECK_CACHE = {'last_run': 0.0, 'response_body': None, 'response_status': 200}
+
 
 def _check_rate_limit(client_ip, endpoint, max_calls=_RATE_LIMIT_MAX_CALLS, window=_RATE_LIMIT_WINDOW):
     """Return True if the request is within rate limits, False if exceeded."""
@@ -5340,6 +5360,34 @@ button:hover{background:#c45a1a}</style></head>
     def _handle_health_check(self):
         """GET /api/health — comprehensive service health check.
         Returns status of every subsystem so smoke tests can verify nothing broke."""
+        # Phase 1 fix (2026-04-30): per-IP rate limit + response cache.
+        # Render polls /api/health every few seconds; before this cache, every poll re-ran
+        # all the read-side checks (table counts, freshness query, disk usage, etc).
+        # Cache window of 5s is well inside Render's 15s/60s failure-detection thresholds —
+        # they still see real failures within 5s.
+        global _HEALTH_CHECK_IP_LAST, _HEALTH_CHECK_CACHE
+        _now_health = _time_module.time()
+        try:
+            client_ip = self._get_client_ip()
+        except Exception:
+            client_ip = 'unknown'
+        last_seen = _HEALTH_CHECK_IP_LAST.get(client_ip, 0.0)
+        if (_now_health - last_seen) < _HEALTH_CHECK_MIN_INTERVAL and _HEALTH_CHECK_CACHE.get('response_body') is not None:
+            cached_age = _now_health - _HEALTH_CHECK_CACHE['last_run']
+            cached_body = dict(_HEALTH_CHECK_CACHE['response_body'])
+            cached_body['_cached'] = True
+            cached_body['_cached_age_sec'] = round(cached_age, 1)
+            self.send_json_response(cached_body, _HEALTH_CHECK_CACHE.get('response_status', 200))
+            return
+        # Bound the IP-tracking dict (cap-on-insert LRU)
+        if len(_HEALTH_CHECK_IP_LAST) >= _HEALTH_CHECK_IP_LAST_MAX and client_ip not in _HEALTH_CHECK_IP_LAST:
+            try:
+                oldest_ip = min(_HEALTH_CHECK_IP_LAST.items(), key=lambda kv: kv[1])[0]
+                _HEALTH_CHECK_IP_LAST.pop(oldest_ip, None)
+            except (ValueError, KeyError):
+                pass
+        _HEALTH_CHECK_IP_LAST[client_ip] = _now_health
+
         checks = {}
         all_ok = True
 
@@ -5361,23 +5409,56 @@ button:hover{background:#c45a1a}</style></head>
                     all_ok = False
 
             # Test DB is writable + diagnostics
+            # Phase 1 fix (2026-04-30): rate-limit the actual INSERT to once per
+            # _WRITE_PROBE_INTERVAL (60s). Other hits return the cached probe state.
+            # On probe failure we immediately retry on the next hit (don't wait the window).
+            global _LAST_WRITE_PROBE_TIME, _LAST_WRITE_PROBE_OK
+            global _LAST_WRITE_PROBE_ERROR, _LAST_WRITE_PROBE_DETAIL
             journal_mode = 'unknown'
             wal_exists = os.path.exists(db_path + '-wal')
             shm_exists = os.path.exists(db_path + '-shm')
             subprocess_write = 'not_tested'
+            now_epoch = _time_module.time()
+            should_probe = (
+                not _LAST_WRITE_PROBE_OK
+                or (now_epoch - _LAST_WRITE_PROBE_TIME) >= _WRITE_PROBE_INTERVAL
+            )
             try:
                 journal_mode = cursor.execute('PRAGMA journal_mode').fetchone()[0]
                 conn.close()  # Close read connection first
 
-                # Test write with autocommit connection (isolation_level=None)
-                # This bypasses Python's implicit transaction management
-                test_conn = sqlite3.connect(db_path, timeout=5, isolation_level=None)
-                test_conn.execute('PRAGMA busy_timeout=5000')
-                test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
-                test_conn.close()
-                checks['db_writable'] = {'ok': True, 'journal_mode': journal_mode}
+                if should_probe:
+                    # Live write probe — test write with autocommit connection
+                    test_conn = sqlite3.connect(db_path, timeout=5, isolation_level=None)
+                    test_conn.execute('PRAGMA busy_timeout=5000')
+                    test_conn.execute("INSERT INTO scraper_log (source, run_time, status) VALUES ('health_check', datetime('now'), 'test')")
+                    test_conn.close()
+                    _LAST_WRITE_PROBE_OK = True
+                    _LAST_WRITE_PROBE_TIME = now_epoch
+                    _LAST_WRITE_PROBE_ERROR = None
+                    _LAST_WRITE_PROBE_DETAIL = {}
+                    checks['db_writable'] = {'ok': True, 'journal_mode': journal_mode, 'probed': True}
+                elif _LAST_WRITE_PROBE_OK:
+                    # Cached success — skip the INSERT
+                    checks['db_writable'] = {
+                        'ok': True,
+                        'journal_mode': journal_mode,
+                        'cached': True,
+                        'probe_age_sec': round(now_epoch - _LAST_WRITE_PROBE_TIME, 1),
+                    }
+                else:
+                    # Cached failure — surface stored detail without re-running diagnostics
+                    checks['db_writable'] = {
+                        'ok': False,
+                        'cached': True,
+                        'probe_age_sec': round(now_epoch - _LAST_WRITE_PROBE_TIME, 1),
+                        'error': _LAST_WRITE_PROBE_ERROR,
+                        **(_LAST_WRITE_PROBE_DETAIL or {}),
+                    }
+                    all_ok = False
             except Exception as e:
-                # Try subprocess write as diagnostic (use 'python' not 'python3' for Render)
+                # Live probe failed — run full diagnostic, cache result for next 60s.
+                # (use 'python' not 'python3' for Render)
                 try:
                     result = subprocess.run(
                         ['python', '-c',
@@ -5431,9 +5512,7 @@ button:hover{background:#c45a1a}</style></head>
                 except Exception as se:
                     db_stat = {'error': str(se)}
 
-                checks['db_writable'] = {
-                    'ok': False,
-                    'error': str(e),
+                failure_detail = {
                     'journal_mode': journal_mode,
                     'wal_file': wal_exists,
                     'shm_file': shm_exists,
@@ -5442,6 +5521,15 @@ button:hover{background:#c45a1a}</style></head>
                     'open_fds_to_db': open_fds,
                     'fd_details': fd_details[:10],
                     'subprocess_write': subprocess_write,
+                }
+                _LAST_WRITE_PROBE_OK = False
+                _LAST_WRITE_PROBE_TIME = now_epoch
+                _LAST_WRITE_PROBE_ERROR = str(e)
+                _LAST_WRITE_PROBE_DETAIL = failure_detail
+                checks['db_writable'] = {
+                    'ok': False,
+                    'error': str(e),
+                    **failure_detail,
                 }
                 all_ok = False
 
@@ -5454,7 +5542,19 @@ button:hover{background:#c45a1a}</style></head>
             # So: if scraper thread heartbeat is recent (<40 min), data freshness is informational only
             # Grace periods: don't flag stale during Shabbat or within 5 min of startup
             try:
-                cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
+                # Phase 1 add-on (2026-04-30): query scraper_log not obituaries.
+                # The previous query (obituaries.MAX(scraped_at)) flagged any source as stale
+                # when no NEW obituary was inserted in 3 hours. That conflated two states:
+                # "scraper hasn't run" (real problem) with "scraper ran but found nothing
+                # new" (normal for low-volume sources like Misaskim). Querying scraper_log
+                # answers the actual question: did the scraper run recently?
+                cursor.execute('''
+                    SELECT source, MAX(run_time) as latest
+                    FROM scraper_log
+                    WHERE source IN ('Steeles Memorial Chapel', "Benjamin's Park Memorial Chapel",
+                                     'Misaskim', 'Paperman & Sons')
+                    GROUP BY source
+                ''')
                 three_hours_ago = (datetime.now(tz=_tz.utc) - timedelta(hours=3)).isoformat()
                 shabbat_now = is_shabbat()
                 startup_grace = (datetime.now(tz=_tz.utc) - _SERVER_START_TIME).total_seconds() < 300
@@ -5589,10 +5689,15 @@ button:hover{background:#c45a1a}</style></head>
             checks['disk'] = {'ok': True, 'error': str(e), 'note': 'Could not check disk usage'}
 
         status_code = 200 if all_ok else 503
-        self.send_json_response({
+        response_body = {
             'status': 'ok' if all_ok else 'degraded',
-            'checks': checks
-        }, status_code)
+            'checks': checks,
+        }
+        # Cache for the next _HEALTH_CHECK_MIN_INTERVAL seconds (Phase 1 fix)
+        _HEALTH_CHECK_CACHE['last_run'] = _now_health
+        _HEALTH_CHECK_CACHE['response_body'] = response_body
+        _HEALTH_CHECK_CACHE['response_status'] = status_code
+        self.send_json_response(response_body, status_code)
 
     def _check_admin_auth(self):
         """Check admin authentication via Authorization header, X-Admin-Key header, or ?key= query param.
@@ -6279,6 +6384,42 @@ def run_server(port=None):
         except Exception as e:
             logging.error(f"[OffsiteBackup] Failed to add scheduler job: {e}")
 
+        # Daily scraper_log prune (4 AM ET, off-peak, no Shabbat collision)
+        # Phase 1 fix (2026-04-30): keeps the table at ~50K rolling rows. With
+        # the /api/health write-probe rate limit (60s) + active scrapers, growth
+        # is ~1,680 rows/day → 50K = ~30 days of history. Cap chosen to keep
+        # full-table operations sub-second.
+        try:
+            def _prune_scraper_log_job():
+                try:
+                    pconn = sqlite3.connect(DB_PATH, timeout=30, isolation_level=None)
+                    pconn.execute("PRAGMA busy_timeout=15000")
+                    cur = pconn.execute(
+                        "DELETE FROM scraper_log WHERE id NOT IN ("
+                        "SELECT id FROM scraper_log ORDER BY id DESC LIMIT 50000"
+                        ")"
+                    )
+                    deleted = cur.rowcount
+                    pconn.close()
+                    logging.info(f"[ScraperLogPrune] Daily prune deleted {deleted} rows (rolling 50K cap)")
+                except Exception as e:
+                    logging.error(f"[ScraperLogPrune] Failed: {e}")
+
+            scheduler.add_job(
+                _prune_scraper_log_job,
+                'cron',
+                hour=4,
+                minute=0,
+                timezone='America/Toronto',
+                id='prune_scraper_log',
+                name='Daily scraper_log prune (rolling 50K cap)',
+                max_instances=1,
+                coalesce=True,
+            )
+            logging.info("[ScraperLogPrune] Scheduler added (daily 4 AM ET, rolling 50K cap)")
+        except Exception as e:
+            logging.error(f"[ScraperLogPrune] Failed to add scheduler job: {e}")
+
         scheduler.start()
         logging.info(f"[Scheduler] APScheduler started — all background jobs active")
     except Exception as e:
@@ -6653,6 +6794,38 @@ def run_server(port=None):
                 logging.info(f" Migrations: removed {cursor.rowcount} duplicate caterer_partners rows")
         except Exception as e:
             logging.info(f" Migration caterer-partners-dedup: {e}")
+
+        # Migration 2026-04-30 (Phase 1): Prune scraper_log + add indexes (one-shot, idempotent)
+        # Background: scraper_log was 644K rows on prod, 98% health_check noise. Plan locked
+        # at 01-Projects/Neshama/render-memory-fix-plan-2026-04-27.md. After this migration,
+        # combined with the /api/health write-probe rate limit (60s), expected steady-state
+        # is ~50K rows. Indexes make per-source freshness queries sub-millisecond.
+        try:
+            # Prune health_check rows older than 7 days (keep recent ones for diagnostics)
+            cursor.execute(
+                "DELETE FROM scraper_log WHERE source='health_check' AND run_time < datetime('now', '-7 days')"
+            )
+            pruned = cursor.rowcount
+            # Add indexes (CREATE INDEX IF NOT EXISTS is idempotent)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_scraper_log_run_time ON scraper_log(run_time)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_scraper_log_status_run_time ON scraper_log(status, run_time)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_scraper_log_source_run_time ON scraper_log(source, run_time)")
+            conn.commit()
+            if pruned > 1000:
+                # Only VACUUM when there's meaningful space to reclaim. VACUUM locks the DB
+                # for ~30s on a 32MB file. Skip on small DBs (local dev, fresh deploys).
+                # Must use a separate autocommit connection — VACUUM can't run in a transaction.
+                vac_conn = sqlite3.connect(db_path, timeout=60, isolation_level=None)
+                try:
+                    vac_conn.execute("PRAGMA busy_timeout=30000")
+                    vac_conn.execute("VACUUM")
+                finally:
+                    vac_conn.close()
+                logging.info(f" Migrations: pruned {pruned} stale health_check rows + 3 indexes + VACUUM")
+            else:
+                logging.info(f" Migrations: pruned {pruned} stale health_check rows + 3 indexes (skipped VACUUM, low row count)")
+        except Exception as e:
+            logging.info(f" Migration scraper-log-prune-index: {e}")
 
         # V3 (Apr 2026): Legacy pre-V3 vendor migrations DISABLED.
         # seed_vendors.py is the single source of truth for vendor data going forward.
