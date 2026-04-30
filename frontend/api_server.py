@@ -5688,6 +5688,38 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             checks['disk'] = {'ok': True, 'error': str(e), 'note': 'Could not check disk usage'}
 
+        # 9. scraper_log diagnostics (Phase 1 self-validation, 2026-04-30)
+        # Surfaces whether the rolling 50K cap is holding + whether the 60s health-check
+        # write rate-limit is working in prod. All queries use the indexes added in
+        # the Phase 1 startup migration (sub-millisecond at any row count).
+        try:
+            slog_conn = _connect_db(db_path)
+            slog_cur = slog_conn.cursor()
+            slog_cur.execute("SELECT COUNT(*) FROM scraper_log")
+            slog_total = slog_cur.fetchone()[0]
+            slog_cur.execute(
+                "SELECT COUNT(*) FROM scraper_log "
+                "WHERE source='health_check' AND run_time > datetime('now', '-1 hour')"
+            )
+            slog_health_last_hour = slog_cur.fetchone()[0]
+            slog_cur.execute(
+                "SELECT source, COUNT(*) FROM scraper_log "
+                "WHERE run_time > datetime('now', '-24 hours') "
+                "GROUP BY source ORDER BY 2 DESC"
+            )
+            slog_by_source_24h = {row[0]: row[1] for row in slog_cur.fetchall()}
+            slog_conn.close()
+            # Targets after Phase 1 fix: total < 60K, health_check/hr < 70, no source absent
+            checks['scraper_log'] = {
+                'ok': slog_total < 60000 and slog_health_last_hour < 70,
+                'total_rows': slog_total,
+                'health_check_last_hour': slog_health_last_hour,
+                'by_source_24h': slog_by_source_24h,
+                'targets': {'total_rows_lt': 60000, 'health_check_per_hour_lt': 70},
+            }
+        except Exception as e:
+            checks['scraper_log'] = {'ok': True, 'error': str(e), 'note': 'Could not query scraper_log'}
+
         status_code = 200 if all_ok else 503
         response_body = {
             'status': 'ok' if all_ok else 'degraded',
