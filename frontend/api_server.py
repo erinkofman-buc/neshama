@@ -6631,6 +6631,29 @@ def run_server(port=None):
         except Exception as e:
             logging.info(f" Migration jem-salads-online: {e}")
 
+        # Migration 2026-04-30: Remove duplicate caterer_partners rows
+        # Apr 5 import overlapped with Feb 15 / Feb 20 entries; for each cluster keep the row
+        # with the better data (real email > placeholder, online_ordering=1 > 0). IDs targeted
+        # so this migration is idempotent and only ever touches these specific rows.
+        duplicate_caterer_ids = [
+            '0b9d6dfb-8537-4da1-854d-b124552474e8',  # Jem Salads (wrong phone 785-6161, banned kosher_style label) — keep da74f265
+            'd1f4e8cf-6a47-4cb4-b3d5-3168a71de8a9',  # Ely Fine Foods (Feb 20) — keep elys-fine-foods (Apr 5, slug-style id)
+            'pusateris-fine-foods',                   # Pusateri's (Apr 5 placeholder email) — keep 165844d9 (Feb 20 real email + online_ordering=1)
+            'daniel-et-daniel-catering',              # Daniel et Daniel Catering (Apr 5 placeholder email) — keep f6f58165 (Feb 20 real email)
+            'benny-fils',                             # Benny & Fils generic (placeholder email) — keep benny-fils-queen-mary + benny-fils-downtown
+        ]
+        try:
+            placeholders = ','.join(['?'] * len(duplicate_caterer_ids))
+            cursor.execute(
+                f"DELETE FROM caterer_partners WHERE id IN ({placeholders})",
+                duplicate_caterer_ids,
+            )
+            if cursor.rowcount:
+                conn.commit()
+                logging.info(f" Migrations: removed {cursor.rowcount} duplicate caterer_partners rows")
+        except Exception as e:
+            logging.info(f" Migration caterer-partners-dedup: {e}")
+
         # V3 (Apr 2026): Legacy pre-V3 vendor migrations DISABLED.
         # seed_vendors.py is the single source of truth for vendor data going forward.
         # The historical migrations below re-introduced old-category vendors on every
