@@ -5,12 +5,12 @@
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>See How It Works - Neshama</title>
-    <meta name="description" content="A 2-minute walkthrough of how Neshama brings communities together to support families sitting shiva. See the real product in action.">
+    <meta name="description" content="A scene-by-scene look at how Neshama supports a family sitting shiva, from listing to shiva meals to yahrzeit.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="canonical" href="https://neshama.ca/demo">
     <meta property="og:title" content="See How Neshama Works">
-    <meta property="og:description" content="A 2-minute walkthrough — from obituary to organized shiva meals. See how community comes together.">
+    <meta property="og:description" content="A scene-by-scene look at how Neshama supports a family sitting shiva, from listing to shiva meals to yahrzeit.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca/demo">
     <meta property="og:site_name" content="Neshama">
@@ -19,7 +19,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="See How Neshama Works">
-    <meta name="twitter:description" content="A 2-minute walkthrough — from obituary to organized shiva meals. See how community comes together.">
+    <meta name="twitter:description" content="A scene-by-scene look at how Neshama supports a family sitting shiva, from listing to shiva meals to yahrzeit.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -909,13 +909,28 @@
     <!-- Animations + Interactions -->
     <script>
     (function() {
-        // Scroll-triggered fade-in
+        // Plausible event helper (no-op if script blocked)
+        function track(name) {
+            if (window.plausible) { window.plausible(name); }
+        }
+        var fired = {};
+        function trackOnce(name) {
+            if (fired[name]) { return; }
+            fired[name] = true;
+            track(name);
+        }
+
+        // Scroll-triggered fade-in + scene-3 / scene-6 scroll events
         var els = document.querySelectorAll('[data-animate]');
         if ('IntersectionObserver' in window) {
             var observer = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
+                        var n = entry.target.querySelector('.scene-number');
+                        var sceneId = n ? n.textContent.trim() : null;
+                        if (sceneId === '3') { trackOnce('Demo Scene 3 Scroll'); }
+                        if (sceneId === '6') { trackOnce('Demo Scene 6 Scroll'); }
                         observer.unobserve(entry.target);
                     }
                 });
@@ -925,12 +940,27 @@
             els.forEach(function(el) { el.classList.add('visible'); });
         }
 
-        // WhatsApp share
+        // CTA click events (fire before navigation; sendBeacon survives nav)
+        var ctaPrimary = document.querySelector('.cta-btn-primary');
+        if (ctaPrimary) {
+            ctaPrimary.addEventListener('click', function() {
+                track('Demo Explore the Feed Click');
+            });
+        }
+        var ctaSecondary = document.querySelector('.cta-btn-secondary');
+        if (ctaSecondary) {
+            ctaSecondary.addEventListener('click', function() {
+                track('Demo Organize a Shiva Click');
+            });
+        }
+
+        // WhatsApp share (UTM-tagged URL + click event)
         var shareBtn = document.getElementById('shareWhatsApp');
         if (shareBtn) {
             shareBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                var msg = encodeURIComponent("Have you seen this? Neshama brings together obituaries and shiva meal coordination for the Toronto and Montreal Jewish community. Take a look: https://neshama.ca/demo?ref=whatsapp-share");
+                track('Demo WhatsApp Click');
+                var msg = encodeURIComponent("Have you seen this? Neshama brings together obituaries and shiva meal coordination for the Toronto and Montreal Jewish community. Take a look: https://neshama.ca/demo?utm_source=whatsapp&utm_medium=social&utm_campaign=demo-share");
                 window.open('https://wa.me/?text=' + msg, '_blank');
             });
         }
