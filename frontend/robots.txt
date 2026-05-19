@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /manage-subscription
+Disallow: /confirm/
+Disallow: /unsubscribe/
+Disallow: /yahrzeit/confirm/
+Disallow: /yahrzeit/unsubscribe/
 
 Sitemap: https://neshama.ca/sitemap.xml
