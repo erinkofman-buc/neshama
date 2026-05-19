@@ -1,5 +1,16 @@
 # Neshama Project
 
+---
+## Brand enforcement (mandatory)
+
+Before any edit, write, review, draft, or deploy of Neshama content, read `.claude/skills/neshama-brand-check/SKILL.md` and follow it in full. This applies to code, copy, HTML, Markdown, social, email, lead magnets, and demo assets.
+
+The skill enforces BRAND.md (canonical, locked 2026-05-10). It catches em-dashes (literal and HTML-entity), emojis (literal and HTML-entity), font guard violations, and tagline drift.
+
+Do not rely on skill auto-load. Load this skill on the first turn of every Neshama session.
+
+---
+
 ## Architecture
 - Python/SQLite backend (api_server.py + shiva_manager.py)
 - Static HTML/CSS/JS frontend (no framework)
