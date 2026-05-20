@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memorial - Neshama</title>
+    <title>Memorial | Neshama</title>
     <meta name="description" content="A place to honour and remember a cherished life. Light a candle, share memories, and coordinate community support with family and friends on Neshama.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Neshama">
     <link rel="canonical" href="https://neshama.ca/memorial">
-    <meta property="og:title" content="Memorial - Neshama">
+    <meta property="og:title" content="Memorial | Neshama">
     <meta property="og:description" content="A place to honour and remember a cherished life. Light a candle, share memories, and coordinate community support with family and friends on Neshama.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca/memorial">
@@ -23,7 +23,7 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Memorial - Neshama">
+    <meta name="twitter:title" content="Memorial | Neshama">
     <meta name="twitter:description" content="A place to honour and remember a cherished life. Light a candle, share memories, and coordinate community support with family and friends on Neshama.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script type="application/ld+json">
@@ -955,7 +955,7 @@
 
             /* Print footer with URL */
             body::after {
-                content: "Memorial page: " attr(data-print-url) " — neshama.ca";
+                content: "Memorial page: " attr(data-print-url) " - neshama.ca";
                 display: block; text-align: center; margin-top: 2rem;
                 font-size: 0.85rem; color: #666;
             }
@@ -1028,7 +1028,7 @@
             </div>
         </section>
 
-        <!-- Hero CTA — above the fold -->
+        <!-- Hero CTA - above the fold -->
         <div id="heroCta" style="display:none; text-align:center; padding: 0 0 1rem;">
             <a id="heroCtaBtn" href="#" class="support-cta-btn" style="font-size:1.1rem; padding:0.9rem 2.5rem;">Organize Shiva Meals</a>
             <a href="/help/gifts" style="display:block; margin-top:0.75rem; color:var(--sage-dark); font-size:0.95rem; text-decoration:none; transition:color 0.2s;">Send Something Thoughtful &rarr;</a>
@@ -1522,10 +1522,10 @@
                         html += '<div class="support-summary">';
                         if (s.shiva_start_date && s.shiva_end_date) {
                             html += '<span>Shiva: ' + escapeHtml(formatDate(s.shiva_start_date)) +
-                                    ' &ndash; ' + escapeHtml(formatDate(s.shiva_end_date)) + '</span>';
+                                    ' - ' + escapeHtml(formatDate(s.shiva_end_date)) + '</span>';
                         }
                         if (isPrivate) {
-                            html += '<span style="color:var(--terracotta);">This shiva page is private &mdash; the family is coordinating meals through direct invitations. You can request access on the page.</span>';
+                            html += '<span style="color:var(--terracotta);">This shiva page is private - the family is coordinating meals through direct invitations. You can request access on the page.</span>';
                         }
                         if (!isPrivate && s.dietary_notes) {
                             html += '<span>Dietary notes: ' + escapeHtml(s.dietary_notes) + '</span>';
@@ -1607,7 +1607,7 @@
                 });
             });
 
-            // WhatsApp — grief-appropriate pre-composed message
+            // WhatsApp - grief-appropriate pre-composed message
             var waLink = document.getElementById('shareWhatsApp');
             var waMessage = 'Baruch Dayan HaEmet. ' + obit.deceased_name + ' has passed away. Memorial and shiva details: ' + pageUrl;
             waLink.href = 'https://wa.me/?text=' + encodeURIComponent(waMessage);

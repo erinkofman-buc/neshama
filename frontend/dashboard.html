@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neshama - Cofounder Dashboard</title>
+    <title>Cofounder Dashboard | Neshama</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -393,7 +393,7 @@
 <body>
 
 <header class="dash-header">
-    <h1><span>Neshama</span> &mdash; Cofounder Dashboard</h1>
+    <h1><span>Neshama</span>: Cofounder Dashboard</h1>
     <div class="header-meta">
         <div class="refresh-indicator">
             <div class="dot"></div>
@@ -795,7 +795,7 @@
                             <span class="activity-tag tag-obituary">Obit</span>
                             ${escapeHTML(o.name || o.deceased_name || 'Unknown')}
                         </span>
-                        <span class="activity-meta">${escapeHTML(o.funeral_home || o.source || '')} &mdash; ${formatDate(o.date_added || o.scraped_at || o.created_at)}</span>
+                        <span class="activity-meta">${escapeHTML(o.funeral_home || o.source || '')} - ${formatDate(o.date_added || o.scraped_at || o.created_at)}</span>
                     </li>
                 `).join('');
             }
@@ -923,7 +923,7 @@
                     <div>
                         <strong style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#3E2723;">${escapeHTML(s.family_name)} Family</strong>
                         <div style="font-size:0.9rem;color:#6b7c6e;margin-top:0.25rem;">
-                            ${escapeHTML(s.shiva_start_date || '')} — ${escapeHTML(s.shiva_end_date || '')}
+                            ${escapeHTML(s.shiva_start_date || '')} - ${escapeHTML(s.shiva_end_date || '')}
                             &middot; Organized by ${escapeHTML(s.organizer_name || '')}
                             &middot; ${s.signup_count || 0} meal signup${(s.signup_count || 0) !== 1 ? 's' : ''}
                         </div>

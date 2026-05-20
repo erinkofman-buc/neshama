@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Performance — Neshama</title>
-    <meta name="description" content="View your vendor performance metrics on Neshama — page views, clicks, leads, and trends.">
+    <title>Vendor Performance | Neshama</title>
+    <meta name="description" content="View your vendor performance metrics on Neshama: page views, clicks, leads, and trends.">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -399,7 +399,7 @@
 
 <main id="main-content">
     <header class="hero">
-        <h1>Performance &mdash; <span class="vendor-name" id="vendorNameHero">Loading&hellip;</span></h1>
+        <h1>Performance: <span class="vendor-name" id="vendorNameHero">Loading&hellip;</span></h1>
         <p class="subtitle">Your listing metrics on Neshama</p>
         <p class="period" id="datePeriod"></p>
     </header>
@@ -409,22 +409,22 @@
         <!-- Overview Stats -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card loading">
-                <div class="stat-value" id="totalViews">&mdash;</div>
+                <div class="stat-value" id="totalViews">-</div>
                 <div class="stat-label">Page Views</div>
                 <div class="stat-sublabel">your listing page</div>
             </div>
             <div class="stat-card loading">
-                <div class="stat-value" id="totalClicks">&mdash;</div>
+                <div class="stat-value" id="totalClicks">-</div>
                 <div class="stat-label">Outbound Clicks</div>
                 <div class="stat-sublabel">to your website</div>
             </div>
             <div class="stat-card loading">
-                <div class="stat-value" id="clickRate">&mdash;</div>
+                <div class="stat-value" id="clickRate">-</div>
                 <div class="stat-label">Click Rate</div>
                 <div class="stat-sublabel">clicks / views</div>
             </div>
             <div class="stat-card loading">
-                <div class="stat-value" id="totalLeads">&mdash;</div>
+                <div class="stat-value" id="totalLeads">-</div>
                 <div class="stat-label">Inquiries</div>
                 <div class="stat-sublabel">contact requests</div>
             </div>
@@ -519,7 +519,7 @@
 
             // Update vendor name
             document.getElementById('vendorNameHero').textContent = d.vendor_name || slug.replace(/-/g, ' ');
-            document.title = (d.vendor_name || slug) + ' — Performance | Neshama';
+            document.title = (d.vendor_name || slug) + ' - Performance | Neshama';
 
             // Date period
             document.getElementById('datePeriod').textContent = 'Data since ' + (d.first_activity || 'listing creation');

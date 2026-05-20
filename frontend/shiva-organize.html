@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Up Shiva Support - Neshama</title>
+    <title>Set Up Shiva Support | Neshama</title>
     <meta name="description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Neshama">
     <link rel="canonical" href="https://neshama.ca/shiva/organize">
-    <meta property="og:title" content="Set Up Shiva Support - Neshama">
+    <meta property="og:title" content="Set Up Shiva Support | Neshama">
     <meta property="og:description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca/shiva/organize">
@@ -23,7 +23,7 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Set Up Shiva Support - Neshama">
+    <meta name="twitter:title" content="Set Up Shiva Support | Neshama">
     <meta name="twitter:description" content="Organize meals and community support for a family sitting shiva. Coordinate volunteers, track deliveries, and bring comfort during a difficult time.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -419,7 +419,7 @@
             text-align: center;
             background: white;
             box-sizing: border-box;
-            /* Hide native spinner arrows — they eat input width. Users can
+            /* Hide native spinner arrows - they eat input width. Users can
                still adjust via keyboard arrows, scroll wheel, or typing. */
             -moz-appearance: textfield;
             appearance: textfield;
@@ -439,7 +439,7 @@
             white-space: nowrap;
         }
 
-        /* Mobile: stack each row vertically — day label on top, meals below */
+        /* Mobile: stack each row vertically - day label on top, meals below */
         @media (max-width: 640px) {
             .meal-block-row {
                 grid-template-columns: 1fr;
@@ -871,7 +871,7 @@
 
         <!-- Search Section (shown when no obituary context) -->
         <div id="searchSection" style="display: none; margin-bottom: 2rem;">
-            <!-- Equal-weight skip option at TOP — many users won't have a listing yet -->
+            <!-- Equal-weight skip option at TOP - many users won't have a listing yet -->
             <div style="background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; box-shadow: 0 4px 20px rgba(62,39,35,0.08); margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;">
                 <div style="flex: 1; min-width: 220px;">
                     <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--dark-brown); margin: 0 0 0.2rem 0;">Don't have an existing listing?</p>
@@ -916,7 +916,7 @@
             <p><strong>We found existing shiva pages for a similar family name.</strong></p>
             <p style="font-size:0.9rem;color:var(--sage-dark);margin-bottom:0.75rem;">If one of these is for the same family, please use the existing page instead of creating a duplicate.</p>
             <div id="similarMatches"></div>
-            <button onclick="dismissSimilar()" class="btn-secondary" style="margin-top:0.75rem;font-size:0.9rem;">None of these — create new page</button>
+            <button onclick="dismissSimilar()" class="btn-secondary" style="margin-top:0.75rem;font-size:0.9rem;">None of these match. Create new page.</button>
         </div>
 
         <!-- Step 1: Shiva Details -->
@@ -1145,7 +1145,7 @@
         var createdToken = null;
         var forceCreate = false;
 
-        // Called on city select change. Sub-area/neighbourhood UI removed in V3 —
+        // Called on city select change. Sub-area/neighbourhood UI removed in V3 -
         // this now exists only to re-filter the recommended-caterer list when the
         // organizer picks a city.
         window.updateSubAreas = function() {
@@ -1450,7 +1450,7 @@
                         });
                         if (isBlocked) btn.classList.add('blocked');
 
-                        // Per-meal guest count input — default is Step 1 guestsPerMeal,
+                        // Per-meal guest count input - default is Step 1 guestsPerMeal,
                         // only persisted when it differs.
                         var existingOverride = mealGuestOverrides.find(function(o) {
                             return o.date === dateStr && o.meal_type === mealType;
