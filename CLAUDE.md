@@ -86,3 +86,26 @@ Do not rely on skill auto-load. Load this skill on the first turn of every Nesha
 - Accessibility: sufficient color contrast, readable font sizes (min 16px body), tappable targets (min 44px)
 - No orphaned pages: every page must have clear navigation back to home and feed
 - Shabbat awareness: meal coordination UI should respect Friday sunset to Saturday sunset
+
+---
+
+## End-of-Session Discipline - verification before save
+
+When updating _NOW.md, decisions-log.md, or any "where we left off" / status file at the end of a session:
+
+1. For each claim that describes work completed during the session, verify the underlying file was actually edited in the session. Do not rely on the user's recollection or Claude's chat output as proof. File-level verification means: git diff or file read to confirm the change exists.
+
+2. If a claim is aspirational or pending - i.e., discussed but not yet executed against the actual file - mark it explicitly: "PENDING:" or "NOT YET DONE:" prefix in the _NOW.md or decisions-log entry.
+
+3. Before saving an end-of-session summary, output the diff AND explicitly state two lists:
+   - "Verified completed: [list of work confirmed via file inspection]"
+   - "Pending / not yet done: [list of work discussed but not yet executed]"
+   The user must confirm both lists are accurate before save.
+
+4. Push back on user dictation that asserts completed work without an underlying file change. Specifically: if user dictates a "Where we left off" bullet claiming X was done, Claude must verify X was actually done before saving. The user's tiredness at end of day is the highest-risk window for this failure mode.
+
+5. This rule does not slow down sessions where work IS being executed in real time. It only adds friction at the summary/save step at end-of-session.
+
+### Origin (added 2026-05-21)
+
+This rule was created in response to a 2026-05-20 session failure where _NOW.md was saved with false claims that JORDANA-OUTREACH.md had been updated when it had not been. The discipline must activate automatically at end of every session going forward.
