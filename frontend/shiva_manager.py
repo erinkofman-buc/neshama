@@ -1829,13 +1829,23 @@ class ShivaManager:
     CATERER_RESOLUTIONS = {
         'pickle barrel catering': {'vendor_match_name': 'Pickle Barrel', 'canonical_name': 'Pickle Barrel', 'contact_confirm': 'phone'},
         'daniel et daniel': {'vendor_match_name': 'Daniel et Daniel Catering', 'canonical_name': 'Daniel et Daniel'},
-        'mitzuyan kosher catering': {'phone': 'caterer'},
-        'summerhill market': {'contact_confirm': 'phone'},
-        "cumbrae's": {'contact_confirm': 'phone'},
-        'iq food co': {'new_insert': True, 'contact_confirm': 'address'},
-        "longo's": {'new_insert': True, 'contact_confirm': 'address'},
+        # Mitzuyan: use caterer's phone; COR kept but flagged confirm-current on cor.ca.
+        'mitzuyan kosher catering': {'phone': 'caterer', 'contact_confirm': 'kosher-confirm-cor-current'},
+        # Ely's: confirmed catering contact (finalized); COR kept but flagged confirm-current.
+        "ely's fine foods": {'email_set': 'catering@elysfinefoods.com', 'phone_set': '(416) 782-3231', 'contact_confirm': 'kosher-confirm-cor-current'},
+        # Grodzinski: COR kept but flagged confirm-current on cor.ca.
+        'grodzinski bakery': {'contact_confirm': 'kosher-confirm-cor-current'},
+        # Marron: COR claim UNVERIFIED (no COR source found) -> do NOT list as COR.
+        'marron bistro': {'kosher_override': 'not_certified', 'contact_confirm': 'kosher-pending'},
         'toben food by design': {'contact_confirm': 'address'},
     }
+
+    # Curation decision 2026-05-22: chains / grocery / butcher, not shiva-meal
+    # caterers. Excluded from the caterer list (is_caterer stays 0). Existing
+    # vendor rows are kept in the general directory; caterer-only inserts are removed.
+    EXCLUDE_FROM_CATERERS = {'iq food co', "cumbrae's", "longo's", 'summerhill market'}
+    # Declined pending applications (unverifiable; not approved sight-unseen).
+    DECLINE_APPLICATIONS = {'the secret sauce'}
 
     @staticmethod
     def _norm_name(s):
@@ -1941,9 +1951,14 @@ class ShivaManager:
             # kosher_style / anything else -> not_certified (fixes BRAND violation).
             raw = (v.get('kosher_status') or '').strip()
             ks = raw if raw.lower() in ('cor', 'mk') else 'not_certified'
-            phone = v.get('phone')
-            if res.get('phone') == 'caterer' or not (phone or '').strip():
+            if res.get('kosher_override'):   # e.g. Marron: COR claim unverified -> not_certified
+                ks = res['kosher_override']
+            # phone: explicit confirmed value wins; else keep vendor's, fall back to caterer's
+            phone = res.get('phone_set') or v.get('phone')
+            if not res.get('phone_set') and (res.get('phone') == 'caterer' or not (phone or '').strip()):
                 phone = c.get('phone')
+            # email: explicit confirmed value wins; else keep vendor's, fall back to caterer's
+            final_email = res.get('email_set') or (v.get('email') or None) or c.get('email')
             # keep curated vendor name (apostrophe-normalized) unless explicitly renamed
             final_name = name_override or (v.get('name') or '').replace('’', "'")
             cur.execute('''
@@ -1955,15 +1970,14 @@ class ShivaManager:
                     price_range = COALESCE(?, price_range),
                     delivery = CASE WHEN ? = 1 THEN 1 ELSE delivery END,
                     delivery_area = COALESCE(NULLIF(delivery_area, ''), ?),
-                    kosher_status = ?, phone = ?,
-                    email = COALESCE(NULLIF(email, ''), ?),
+                    kosher_status = ?, phone = ?, email = ?,
                     website = COALESCE(NULLIF(website, ''), ?),
                     instagram = COALESCE(NULLIF(instagram, ''), ?),
                     contact_confirm_needed = ?
                 WHERE id = ?
             ''', (final_name, c.get('shiva_menu_description'), c.get('has_online_ordering') or 0,
                   c.get('contact_name'), c.get('price_range'), c.get('has_delivery') or 0,
-                  c.get('delivery_area'), ks, phone, c.get('email'), c.get('website'),
+                  c.get('delivery_area'), ks, phone, final_email, c.get('website'),
                   c.get('instagram'), confirm, v['id']))
             return ('updated', canonical, confirm)
         # new insert (no vendor row): no address (flagged), kosher from caterer level
@@ -1988,20 +2002,38 @@ class ShivaManager:
 
     def consolidate_caterers(self):
         """Idempotent: sync approved caterer_partners into vendors (is_caterer=1),
-        delete junk test applications, and unfeature the accidental Nortown test
-        feature (editorial-featured set is intentionally EMPTY)."""
+        delete junk test applications, decline unverifiable pending applications,
+        exclude non-caterer chains/grocery/butcher from the caterer list, and
+        unfeature the accidental Nortown test feature (editorial set is EMPTY)."""
         self.ensure_caterer_columns()
         conn = self._get_conn()
         cur = conn.cursor()
-        # delete junk test applications (exact 'test'/'TEst'); never The Secret Sauce
-        cur.execute("SELECT id, business_name FROM caterer_partners")
+        # delete junk test rows; decline unverifiable pending apps (e.g. The Secret Sauce)
+        cur.execute("SELECT id, business_name, status FROM caterer_partners")
         for row in cur.fetchall():
-            if self._norm_name(row['business_name']) == 'test':
+            nm = self._norm_name(row['business_name'])
+            if nm == 'test':
                 cur.execute("DELETE FROM caterer_partners WHERE id = ?", (row['id'],))
+            elif nm in self.DECLINE_APPLICATIONS and row['status'] != 'rejected':
+                cur.execute("UPDATE caterer_partners SET status = 'rejected', updated_at = ? WHERE id = ?",
+                            (datetime.now().isoformat(), row['id']))
         conn.commit()
+        # sync approved caterers into vendors, EXCLUDING the curated drop-list
         cur.execute("SELECT * FROM caterer_partners WHERE status = 'approved'")
         approved = [dict(r) for r in cur.fetchall()]
-        results = [self._upsert_caterer_into_vendors(conn, c) for c in approved]
+        results = [self._upsert_caterer_into_vendors(conn, c)
+                   for c in approved
+                   if self._norm_name(c.get('business_name')) not in self.EXCLUDE_FROM_CATERERS]
+        # curation cleanup: ensure excluded businesses are NOT on the caterer list.
+        # A caterer-only insert (category 'Caterers') is removed; an existing
+        # directory vendor is just un-flagged (kept in /help/food, off /shiva/caterers).
+        cur.execute("SELECT id, name, category FROM vendors WHERE is_caterer = 1")
+        for row in cur.fetchall():
+            if self._norm_name(row['name']) in self.EXCLUDE_FROM_CATERERS:
+                if (row['category'] or '') == 'Caterers':
+                    cur.execute("DELETE FROM vendors WHERE id = ?", (row['id'],))
+                else:
+                    cur.execute("UPDATE vendors SET is_caterer = 0, contact_confirm_needed = NULL WHERE id = ?", (row['id'],))
         # editorial-featured set is EMPTY: unfeature the accidental Nortown test feature
         cur.execute("UPDATE vendors SET featured = 0 WHERE slug = 'nortown-foods' AND featured = 1")
         conn.commit()
