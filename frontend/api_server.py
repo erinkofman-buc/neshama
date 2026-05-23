@@ -527,6 +527,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_unsubscribe_page(token)
         elif path == '/manage-subscription':
             self.handle_manage_subscription()
+        elif path == '/vendor/manage':
+            self.handle_vendor_manage()
         elif path == '/admin/backup':
             self.handle_admin_backup()
         elif path == '/admin/scrape':
@@ -624,6 +626,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_create_checkout(body)
         elif path == '/webhook':
             self.handle_webhook(body)
+        elif path == '/api/vendor/create-checkout':
+            self.handle_vendor_create_checkout(body)
         elif path == '/api/caterers/apply':
             self.handle_caterer_apply(body)
         elif path.startswith('/api/caterers/') and path.endswith('/approve'):
@@ -2721,6 +2725,63 @@ button:hover{background:#c45a1a}</style></head>
 
         except Exception as e:
             self.send_error_response(str(e))
+
+    # ── API: Featured Vendor ($49/mo subscription, vendor-side only) ──────
+    # Families never pay. These routes are built but not yet linked from any
+    # vendor-facing page; exposure is controlled separately by the operator.
+
+    def handle_vendor_create_checkout(self, body):
+        """Create a $49/mo Featured Vendor checkout session (90-day free trial)."""
+        if not STRIPE_AVAILABLE:
+            self.send_json_response({
+                'status': 'info',
+                'message': 'Stripe not configured. Set STRIPE_SECRET_KEY environment variable.',
+                'test_mode': True
+            })
+            return
+        try:
+            data = json.loads(body)
+            vendor_slug = data.get('vendor_slug', '')
+            email = data.get('email', '')
+            success_url = data.get('success_url', 'https://neshama.ca/vendor/featured-success')
+            cancel_url = data.get('cancel_url', 'https://neshama.ca/vendor/featured-cancelled')
+            if not vendor_slug:
+                self.send_json_response({'status': 'error', 'message': 'vendor_slug required'}, 400)
+                return
+            result = payment_mgr.create_vendor_featured_checkout(vendor_slug, email, success_url, cancel_url)
+            self.send_json_response(result)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def handle_vendor_manage(self):
+        """Redirect a vendor to the Stripe Customer Portal to manage or cancel
+        their Featured subscription. Cancellation flows back via webhook."""
+        if not STRIPE_AVAILABLE:
+            self.send_json_response({
+                'status': 'info',
+                'message': 'Stripe not configured. Set STRIPE_SECRET_KEY.'
+            })
+            return
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+        vendor_slug = query_params.get('slug', [''])[0]
+        if not vendor_slug:
+            self.send_json_response({'status': 'error', 'message': 'slug query parameter required'}, 400)
+            return
+        result = payment_mgr.create_vendor_portal_session(
+            vendor_slug, return_url='https://neshama.ca/shiva/caterers'
+        )
+        if 'url' in result:
+            self.send_response(302)
+            self.send_header('Location', result['url'])
+            self.end_headers()
+        else:
+            self.send_json_response({
+                'status': 'error',
+                'message': result.get('error', 'No featured subscription found for this vendor')
+            }, 404)
 
     # ── API: Caterer Partners ─────────────────────────────
 
@@ -7594,6 +7655,20 @@ def run_server(port=None):
         total_changed += cursor.rowcount
         cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'snowdon-deli' AND featured != 1")
         total_changed += cursor.rowcount
+
+        # Migration 2026-05-22: mark the four editorial featured seeds as
+        # featured_source='editorial' so the Featured Vendor payment logic
+        # (which only ever toggles featured_source='paid' rows) can never
+        # defeature them. Guarded in case the column predates this build.
+        try:
+            cursor.execute(
+                "UPDATE vendors SET featured_source = 'editorial' "
+                "WHERE slug IN ('linnys-luncheonette','jem-salads','nosherz','snowdon-deli') "
+                "AND (featured_source IS NULL OR featured_source = '')"
+            )
+            total_changed += cursor.rowcount
+        except sqlite3.OperationalError:
+            pass
 
         # Migration 2026-04-05c: Same-source dedup DEFERRED
         # Risk: scraper IDs are hash-based. Deleting by name match could cause

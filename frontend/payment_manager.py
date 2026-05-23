@@ -28,9 +28,13 @@ class PaymentManager:
         # Product configuration
         self.premium_price_id = os.environ.get('STRIPE_PRICE_ID')  # Set this in production
         self.premium_annual_price = 1800  # $18.00 in cents
+        # Featured Vendor (vendor-side only; families never pay)
+        self.featured_monthly_price = 4900  # $49.00/mo in cents
+        self.featured_trial_days = 90       # 3-month free trial, no charge during trial
         self.currency = 'cad'
-        
+
         self.setup_database()
+        self.setup_vendor_featured_schema()
     
     def setup_database(self):
         """Add premium columns to subscribers table"""
@@ -76,7 +80,187 @@ class PaymentManager:
         
         conn.commit()
         conn.close()
-    
+
+    # ── Featured Vendor ($49/mo subscription). Vendor-side only ──────────
+    # Families never pay. This block governs the vendors table only and never
+    # touches the subscribers/sustainer flow above.
+
+    def setup_vendor_featured_schema(self):
+        """Additive migration: add Featured Vendor columns to the vendors table.
+        Idempotent (guarded). Backfills any pre-existing featured rows as
+        'editorial' so payment logic never defeatures an editorially-featured
+        vendor."""
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
+        cursor = conn.cursor()
+
+        for ddl in (
+            "ALTER TABLE vendors ADD COLUMN stripe_customer_id TEXT",
+            "ALTER TABLE vendors ADD COLUMN stripe_subscription_id TEXT",
+            "ALTER TABLE vendors ADD COLUMN featured_status TEXT",       # trialing|active|past_due|canceled|unpaid
+            "ALTER TABLE vendors ADD COLUMN featured_since TEXT",
+            "ALTER TABLE vendors ADD COLUMN trial_ends_at TEXT",
+            "ALTER TABLE vendors ADD COLUMN featured_source TEXT",       # editorial|paid
+        ):
+            try:
+                cursor.execute(ddl)
+            except sqlite3.OperationalError:
+                pass  # column already exists
+
+        # Preserve current behaviour: anything already featured before this
+        # migration is editorial, so paid-subscription logic leaves it alone.
+        try:
+            cursor.execute(
+                "UPDATE vendors SET featured_source = 'editorial' "
+                "WHERE featured = 1 AND (featured_source IS NULL OR featured_source = '')"
+            )
+        except sqlite3.OperationalError:
+            pass
+
+        conn.commit()
+        conn.close()
+
+    def create_vendor_featured_checkout(self, vendor_slug, email, success_url, cancel_url):
+        """Create a Stripe Checkout session for the $49/mo Featured Vendor
+        subscription with a 90-day free trial (no charge during the trial).
+        vendor_slug is carried in metadata on BOTH the session and the
+        subscription so webhooks can identify the vendor on later events."""
+        if not self.stripe_api_key:
+            return {'error': 'Payment system not configured', 'test_mode': True}
+        if not vendor_slug:
+            return {'error': 'vendor_slug required'}
+
+        try:
+            customer = self.get_or_create_stripe_customer(email) if email else None
+            session_kwargs = {
+                'payment_method_types': ['card'],
+                'line_items': [{
+                    'price_data': {
+                        'currency': self.currency,
+                        'product_data': {
+                            'name': 'Neshama Featured Vendor',
+                            'description': 'Monthly featured placement in the Neshama vendor directory',
+                        },
+                        'unit_amount': self.featured_monthly_price,
+                        'recurring': {'interval': 'month'},
+                    },
+                    'quantity': 1,
+                }],
+                'mode': 'subscription',
+                'subscription_data': {
+                    'trial_period_days': self.featured_trial_days,
+                    'metadata': {
+                        'product': 'neshama_featured_vendor',
+                        'vendor_slug': vendor_slug,
+                    },
+                },
+                'success_url': success_url + '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': cancel_url,
+                'billing_address_collection': 'required',
+                'metadata': {
+                    'product': 'neshama_featured_vendor',
+                    'vendor_slug': vendor_slug,
+                    'email': email or '',
+                },
+            }
+            if customer:
+                session_kwargs['customer'] = customer.id
+                session_kwargs['customer_update'] = {'address': 'auto'}
+            else:
+                session_kwargs['customer_email'] = email or None
+
+            session = stripe.checkout.Session.create(**session_kwargs)
+            return {'url': session.url, 'session_id': session.id}
+
+        except stripe.error.StripeError as e:
+            logging.error(f"Vendor featured checkout error: {str(e)}")
+            return {'error': str(e)}
+
+    def set_vendor_featured(self, vendor_slug, status, customer_id=None,
+                            subscription_id=None, trial_ends_at=None):
+        """Turn ON paid featured placement for a vendor (trialing or active).
+        Marks the row featured_source='paid' so editorial seeds are never
+        affected. Idempotent."""
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE vendors SET
+                featured = 1,
+                featured_source = 'paid',
+                featured_status = ?,
+                featured_since = COALESCE(featured_since, ?),
+                trial_ends_at = COALESCE(?, trial_ends_at),
+                stripe_customer_id = COALESCE(?, stripe_customer_id),
+                stripe_subscription_id = COALESCE(?, stripe_subscription_id)
+            WHERE slug = ?
+            """,
+            (status, datetime.now().isoformat(), trial_ends_at,
+             customer_id, subscription_id, vendor_slug)
+        )
+        affected = cursor.rowcount
+        conn.commit()
+        conn.close()
+        logging.info(f" Featured ON ({status}) for vendor '{vendor_slug}' (rows={affected})")
+        return affected
+
+    def set_vendor_featured_status(self, subscription_id, status):
+        """Update only the status text for a paid vendor without changing the
+        featured flag. Used for grace states like past_due, where the vendor STAYS
+        featured during Stripe dunning."""
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE vendors SET featured_status = ? "
+            "WHERE stripe_subscription_id = ? AND featured_source = 'paid'",
+            (status, subscription_id)
+        )
+        conn.commit()
+        conn.close()
+
+    def defeature_vendor(self, subscription_id, status='canceled'):
+        """Turn OFF featured placement for a PAID vendor identified by Stripe
+        subscription id. The featured_source='paid' guard means an editorial
+        seed can never be defeatured by payment events. Only called when a
+        subscription reaches a terminal/unpaid state (after dunning), never on
+        a single failed invoice."""
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE vendors SET featured = 0, featured_status = ? "
+            "WHERE stripe_subscription_id = ? AND featured_source = 'paid'",
+            (status, subscription_id)
+        )
+        affected = cursor.rowcount
+        conn.commit()
+        conn.close()
+        logging.info(f" Featured OFF ({status}) for subscription '{subscription_id}' (rows={affected})")
+        return affected
+
+    def create_vendor_portal_session(self, vendor_slug, return_url):
+        """Stripe Customer Portal session for a vendor to manage/cancel their
+        Featured subscription. Cancellation flows back through the webhook."""
+        if not self.stripe_api_key:
+            return {'error': 'Payment system not configured'}
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT stripe_customer_id FROM vendors WHERE slug = ?", (vendor_slug,))
+        row = cursor.fetchone()
+        conn.close()
+        if not row or not row[0]:
+            return {'error': 'No featured subscription found for this vendor'}
+        try:
+            session = stripe.billing_portal.Session.create(
+                customer=row[0], return_url=return_url,
+            )
+            return {'url': session.url}
+        except stripe.error.StripeError as e:
+            logging.error(f"Vendor portal error: {str(e)}")
+            return {'error': str(e)}
+
     def create_checkout_session(self, email, success_url, cancel_url, amount=18):
         """
         Create Stripe Checkout session for community sustainer contribution
@@ -295,7 +479,58 @@ class PaymentManager:
             return {'status': 'error', 'message': 'Invalid signature'}
         
         event_type = event['type']
-        
+        obj = event['data']['object']
+
+        # ── Featured Vendor routing (vendor-side; intercept before sustainer) ──
+        # Vendor events are identified by metadata.product on the checkout
+        # session or the subscription. Grace rule: a single failed invoice never
+        # defeatures; only a subscription reaching canceled/unpaid does.
+        def _is_vendor(meta):
+            return bool(meta) and meta.get('product') == 'neshama_featured_vendor'
+
+        if event_type == 'checkout.session.completed' and _is_vendor(obj.get('metadata')):
+            vendor_slug = obj['metadata'].get('vendor_slug')
+            subscription_id = obj.get('subscription')
+            customer_id = obj.get('customer')
+            status, trial_ends_at = 'trialing', None
+            try:
+                if subscription_id:
+                    sub = stripe.Subscription.retrieve(subscription_id)
+                    status = sub.get('status', 'trialing')
+                    if sub.get('trial_end'):
+                        trial_ends_at = datetime.utcfromtimestamp(sub['trial_end']).isoformat()
+            except stripe.error.StripeError:
+                pass
+            self.set_vendor_featured(vendor_slug, status, customer_id, subscription_id, trial_ends_at)
+            return {'status': 'success', 'message': f'Featured vendor activated: {vendor_slug} ({status})'}
+
+        if event_type in ('customer.subscription.updated', 'customer.subscription.deleted') and _is_vendor(obj.get('metadata')):
+            subscription_id = obj.get('id')
+            status = obj.get('status', 'canceled')
+            if event_type == 'customer.subscription.deleted':
+                self.defeature_vendor(subscription_id, status='canceled')
+                return {'status': 'success', 'message': f'Featured vendor cancelled: {subscription_id}'}
+            if status in ('active', 'trialing'):
+                self.set_vendor_featured(obj['metadata'].get('vendor_slug'), status, subscription_id=subscription_id)
+                return {'status': 'success', 'message': f'Featured vendor active: {subscription_id} ({status})'}
+            if status in ('canceled', 'unpaid'):
+                # Terminal/unpaid after Stripe dunning exhausts → defeature now.
+                self.defeature_vendor(subscription_id, status=status)
+                return {'status': 'success', 'message': f'Featured vendor defeatured: {subscription_id} ({status})'}
+            # past_due / incomplete / etc → GRACE: stay featured, record status.
+            self.set_vendor_featured_status(subscription_id, status)
+            return {'status': 'success', 'message': f'Featured vendor grace state: {subscription_id} ({status})'}
+
+        if event_type == 'invoice.payment_failed' and obj.get('subscription'):
+            try:
+                sub = stripe.Subscription.retrieve(obj['subscription'])
+                if _is_vendor(sub.get('metadata')):
+                    logging.warning(f" Featured vendor invoice failed (grace window, NOT defeaturing): {obj['subscription']}")
+                    return {'status': 'success', 'message': 'Featured vendor payment failed; grace window, not defeatured'}
+            except stripe.error.StripeError:
+                pass
+        # ── end Featured Vendor routing; sustainer ($18 annual) logic below ──
+
         # Handle different event types
         if event_type == 'checkout.session.completed':
             session = event['data']['object']
