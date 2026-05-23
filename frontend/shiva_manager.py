@@ -1827,7 +1827,8 @@ class ShivaManager:
 
     # Operator-confirmed resolutions, keyed by apostrophe-normalized lowercased name.
     CATERER_RESOLUTIONS = {
-        'pickle barrel catering': {'vendor_match_name': 'Pickle Barrel', 'canonical_name': 'Pickle Barrel', 'contact_confirm': 'phone'},
+        # Pickle Barrel: confirmed central catering line (picklebarrelcatering.com), not a store number; flag cleared.
+        'pickle barrel catering': {'vendor_match_name': 'Pickle Barrel', 'canonical_name': 'Pickle Barrel', 'phone_set': '1-866-493-4333'},
         'daniel et daniel': {'vendor_match_name': 'Daniel et Daniel Catering', 'canonical_name': 'Daniel et Daniel'},
         # Mitzuyan: use caterer's phone; COR kept but flagged confirm-current on cor.ca.
         'mitzuyan kosher catering': {'phone': 'caterer', 'contact_confirm': 'kosher-confirm-cor-current'},
@@ -1837,7 +1838,8 @@ class ShivaManager:
         'grodzinski bakery': {'contact_confirm': 'kosher-confirm-cor-current'},
         # Marron: COR claim UNVERIFIED (no COR source found) -> do NOT list as COR.
         'marron bistro': {'kosher_override': 'not_certified', 'contact_confirm': 'kosher-pending'},
-        'toben food by design': {'contact_confirm': 'address'},
+        # TOBEN: confirmed street address + catering phone (multiple sources); flag cleared.
+        'toben food by design': {'address_set': '150 Symes Rd, Toronto, ON M6N 3T1', 'phone_set': '(647) 344-8323'},
     }
 
     # Curation decision 2026-05-22: chains / grocery / butcher, not shiva-meal
@@ -1970,6 +1972,7 @@ class ShivaManager:
                     price_range = COALESCE(?, price_range),
                     delivery = CASE WHEN ? = 1 THEN 1 ELSE delivery END,
                     delivery_area = COALESCE(NULLIF(delivery_area, ''), ?),
+                    address = COALESCE(?, address),
                     kosher_status = ?, phone = ?, email = ?,
                     website = COALESCE(NULLIF(website, ''), ?),
                     instagram = COALESCE(NULLIF(instagram, ''), ?),
@@ -1977,7 +1980,7 @@ class ShivaManager:
                 WHERE id = ?
             ''', (final_name, c.get('shiva_menu_description'), c.get('has_online_ordering') or 0,
                   c.get('contact_name'), c.get('price_range'), c.get('has_delivery') or 0,
-                  c.get('delivery_area'), ks, phone, final_email, c.get('website'),
+                  c.get('delivery_area'), res.get('address_set'), ks, phone, final_email, c.get('website'),
                   c.get('instagram'), confirm, v['id']))
             return ('updated', canonical, confirm)
         # new insert (no vendor row): no address (flagged), kosher from caterer level
