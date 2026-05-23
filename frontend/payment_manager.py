@@ -87,9 +87,11 @@ class PaymentManager:
 
     def setup_vendor_featured_schema(self):
         """Additive migration: add Featured Vendor columns to the vendors table.
-        Idempotent (guarded). Backfills any pre-existing featured rows as
-        'editorial' so payment logic never defeatures an editorially-featured
-        vendor."""
+        Idempotent (guarded). The editorial-featured set is intentionally EMPTY
+        (decided 2026-05-22): "featured" means a vendor who paid. featured_source
+        is set to 'paid' only by the webhook below; there is no editorial backfill.
+        The featured_source='paid' guard on defeature stays as a defensive measure
+        against ever defeaturing a manually-set future row."""
         conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
         conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
@@ -100,22 +102,12 @@ class PaymentManager:
             "ALTER TABLE vendors ADD COLUMN featured_status TEXT",       # trialing|active|past_due|canceled|unpaid
             "ALTER TABLE vendors ADD COLUMN featured_since TEXT",
             "ALTER TABLE vendors ADD COLUMN trial_ends_at TEXT",
-            "ALTER TABLE vendors ADD COLUMN featured_source TEXT",       # editorial|paid
+            "ALTER TABLE vendors ADD COLUMN featured_source TEXT",       # 'paid' only (no editorial set)
         ):
             try:
                 cursor.execute(ddl)
             except sqlite3.OperationalError:
                 pass  # column already exists
-
-        # Preserve current behaviour: anything already featured before this
-        # migration is editorial, so paid-subscription logic leaves it alone.
-        try:
-            cursor.execute(
-                "UPDATE vendors SET featured_source = 'editorial' "
-                "WHERE featured = 1 AND (featured_source IS NULL OR featured_source = '')"
-            )
-        except sqlite3.OperationalError:
-            pass
 
         conn.commit()
         conn.close()

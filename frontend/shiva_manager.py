@@ -6,6 +6,7 @@ Privacy-first: addresses are only revealed to confirmed volunteers.
 """
 
 import sqlite3
+import re
 import uuid
 import secrets
 import os
@@ -1787,7 +1788,14 @@ class ShivaManager:
             'UPDATE caterer_partners SET status = ?, updated_at = ? WHERE id = ?',
             ('approved', datetime.now().isoformat(), caterer_id)
         )
+        # Vendors is the source of truth: push the approved caterer into vendors
+        # (is_caterer=1) so it appears on /shiva/caterers immediately.
+        cursor.execute('SELECT * FROM caterer_partners WHERE id = ?', (caterer_id,))
+        row = cursor.fetchone()
         conn.commit()
+        if row:
+            self._upsert_caterer_into_vendors(conn, dict(row))
+            conn.commit()
         conn.close()
         return {'status': 'success', 'message': 'Caterer approved'}
 
@@ -1807,47 +1815,222 @@ class ShivaManager:
         conn.close()
         return {'status': 'success', 'message': 'Caterer rejected'}
 
+    # ──────────────────────────────────────────────────────────────────────
+    # Caterer consolidation (2026-05-22): the vendors table is the single
+    # source of truth for caterers. vendors.is_caterer=1 marks a caterer; the
+    # caterer_partners table is now application intake only. The display reads,
+    # the apply/approve flow, and a one-time idempotent migration all flow
+    # through vendors. Incomplete contact details are flagged
+    # (contact_confirm_needed) rather than guessed. Editorial-featured set is
+    # intentionally EMPTY: featured now means a vendor who paid.
+    # ──────────────────────────────────────────────────────────────────────
+
+    # Operator-confirmed resolutions, keyed by apostrophe-normalized lowercased name.
+    CATERER_RESOLUTIONS = {
+        'pickle barrel catering': {'vendor_match_name': 'Pickle Barrel', 'canonical_name': 'Pickle Barrel', 'contact_confirm': 'phone'},
+        'daniel et daniel': {'vendor_match_name': 'Daniel et Daniel Catering', 'canonical_name': 'Daniel et Daniel'},
+        'mitzuyan kosher catering': {'phone': 'caterer'},
+        'summerhill market': {'contact_confirm': 'phone'},
+        "cumbrae's": {'contact_confirm': 'phone'},
+        'iq food co': {'new_insert': True, 'contact_confirm': 'address'},
+        "longo's": {'new_insert': True, 'contact_confirm': 'address'},
+        'toben food by design': {'contact_confirm': 'address'},
+    }
+
+    @staticmethod
+    def _norm_name(s):
+        return re.sub(r'\s+', ' ', (s or '').strip().lower().replace('’', "'"))
+
+    @staticmethod
+    def _digits(s):
+        return re.sub(r'\D', '', s or '')
+
+    @staticmethod
+    def _kosher_level_to_status(level):
+        # Returns uppercase COR/MK to match the case-sensitive checks across the
+        # codebase. kosher_style and not_kosher are NOT certified.
+        lv = (level or '').lower()
+        if lv == 'mk':
+            return 'MK'
+        if lv in ('cor', 'certified_kosher', 'kosher'):
+            return 'COR'
+        return 'not_certified'
+
+    @staticmethod
+    def _map_vendor_to_caterer(v):
+        """Map a vendors row to the caterer JSON shape the caterer page expects."""
+        ks = (v.get('kosher_status') or '').strip().lower()
+        return {
+            'id': v.get('id'),
+            'slug': v.get('slug'),
+            'business_name': v.get('name'),
+            'contact_name': v.get('contact_name'),
+            'email': v.get('email'),
+            'phone': v.get('phone'),
+            'website': v.get('website'),
+            'instagram': v.get('instagram'),
+            'delivery_area': v.get('delivery_area') or '',
+            'kosher_level': 'certified_kosher' if ks in ('cor', 'mk') else 'not_kosher',
+            'has_delivery': v.get('delivery') or 0,
+            'has_online_ordering': v.get('has_online_ordering') or 0,
+            'price_range': v.get('price_range') or '$$',
+            'shiva_menu_description': v.get('shiva_menu_description') or v.get('description') or '',
+            'logo_url': v.get('image_url'),
+            'contact_confirm_needed': v.get('contact_confirm_needed'),
+            'created_at': v.get('created_at'),
+        }
+
+    def ensure_caterer_columns(self):
+        """Additive idempotent migration: caterer fields + is_caterer on vendors."""
+        conn = self._get_conn()
+        cur = conn.cursor()
+        for ddl in (
+            "ALTER TABLE vendors ADD COLUMN is_caterer INTEGER DEFAULT 0",
+            "ALTER TABLE vendors ADD COLUMN shiva_menu_description TEXT",
+            "ALTER TABLE vendors ADD COLUMN has_online_ordering INTEGER DEFAULT 0",
+            "ALTER TABLE vendors ADD COLUMN contact_name TEXT",
+            "ALTER TABLE vendors ADD COLUMN price_range TEXT",
+            "ALTER TABLE vendors ADD COLUMN contact_confirm_needed TEXT",
+        ):
+            try:
+                cur.execute(ddl)
+            except sqlite3.OperationalError:
+                pass
+        conn.commit()
+        conn.close()
+
+    def _upsert_caterer_into_vendors(self, conn, c):
+        """Upsert one caterer_partners row into vendors (is_caterer=1), applying
+        the confirmed resolutions. Never touches featured/featured_source. Flags
+        incomplete contact details rather than guessing."""
+        cur = conn.cursor()
+        key = self._norm_name(c.get('business_name'))
+        res = self.CATERER_RESOLUTIONS.get(key, {})
+        # Only rename an existing vendor when explicitly resolved; otherwise keep
+        # the curated vendor name (already straight-apostrophe). For new inserts,
+        # normalize curly apostrophes (decision B).
+        name_override = res.get('canonical_name')
+        confirm = res.get('contact_confirm')
+        canonical = (name_override or c.get('business_name') or '').replace('’', "'")
+        # Always attempt to match an existing vendor (keeps the migration
+        # idempotent: a re-run updates rather than re-inserting). 'new_insert'
+        # rows simply have no match in the original data on the first run.
+        v = None
+        if res.get('vendor_match_name'):
+            cur.execute("SELECT * FROM vendors WHERE name = ?", (res['vendor_match_name'],))
+            v = cur.fetchone()
+        if not v and self._digits(c.get('phone')):
+            cur.execute("SELECT * FROM vendors")
+            for row in cur.fetchall():
+                if self._digits(row['phone']) == self._digits(c.get('phone')):
+                    v = row
+                    break
+        if not v:
+            cur.execute("SELECT * FROM vendors")
+            for row in cur.fetchall():
+                if self._norm_name(row['name']) == key:
+                    v = row
+                    break
+        now = datetime.now().isoformat()
+        if v:
+            v = dict(v)
+            # Preserve existing COR/MK casing: kosher_status is checked
+            # case-sensitively (uppercase) across 6 other surfaces (directory,
+            # vendor-detail, shiva-organize, shiva-view, gifts, api_server), so
+            # lowercasing here would break their kosher badge + filter. blank /
+            # kosher_style / anything else -> not_certified (fixes BRAND violation).
+            raw = (v.get('kosher_status') or '').strip()
+            ks = raw if raw.lower() in ('cor', 'mk') else 'not_certified'
+            phone = v.get('phone')
+            if res.get('phone') == 'caterer' or not (phone or '').strip():
+                phone = c.get('phone')
+            # keep curated vendor name (apostrophe-normalized) unless explicitly renamed
+            final_name = name_override or (v.get('name') or '').replace('’', "'")
+            cur.execute('''
+                UPDATE vendors SET
+                    name = ?, is_caterer = 1, vendor_type = 'food',
+                    shiva_menu_description = COALESCE(?, shiva_menu_description, description),
+                    has_online_ordering = ?,
+                    contact_name = COALESCE(?, contact_name),
+                    price_range = COALESCE(?, price_range),
+                    delivery = CASE WHEN ? = 1 THEN 1 ELSE delivery END,
+                    delivery_area = COALESCE(NULLIF(delivery_area, ''), ?),
+                    kosher_status = ?, phone = ?,
+                    email = COALESCE(NULLIF(email, ''), ?),
+                    website = COALESCE(NULLIF(website, ''), ?),
+                    instagram = COALESCE(NULLIF(instagram, ''), ?),
+                    contact_confirm_needed = ?
+                WHERE id = ?
+            ''', (final_name, c.get('shiva_menu_description'), c.get('has_online_ordering') or 0,
+                  c.get('contact_name'), c.get('price_range'), c.get('has_delivery') or 0,
+                  c.get('delivery_area'), ks, phone, c.get('email'), c.get('website'),
+                  c.get('instagram'), confirm, v['id']))
+            return ('updated', canonical, confirm)
+        # new insert (no vendor row): no address (flagged), kosher from caterer level
+        ks = self._kosher_level_to_status(c.get('kosher_level'))
+        slug = re.sub(r'[^a-z0-9]+', '-', canonical.lower()).strip('-')
+        cur.execute("SELECT id FROM vendors WHERE slug = ?", (slug,))
+        if cur.fetchone():
+            slug = slug + '-caterer'
+        cur.execute('''
+            INSERT INTO vendors (name, slug, category, vendor_type, description, address,
+                neighborhood, phone, website, instagram, email, kosher_status, delivery,
+                delivery_area, image_url, featured, created_at, is_caterer,
+                shiva_menu_description, has_online_ordering, contact_name, price_range,
+                contact_confirm_needed)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,1,?,?,?,?,?)
+        ''', (canonical, slug, 'Caterers', 'food', c.get('shiva_menu_description') or '',
+              None, None, c.get('phone'), c.get('website'), c.get('instagram'), c.get('email'),
+              ks, c.get('has_delivery') or 0, c.get('delivery_area'), c.get('logo_url'),
+              now, c.get('shiva_menu_description'), c.get('has_online_ordering') or 0,
+              c.get('contact_name'), c.get('price_range'), confirm or 'address'))
+        return ('inserted', canonical, confirm or 'address')
+
+    def consolidate_caterers(self):
+        """Idempotent: sync approved caterer_partners into vendors (is_caterer=1),
+        delete junk test applications, and unfeature the accidental Nortown test
+        feature (editorial-featured set is intentionally EMPTY)."""
+        self.ensure_caterer_columns()
+        conn = self._get_conn()
+        cur = conn.cursor()
+        # delete junk test applications (exact 'test'/'TEst'); never The Secret Sauce
+        cur.execute("SELECT id, business_name FROM caterer_partners")
+        for row in cur.fetchall():
+            if self._norm_name(row['business_name']) == 'test':
+                cur.execute("DELETE FROM caterer_partners WHERE id = ?", (row['id'],))
+        conn.commit()
+        cur.execute("SELECT * FROM caterer_partners WHERE status = 'approved'")
+        approved = [dict(r) for r in cur.fetchall()]
+        results = [self._upsert_caterer_into_vendors(conn, c) for c in approved]
+        # editorial-featured set is EMPTY: unfeature the accidental Nortown test feature
+        cur.execute("UPDATE vendors SET featured = 0 WHERE slug = 'nortown-foods' AND featured = 1")
+        conn.commit()
+        conn.close()
+        return results
+
     def get_approved_caterers(self):
-        """Get all approved caterers (public)."""
+        """Public caterer list, served from the vendors table (is_caterer=1)."""
         conn = self._get_conn()
         cursor = conn.cursor()
-        cursor.execute('''
-            SELECT id, business_name, contact_name, email, phone, website, instagram,
-                   delivery_area, kosher_level, has_delivery, has_online_ordering,
-                   price_range, shiva_menu_description, logo_url, created_at
-            FROM caterer_partners WHERE status = 'approved'
-            ORDER BY created_at ASC
-        ''')
-        rows = [dict(row) for row in cursor.fetchall()]
+        cursor.execute("SELECT * FROM vendors WHERE is_caterer = 1 ORDER BY featured DESC, name ASC")
+        rows = [self._map_vendor_to_caterer(dict(row)) for row in cursor.fetchall()]
         conn.close()
         return {'status': 'success', 'data': rows}
 
     def get_caterers_filtered(self, filters):
-        """Get approved caterers with optional filters."""
-        conditions = ["status = 'approved'"]
-        params = []
-
+        """Filtered caterer list from vendors (is_caterer=1)."""
+        conditions = ['is_caterer = 1']
         if filters.get('kosher'):
-            # Apr 29 2026: includes new binary 'kosher' value alongside legacy 'certified_kosher'/'kosher_style'.
-            # After Sat May 2 SQL migration, only 'kosher' will remain in the DB.
-            conditions.append("kosher_level IN ('kosher', 'certified_kosher', 'kosher_style')")
+            conditions.append("LOWER(kosher_status) IN ('cor', 'mk')")
         if filters.get('delivery'):
-            conditions.append('has_delivery = 1')
+            conditions.append('delivery = 1')
         if filters.get('online_ordering'):
             conditions.append('has_online_ordering = 1')
-
         where = ' AND '.join(conditions)
-
         conn = self._get_conn()
         cursor = conn.cursor()
-        cursor.execute(f'''
-            SELECT id, business_name, contact_name, email, phone, website, instagram,
-                   delivery_area, kosher_level, has_delivery, has_online_ordering,
-                   price_range, shiva_menu_description, logo_url, created_at
-            FROM caterer_partners WHERE {where}
-            ORDER BY created_at ASC
-        ''', params)
-        rows = [dict(row) for row in cursor.fetchall()]
+        cursor.execute(f"SELECT * FROM vendors WHERE {where} ORDER BY featured DESC, name ASC")
+        rows = [self._map_vendor_to_caterer(dict(row)) for row in cursor.fetchall()]
         conn.close()
         return {'status': 'success', 'data': rows}
 

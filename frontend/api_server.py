@@ -7645,30 +7645,14 @@ def run_server(port=None):
         cursor.execute("DELETE FROM subscribers WHERE email LIKE 'smoketest%@neshama.ca'")
         total_changed += cursor.rowcount
 
-        # Migration 2026-04-05: Feature Linny's Luncheonette and Jem Salads (Amanda beta vendors)
-        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'linnys-luncheonette' AND featured != 1")
-        total_changed += cursor.rowcount
-        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'jem-salads' AND featured != 1")
-        total_changed += cursor.rowcount
-        # Migration 2026-04-05b: Feature Montreal vendors — Nosherz + Snowdon Deli
-        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'nosherz' AND featured != 1")
-        total_changed += cursor.rowcount
-        cursor.execute("UPDATE vendors SET featured = 1 WHERE slug = 'snowdon-deli' AND featured != 1")
-        total_changed += cursor.rowcount
-
-        # Migration 2026-05-22: mark the four editorial featured seeds as
-        # featured_source='editorial' so the Featured Vendor payment logic
-        # (which only ever toggles featured_source='paid' rows) can never
-        # defeature them. Guarded in case the column predates this build.
-        try:
-            cursor.execute(
-                "UPDATE vendors SET featured_source = 'editorial' "
-                "WHERE slug IN ('linnys-luncheonette','jem-salads','nosherz','snowdon-deli') "
-                "AND (featured_source IS NULL OR featured_source = '')"
-            )
-            total_changed += cursor.rowcount
-        except sqlite3.OperationalError:
-            pass
+        # Migration 2026-05-22: editorial featured set is intentionally EMPTY.
+        # The former hardcoded featured=1 seeds (linnys-luncheonette, jem-salads,
+        # nosherz, snowdon-deli) were REMOVED: production never reflected them,
+        # they re-featured on every deploy, and Jem Salads is a co-founder
+        # business (a conflict of interest now that Featured is a paid tier we
+        # sell to other caterers). "featured" now means a vendor who paid,
+        # governed entirely by the Featured Vendor webhook. The accidental
+        # Nortown test feature is cleared in shiva_manager.consolidate_caterers().
 
         # Migration 2026-04-05c: Same-source dedup DEFERRED
         # Risk: scraper IDs are hash-based. Deleting by name match could cause
@@ -7677,6 +7661,15 @@ def run_server(port=None):
 
         conn.commit()
         conn.close()
+        # Caterer consolidation (2026-05-22): vendors is the single source of
+        # truth for caterers. Runs after vendor seeding/migrations on its own
+        # connection. Idempotent.
+        if SHIVA_AVAILABLE:
+            try:
+                _cat = shiva_mgr.consolidate_caterers()
+                logging.info(f" Caterer consolidation: {len(_cat)} approved caterers synced to vendors (is_caterer=1)")
+            except Exception as e:
+                logging.error(f" Caterer consolidation failed: {e}")
         if total_changed > 0:
             logging.info(f" Migrations: {total_changed} rows updated")
         else:
