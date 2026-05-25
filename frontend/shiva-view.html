@@ -1923,7 +1923,7 @@
                         <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--sage-light); border-left: 3px solid var(--sage-mid); flex-shrink: 0;"></span> Partial
                     </div>
                     <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--amber-light); border-left: 3px solid var(--amber-mid); flex-shrink: 0;"></span> Help needed
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--amber-light); border-left: 3px solid var(--amber-mid); flex-shrink: 0;"></span> Meal needed
                     </div>
                 </div>
             </div>
@@ -2950,9 +2950,9 @@
                 if (lunchS.length > 0 && dinnerS.length > 0) {
                     statusBadge = '<span style="font-size:0.7rem;color:var(--green-text);font-weight:600;">Covered</span>';
                 } else if (lunchS.length > 0 || dinnerS.length > 0) {
-                    statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Help needed</span>';
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--sage-dark);font-weight:600;">Meal needed</span>';
                 } else {
-                    statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Help needed</span>';
+                    statusBadge = '<span style="font-size:0.7rem;color:var(--amber-text);font-weight:600;">Meal needed</span>';
                 }
 
                 html += '<div class="' + dayClass + '">';
@@ -2995,7 +2995,7 @@
                     '<div class="coverage-summary">' +
                     '<div class="coverage-stat"><span class="coverage-dot covered"></span>' + fullDays + ' covered</div>' +
                     '<div class="coverage-stat"><span class="coverage-dot partial"></span>' + partialDays + ' partial</div>' +
-                    '<div class="coverage-stat"><span class="coverage-dot needs-help"></span>' + emptyDays + ' need help</div>' +
+                    '<div class="coverage-stat"><span class="coverage-dot needs-help"></span>' + emptyDays + (emptyDays === 1 ? ' day needs a meal' : ' days need a meal') + '</div>' +
                     '<div class="coverage-stat" style="font-weight:600;color:var(--dark-brown);">' + filledSlots + '/' + totalSlots + ' meals</div>' +
                     '</div>';
                 if (filledSlots === 0) {
@@ -3104,7 +3104,7 @@
             return '<div class="meal-slot available" data-date="' + dateStr + '" data-meal="' + mealType + '" role="button" tabindex="0" aria-label="Sign up for ' + mealType + ' on ' + formatDateShort(dateStr) + '">' +
                 urgentBadge +
                 '<div class="meal-slot-label">' + mealType + '</div>' +
-                '<div class="slot-action"><span class="plus">+</span> Help needed</div>' +
+                '<div class="slot-action"><span class="plus">+</span> Meal needed</div>' +
                 '</div>';
         }
 
