@@ -33,6 +33,10 @@ if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
+# Featured Vendor payment routes are OFF by default. When unset/false the vendor
+# checkout + portal endpoints return 404, so payments are genuinely closed (not
+# merely unlinked). Flip FEATURED_VENDOR_ENABLED=true in the Render env to expose.
+FEATURED_VENDOR_ENABLED = os.environ.get('FEATURED_VENDOR_ENABLED', '').lower() == 'true'
 _SERVER_START_TIME = datetime.now(tz=_tz.utc)
 
 # ── Early Lock Recovery ─────────────────────────────────
@@ -2732,6 +2736,9 @@ button:hover{background:#c45a1a}</style></head>
 
     def handle_vendor_create_checkout(self, body):
         """Create a $49/mo Featured Vendor checkout session (90-day free trial)."""
+        if not FEATURED_VENDOR_ENABLED:
+            self.send_404()
+            return
         if not STRIPE_AVAILABLE:
             self.send_json_response({
                 'status': 'info',
@@ -2758,6 +2765,9 @@ button:hover{background:#c45a1a}</style></head>
     def handle_vendor_manage(self):
         """Redirect a vendor to the Stripe Customer Portal to manage or cancel
         their Featured subscription. Cancellation flows back via webhook."""
+        if not FEATURED_VENDOR_ENABLED:
+            self.send_404()
+            return
         if not STRIPE_AVAILABLE:
             self.send_json_response({
                 'status': 'info',
