@@ -7671,15 +7671,6 @@ def run_server(port=None):
 
         conn.commit()
         conn.close()
-        # Caterer consolidation (2026-05-22): vendors is the single source of
-        # truth for caterers. Runs after vendor seeding/migrations on its own
-        # connection. Idempotent.
-        if SHIVA_AVAILABLE:
-            try:
-                _cat = shiva_mgr.consolidate_caterers()
-                logging.info(f" Caterer consolidation: {len(_cat)} approved caterers synced to vendors (is_caterer=1)")
-            except Exception as e:
-                logging.error(f" Caterer consolidation failed: {e}")
         if total_changed > 0:
             logging.info(f" Migrations: {total_changed} rows updated")
         else:
@@ -7697,6 +7688,22 @@ def run_server(port=None):
                 logging.info(" Backup restore: not needed")
         except Exception as e:
             logging.info(f" Backup restore: {e}")
+
+    # Caterer consolidation (2026-05-25): runs UNCONDITIONALLY here, OUTSIDE the
+    # phase-2 migration try (that block aborts near line ~7300 via a V3
+    # RuntimeError, so the old call site below it was dead on every V3 boot.
+    # That was the cold-start bug that 500'd /api/caterers on 2026-05-25).
+    # Placed AFTER seed_vendors (~line 6888) AND AFTER backup-restore (above) so
+    # vendors exist whether seeded or restored. ensure_caterer_columns() is the
+    # first line of consolidate_caterers(), so is_caterer is created here, before
+    # serve_forever accepts any request. Idempotent; logs on failure, never crashes.
+    if SHIVA_AVAILABLE:
+        try:
+            _cat = shiva_mgr.consolidate_caterers()
+            logging.info(f" Caterer consolidation: {len(_cat)} approved caterers synced to vendors (is_caterer=1)")
+        except Exception as e:
+            logging.error(f" Caterer consolidation failed: {e}")
+
     logging.info(f"\n Press Ctrl+C to stop")
     logging.info(f"{'='*60}\n")
 
