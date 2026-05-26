@@ -1830,14 +1830,14 @@ class ShivaManager:
         # Pickle Barrel: confirmed central catering line (picklebarrelcatering.com), not a store number; flag cleared.
         'pickle barrel catering': {'vendor_match_name': 'Pickle Barrel', 'canonical_name': 'Pickle Barrel', 'phone_set': '1-866-493-4333'},
         'daniel et daniel': {'vendor_match_name': 'Daniel et Daniel Catering', 'canonical_name': 'Daniel et Daniel'},
-        # Mitzuyan: use caterer's phone; COR kept but flagged confirm-current on cor.ca.
-        'mitzuyan kosher catering': {'phone': 'caterer', 'contact_confirm': 'kosher-confirm-cor-current'},
-        # Ely's: confirmed catering contact (finalized); COR kept but flagged confirm-current.
-        "ely's fine foods": {'email_set': 'catering@elysfinefoods.com', 'phone_set': '(416) 782-3231', 'contact_confirm': 'kosher-confirm-cor-current'},
-        # Grodzinski: COR kept but flagged confirm-current on cor.ca.
-        'grodzinski bakery': {'contact_confirm': 'kosher-confirm-cor-current'},
-        # Marron: COR claim UNVERIFIED (no COR source found) -> do NOT list as COR.
-        'marron bistro': {'kosher_override': 'not_certified', 'contact_confirm': 'kosher-pending'},
+        # Mitzuyan: use caterer's phone; COR confirmed current by Jordana 2026-05-25 (flag cleared).
+        'mitzuyan kosher catering': {'phone': 'caterer'},
+        # Ely's: confirmed catering contact (finalized); COR confirmed current by Jordana 2026-05-25 (flag cleared).
+        "ely's fine foods": {'email_set': 'catering@elysfinefoods.com', 'phone_set': '(416) 782-3231'},
+        # Grodzinski: COR confirmed current by Jordana 2026-05-25 (flag cleared).
+        'grodzinski bakery': {},
+        # Marron: COR confirmed by Jordana 2026-05-25 -> list as COR (was not_certified pending). Flag cleared.
+        'marron bistro': {'kosher_override': 'COR'},
         # TOBEN: confirmed street address + catering phone (multiple sources); flag cleared.
         'toben food by design': {'address_set': '150 Symes Rd, Toronto, ON M6N 3T1', 'phone_set': '(647) 344-8323'},
     }
