@@ -293,6 +293,12 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/sustain': ('premium.html', 'text/html'),
         '/sustain-success': ('premium_success.html', 'text/html'),
         '/sustain-cancelled': ('premium_cancelled.html', 'text/html'),
+        # Featured Vendor signup (vendor-facing). Static pages only; the checkout
+        # POST + portal stay gated by FEATURED_VENDOR_ENABLED (see handlers).
+        '/vendor/featured': ('featured-vendor.html', 'text/html'),
+        '/vendor/featured.html': ('featured-vendor.html', 'text/html'),
+        '/vendor/featured-success': ('vendor-featured-success.html', 'text/html'),
+        '/vendor/featured-cancelled': ('vendor-featured-cancelled.html', 'text/html'),
         '/favicon.svg': ('favicon.svg', 'image/svg+xml'),
         '/manifest.json': ('manifest.json', 'application/manifest+json'),
         '/sw.js': ('sw.js', 'application/javascript'),
