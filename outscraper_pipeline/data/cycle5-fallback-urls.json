@@ -1,0 +1,238 @@
+{
+  "generated_at": "2026-04-30",
+  "agent": "fallback-research",
+  "notes": "Researched via WebSearch. Avoided Yelp/Tripadvisor/Instagram/Facebook. Preferred website subpages (menu/shop/catering) and review blogs (Tastet, BlogTO, eventsource) over bare homepages. Five vendors flagged null (small home bakers / no findable web presence + IG-only).",
+  "results": [
+    {
+      "vendor_name": "Sonny Langers Dairy & Vegetarian Caterers",
+      "city": "Thornhill ON",
+      "fallback_url": "http://www.sonnylangers.com/SonnyLanger-CateringPackage.pdf",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The catering package PDF is image-rich (food trays, platters) — the bare homepage was the cookie-banner offender."
+    },
+    {
+      "vendor_name": "Mehadrin Meats",
+      "city": "Montréal",
+      "fallback_url": "https://www.mehadrin.ca/en",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The .ca/en site (the actual corporate domain since 1951) is the product/butcher page — mehadrinmeats.ca is the storefront with the cookie banner that returned junk."
+    },
+    {
+      "vendor_name": "Montreal Kosher Bakery",
+      "city": "Montréal",
+      "fallback_url": "https://www.restomontreal.ca/resto/montreal-kosher-bakery-montreal/18621/en/",
+      "fallback_type": "aggregator",
+      "source_reasoning": "RestoMontreal listing has photos of challah/knishes/cakes — the bare homepage at montrealkosher.ca returned only a header."
+    },
+    {
+      "vendor_name": "Snowdon Deli",
+      "city": "Montréal",
+      "fallback_url": "https://tastet.ca/en/reviews/snowdon-deli/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "Tastet review of the deli has multiple food photos (smoked meat, sandwiches, sides) — homepage was junk."
+    },
+    {
+      "vendor_name": "Zera Cafe",
+      "city": "Montréal",
+      "fallback_url": "https://zeracafe.ca/shop/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /shop subpage has product photos (soups, salads, entrées) whereas the homepage was the cookie-banner offender."
+    },
+    {
+      "vendor_name": "Edible Arrangements",
+      "city": "Multiple GTA",
+      "fallback_url": "https://www.ediblearrangements.ca/fruit-arrangements",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /fruit-arrangements catalog page is image-rich with product shots; the bare homepage returned UI chrome."
+    },
+    {
+      "vendor_name": "Indigo",
+      "city": "Multiple Canada",
+      "fallback_url": "https://www.indigo.ca/en-ca/candle-warmer-black/633711404180.html",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "Indigo doesn't carry yahrzeit candles — best available is a single candle product page (Candle Warmer) which gives an isolated product image vs. the navigation-heavy category pages. Note: this is a candle warmer, not a memorial candle. May want manual review."
+    },
+    {
+      "vendor_name": "Purdys Chocolatier",
+      "city": "Multiple Canada",
+      "fallback_url": "https://www.purdys.com/assorted-chocolate-favourites-32-pc",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "Single product page for a 32-pc gift box — yields one clean product photo vs. the homepage which had nav/banner junk."
+    },
+    {
+      "vendor_name": "Ely's Fine Foods Gift Baskets",
+      "city": "North York",
+      "fallback_url": "https://www.restaurantji.com/on/north-york/elys-fine-foods-/",
+      "fallback_type": "aggregator",
+      "source_reasoning": "Restaurantji listing has 23 review photos of Ely's prepared food and platters — the homepage at elysfinefoods.com was the junk source."
+    },
+    {
+      "vendor_name": "F + B Kosher Catering",
+      "city": "North York",
+      "fallback_url": "https://fbkosher.com/menus/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /menus subpage has plated food photos (kosher entrees, hors d'oeuvres) — the homepage was the original junk URL."
+    },
+    {
+      "vendor_name": "Hickory Farms",
+      "city": "Online",
+      "fallback_url": "https://www.hickoryfarms.com/meat-cheese/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /meat-cheese category page has gift basket product images; bare homepage returned promotional banner."
+    },
+    {
+      "vendor_name": "Baskets Galore",
+      "city": "Online",
+      "fallback_url": "https://basketsgalore.com/gift-baskets/sympathy-gifts/sympathy-gift",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "Direct sympathy basket product page — most relevant to Neshama use-case and image-rich. Homepage was junk."
+    },
+    {
+      "vendor_name": "Wolferman's Bakery",
+      "city": "Online",
+      "fallback_url": "https://www.wolfermans.com/w/gourmet-bakery-gifts/baskets/2470",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "English Muffin Sampler Basket product page has the gift basket hero image; homepage returned promo junk."
+    },
+    {
+      "vendor_name": "Beyond Delish",
+      "city": "Richmond Hill",
+      "fallback_url": "https://www.beyonddelish.ca/menu",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /menu page lists dishes with photos — bare homepage was the original junk."
+    },
+    {
+      "vendor_name": "Pizza Gourmetti",
+      "city": "Saint-Laurent",
+      "fallback_url": "https://yeahthatskosher.com/2023/06/pizza-gourmetti-reopens-at-a-new-montreal-location/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "YeahThatsKosher reopening review has multiple in-store photos (pizza, interior); homepage was junk."
+    },
+    {
+      "vendor_name": "Howie T's Burger Bar",
+      "city": "Thornhill",
+      "fallback_url": "https://yeahthatskosher.com/tag/howie-ts-burger-bar/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "YeahThatsKosher tag page aggregates review posts with burger/menu photos — homepage at howiets.ca was junk."
+    },
+    {
+      "vendor_name": "Cheese Boutique",
+      "city": "Toronto",
+      "fallback_url": "https://www.cheeseboutique.com/catering-platters",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /catering-platters subpage has cheese-and-charcuterie board photos — exactly what's needed for a shiva-context image. Homepage was junk."
+    },
+    {
+      "vendor_name": "Dr. Laffa",
+      "city": "Toronto",
+      "fallback_url": "https://www.blogto.com/restaurants/dr-laffa-bathurst-toronto/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "BlogTO Bathurst location review has laffa/shawarma food photos — drlaffa.com homepage returned junk."
+    },
+    {
+      "vendor_name": "Fruitate",
+      "city": "Toronto",
+      "fallback_url": "https://streetsoftoronto.com/best-of-toronto/the-best-fruit-baskets-in-toronto/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "Streets of Toronto best-fruit-baskets roundup features Fruitate with arrangement photos; homepage at fruitate.com returned junk."
+    },
+    {
+      "vendor_name": "Levy's Catering",
+      "city": "Toronto",
+      "fallback_url": "https://www.eventsource.ca/blog/11-fabulous-kosher-catering-companies-in-the-gta",
+      "fallback_type": "review_blog",
+      "source_reasoning": "EventSource roundup of GTA kosher caterers includes Levy's with platter/event photos — homepage at levyskoshercatering.com is a static HTML site with no real photos."
+    },
+    {
+      "vendor_name": "Pizza Cafe",
+      "city": "Toronto",
+      "fallback_url": "https://ikeepkosher.com/listing/pizza-cafe/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "I Keep Kosher listing has pizza/menu photos for this exact location — pizzacafe.ca homepage was junk."
+    },
+    {
+      "vendor_name": "Sushi Inn",
+      "city": "Toronto",
+      "fallback_url": "https://www.opentable.ca/r/sushi-inn-toronto-2",
+      "fallback_type": "aggregator",
+      "source_reasoning": "OpenTable listing has restaurant photos (sushi rolls, dining room) — sushiinn.net homepage was junk. Note: this is the Yorkville Sushi Inn, NOT the kosher one — verify with Erin/Jordana that this is the correct vendor."
+    },
+    {
+      "vendor_name": "Tov-Li Pizza & Falafel",
+      "city": "Toronto",
+      "fallback_url": "https://www.blogto.com/restaurants/tovli/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "BlogTO review has falafel/pizza photos — tov-li.com homepage returned junk."
+    },
+    {
+      "vendor_name": "Adar",
+      "city": "Côte-Saint-Luc",
+      "fallback_url": "https://restaurantguru.com/Patisserie-Adar-Montreal",
+      "fallback_type": "aggregator",
+      "source_reasoning": "RestaurantGuru Adar page has pastry/prepared-food photos; adar.ca homepage was junk."
+    },
+    {
+      "vendor_name": "Pizza Pita Prime",
+      "city": "Montreal",
+      "fallback_url": "https://mk.ca/pizza-pita-prime/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "MK Kosher's vendor profile has pizza/menu photos — the order-online.ai URL is a third-party ordering shell with no real imagery."
+    },
+    {
+      "vendor_name": "Europea",
+      "city": "Montréal",
+      "fallback_url": "https://jeromeferrer.ca/the-gourmet-table/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "jeromeferrer.ca IS the official Europea site (Chef Jérôme Ferrer is the owner — original task notes were incorrect). The /the-gourmet-table subpage has plated dish photos vs. the bare homepage which was junk."
+    },
+    {
+      "vendor_name": "JoJos Pizza",
+      "city": "Montréal",
+      "fallback_url": "https://yeahthatskosher.com/2025/05/a-new-kosher-pizza-experience-in-montreal-jojo-pizza/",
+      "fallback_type": "review_blog",
+      "source_reasoning": "JoJo Pizza has no standalone website (Uber Eats + IG only). YeahThatsKosher 2025 review has multiple pizza/storefront/menu photos — best available source."
+    },
+    {
+      "vendor_name": "Baskets n' Stuf",
+      "city": "North York",
+      "fallback_url": "https://www.basketsnstuf.ca/gift-baskets",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "Found correct domain (basketsnstuf.ca, NOT orly-grill which was unrelated). The /gift-baskets subpage has basket product photos."
+    },
+    {
+      "vendor_name": "AB Cookies",
+      "city": "Toronto",
+      "fallback_url": null,
+      "fallback_type": null,
+      "source_reasoning": "no usable source — Jordana to research manually. Likely a small home baker; no website, no findable IG, not in any review aggregator."
+    },
+    {
+      "vendor_name": "Good Person Biscotti",
+      "city": "Toronto",
+      "fallback_url": null,
+      "fallback_type": null,
+      "source_reasoning": "no usable source — Jordana to research manually. Not findable on standard aggregators or review blogs; likely a very small / informal operation."
+    },
+    {
+      "vendor_name": "Haymishe Bakery",
+      "city": "Toronto",
+      "fallback_url": "https://www.haymishebakery.com/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "Haymishe DOES have a website (haymishebakery.com) — the original task note that they're IG-only is incorrect. Try the homepage; if junk, fall back to https://koshergourmet.ca/haymishe-bakery/ which has product photos."
+    },
+    {
+      "vendor_name": "Skye Dough Cookies",
+      "city": "Toronto",
+      "fallback_url": null,
+      "fallback_type": null,
+      "source_reasoning": "no usable source — Jordana to research manually. Not findable in any aggregator or directory; likely very small home baker, possibly closed."
+    },
+    {
+      "vendor_name": "Zuchter Berk Kosher Caterers",
+      "city": "Toronto",
+      "fallback_url": "https://zbcaterers.com/about-us/",
+      "fallback_type": "website_subpage",
+      "source_reasoning": "The /about-us subpage tends to have more imagery (event photos) than the bare homepage which was the original junk source. Their actual current domain is zbcaterers.com (no www, no .ca/.com mismatch)."
+    }
+  ]
+}

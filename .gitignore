@@ -59,3 +59,30 @@ neshama-code.tar.gz
 # Claude Code config (contains auth tokens)
 .mcp.json
 .claude/
+
+# ── Data dumps, exports, and binaries that must never be committed (added 2026-06-02) ──
+# Database backups / dumps (the backups/ dir holds 18MB+ prod JSON dumps)
+backups/
+*.db
+*.sqlite
+*.sqlite3
+backup.json
+
+# Apple Numbers spreadsheets + the photo-audit CSV export (working data, not deliverables)
+*.numbers
+Neshama_Vendor_Photo_Audit/
+
+# Zip archives + the GSC coverage export (folder and zip)
+*.zip
+https___neshama.ca_-Coverage-*/
+
+# Stray git worktrees accidentally created inside the repo root (prune these, never commit)
+/neshama-caterer-count/
+/neshama-demo-seed/
+
+# Stray preview render at repo root
+/preview.webp
+
+# Kept on disk, deliberately not committed (Erin's call)
+/gsc-indexing-audit-2026-05-14.md
+marketing-kit/general/archive/

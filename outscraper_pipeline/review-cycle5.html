@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neshama Vendor Photo Review — Cycle 5</title>
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --terracotta: #D2691E;
+    --brown: #3E2723;
+    --sage: #8A9A5B;
+    --border: #E8DDD0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    margin: 0;
+    padding: 24px;
+    font-size: 16px;
+  }
+  header {
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 8px;
+    z-index: 50;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 6px 0; font-size: 22px; color: var(--terracotta); }
+  header .stats { font-size: 14px; color: #6b5d4f; }
+  header button {
+    background: var(--terracotta);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  header button:hover { background: #B85A18; }
+  .vendor {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .vendor h2 { margin: 0 0 4px 0; font-size: 18px; color: var(--brown); }
+  .vendor .meta { font-size: 13px; color: #6b5d4f; margin-bottom: 10px; }
+  .vendor .meta a { color: var(--terracotta); text-decoration: none; }
+  .vendor .reasoning { font-size: 13px; font-style: italic; color: #6b5d4f; margin-bottom: 12px; }
+  .candidates { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .candidate {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    background: #f4ede0;
+    aspect-ratio: 1;
+    position: relative;
+  }
+  .candidate img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .candidate .label {
+    position: absolute; top: 6px; left: 6px;
+    background: rgba(255,255,255,0.9);
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+  }
+  .candidate.picked { border-color: #2E7D32; }
+  .candidate.picked::after {
+    content: '✓'; position: absolute; bottom: 6px; right: 6px;
+    background: #2E7D32; color: white;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+  }
+  .empty { font-size: 14px; color: #999; padding: 16px; text-align: center; background: #faf6ed; border-radius: 8px; }
+  textarea {
+    width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 14px; resize: vertical; min-height: 40px;
+  }
+  .vendor.has-pick { border: 2px solid #2E7D32; background: #f4faf3; }
+  .custom-url-row { margin: 12px 0 8px 0; padding: 10px; background: #faf6ed; border-radius: 8px; }
+  .custom-url-row label { display: block; font-size: 13px; color: #6b5d4f; margin-bottom: 6px; }
+  input.custom-url {
+    width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 14px;
+  }
+  .custom-preview { margin-top: 8px; }
+  .custom-preview img { max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #2E7D32; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Vendor Photo Review — Cycle 5</h1>
+  <div class="stats">
+    33 vendors · 25 with candidates · 8 need manual research<br>
+    Click an image to pick it. Picks save to your browser. When done, click Export.
+  </div>
+  <button onclick="exportPicks()">Export Picks (CSV)</button>
+</header>
+<main id="content"></main>
+<script>
+const DATA = [{"vendor_name": "Adar", "city": "Côte-Saint-Luc", "source_url": "https://restaurantguru.com/Patisserie-Adar-Montreal", "candidates": ["https://img.restaurantguru.com/w550/h367/r825-Adar-Supermarket-dessert.jpg", "https://img.restaurantguru.com/w400/r825-Adar-Supermarket-dessert.jpg", "https://1014042311.rsc.cdn77.org/img/site/hourglass2.svg"], "has_any": true, "reasoning": "RestaurantGuru Adar page has pastry/prepared-food photos; adar.ca homepage was junk."}, {"vendor_name": "Pizza Pita Prime", "city": "Montreal", "source_url": "https://mk.ca/pizza-pita-prime/", "candidates": ["https://i.vimeocdn.com/video/1289342690-0dee2e317011820034eb3e922d8d1c290965381168e9f69b8?mw=80&amp;q=85"], "has_any": true, "reasoning": "MK Kosher's vendor profile has pizza/menu photos — the order-online.ai URL is a third-party ordering shell with no real imagery."}, {"vendor_name": "Europea", "city": "Montréal", "source_url": "https://jeromeferrer.ca/the-gourmet-table/", "candidates": ["https://jeromeferrer.ca/wp-content/uploads/2026/01/10-DISHES.png", "https://jeromeferrer.ca/wp-content/uploads/2026/03/2026-EN-e1772725279269.png", "https://jeromeferrer.ca/wp-content/uploads/2026/02/MIDI-GOURMAND-EN.png"], "has_any": true, "reasoning": "jeromeferrer.ca IS the official Europea site (Chef Jérôme Ferrer is the owner — original task notes were incorrect). The /the-gourmet-table subpage has plated dish photos vs. the bare homepage which was junk."}, {"vendor_name": "JoJos Pizza", "city": "Montréal", "source_url": "https://yeahthatskosher.com/2025/05/a-new-kosher-pizza-experience-in-montreal-jojo-pizza/", "candidates": ["https://yeahthatskosher.com/wp-content/uploads/2025/05/jojo-pizza-montreal-kosher-storefront.jpeg", "https://yeahthatskosher.com/wp-content/uploads/2025/05/jojo-pizza-kosher-montreal-restaurant-1-1.jpg", "https://yeahthatskosher.com/wp-content/uploads/2025/05/jojo-pizza-montreal-kosher-storefront-1.jpeg"], "has_any": true, "reasoning": "JoJo Pizza has no standalone website (Uber Eats + IG only). YeahThatsKosher 2025 review has multiple pizza/storefront/menu photos — best available source."}, {"vendor_name": "Mehadrin Meats", "city": "Montréal", "source_url": "https://www.mehadrin.ca/en", "candidates": ["https://cdn.prod.website-files.com/6864098a74a8f4afb7b28d91/68644bedda61755251e79e17_mehadrin%20Sl%20.svg", "https://cdn.prod.website-files.com/6864098a74a8f4afb7b28d91/68644a485205dcfb5868f168_KM%20RIB%20.png", "https://cdn.prod.website-files.com/6864098a74a8f4afb7b28d91/686427d54607d361540ddb01_KosherMehadrinmen.gif"], "has_any": true, "reasoning": "The .ca/en site (the actual corporate domain since 1951) is the product/butcher page — mehadrinmeats.ca is the storefront with the cookie banner that returned junk."}, {"vendor_name": "Montreal Kosher Bakery", "city": "Montréal", "source_url": "https://www.restomontreal.ca/resto/montreal-kosher-bakery-montreal/18621/en/", "candidates": ["https://media.restodata.ca/_restoimages/17/18621-photo960.jpg", "https://portal.restodata.ca/simplement-fee-bar-a-crepes/gallery/images/SquareSmall/01_simplement-_999-2026-04-21.jpg?315", "https://portal.restodata.ca/castel-resto/gallery/images/SquareSmall/01_castel-rest_552-2024-09-07.jpg?315"], "has_any": true, "reasoning": "RestoMontreal listing has photos of challah/knishes/cakes — the bare homepage at montrealkosher.ca returned only a header."}, {"vendor_name": "Snowdon Deli", "city": "Montréal", "source_url": "https://tastet.ca/en/reviews/snowdon-deli/", "candidates": ["https://tastet.ca/wp-content/uploads/2017/11/snowdon-deli-montreal-9-e1509990715128.jpg", "https://images.tastet.ca/_/rs:fit:1080:720:false:0/plain/https://sesame.tastet.ca/assets/019ea761-e36e-4e90-b0ef-4e9672cb192e.jpg@jpg", "https://images.tastet.ca/_/rs:fit:1080:720:false:0/plain/https://sesame.tastet.ca/assets/3bb025c5-6803-41e5-b4ad-a45c972366c0.jpg@jpg"], "has_any": true, "reasoning": "Tastet review of the deli has multiple food photos (smoked meat, sandwiches, sides) — homepage was junk."}, {"vendor_name": "Zera Cafe", "city": "Montréal", "source_url": "https://zeracafe.ca/shop/", "candidates": ["https://cdn.userway.org/widgetapp/images/spin_wh.svg", "https://cdn.userway.org/widgetapp/images/body_wh.svg", "https://zeracafe.ca/wp-content/uploads/2021/05/Zera-badges-02.png"], "has_any": true, "reasoning": "The /shop subpage has product photos (soups, salads, entrées) whereas the homepage was the cookie-banner offender."}, {"vendor_name": "Indigo", "city": "Multiple Canada", "source_url": "https://www.indigo.ca/en-ca/candle-warmer-black/633711404180.html", "candidates": ["https://dynamic.indigoimages.ca/v1/gifts/gifts/633711404180/1.jpg?width=810&amp;maxHeight=810&amp;quality=85", "https://dynamic.indigoimages.ca/v1/gifts/gifts/633711404180/2.jpg?width=810&amp;maxHeight=810&amp;quality=85", "https://dynamic.indigoimages.ca/v1/gifts/gifts/633711404180/3.jpg?width=810&amp;maxHeight=810&amp;quality=85"], "has_any": true, "reasoning": "Indigo doesn't carry yahrzeit candles — best available is a single candle product page (Candle Warmer) which gives an isolated product image vs. the navigation-heavy category pages. Note: this is a candle warmer, not a memorial candle. May want manual review."}, {"vendor_name": "Purdys Chocolatier", "city": "Multiple Canada", "source_url": "https://www.purdys.com/assorted-chocolate-favourites-32-pc", "candidates": ["https://www.purdys.com/media/catalog/product/cache/0c8bfb3d377c0ba05e86514329cd527b/e/a/easter_2026_32pc_milk_and_dark_favourites_pdp_1120x1120_01.png", "https://www.purdys.com/media/catalog/product/cache/734f9a229223ed4d0436528cd43602aa/e/a/easter_2026_32pc_milk_and_dark_favourites_pdp_1120x1120_01.png", "https://www.purdys.com/fullscreen ? image.full : image.img"], "has_any": true, "reasoning": "Single product page for a 32-pc gift box — yields one clean product photo vs. the homepage which had nav/banner junk."}, {"vendor_name": "Edible Arrangements", "city": "Multiple GTA", "source_url": "https://www.ediblearrangements.ca/fruit-arrangements", "candidates": ["https://www.ediblearrangements.ca/fruit-arrangements", "https://www.ediblearrangements.ca/fruit-arrangements?r=1032", "https://resources.ediblearrangements.ca/resources/en-us/i/a/t_Signature_Oct25_Heartfelt_Delights_Dessert_Box_.jpg?v1"], "has_any": true, "reasoning": "The /fruit-arrangements catalog page is image-rich with product shots; the bare homepage returned UI chrome."}, {"vendor_name": "Baskets n' Stuf", "city": "North York", "source_url": "https://www.basketsnstuf.ca/gift-baskets", "candidates": ["https://static.wixstatic.com/media/ba2cd3_12121a7489de48f080c1eae3fd02aefc~mv2.png/v1/fill/w_370,h_214,al_c/ba2cd3_12121a7489de48f080c1eae3fd02aefc~mv2.png", "https://static.wixstatic.com/media/ba2cd3_d5dcc7a224e24b1a92ac698eb757eac6~mv2.jpg/v1/fill/w_686,h_429,al_c,lg_1,q_80,enc_avif,quality_auto/ba2cd3_d5dcc7a224e24b1a92ac698eb757eac6~mv2.jpg", "https://static.wixstatic.com/media/ba2cd3_baa8277e8d3d4114a7b3a9271d3efbbf~mv2.jpg/v1/fill/w_686,h_429,al_c,lg_1,q_80,enc_avif,quality_auto/ba2cd3_baa8277e8d3d4114a7b3a9271d3efbbf~mv2.jpg"], "has_any": true, "reasoning": "Found correct domain (basketsnstuf.ca, NOT orly-grill which was unrelated). The /gift-baskets subpage has basket product photos."}, {"vendor_name": "Ely's Fine Foods Gift Baskets", "city": "North York", "source_url": "https://www.restaurantji.com/on/north-york/elys-fine-foods-/", "candidates": ["https://cdn6.localdatacdn.com/images/5983365/d_ely_s_fine_foods_photo.jpg?q=69d897d76fe67", "https://www.restaurantji.com/images/stars/full-img.svg", "https://cdn6.localdatacdn.com/images/5983365/m_ely_s_fine_foods_menu.jpg?q=69d897d76fe69"], "has_any": true, "reasoning": "Restaurantji listing has 23 review photos of Ely's prepared food and platters — the homepage at elysfinefoods.com was the junk source."}, {"vendor_name": "F + B Kosher Catering", "city": "North York", "source_url": "https://fbkosher.com/menus/", "candidates": ["https://fbkosher.com/wp-content/uploads/FB-Kosher-Catering-Menus-Toronto-GTA-Banner.jpg", "https://fbkosher.com/wp-content/uploads/Plated-Dinner-Menu-2024.jpg", "https://fbkosher.com/wp-content/uploads/Buffet-Menu-2024.jpg"], "has_any": true, "reasoning": "The /menus subpage has plated food photos (kosher entrees, hors d'oeuvres) — the homepage was the original junk URL."}, {"vendor_name": "Baskets Galore", "city": "Online", "source_url": "https://basketsgalore.com/gift-baskets/sympathy-gifts/sympathy-gift", "candidates": ["https://basketsgalore.com/media/catalog/product/cache/2/small_image/200x200/9df78eab33525d08d6e5fb8d27136e95/s/y/sympathy-gift-.jpg", "https://basketsgalore.com/media/catalog/product/cache/2/thumbnail/340x/9df78eab33525d08d6e5fb8d27136e95/h/e/heartfelt_condolence_1.jpg", "https://basketsgalore.com/media/catalog/product/cache/2/thumbnail/340x/9df78eab33525d08d6e5fb8d27136e95/s/y/sympathy_fruit_basket_presented.jpg"], "has_any": true, "reasoning": "Direct sympathy basket product page — most relevant to Neshama use-case and image-rich. Homepage was junk."}, {"vendor_name": "Wolferman's Bakery", "city": "Online", "source_url": "https://www.wolfermans.com/w/gourmet-bakery-gifts/baskets/2470", "candidates": ["https://cdn1.wolfermans.com/wcsstore/Wolfermans/images/catalog/20_2470_61A_01ex.jpg", "https://www.wolfermans.com/chat/floraChatJuly2025.svg", "https://cdn1.wolfermans.com/wcsstore/Wolfermans/images/catalog/20_2470_61A_01ex.jpg?auto=webp"], "has_any": true, "reasoning": "English Muffin Sampler Basket product page has the gift basket hero image; homepage returned promo junk."}, {"vendor_name": "Beyond Delish", "city": "Richmond Hill", "source_url": "https://www.beyonddelish.ca/menu", "candidates": ["https://www.beyonddelish.ca/_next/image?url=https%3A%2F%2Fbdt4j8rgwmhvpaol.public.blob.vercel-storage.com%2Fbeyond-delish%2Fmenu-items%2F1757218009492-6ABB8123-F624-44C1-B5FC-AE7FD2976286.jpeg&amp;w=3840&amp;q=75", "https://www.beyonddelish.ca/_next/image?url=https%3A%2F%2Fbdt4j8rgwmhvpaol.public.blob.vercel-storage.com%2Fbeyond-delish%2Fmenu-items%2F1757218431013-4B26CB37-FF1C-47C2-9373-23CE7F1B8D45.png&amp;w=3840&amp;q=75", "https://www.beyonddelish.ca/_next/image?url=https%3A%2F%2Fbdt4j8rgwmhvpaol.public.blob.vercel-storage.com%2Fbeyond-delish%2Fmenu-items%2F1756166970418-WhatsApp_Image_2025-08-25_at_19.36.33_f2a0edc9.jpg&amp;w=3840&amp;q=75"], "has_any": true, "reasoning": "The /menu page lists dishes with photos — bare homepage was the original junk."}, {"vendor_name": "Pizza Gourmetti", "city": "Saint-Laurent", "source_url": "https://yeahthatskosher.com/2023/06/pizza-gourmetti-reopens-at-a-new-montreal-location/", "candidates": ["https://yeahthatskosher.com/wp-content/uploads/2023/06/Gourmetti-Food-4-edited.png", "https://yeahthatskosher.com/wp-content/uploads/2023/06/IMG_0035-1022x1024.jpeg", "https://yeahthatskosher.com/wp-content/uploads/2023/06/Gourmetti-Food-1.jpg"], "has_any": true, "reasoning": "YeahThatsKosher reopening review has multiple in-store photos (pizza, interior); homepage was junk."}, {"vendor_name": "Howie T's Burger Bar", "city": "Thornhill", "source_url": "https://yeahthatskosher.com/tag/howie-ts-burger-bar/", "candidates": ["https://yeahthatskosher.com/wp-content/uploads/2015/01/famous-laffa-kosher-toronto.jpeg", "https://yeahthatskosher.com/wp-content/uploads/2015/06/canadas-wonderland-kosher.jpg"], "has_any": true, "reasoning": "YeahThatsKosher tag page aggregates review posts with burger/menu photos — homepage at howiets.ca was junk."}, {"vendor_name": "Cheese Boutique", "city": "Toronto", "source_url": "https://www.cheeseboutique.com/catering-platters", "candidates": ["https://cdn.sanity.io/images/dmwz2ivl/production/3f087a845d45fe7f33a8788c8c54b173c5a4582b-108x108.png?auto=format", "https://cdn.sanity.io/images/dmwz2ivl/production/909171ed63c8b75e60743a2ace6fa38706bde265-750x500.jpg?auto=format", "https://cdn.sanity.io/images/dmwz2ivl/production/ddd027f9b6db6a735ba4172095b71758da133f57-700x525.jpg?auto=format"], "has_any": true, "reasoning": "The /catering-platters subpage has cheese-and-charcuterie board photos — exactly what's needed for a shiva-context image. Homepage was junk."}, {"vendor_name": "Dr. Laffa", "city": "Toronto", "source_url": "https://www.blogto.com/restaurants/dr-laffa-bathurst-toronto/", "candidates": ["https://blogto-production2-baselayer-display.blogto.com/listings/20220122-DrLaffa3.jpg?w=1200&cmd=resize_then_crop&height=630&format=auto", "https://cdn1.fireworktv.com/medias/2026/4/7/1775598462-xrpaquds/transcoded/240_400/2026-04-0120STREETER20-20How20warm20for20patio20dining.jpg.62.jpg", "https://cdn6.fireworktv.com/medias/2026/4/2/1775163277-nsilotjg/transcoded/240_400/2026-03-2920Junos20-20Sadboi20-20Night20out20in20Toronto.jpg.62.jpg"], "has_any": true, "reasoning": "BlogTO Bathurst location review has laffa/shawarma food photos — drlaffa.com homepage returned junk."}, {"vendor_name": "Fruitate", "city": "Toronto", "source_url": "https://streetsoftoronto.com/best-of-toronto/the-best-fruit-baskets-in-toronto/", "candidates": ["https://d2l4kn3pfhqw69.cloudfront.net/wp-content/uploads/2022/02/Good4You-Gift-Baskets.png", "https://d2l4kn3pfhqw69.cloudfront.net/wp-content/uploads/2022/02/Good4You.png", "https://d2l4kn3pfhqw69.cloudfront.net/wp-content/uploads/2022/02/Lesleys-Party-Sandwiches.png"], "has_any": true, "reasoning": "Streets of Toronto best-fruit-baskets roundup features Fruitate with arrangement photos; homepage at fruitate.com returned junk."}, {"vendor_name": "Levy's Catering", "city": "Toronto", "source_url": "https://www.eventsource.ca/blog/11-fabulous-kosher-catering-companies-in-the-gta", "candidates": ["https://www.eventsource.ca/blog/wp-content/uploads/2019/04/Ace-Kosher-FB-7.jpg"], "has_any": true, "reasoning": "EventSource roundup of GTA kosher caterers includes Levy's with platter/event photos — homepage at levyskoshercatering.com is a static HTML site with no real photos."}, {"vendor_name": "Pizza Cafe", "city": "Toronto", "source_url": "https://ikeepkosher.com/listing/pizza-cafe/", "candidates": ["https://ikeepkosher.com/wp-content/themes/listingpro/assets/images/content-loader.gif", "https://ikeepkosher.com/wp-content/themes/listingpro/assets/images/ajax-load.gif", "https://ikeepkosher.com/wp-content/themes/listingpro/assets/images/pins/pin.png"], "has_any": true, "reasoning": "I Keep Kosher listing has pizza/menu photos for this exact location — pizzacafe.ca homepage was junk."}, {"vendor_name": "Tov-Li Pizza & Falafel", "city": "Toronto", "source_url": "https://www.blogto.com/restaurants/tovli/", "candidates": ["https://blogto-production2-baselayer-display.blogto.com/listings/34a1-20080618-tov-li-north-exterior.jpg?w=1200&cmd=resize_then_crop&height=630&format=auto", "https://cdn1.fireworktv.com/medias/2026/4/7/1775598462-xrpaquds/transcoded/240_400/2026-04-0120STREETER20-20How20warm20for20patio20dining.jpg.62.jpg", "https://cdn6.fireworktv.com/medias/2026/4/2/1775163277-nsilotjg/transcoded/240_400/2026-03-2920Junos20-20Sadboi20-20Night20out20in20Toronto.jpg.62.jpg"], "has_any": true, "reasoning": "BlogTO review has falafel/pizza photos — tov-li.com homepage returned junk."}, {"vendor_name": "Hickory Farms", "city": "Online", "source_url": "https://www.hickoryfarms.com/meat-cheese/", "candidates": [], "has_any": false, "reasoning": "The /meat-cheese category page has gift basket product images; bare homepage returned promotional banner."}, {"vendor_name": "Sonny Langers Dairy & Vegetarian Caterers", "city": "Thornhill ON", "source_url": "http://www.sonnylangers.com/SonnyLanger-CateringPackage.pdf", "candidates": [], "has_any": false, "reasoning": "The catering package PDF is image-rich (food trays, platters) — the bare homepage was the cookie-banner offender."}, {"vendor_name": "AB Cookies", "city": "Toronto", "source_url": "", "candidates": [], "has_any": false, "reasoning": "no usable source — Jordana to research manually. Likely a small home baker; no website, no findable IG, not in any review aggregator."}, {"vendor_name": "Good Person Biscotti", "city": "Toronto", "source_url": "", "candidates": [], "has_any": false, "reasoning": "no usable source — Jordana to research manually. Not findable on standard aggregators or review blogs; likely a very small / informal operation."}, {"vendor_name": "Haymishe Bakery", "city": "Toronto", "source_url": "https://www.haymishebakery.com/", "candidates": [], "has_any": false, "reasoning": "Haymishe DOES have a website (haymishebakery.com) — the original task note that they're IG-only is incorrect. Try the homepage; if junk, fall back to https://koshergourmet.ca/haymishe-bakery/ which has product photos."}, {"vendor_name": "Skye Dough Cookies", "city": "Toronto", "source_url": "", "candidates": [], "has_any": false, "reasoning": "no usable source — Jordana to research manually. Not findable in any aggregator or directory; likely very small home baker, possibly closed."}, {"vendor_name": "Sushi Inn", "city": "Toronto", "source_url": "https://www.opentable.ca/r/sushi-inn-toronto-2", "candidates": [], "has_any": false, "reasoning": "OpenTable listing has restaurant photos (sushi rolls, dining room) — sushiinn.net homepage was junk. Note: this is the Yorkville Sushi Inn, NOT the kosher one — verify with Erin/Jordana that this is the correct vendor."}, {"vendor_name": "Zuchter Berk Kosher Caterers", "city": "Toronto", "source_url": "https://zbcaterers.com/about-us/", "candidates": [], "has_any": false, "reasoning": "The /about-us subpage tends to have more imagery (event photos) than the bare homepage which was the original junk source. Their actual current domain is zbcaterers.com (no www, no .ca/.com mismatch)."}];
+const STORAGE_KEY = 'jordana-vendor-picks-cycle5';
+const picks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]);
+}
+
+function render() {
+  const main = document.getElementById('content');
+  main.innerHTML = DATA.map((v, idx) => {
+    const candidatesHTML = v.candidates.length
+      ? '<div class="candidates">' + v.candidates.map((url, i) => {
+          const id = 'cand-' + idx + '-' + i;
+          const isPicked = picks[v.vendor_name] === url;
+          return `
+            <div class="candidate ${isPicked ? 'picked' : ''}" data-vendor="${escapeHTML(v.vendor_name)}" data-url="${escapeHTML(url)}">
+              <span class="label">Option ${i+1}</span>
+              <img src="${escapeHTML(url)}" alt="candidate ${i+1}" loading="lazy" onerror="this.style.background='#fde';this.alt='(image failed to load)'">
+            </div>`;
+        }).join('') + '</div>'
+      : '<div class="empty">No candidates from Firecrawl. Add a note below.</div>';
+    const reasoning = v.reasoning ? `<div class="reasoning">${escapeHTML(v.reasoning)}</div>` : '';
+    const note = (picks[v.vendor_name + '__note'] || '');
+    const custom = (picks[v.vendor_name + '__custom'] || '');
+    const hasPick = !!picks[v.vendor_name] || !!custom;
+    return `
+      <article class="vendor ${hasPick ? 'has-pick' : ''}">
+        <h2>${escapeHTML(v.vendor_name)}</h2>
+        <div class="meta">${escapeHTML(v.city)} · <a href="${escapeHTML(v.source_url)}" target="_blank">source</a></div>
+        ${reasoning}
+        ${candidatesHTML}
+        <div class="custom-url-row">
+          <label>Or paste your own image URL (overrides any clicked option above):</label>
+          <input type="url" class="custom-url" data-vendor="${escapeHTML(v.vendor_name)}" placeholder="https://..." value="${escapeHTML(custom)}">
+          ${custom ? `<div class="custom-preview"><img src="${escapeHTML(custom)}" alt="custom preview" onerror="this.style.display='none'"></div>` : ''}
+        </div>
+        <textarea data-vendor="${escapeHTML(v.vendor_name)}" placeholder="Notes (optional)">${escapeHTML(note)}</textarea>
+      </article>`;
+  }).join('');
+  document.querySelectorAll('.candidate').forEach(el => {
+    el.addEventListener('click', () => {
+      const v = el.dataset.vendor; const u = el.dataset.url;
+      picks[v] = u;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(picks));
+      render();
+    });
+  });
+  document.querySelectorAll('textarea[data-vendor]').forEach(el => {
+    el.addEventListener('input', () => {
+      picks[el.dataset.vendor + '__note'] = el.value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(picks));
+    });
+  });
+  document.querySelectorAll('input.custom-url').forEach(el => {
+    el.addEventListener('input', () => {
+      const v = el.dataset.vendor;
+      const url = el.value.trim();
+      if (url) {
+        picks[v + '__custom'] = url;
+      } else {
+        delete picks[v + '__custom'];
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(picks));
+    });
+    el.addEventListener('blur', () => {
+      // Re-render on blur so the preview thumbnail updates and the green-border state shows.
+      render();
+    });
+  });
+}
+
+function exportPicks() {
+  let csv = 'Vendor Name,City,Choice,Picked URL,Source Page,Note\n';
+  DATA.forEach(v => {
+    const custom = (picks[v.vendor_name + '__custom'] || '').trim();
+    const candidatePick = picks[v.vendor_name] || '';
+    // Custom URL wins if present, otherwise candidate click, otherwise nothing.
+    const finalPick = custom || candidatePick;
+    const note = (picks[v.vendor_name + '__note'] || '');
+    let choice = 'NEEDS NEW SOURCE';
+    if (custom) {
+      choice = 'Custom (pasted URL)';
+    } else if (candidatePick) {
+      const idx = v.candidates.indexOf(candidatePick);
+      choice = idx >= 0 ? `Option ${idx + 1}` : 'Custom';
+    }
+    const safe = s => `"${String(s || '').replace(/"/g, '""')}"`;
+    csv += [safe(v.vendor_name), safe(v.city), safe(choice), safe(finalPick), safe(v.source_url), safe(note)].join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vendor-photo-picks-cycle5-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+render();
+</script>
+</body>
+</html>
