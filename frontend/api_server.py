@@ -14,7 +14,7 @@ import re
 import sys
 import subprocess
 import threading
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urlparse, parse_qs, unquote, quote
 import urllib.request
 from datetime import datetime, timedelta, timezone as _tz
 import pytz
@@ -83,6 +83,205 @@ def _connect_db(db_path=None):
     conn = sqlite3.connect(db_path or DB_PATH, timeout=30, isolation_level=None)
     conn.execute('PRAGMA busy_timeout=30000')
     return conn
+
+# ── Directory SEO server-render ──────────────────────────
+# The directory template (directory.html) is served at several SEO entry-point
+# URLs. Historically every one of them shipped the same static canonical
+# (/directory) in the raw HTML and only the client JS rewrote it after load,
+# which Googlebot's first pass never sees. These helpers set the canonical (and
+# for one route, real server-rendered content) in the RAW HTML, so the first
+# crawl pass sees a correct, distinct page. See
+# Strategy/directory-ranking-diagnosis-2026-06-01.md in the vault.
+#
+# Scope (locked 2026-06-02):
+#   /shiva-caterers-toronto  -> self-canonical + server-rendered is_caterer cards (the one real page)
+#   /shiva-caterers-montreal -> self-canonical + noindex, NO listings (gated on Jordana vetting a Montreal shortlist)
+#   /shiva-catering and the rest -> handled by removing the client-side canonical half-measure; they stay canonical to /directory
+
+_DIRECTORY_SEO = {
+    '/shiva-caterers-toronto': {
+        'canonical': 'https://neshama.ca/shiva-caterers-toronto',
+        'title': 'Shiva Catering Toronto | Kosher & Non-Kosher Delivery | Neshama',
+        'desc': 'Vetted Toronto-area caterers for shiva meals. Kosher and non-kosher options, delivery and pickup. Curated by Neshama, free for families.',
+        'h1': 'Shiva Caterers in Toronto',
+        'noindex': False,
+        'ssr_caterers': True,
+    },
+    '/shiva-caterers-montreal': {
+        'canonical': 'https://neshama.ca/shiva-caterers-montreal',
+        'title': 'Shiva Catering Montreal | Kosher & Non-Kosher Delivery | Neshama',
+        'desc': 'Caterers for shiva meals serving Montreal-area families. Kosher and non-kosher options, delivery and pickup. Curated by Neshama, free for families.',
+        'h1': None,
+        'noindex': True,
+        'ssr_caterers': False,
+    },
+}
+
+# Category-to-accent-colour rules for the initial-letter placeholder, mirrored
+# from directory.html renderVendors() so server-rendered cards look identical.
+_CAT_COLOUR_RULES = [
+    # 'caterer' moved off terracotta (#D2691E) per BRAND.md: terracotta is
+    # reserved for revenue CTAs, never icon/placeholder backgrounds. Sage-dark
+    # is the quieter neutral. Mirrors directory.html catColorRules.
+    ('caterer', '#556258'), ('restaurant', '#8B6914'), ('bake', '#A0522D'),
+    ('bagel', '#A0522D'), ('deli', '#6b7c6e'), ('gift', '#C9A96E'),
+    ('chocolate', '#7a5230'), ('sweet', '#7a5230'), ('pizza', '#c45a1a'),
+    ('grocery', '#5C534A'),
+]
+_CAT_COLOUR_DEFAULT = '#B2BEB5'
+
+
+def _cat_colour(category):
+    cat = (category or '').lower()
+    for match, colour in _CAT_COLOUR_RULES:
+        if match in cat:
+            return colour
+    return _CAT_COLOUR_DEFAULT
+
+
+def is_kosher_certified(kosher_status):
+    """Single source of truth for the kosher badge rule (decided 2026-06-02).
+
+    A kosher badge requires a NAMED certification: COR or MK only. Comparison is
+    case-insensitive. A bare 'Kosher' (no named certifying body), 'not_certified',
+    '', or any other value returns False - we never claim a certification we
+    cannot name. The binary-Kosher migration was rejected. See decisions-log.md
+    2026-06-02 and data-quality-backlog.md.
+    """
+    return (kosher_status or '').strip().lower() in ('cor', 'mk')
+
+
+def render_caterer_cards_html(db_path, from_slug):
+    """Return server-rendered vendor-card HTML for the is_caterer=1 set, matching
+    directory.html renderVendors() markup exactly. Returns '' on empty or error so
+    the caller can fall back to the normal client-rendered page (no blank page)."""
+    try:
+        conn = _connect_db(db_path)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM vendors WHERE is_caterer = 1 ORDER BY featured DESC, name ASC")
+        rows = [dict(r) for r in cur.fetchall()]
+        conn.close()
+    except Exception:
+        return ''
+    if not rows:
+        return ''
+    esc = html_mod.escape
+    parts = []
+    for v in rows:
+        name = v.get('name') or ''
+        slug = v.get('slug') or ''
+        detail = '/directory/' + quote(slug) + '?from=' + quote(from_slug)
+        parts.append('<div class="vendor-card">')
+        parts.append('<a href="' + esc(detail) + '" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex-grow:1;">')
+        parts.append('<div class="vendor-card-img">')
+        img = v.get('image_url')
+        if img:
+            low = img.lower()
+            is_logo = ('logo' in low or 'favicon' in low or '.svg' in low or
+                       ('.png' in low and ('shopify' in low or 'wsimg.com' in low or 'cdn.shop' in low)))
+            cls = 'img-logo' if is_logo else ''
+            parts.append('<img src="' + esc(img) + '" alt="' + esc(name) + '" class="' + cls + '" width="460" height="180" loading="lazy" referrerpolicy="no-referrer">')
+        else:
+            initial = esc(name[:1])
+            parts.append('<div class="vendor-card-initial" style="background:' + _cat_colour(v.get('category')) + ';">' + initial + '</div>')
+        kosher = is_kosher_certified(v.get('kosher_status'))
+        delivery = bool(v.get('delivery'))
+        if kosher or delivery:
+            parts.append('<div class="vendor-card-badges">')
+            if kosher:
+                parts.append('<span class="badge kosher" title="Kosher">Kosher</span>')
+            if delivery:
+                parts.append('<span class="badge delivery">Delivery</span>')
+            parts.append('</div>')
+        parts.append('</div>')
+        parts.append('<div class="vendor-card-body">')
+        parts.append('<div class="vendor-category">' + esc(v.get('category') or '') + '</div>')
+        parts.append('<h3>' + esc(name) + '</h3>')
+        parts.append('<p class="vendor-desc">' + esc(v.get('description') or '') + '</p>')
+        if v.get('neighborhood'):
+            parts.append('<div class="vendor-location">' + esc(v.get('neighborhood')) + '</div>')
+        meta = []
+        if v.get('min_order'):
+            meta.append('<span class="meta-item">' + esc(v.get('min_order')) + '</span>')
+        if v.get('lead_time'):
+            meta.append('<span class="meta-item">' + esc(v.get('lead_time')) + '</span>')
+        if meta:
+            parts.append('<div class="vendor-meta">' + '<span class="meta-dot">·</span>'.join(meta) + '</div>')
+        parts.append('</div>')
+        parts.append('</a>')
+        parts.append('<a href="' + esc(detail) + '" class="vendor-card-cta">View Details</a>')
+        parts.append('</div>')
+    return ''.join(parts)
+
+
+def apply_directory_seo(path, content, db_path):
+    """Transform raw directory.html bytes for SEO entry-point routes: set the
+    canonical (and title/desc/og) in the raw HTML, add noindex where required,
+    and for the Toronto route inject server-rendered caterer cards. Pure except
+    for the DB read behind the Toronto cards. Returns bytes (unchanged for any
+    path not in _DIRECTORY_SEO, or if the SSR card render comes back empty)."""
+    cfg = _DIRECTORY_SEO.get(path)
+    if not cfg:
+        return content
+    try:
+        html = content.decode('utf-8')
+    except Exception:
+        return content
+    canon = cfg['canonical']
+    # Canonical (raw HTML, not the client JS swap)
+    html = html.replace(
+        '<link rel="canonical" href="https://neshama.ca/directory">',
+        '<link rel="canonical" href="' + canon + '">'
+    )
+    # Title + description + og mirrors
+    html = html.replace(
+        '<title>Local Food Vendors for Shiva Meals - Neshama</title>',
+        '<title>' + cfg['title'] + '</title>'
+    )
+    html = html.replace(
+        '<meta name="description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
+        '<meta name="description" content="' + cfg['desc'] + '">'
+    )
+    html = html.replace(
+        '<meta property="og:title" content="Local Food Vendors for Shiva Meals - Neshama">',
+        '<meta property="og:title" content="' + cfg['title'] + '">'
+    )
+    html = html.replace(
+        '<meta property="og:description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
+        '<meta property="og:description" content="' + cfg['desc'] + '">'
+    )
+    html = html.replace(
+        '<meta property="og:url" content="https://neshama.ca/directory">',
+        '<meta property="og:url" content="' + canon + '">'
+    )
+    # noindex (Montreal: page is not ready to be indexed until a vetted shortlist exists)
+    if cfg.get('noindex'):
+        html = html.replace(
+            '<link rel="canonical" href="' + canon + '">',
+            '<link rel="canonical" href="' + canon + '">\n    <meta name="robots" content="noindex, nofollow">'
+        )
+    # Server-render the vetted caterer cards (Toronto only)
+    if cfg.get('ssr_caterers'):
+        cards = render_caterer_cards_html(db_path, path.lstrip('/'))
+        if not cards:
+            return content  # DB empty or error: fall back to the normal client-rendered page
+        count = cards.count('<div class="vendor-card">')
+        html = html.replace(
+            '<div class="no-results" id="loadingMsg">Loading vendors...</div>',
+            cards
+        )
+        if cfg.get('h1'):
+            html = html.replace(
+                '<h1>Local Vendors Ready to Help</h1>',
+                '<h1>' + cfg['h1'] + '</h1>'
+            )
+        html = html.replace(
+            '<p class="subtitle">Caterers, restaurants, and gift platters across Toronto and Montreal.</p>',
+            '<p class="subtitle">' + str(count) + ' vetted caterers serving Toronto-area families.</p>'
+        )
+    return html.encode('utf-8')
+
 
 # ── Rate Limiter ─────────────────────────────────────────
 # Simple in-memory rate limiter for email-sending endpoints.
@@ -799,6 +998,11 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         try:
             with open(filepath, 'rb') as f:
                 content = f.read()
+
+            # SEO entry-point routes that share directory.html get their canonical
+            # (and, for Toronto, server-rendered caterer cards) set in the raw HTML
+            # here, before ETag/Content-Length are computed below.
+            content = apply_directory_seo(path, content, self.get_db_path())
 
             # Generate ETag from content hash for conditional requests
             etag = '"' + hashlib.md5(content).hexdigest() + '"'

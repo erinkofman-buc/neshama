@@ -229,7 +229,7 @@
 
         .filter-select:focus {
             outline: none;
-            border-color: var(--terracotta);
+            border-color: var(--sage-dark);
         }
 
         .filter-toggle {
@@ -250,13 +250,13 @@
         }
 
         .filter-toggle:hover {
-            border-color: var(--terracotta);
+            border-color: var(--sage-dark);
         }
 
         .filter-toggle.active {
-            background: var(--terracotta);
+            background: var(--sage-dark);
             color: white;
-            border-color: var(--terracotta);
+            border-color: var(--sage-dark);
         }
 
         /* ── Category Pills (Task 2) ── */
@@ -287,11 +287,11 @@
             white-space: nowrap;
             min-height: 44px;
         }
-        .cat-pill:hover { border-color: var(--terracotta); }
+        .cat-pill:hover { border-color: var(--sage-dark); }
         .cat-pill.active {
-            background: var(--terracotta);
+            background: var(--sage-dark);
             color: white;
-            border-color: var(--terracotta);
+            border-color: var(--sage-dark);
         }
         .cat-pill-icon { font-size: 1rem; }
 
@@ -452,11 +452,11 @@
         .vendor-category {
             display: inline-block;
             font-size: 1rem;
-            color: var(--terracotta);
+            color: var(--sage-dark);
             font-weight: 500;
             padding: 0.15rem 0.6rem;
             border-radius: 1rem;
-            background: rgba(210, 105, 30, 0.08);
+            background: rgba(85, 98, 88, 0.08);
             margin-bottom: 0.4rem;
             text-transform: none;
             letter-spacing: normal;
@@ -501,17 +501,17 @@
             display: block;
             text-align: center;
             padding: 0.75rem;
-            color: var(--terracotta);
+            color: var(--sage-dark);
             font-weight: 600;
             font-size: 1.05rem;
             text-decoration: none;
-            border-top: 1px solid rgba(210, 105, 30, 0.1);
+            border-top: 1px solid rgba(85, 98, 88, 0.12);
             transition: background 0.2s;
             min-height: 44px;
             line-height: 1.5;
         }
         .vendor-card-cta:hover {
-            background: rgba(210, 105, 30, 0.04);
+            background: rgba(85, 98, 88, 0.05);
             text-decoration: none;
         }
 
@@ -743,6 +743,7 @@
             <a href="/help">How Can I Help?</a>
             <a href="/what-to-bring-to-a-shiva">What to Bring</a>
             <a href="/shiva-catering">Find Caterers</a>
+            <a href="/shiva-caterers-toronto">Toronto Shiva Caterers</a>
             <a href="/yahrzeit">Yahrzeit Reminders</a>
             <a href="/sustain">Sustain</a>
             <a href="/privacy">Privacy</a>
@@ -790,9 +791,10 @@
                 seoEntryPoint = p.replace(/^\//, '');
                 // Swap title (browser tab + Google search snippet for JS-rendered indexing)
                 document.title = titles[p];
-                // Swap canonical so each SEO URL gets its own authority (not consolidated to /directory)
-                var canonical = document.querySelector('link[rel="canonical"]');
-                if (canonical) canonical.href = 'https://neshama.ca' + p;
+                // NOTE: the canonical is now set server-side in the raw HTML
+                // (api_server.apply_directory_seo) so Googlebot's first pass sees
+                // it. The old client-side canonical swap was removed 2026-06-02 -
+                // it was invisible to the first crawl and consolidated authority.
                 // Swap meta description
                 var metaDesc = document.querySelector('meta[name="description"]');
                 if (metaDesc) metaDesc.setAttribute('content', descs[p]);
@@ -920,7 +922,7 @@
 
             // Category color map for placeholder initials
             var catColorRules = [
-                { match: 'caterer', color: '#D2691E' },
+                { match: 'caterer', color: '#556258' },
                 { match: 'restaurant', color: '#8B6914' },
                 { match: 'bake', color: '#A0522D' },
                 { match: 'bagel', color: '#A0522D' },
@@ -1076,7 +1078,19 @@
             filterVendors();
         });
 
-        fetchVendors();
+        // Server-rendered SEO pages (e.g. /shiva-caterers-toronto) inject the
+        // vendor cards directly into #vendorGrid. Detect them and skip the client
+        // fetch + render so we never clobber or double-render the SSR content. On
+        // those pages the curated set is fixed, so the filter bar and search are
+        // hidden rather than left to wipe the server-rendered cards on first click.
+        if (vendorGrid && vendorGrid.querySelector('.vendor-card')) {
+            var ssrFilterBar = document.querySelector('.filter-bar');
+            if (ssrFilterBar) ssrFilterBar.style.display = 'none';
+            var ssrHeroSearch = document.querySelector('.hero-search');
+            if (ssrHeroSearch) ssrHeroSearch.style.display = 'none';
+        } else {
+            fetchVendors();
+        }
     })();
     </script>
 <script>
