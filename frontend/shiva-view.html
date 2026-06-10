@@ -1582,7 +1582,7 @@
                 line-height: 1.2 !important;
             }
 
-            /* Suppress "will serve ✓" — irrelevant on a fridge schedule.
+            /* Suppress the "will serve" checkmark line; irrelevant on a fridge schedule.
                Contributors (.vol-desc used for names) still print via
                their own .signup-contributors selector below. */
             .meal-slot.taken .vol-desc {
@@ -1934,13 +1934,13 @@
             <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--sage-dark); text-align: center; margin-bottom: 0.75rem;">Can't cook or too far away?</p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;">
                 <a id="cantCookDirectoryLink" href="/help/food" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#127869;</span> Send a meal from a local vendor
+                    Send a meal from a local vendor
                 </a>
                 <a href="/help/gifts#let-them-choose" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#127873;</span> Send a gift card
+                    Send a gift card
                 </a>
                 <a href="/help/gifts" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.55rem 1.1rem; border: 1.5px solid var(--light-taupe); border-radius: 2rem; text-decoration: none; color: var(--dark-brown); font-size: 0.92rem; transition: all 0.2s; background: var(--cream);">
-                    <span style="font-size: 1.1rem;">&#10084;&#65039;</span> Send something thoughtful
+                    Send something thoughtful
                 </a>
             </div>
         </div>
@@ -1954,37 +1954,30 @@
             <p style="text-align: center; color: var(--sage-dark); font-size: 1rem; margin-bottom: 1.5rem;">Can't be there in person? Send comfort to the family.</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem;">
                 <a href="/help/gifts?category=shiva-platters" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127869;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Shiva Platters</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Ready-to-serve meals</div>
                 </a>
                 <a href="/help/gifts?category=baked-goods" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#129360;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Baked Goods</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Pastries, cakes &amp; rugelach</div>
                 </a>
                 <a href="/help/gifts?category=chocolate" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127851;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Chocolate &amp; Sweets</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Sweet treats &amp; candy</div>
                 </a>
                 <a href="/help/gifts?category=fruit-nuts" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127822;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Fruit &amp; Nuts</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Baskets &amp; dried fruit trays</div>
                 </a>
                 <a href="/help/gifts?category=gift-baskets" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127873;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Gift Baskets</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">Curated comfort packages</div>
                 </a>
                 <a href="/help/gifts?category=kosher" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#10017;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Kosher Certified</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">COR &amp; certified options</div>
                 </a>
                 <a href="/gifts/plant-a-tree" style="background: var(--cream); border: 1px solid var(--light-taupe); border-radius: 0.8rem; padding: 1.1rem 0.8rem; text-align: center; text-decoration: none; color: var(--dark-brown); transition: transform 0.15s, box-shadow 0.15s;">
-                    <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">&#127795;</div>
                     <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem;">Plant a Tree</div>
                     <div style="font-size: 0.8rem; color: var(--sage-dark);">A living memorial in Israel</div>
                 </a>
@@ -2079,7 +2072,6 @@
             <!-- Confirmation View -->
             <div id="signupConfirmView" style="display: none;">
                 <div class="signup-confirmation">
-                    <div class="confirm-icon">&#x2713;</div>
                     <h2>Thank You!</h2>
                     <p class="modal-subtitle" id="confirmSubtitle"></p>
 
@@ -2099,7 +2091,7 @@
                     </div>
 
                     <a class="calendar-link" id="googleCalLink" href="#" target="_blank" rel="noopener noreferrer">
-                        &#x1F4C5; Add to Google Calendar
+                        Add to Google Calendar
                     </a>
 
                     <p style="text-align:center;margin-top:1.25rem;font-size:0.95rem;color:var(--sage-dark);font-style:italic;">
