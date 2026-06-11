@@ -2126,6 +2126,7 @@ class ShivaManager:
         'shiva_co_organizers', 'shiva_updates',
         'shiva_access_requests', 'candles',
         'digest_runs', 'email_daily_cap',
+        'subscribers', 'tributes',
     ]
 
     # High-volume analytics/logging tables: only back up last 30 days
@@ -2159,15 +2160,6 @@ class ShivaManager:
             except Exception:
                 tables[table] = []
 
-        # Also back up subscribers and tributes (managed by api_server directly)
-        for table in ('subscribers', 'tributes'):
-            try:
-                cursor.execute(f'SELECT * FROM {table}')
-                columns = [desc[0] for desc in cursor.description]
-                tables[table] = [dict(zip(columns, row)) for row in cursor.fetchall()]
-            except Exception:
-                tables[table] = []
-
         conn.close()
         return {
             'version': 1,
@@ -2195,7 +2187,7 @@ class ShivaManager:
         cursor = conn.cursor()
         restored = 0
 
-        all_tables = self.BACKUP_TABLES + ['subscribers', 'tributes']
+        all_tables = self.BACKUP_TABLES
         tables = data.get('tables', {})
 
         for table in all_tables:
