@@ -899,11 +899,24 @@
             return '';
         }
 
+        // Keep the stats-banner number in lockstep with the caterer cards actually
+        // on the page. Sourcing it from anywhere else (e.g. /api/directory-stats)
+        // is what let the caption drift to "18 listed" while 14 rendered. Counting
+        // the rendered DOM cards means the number can never disagree with the list.
+        function syncCatererCount() {
+            var rendered = document.querySelectorAll('#catererList .caterer-card').length;
+            var statEl = document.getElementById('statCaterers');
+            if (statEl) statEl.textContent = rendered;
+            var banner = document.getElementById('statsBanner');
+            if (banner && rendered > 0) banner.style.display = 'flex';
+        }
+
         function renderCaterers() {
             var container = document.getElementById('catererList');
 
             if (!allCaterers.length) {
                 container.innerHTML = '<div class="empty-state">No caterers match your filters. Try removing a filter.</div>';
+                syncCatererCount();
                 return;
             }
 
@@ -941,6 +954,7 @@
             });
 
             container.innerHTML = html;
+            syncCatererCount();
             observeCards();
         }
 
@@ -961,19 +975,10 @@
             }
         }
 
-        // Load stats banner
-        fetch('/api/directory-stats')
-            .then(function(r) { return r.json(); })
-            .then(function(result) {
-                if (result.status === 'success' && result.data) {
-                    var d = result.data;
-                    if (d.caterer_count > 0) {
-                        document.getElementById('statCaterers').textContent = d.caterer_count;
-                        document.getElementById('statsBanner').style.display = 'flex';
-                    }
-                }
-            })
-            .catch(function() {});
+        // Stats banner number is driven by the rendered caterer cards (see
+        // syncCatererCount, called from renderCaterers) so it always matches the
+        // list. It is intentionally NOT sourced from /api/directory-stats, which
+        // counts a different set and caused the "18 listed / 14 shown" drift.
 
         // Initial load
         loadCaterers();
