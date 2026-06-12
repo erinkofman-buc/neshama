@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="vLYK2Bvhi1UpsXxB0sao2BIGEV2W4oAkXJFKMJM_hms" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neshama — Toronto & Montreal Jewish Obituaries</title>
-    <meta name="description" content="Free community resource for Jewish families in Toronto and Montreal. Aggregated obituaries from the four major funeral homes, shiva meal coordination, vendor directory, yahrzeit reminders, and a free downloadable Shiva Guide.">
+    <title>Neshama | Shiva Coordination & Jewish Obituaries for Toronto & Montreal</title>
+    <meta name="description" content="Free shiva coordination for Jewish families in Toronto and Montreal. Organize shiva meals and visits in minutes, plus aggregated obituaries from the four major funeral homes, a vendor directory, yahrzeit reminders, and The Shiva Guide.">
     <meta name="theme-color" content="#3E2723">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="canonical" href="https://neshama.ca">
-    <meta property="og:title" content="Neshama — Comforting Our Community">
-    <meta property="og:description" content="Free Jewish community resource for Toronto and Montreal. Obituaries, shiva meal coordination, vendor directory, and a free Shiva Guide.">
+    <meta property="og:title" content="Neshama | Comforting Our Community">
+    <meta property="og:description" content="Free shiva coordination and obituaries for Toronto and Montreal's Jewish communities. Organize meals, find caterers, and stay connected.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://neshama.ca">
     <meta property="og:site_name" content="Neshama">
@@ -20,8 +20,8 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Neshama — Every Soul Remembered">
-    <meta name="twitter:description" content="Free Jewish community resource for Toronto and Montreal. Obituaries, shiva meal coordination, vendor directory, and a free Shiva Guide.">
+    <meta name="twitter:title" content="Neshama | Every Soul Remembered">
+    <meta name="twitter:description" content="Free shiva coordination and obituaries for Toronto and Montreal's Jewish communities. Organize meals, find caterers, and stay connected.">
     <meta name="twitter:image" content="https://neshama.ca/og-image.png">
     <script type="application/ld+json">
     {
@@ -31,12 +31,12 @@
       "alternateName": "נשמה",
       "url": "https://neshama.ca",
       "logo": "https://neshama.ca/og-image.png",
-      "description": "Free community resource for Jewish families in Toronto and Montreal navigating shiva, funerals, and bereavement. Aggregated obituaries from Steeles, Benjamin's, Paperman's, and Misaskim, plus shiva meal coordination, vendor directory, yahrzeit reminders, and a free downloadable Shiva Guide.",
+      "description": "Free shiva coordination platform and community resource for Jewish families in Toronto and Montreal. A friend or family member can organize shiva meals and visits in minutes with a shareable coordination page. Also: aggregated obituaries from Steeles, Benjamin's, Paperman's, and Misaskim, a vendor directory, yahrzeit reminders, and The Shiva Guide.",
+      "knowsAbout": ["shiva coordination", "shiva meal planning", "Jewish mourning customs", "shiva", "yahrzeit", "kosher catering", "Hebrew calendar", "Jewish funeral practices"],
       "areaServed": [
         {"@type": "City", "name": "Toronto", "containedInPlace": {"@type": "AdministrativeArea", "name": "Ontario, Canada"}},
         {"@type": "City", "name": "Montreal", "containedInPlace": {"@type": "AdministrativeArea", "name": "Quebec, Canada"}}
       ],
-      "knowsAbout": ["Jewish mourning customs", "shiva", "yahrzeit", "kosher catering", "Hebrew calendar", "Jewish funeral practices"],
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "contact@neshama.ca",
@@ -77,8 +77,8 @@
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-        body { font-family: var(--font-body); font-size: 17px; line-height: 1.7; color: var(--dark); background: var(--cream); overflow-x: hidden; }
+        html { font-size: 19px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font-body); font-size: 1.06rem; line-height: 1.7; color: var(--dark); background: var(--cream); overflow-x: hidden; }
         ::selection { background: rgba(210,105,30,0.12); color: var(--dark); }
         a { color: var(--terracotta); text-decoration: none; transition: color 0.25s ease; }
         a:hover { color: #c45a1a; }
@@ -126,8 +126,8 @@
         .hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 96px 24px 80px; position: relative; }
 
         /* Jump Nav */
-        .jump-nav { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 14px 24px; background: white; border-bottom: 1px solid var(--light-border); position: sticky; top: 56px; z-index: 190; }
-        .jump-nav a { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 500; color: var(--warm-gray); text-decoration: none; padding: 6px 16px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
+        .jump-nav { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.5rem; padding: 14px 12px; background: white; border-bottom: 1px solid var(--light-border); position: sticky; top: 56px; z-index: 190; }
+        .jump-nav a { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 500; color: var(--warm-gray); text-decoration: none; padding: 6px 12px; border-radius: 20px; transition: all 0.2s ease; white-space: nowrap; }
         .jump-nav a:hover { color: var(--terracotta); background: rgba(210,105,30,0.06); }
         .jump-nav-dot { color: var(--light-border); font-size: 0.6rem; user-select: none; }
 
@@ -237,6 +237,9 @@
         }
 
         @media (max-width: 640px) {
+            .jump-nav { padding: 10px 8px; gap: 0.25rem; }
+            .jump-nav a { font-size: 0.85rem; padding: 5px 9px; }
+            .jump-nav-dot { display: none; }
             .hero { padding: 48px 20px 32px; }
             .hero-title { letter-spacing: 0.08em; font-size: 2.4rem; }
             .section { padding: 72px 20px; }
@@ -293,7 +296,7 @@
             <p class="hero-tagline reveal reveal-d1">Comforting our community</p>
             <hr class="hero-rule reveal reveal-d2" aria-hidden="true">
             <p class="hero-desc reveal reveal-d2">
-                Obituaries and memorials from Toronto and Montreal's Jewish funeral homes, in one place.
+                Free shiva coordination for Toronto and Montreal's Jewish communities, alongside obituaries and memorials from the major funeral homes, in one place.
             </p>
             <div class="hero-buttons reveal reveal-d3">
                 <a href="/feed" class="btn btn-primary">
@@ -350,7 +353,7 @@
                     <ol class="shiva-steps">
                         <li>Create a shiva support page linked to the obituary</li>
                         <li>Set meal schedule, dietary needs, and address</li>
-                        <li>Share with community — volunteers sign up for meals</li>
+                        <li>Share with community; volunteers sign up for meals</li>
                         <li>Family receives meals without the coordination burden</li>
                     </ol>
                     <a href="/shiva/organize" class="btn btn-primary">Get Started</a>
@@ -359,11 +362,11 @@
                     <div style="background:var(--cream); border-radius:14px; padding:2rem; border:1px solid var(--light-border);">
                         <p style="font-family:var(--font-heading); font-size:1.3rem; color:var(--dark); margin-bottom:1rem;">Why coordinate?</p>
                         <ul style="list-style:none; padding:0; margin:0;">
-                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Prevent duplicates so every day is covered</li>
-                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Cover all 7 days so the family is looked after</li>
-                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Multiple friends contribute without stepping on each other</li>
-                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Family sees what's covered at a glance</li>
-                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2713;</span> Works alongside caterers — order Sonny's for Tuesday, cook for Wednesday</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2022;</span> Prevent duplicates so every day is covered</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2022;</span> Cover all 7 days so the family is looked after</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2022;</span> Multiple friends contribute without stepping on each other</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); margin-bottom:0.75rem; padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2022;</span> Family sees what's covered at a glance</li>
+                            <li style="font-size:0.95rem; color:rgba(44,32,23,0.7); padding-left:1.5rem; position:relative;"><span style="position:absolute;left:0;color:var(--terracotta);">&#x2022;</span> Works alongside caterers: order Sonny's for Tuesday, cook for Wednesday</li>
                         </ul>
                     </div>
                 </div>
@@ -385,6 +388,10 @@
                     <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--dark); margin-bottom:0.4rem;">Send Something Thoughtful</h3>
                     <p style="font-size:0.92rem; color:rgba(44,32,23,0.6); line-height:1.5;">Gift baskets, baked goods, fruit &amp; more</p>
                 </a>
+                <a href="/how-to-organize-a-shiva-toronto" style="text-decoration:none; background:white; border-radius:14px; padding:1.5rem; border:1px solid var(--light-border); transition: transform 0.2s, box-shadow 0.2s; display:block;">
+                    <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--dark); margin-bottom:0.4rem;">How to Organize a Shiva</h3>
+                    <p style="font-size:0.92rem; color:rgba(44,32,23,0.6); line-height:1.5;">The step-by-step guide for coordinators</p>
+                </a>
                 <a href="/shiva-preparation-checklist" style="text-decoration:none; background:white; border-radius:14px; padding:1.5rem; border:1px solid var(--light-border); transition: transform 0.2s, box-shadow 0.2s; display:block;">
                     <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--dark); margin-bottom:0.4rem;">Shiva Checklist</h3>
                     <p style="font-size:0.92rem; color:rgba(44,32,23,0.6); line-height:1.5;">Everything you need to prepare</p>
@@ -402,7 +409,7 @@
             <div class="features-grid">
                 <div class="feature-item reveal reveal-d1">
                     <h3 class="feature-title">Search across funeral homes</h3>
-                    <p class="feature-text">Find obituaries from Steeles, Benjamin's, Paperman's, and Misaskim — all in one search.</p>
+                    <p class="feature-text">Find obituaries from Steeles, Benjamin's, Paperman's, and Misaskim, all in one search.</p>
                 </div>
                 <div class="feature-item reveal reveal-d2">
                     <h3 class="feature-title">Stay informed</h3>
@@ -423,7 +430,7 @@
                 <div class="meaning-hebrew reveal" aria-hidden="true">&#x05E0;&#x05E9;&#x05DE;&#x05D4;</div>
                 <h2 class="section-heading reveal reveal-d1" id="meaning-heading" style="color:var(--cream);">The Meaning of Neshama</h2>
                 <p class="meaning-text reveal reveal-d2">
-                    <strong style="color:var(--cream);">Neshama</strong> (&#x05E0;&#x05E9;&#x05DE;&#x05D4;) is the Hebrew word for "soul" — the divine spark within each person. This service was created to comfort those who mourn — to help our community come together and support families when they need it most.
+                    <strong style="color:var(--cream);">Neshama</strong> (&#x05E0;&#x05E9;&#x05DE;&#x05D4;) is the Hebrew word for "soul", the divine spark within each person. This service was created to comfort those who mourn, to help our community come together and support families when they need it most.
                 </p>
                 <a href="/about" class="meaning-link reveal reveal-d3">
                     Learn more about our mission
@@ -449,11 +456,11 @@
                     <p style="font-family:var(--font-heading); font-size:0.95rem; color:rgba(251,246,240,0.55); margin-bottom:0.6rem; letter-spacing:0.05em; text-transform:uppercase;">Frequency</p>
                     <label style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem; cursor:pointer; font-size:1rem; color:var(--cream);">
                         <input type="radio" name="frequency" value="daily" checked style="accent-color:var(--terracotta); width:18px; height:18px;">
-                        Daily — who passed today
+                        Daily: who passed today
                     </label>
                     <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:1rem; color:var(--cream);">
                         <input type="radio" name="frequency" value="weekly" style="accent-color:var(--terracotta); width:18px; height:18px;">
-                        Weekly — community roundup
+                        Weekly: community roundup
                     </label>
                 </div>
 
