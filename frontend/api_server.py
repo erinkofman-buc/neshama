@@ -796,6 +796,79 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         else:
             self.send_404()
 
+    def do_HEAD(self):
+        """Handle HEAD requests (RFC 7231 section 4.3.2).
+
+        BaseHTTPRequestHandler ships no default do_HEAD, so without this method
+        every route 501s on HEAD. We re-run do_GET with body output suppressed:
+        HEAD then returns the exact same status line and headers as GET
+        (including Content-Length) but with no body, automatically, for every
+        current and future GET route.
+
+        Side-effect guard: GET routes that mutate state or do expensive work
+        must NOT have their handler run under HEAD. Those are short-circuited to
+        a headers-only response before do_GET is ever invoked:
+          - /api/track-click             inserts a row into vendor_clicks
+          - /api/tributes/<id>/keepsake.pdf  generates a PDF (CPU, rate-limited)
+        """
+        _req_start = _time_module.time()
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        is_keepsake = path.startswith('/api/tributes/') and path.endswith('/keepsake.pdf')
+        if path == '/api/track-click' or is_keepsake:
+            # Headers only; never invoke the underlying (side-effectful) handler.
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/pdf' if is_keepsake else 'text/plain')
+            self.send_cors_headers()
+            self.end_headers()
+            self._log_request('HEAD', path, 200, _req_start)
+            return
+
+        # Suppress the body: once end_headers() has flushed the header block to
+        # the socket, drop every subsequent write. All overrides are instance-
+        # local and removed in finally, so handler instances running concurrently
+        # under ThreadingHTTPServer never share mutated state.
+        real_wfile = self.wfile
+        state = {'suppress': False, 'status': 200}
+
+        class _BodySuppressor:
+            def write(self, data):
+                if state['suppress']:
+                    return len(data) if data is not None else 0
+                return real_wfile.write(data)
+
+            def flush(self):
+                return real_wfile.flush()
+
+        orig_end_headers = self.end_headers
+        orig_send_response = self.send_response
+
+        def head_end_headers():
+            orig_end_headers()
+            state['suppress'] = True  # headers are out; drop the body from here
+
+        def head_send_response(code, message=None):
+            state['status'] = code
+            orig_send_response(code, message)
+
+        try:
+            self.wfile = _BodySuppressor()
+            self.end_headers = head_end_headers
+            self.send_response = head_send_response
+            self.do_GET()
+        finally:
+            self.wfile = real_wfile
+            # Drop the instance-level overrides, reverting to the class methods
+            # (important for keep-alive connections that reuse this instance).
+            for _attr in ('end_headers', 'send_response'):
+                try:
+                    delattr(self, _attr)
+                except AttributeError:
+                    pass
+
+        self._log_request('HEAD', path, state['status'], _req_start)
+
     def do_POST(self):
         """Handle POST requests"""
         parsed_path = urlparse(self.path)
