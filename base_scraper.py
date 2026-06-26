@@ -215,41 +215,50 @@ class BaseScraper(ABC):
     # Storage
     # ──────────────────────────────────────────────
 
+    def _store_one(self, obit_data, stats):
+        """
+        Upsert a single parsed obituary (and its comments) immediately,
+        updating the given stats dict in place. run() calls this per record so
+        records are never accumulated into a list before commit.
+        """
+        try:
+            obit_id, action = self.db.upsert_obituary(obit_data)
+
+            if action == 'inserted':
+                stats['new'] += 1
+                logger.info(f"  + New: {obit_data['deceased_name']}")
+            elif action == 'updated':
+                stats['updated'] += 1
+                logger.info(f"  ~ Updated: {obit_data['deceased_name']}")
+            else:
+                stats['unchanged'] += 1
+                logger.info(f"  = Unchanged: {obit_data['deceased_name']}")
+
+            # Extract and save comments
+            comments = self.extract_comments(obit_data.get('source_url'))
+            new_comments = 0
+            for comment in comments:
+                comment_id = self.db.upsert_comment(obit_id, comment)
+                if comment_id:
+                    new_comments += 1
+            if new_comments > 0:
+                logger.info(f"    >> Added {new_comments} new comments")
+
+        except Exception as e:
+            stats['errors'] += 1
+            logger.error(f"  !! Error storing {obit_data.get('deceased_name', '?')}: {e}")
+
     def store_results(self, obituaries):
         """
         Upsert a list of parsed obituary dicts into the database.
         Returns stats dict with 'new', 'updated', 'unchanged', 'errors' counts.
+
+        Retained for callers that already hold a full list; run() itself now
+        streams via _store_one() and never builds the list.
         """
         stats = {'new': 0, 'updated': 0, 'unchanged': 0, 'errors': 0}
-
         for obit_data in obituaries:
-            try:
-                obit_id, action = self.db.upsert_obituary(obit_data)
-
-                if action == 'inserted':
-                    stats['new'] += 1
-                    logger.info(f"  + New: {obit_data['deceased_name']}")
-                elif action == 'updated':
-                    stats['updated'] += 1
-                    logger.info(f"  ~ Updated: {obit_data['deceased_name']}")
-                else:
-                    stats['unchanged'] += 1
-                    logger.info(f"  = Unchanged: {obit_data['deceased_name']}")
-
-                # Extract and save comments
-                comments = self.extract_comments(obit_data.get('source_url'))
-                new_comments = 0
-                for comment in comments:
-                    comment_id = self.db.upsert_comment(obit_id, comment)
-                    if comment_id:
-                        new_comments += 1
-                if new_comments > 0:
-                    logger.info(f"    >> Added {new_comments} new comments")
-
-            except Exception as e:
-                stats['errors'] += 1
-                logger.error(f"  !! Error storing {obit_data.get('deceased_name', '?')}: {e}")
-
+            self._store_one(obit_data, stats)
         return stats
 
     # ──────────────────────────────────────────────
@@ -298,8 +307,12 @@ class BaseScraper(ABC):
                 self.log_run('success', stats, duration=duration)
                 return stats
 
-            # Step 2: Parse each listing
-            parsed = []
+            # Steps 2 & 3: Parse and store each listing incrementally.
+            # We upsert immediately after post_process instead of accumulating a
+            # full parsed list, so peak memory stays bounded to a single record
+            # regardless of how many listings a funeral home publishes. This
+            # matches the streaming pattern the original four scrapers use.
+            store_stats = {'new': 0, 'updated': 0, 'unchanged': 0, 'errors': 0}
             for i, raw in enumerate(raw_listings, 1):
                 try:
                     logger.info(f"[{i}/{stats['found']}] Parsing...")
@@ -312,15 +325,16 @@ class BaseScraper(ABC):
 
                     # Run post-processing hook
                     obit_data = self.post_process(obit_data)
-                    if obit_data:
-                        parsed.append(obit_data)
+                    if not obit_data:
+                        continue
+
+                    # Store immediately; do not retain across iterations.
+                    self._store_one(obit_data, store_stats)
 
                 except Exception as e:
                     logger.error(f"  !! Parse error: {e}")
                     stats['errors'] += 1
 
-            # Step 3: Store results
-            store_stats = self.store_results(parsed)
             stats['new'] = store_stats['new']
             stats['updated'] = store_stats['updated']
             stats['errors'] += store_stats['errors']
@@ -346,3 +360,11 @@ class BaseScraper(ABC):
             self.log_run('failed', stats, error=error_msg, duration=duration)
             logger.error(f"\n!! {self.source_name} scraping failed: {error_msg}\n")
             raise
+
+        finally:
+            # Release the HTTP connection pool deterministically so a finished
+            # funeral home's session isn't held for the rest of the run.
+            try:
+                self.session.close()
+            except Exception:
+                pass

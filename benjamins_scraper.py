@@ -411,6 +411,13 @@ class BenjaminsScraper:
             logging.info(f"\n❌ Scraping failed: {error_msg}\n")
             raise
 
+        finally:
+            # Release the HTTP connection pool deterministically.
+            try:
+                self.session.close()
+            except Exception:
+                pass
+
 if __name__ == '__main__':
     scraper = BenjaminsScraper()
     scraper.run()
