@@ -5754,9 +5754,12 @@ button:hover{background:#c45a1a}</style></head>
         self.send_error_response('Endpoint not found', 404)
 
     def _log_request(self, method, path, status, start_time):
-        """Log request with method, path, status code, and response time."""
+        """Log request with method, path, status, response time, and User-Agent.
+        User-Agent is included so automated probes (e.g. HEAD uptime checks) can
+        be identified from the logs on the next live cycle."""
         elapsed_ms = (_time_module.time() - start_time) * 1000
-        logging.info(f"[API] {method} {path} {status} {elapsed_ms:.0f}ms")
+        ua = self.headers.get('User-Agent', '-')
+        logging.info(f"[API] {method} {path} {status} {elapsed_ms:.0f}ms UA=\"{ua}\"")
 
     def _handle_health_check(self):
         """GET /api/health — comprehensive service health check.
