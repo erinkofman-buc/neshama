@@ -234,6 +234,14 @@ class NeshamaDatabase:
         content_hash = self.generate_content_hash(obituary_data)
         now = datetime.now().isoformat()
 
+        # Guard (2026-06-27): collapse internal whitespace/newlines in
+        # date_of_death before storage. A stray newline once produced a malformed
+        # /yahrzeit URL ("May 1,\n2026"). Applied to the STORED value only; the
+        # id was already computed above, so id hashing is unchanged here (the
+        # dedup-key redesign is a separate, not-yet-implemented change).
+        if obituary_data.get('date_of_death'):
+            obituary_data['date_of_death'] = ' '.join(obituary_data['date_of_death'].split())
+
         # Check if obituary exists by ID (exact name match)
         self.cursor.execute('SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,))
         existing = self.cursor.fetchone()
