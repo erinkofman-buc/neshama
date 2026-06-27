@@ -3417,12 +3417,54 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    def _vendor_slug_exists(self, slug):
+        """True if a vendor with this slug exists. Read-only; sends no response.
+        Fails OPEN (returns True) on DB error so a transient fault never 404s a
+        real vendor page."""
+        if not slug:
+            return False
+        try:
+            db_path = self.get_db_path()
+            conn = _connect_db(db_path)
+            cur = conn.cursor()
+            cur.execute('SELECT 1 FROM vendors WHERE slug = ? LIMIT 1', (slug,))
+            found = cur.fetchone() is not None
+            conn.close()
+            return found
+        except Exception as e:
+            logging.error(f"[VendorPage] slug existence check failed for {slug!r}: {e}")
+            return True
+
     def serve_vendor_page(self):
-        """Serve the vendor detail page template (JS handles data loading)"""
+        """Serve the vendor detail page template (JS handles data loading).
+
+        Two SEO fixes vs the old behaviour:
+          - Per-vendor self-canonical. The template shipped a hardcoded
+            canonical of /directory/vendor on every page, so Google folded all
+            vendor URLs onto one non-existent page. We rewrite it to the page's
+            own clean URL.
+          - 404 unknown slugs. Slugs not in the vendors table previously served
+            a 200 shell (soft-404 in Google). Removed/unknown vendors now 404.
+        """
+        slug = unquote(urlparse(self.path).path[len('/directory/'):]).strip('/')
+
+        if not self._vendor_slug_exists(slug):
+            self.send_404()
+            return
+
         filepath = os.path.join(FRONTEND_DIR, 'vendor-detail.html')
         try:
             with open(filepath, 'rb') as f:
                 content = f.read()
+            canon = 'https://neshama.ca/directory/' + quote(slug)
+            content = content.replace(
+                b'<link rel="canonical" href="https://neshama.ca/directory/vendor">',
+                ('<link rel="canonical" href="' + canon + '">').encode('utf-8')
+            )
+            content = content.replace(
+                b'<meta property="og:url" content="https://neshama.ca/directory/vendor">',
+                ('<meta property="og:url" content="' + canon + '">').encode('utf-8')
+            )
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
