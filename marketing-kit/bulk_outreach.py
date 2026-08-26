@@ -34,7 +34,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 CONTACTS_CSV = SCRIPT_DIR / "outreach-contacts.csv"
 OUTREACH_LOG = SCRIPT_DIR / "outreach-log.json"
-PDF_ATTACHMENT = SCRIPT_DIR / "general" / "how-neshama-works-v2.pdf"
+PDF_ATTACHMENT = SCRIPT_DIR.parent / "NESHAMA-ONE-PAGER.pdf"  # canonical brand-clean one-pager (v3, 2026-05-26); old v2 archived in general/archive/
 
 FROM_EMAIL = "contact@neshama.ca"
 FROM_NAME = "Erin Kofman — Neshama"
