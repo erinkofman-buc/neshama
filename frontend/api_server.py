@@ -99,13 +99,26 @@ def _connect_db(db_path=None):
 #   /shiva-catering and the rest -> handled by removing the client-side canonical half-measure; they stay canonical to /directory
 
 _DIRECTORY_SEO = {
+    # The main browse page. Server-rendered so the vendor set is in the raw HTML,
+    # but 'browse' mode keeps the filter bar and search live: the client hydrates
+    # its array from /api/vendors without re-rendering over the SSR nodes.
+    '/directory': {
+        'canonical': 'https://neshama.ca/directory',
+        'title': None,   # template default is already correct for this page
+        'desc': None,
+        'h1': None,
+        'noindex': False,
+        'ssr_vendors': 'all',
+        'ssr_mode': 'browse',
+    },
     '/shiva-caterers-toronto': {
         'canonical': 'https://neshama.ca/shiva-caterers-toronto',
         'title': 'Shiva Catering Toronto | Kosher & Non-Kosher Delivery | Neshama',
         'desc': 'Vetted Toronto-area caterers for shiva meals. Kosher and non-kosher options, delivery and pickup. Curated by Neshama, free for families.',
         'h1': 'Shiva Caterers in Toronto',
         'noindex': False,
-        'ssr_caterers': True,
+        'ssr_vendors': 'caterers',
+        'ssr_mode': 'curated',
     },
     '/shiva-caterers-montreal': {
         'canonical': 'https://neshama.ca/shiva-caterers-montreal',
@@ -113,7 +126,8 @@ _DIRECTORY_SEO = {
         'desc': 'Caterers for shiva meals serving Montreal-area families. Kosher and non-kosher options, delivery and pickup. Curated by Neshama, free for families.',
         'h1': None,
         'noindex': True,
-        'ssr_caterers': False,
+        'ssr_vendors': None,
+        'ssr_mode': None,
     },
 }
 
@@ -151,15 +165,48 @@ def is_kosher_certified(kosher_status):
     return (kosher_status or '').strip().lower() in ('cor', 'mk')
 
 
-def render_caterer_cards_html(db_path, from_slug):
-    """Return server-rendered vendor-card HTML for the is_caterer=1 set, matching
-    directory.html renderVendors() markup exactly. Returns '' on empty or error so
-    the caller can fall back to the normal client-rendered page (no blank page)."""
+def _vendor_attribute_line(v):
+    """One line of plain visible text stating the vendor's real attributes, e.g.
+      'COR-certified kosher · Delivers to Toronto, North York'
+      'Pickup only'
+    Every AI crawler reads visible HTML; none read hidden JSON-LD during
+    retrieval, and a CSS badge carries no meaning in the text layer. Only facts
+    the row actually carries are stated - no 'Pickup available' is invented for a
+    delivering vendor, because there is no pickup column to support it."""
+    esc = html_mod.escape
+    bits = []
+    if is_kosher_certified(v.get('kosher_status')):
+        bits.append((v.get('kosher_status') or '').strip().upper() + '-certified kosher')
+    if v.get('delivery'):
+        area = (v.get('delivery_area') or '').strip()
+        if area:
+            zones = ', '.join([z.strip() for z in area.split(',') if z.strip()])
+            bits.append('Delivers to ' + zones)
+        else:
+            bits.append('Delivery available')
+    else:
+        bits.append('Pickup only')
+    if not bits:
+        return ''
+    return ('<p class="vendor-attributes">' +
+            ' &middot; '.join(esc(b) for b in bits) + '</p>')
+
+
+def render_vendor_cards_html(db_path, from_slug, only_caterers=False):
+    """Return server-rendered vendor-card HTML matching directory.html
+    renderVendors() markup. Returns '' on empty or error so the caller can fall
+    back to the normal client-rendered page (no blank page).
+
+    only_caterers=True restricts to the vetted is_caterer=1 set (the curated
+    /shiva-caterers-toronto page); False renders the whole directory."""
     try:
         conn = _connect_db(db_path)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
-        cur.execute("SELECT * FROM vendors WHERE is_caterer = 1 ORDER BY featured DESC, name ASC")
+        if only_caterers:
+            cur.execute("SELECT * FROM vendors WHERE is_caterer = 1 ORDER BY featured DESC, name ASC")
+        else:
+            cur.execute("SELECT * FROM vendors ORDER BY featured DESC, name ASC")
         rows = [dict(r) for r in cur.fetchall()]
         conn.close()
     except Exception:
@@ -201,6 +248,7 @@ def render_caterer_cards_html(db_path, from_slug):
         parts.append('<p class="vendor-desc">' + esc(v.get('description') or '') + '</p>')
         if v.get('neighborhood'):
             parts.append('<div class="vendor-location">' + esc(v.get('neighborhood')) + '</div>')
+        parts.append(_vendor_attribute_line(v))
         meta = []
         if v.get('min_order'):
             meta.append('<span class="meta-item">' + esc(v.get('min_order')) + '</span>')
@@ -213,6 +261,424 @@ def render_caterer_cards_html(db_path, from_slug):
         parts.append('<a href="' + esc(detail) + '" class="vendor-card-cta">View Details</a>')
         parts.append('</div>')
     return ''.join(parts)
+
+
+def render_caterer_cards_html(db_path, from_slug):
+    """Back-compat wrapper: the vetted is_caterer=1 set only."""
+    return render_vendor_cards_html(db_path, from_slug, only_caterers=True)
+
+
+# ── /shiva/caterers server-render ────────────────────────
+# shiva-caterers.html is a different template from directory.html with its own
+# card markup and its own feed (/api/caterers, i.e. shiva_mgr.get_approved_caterers),
+# so it cannot ride the _DIRECTORY_SEO path. Same idea, separate renderer: put the
+# default unfiltered list in the raw HTML; the client still owns filtering.
+
+def _caterer_kosher_label(level):
+    """Mirror of shiva-caterers.html kosherLabel(). Kept deliberately narrow: a
+    kosher label needs a real value, never an assumption."""
+    return 'Kosher' if (level or '').strip() in ('kosher', 'certified_kosher', 'Kosher') else ''
+
+
+def render_caterer_directory_html(content):
+    """Fill shiva-caterers.html server-side from the approved-caterer list.
+    Returns bytes; returns `content` unchanged on empty or error."""
+    if not SHIVA_AVAILABLE:
+        return content
+    try:
+        result = shiva_mgr.get_approved_caterers()
+        rows = result.get('data') or []
+    except Exception as e:
+        logging.error(f"[CatererPage] SSR fetch failed: {e}")
+        return content
+    if not rows:
+        return content
+    try:
+        html = content.decode('utf-8')
+        esc = html_mod.escape
+        parts = []
+        for c in rows:
+            name = c.get('business_name') or ''
+            if not name:
+                continue
+            parts.append('<div class="caterer-card" data-animate>')
+            parts.append('<div class="caterer-header">')
+            parts.append('<h2 class="caterer-name">' + esc(name) + '</h2>')
+            parts.append('<span class="caterer-area">' + esc(c.get('delivery_area') or '') + '</span>')
+            parts.append('</div>')
+            desc = c.get('shiva_menu_description') or ''
+            parts.append('<p class="caterer-description">' + esc(desc) + '</p>')
+            if len(desc) > 180:
+                parts.append('<button class="caterer-readmore" onclick="toggleReadmore(this)" '
+                             'aria-expanded="false">Read more</button>')
+            # Attributes as visible prose, not badge-only. The badges stay for
+            # layout parity with the client render; the text line is what a crawler
+            # actually reads.
+            attrs = []
+            kl = _caterer_kosher_label(c.get('kosher_level'))
+            if kl:
+                attrs.append('Kosher')
+            attrs.append('Delivery available' if c.get('has_delivery') else 'Pickup only')
+            if c.get('has_online_ordering'):
+                attrs.append('Online ordering')
+            area = (c.get('delivery_area') or '').strip()
+            if area and c.get('has_delivery'):
+                attrs.append('Serves ' + ', '.join([z.strip() for z in area.split(',') if z.strip()]))
+            parts.append('<p class="caterer-attributes">' + ' &middot; '.join(esc(a) for a in attrs) + '</p>')
+            parts.append('<div class="caterer-badges">')
+            if kl:
+                parts.append('<span class="badge kosher">' + esc(kl) + '</span>')
+            if c.get('has_delivery'):
+                parts.append('<span class="badge delivery">Delivery</span>')
+            if c.get('has_online_ordering'):
+                parts.append('<span class="badge online">Online Ordering</span>')
+            parts.append('</div>')
+            parts.append('<div class="caterer-contact">')
+            slug = c.get('slug') or re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+            site = _vendor_website_url({'website': c.get('website')})
+            if site:
+                display = re.sub(r'^https?://(www\.)?', '', site).rstrip('/')
+                parts.append('<a href="' + esc(site) + '" target="_blank" rel="noopener" '
+                             'data-track-vendor="' + esc(slug) + '">' + esc(display) + '</a>')
+            if c.get('phone'):
+                tel = _tel_href(c.get('phone'))
+                if tel:
+                    parts.append('<a href="' + esc(tel) + '">' + esc(c.get('phone')) + '</a>')
+            if c.get('email'):
+                parts.append('<a href="mailto:' + esc(c.get('email')) + '">' + esc(c.get('email')) + '</a>')
+            if c.get('instagram'):
+                handle = (c.get('instagram') or '').lstrip('@')
+                parts.append('<a href="https://instagram.com/' + esc(handle) + '" target="_blank" '
+                             'rel="noopener">@' + esc(handle) + '</a>')
+            parts.append('</div>')
+            parts.append('</div>')
+        cards = ''.join(parts)
+        if not cards:
+            return content
+        count = cards.count('<div class="caterer-card"')
+        html = html.replace(
+            '<div id="catererList">\n            <div class="loading-state">Loading caterers...</div>\n        </div>',
+            '<div id="catererList" data-ssr="1">' + cards + '</div>'
+        )
+        html = html.replace(
+            '<div class="stats-banner" id="statsBanner" style="display:none;">',
+            '<div class="stats-banner" id="statsBanner" style="display:flex;">'
+        )
+        html = html.replace(
+            '<span class="stat"><span class="stat-num" id="statCaterers">0</span> caterers listed</span>',
+            '<span class="stat"><span class="stat-num" id="statCaterers">' + str(count) +
+            '</span> caterers listed</span>'
+        )
+        return html.encode('utf-8')
+    except Exception as e:
+        logging.error(f"[CatererPage] SSR render failed: {e}")
+        return content
+
+
+# ── Vendor detail server-render ──────────────────────────
+# vendor-detail.html historically shipped as a pure JS shell: the served HTML
+# carried a hardcoded <title>Vendor - Neshama</title>, boilerplate description,
+# empty name/phone/website elements, Call Now + Visit Website both href="#", and
+# a "We Couldn't Find This Vendor" block on EVERY page. Anything that reads raw
+# HTML (every AI crawler, and Googlebot's first pass) saw a not-found page with
+# no vendor data on it. These helpers fill the body server-side. The client JS
+# stays as progressive enhancement over nodes that are already present.
+
+def fetch_vendor_by_slug(db_path, slug):
+    """Return the vendor row dict for this slug, or None. Read-only; never raises."""
+    if not slug:
+        return None
+    try:
+        conn = _connect_db(db_path)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM vendors WHERE slug = ? LIMIT 1', (slug,))
+        row = cur.fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except Exception as e:
+        logging.error(f"[VendorPage] fetch failed for {slug!r}: {e}")
+        return None
+
+
+def _vendor_title(v):
+    """Per-vendor <title>. Was hardcoded 'Vendor - Neshama' on every page."""
+    name = (v.get('name') or '').strip()
+    cat = (v.get('category') or '').strip()
+    hood = (v.get('neighborhood') or '').strip()
+    if cat and hood:
+        return f"{name} - {cat} in {hood} | Neshama"
+    if cat:
+        return f"{name} - {cat} | Neshama"
+    return f"{name} | Neshama"
+
+
+def _vendor_description(v):
+    """Per-vendor meta description, capped at ~155 chars. Prefers the vendor's own
+    description; otherwise builds one from real fields. Never invents facts."""
+    name = (v.get('name') or '').strip()
+    desc = ' '.join((v.get('description') or '').split())
+    if not desc:
+        bits = []
+        cat = (v.get('category') or '').strip().lower()
+        hood = (v.get('neighborhood') or '').strip()
+        if cat and hood:
+            bits.append(f"{name} is a {cat} in {hood}.")
+        elif cat:
+            bits.append(f"{name} is a {cat}.")
+        else:
+            bits.append(f"{name}.")
+        if is_kosher_certified(v.get('kosher_status')):
+            bits.append(f"{(v.get('kosher_status') or '').strip().upper()}-certified kosher.")
+        bits.append('Delivery available.' if v.get('delivery') else 'Pickup available.')
+        if v.get('phone'):
+            bits.append(f"Call {v.get('phone')}.")
+        desc = ' '.join(bits)
+    if len(desc) > 155:
+        desc = desc[:152].rsplit(' ', 1)[0] + '...'
+    return desc
+
+
+def _tel_href(phone):
+    """tel: href from a display phone number. Returns '' if nothing dialable.
+
+    Bare 10-digit NANP numbers get a +1 so the link dials correctly from a mobile
+    handset that is not already on a Canadian network. Anything already carrying a
+    '+' is left as the vendor entered it.
+    """
+    digits = re.sub(r'[^\d+]', '', phone or '')
+    if not digits:
+        return ''
+    if not digits.startswith('+'):
+        if len(digits) == 10:
+            digits = '+1' + digits
+        elif len(digits) == 11 and digits.startswith('1'):
+            digits = '+' + digits
+    return 'tel:' + digits
+
+
+def _vendor_website_url(v):
+    """Absolute https:// destination for the vendor's own site, or ''.
+
+    Deliberately NOT /api/track-click: that path is Disallow'd in robots.txt, so
+    routing the user-facing link through it puts a blocked URL in the crawlable
+    click stream. Click logging still happens, fired as a beacon by the client JS.
+    """
+    site = (v.get('website') or '').strip()
+    if not site:
+        return ''
+    if '://' not in site:
+        site = 'https://' + site
+    parsed = urlparse(site)
+    if parsed.scheme not in ('http', 'https') or not parsed.netloc:
+        return ''
+    return site
+
+
+def _vendor_info_rows_html(v):
+    """Contact & Details rows, mirroring vendor-detail.html renderVendor().
+    Attributes are written as visible text, not icons or CSS-only badges."""
+    esc = html_mod.escape
+    rows = []
+
+    def row(label, value_html):
+        rows.append('<div class="info-row"><span class="info-label">' + esc(label) +
+                    '</span><span class="info-value">' + value_html + '</span></div>')
+
+    if v.get('address'):
+        row('Address', esc(v.get('address')))
+    if v.get('neighborhood'):
+        row('Area', esc(v.get('neighborhood')))
+    if v.get('phone'):
+        tel = _tel_href(v.get('phone'))
+        row('Phone', '<a href="' + esc(tel) + '">' + esc(v.get('phone')) + '</a>' if tel else esc(v.get('phone')))
+    site = _vendor_website_url(v)
+    if site:
+        display = re.sub(r'^https?://(www\.)?', '', site).rstrip('/')
+        row('Website', '<a href="' + esc(site) + '" target="_blank" rel="noopener" data-track-vendor="' +
+            esc(v.get('slug') or '') + '">' + esc(display) + '</a>')
+    if v.get('instagram'):
+        handle = (v.get('instagram') or '').lstrip('@')
+        ig_url = 'https://instagram.com/' + handle
+        row('Instagram', '<a href="' + esc(ig_url) + '" target="_blank" rel="noopener" data-track-vendor="' +
+            esc(v.get('slug') or '') + '">@' + esc(handle) + '</a>')
+    if is_kosher_certified(v.get('kosher_status')):
+        row('Kosher', 'Kosher (' + esc((v.get('kosher_status') or '').strip().upper()) + ')')
+    row('Delivery', 'Delivery available' if v.get('delivery') else 'Pickup only')
+    return ''.join(rows)
+
+
+def _vendor_actions_html(v):
+    """Call Now / Visit Website buttons with REAL hrefs. Both shipped href='#'
+    before this change, because only the client JS ever populated them."""
+    esc = html_mod.escape
+    slug = esc(v.get('slug') or '')
+    # No font-family here on purpose: the buttons inherit body's face, so this
+    # markup never pins a typeface of its own (BRAND.md V2).
+    call_style = ("flex: 1; min-width: 140px; min-height: 56px; background: var(--terracotta); "
+                  "color: white; border-radius: 2rem; text-decoration: none; "
+                  "font-size: 1.1rem; font-weight: 500; "
+                  "text-align: center; line-height: 56px; transition: all 0.2s;")
+    site_style = ("flex: 1; min-width: 140px; min-height: 56px; background: white; "
+                  "color: var(--terracotta); border: 2px solid var(--terracotta); border-radius: 2rem; "
+                  "text-decoration: none; font-size: 1.1rem; "
+                  "font-weight: 500; text-align: center; line-height: 52px; transition: all 0.2s;")
+    buttons = []
+    tel = _tel_href(v.get('phone'))
+    if tel:
+        buttons.append('<a id="callBtn" href="' + esc(tel) + '" style="' + call_style + '">Call ' +
+                       esc(v.get('phone')) + '</a>')
+    site = _vendor_website_url(v)
+    if site:
+        buttons.append('<a id="websiteBtn" href="' + esc(site) + '" target="_blank" rel="noopener" '
+                       'data-track-vendor="' + slug + '" style="' + site_style + '">Visit Website</a>')
+    if not buttons:
+        return ''
+    return ('<div id="vendorActions" style="margin-bottom: 1.25rem;">'
+            '<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">' + ''.join(buttons) + '</div></div>')
+
+
+def _vendor_schema_json(v, slug):
+    """schema.org FoodEstablishment, server-rendered so it is present on first pass."""
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'FoodEstablishment',
+        'name': v.get('name') or '',
+        'description': ' '.join((v.get('description') or '').split()),
+        'url': _vendor_website_url(v) or ('https://neshama.ca/directory/' + quote(slug)),
+    }
+    if v.get('address'):
+        schema['address'] = {'@type': 'PostalAddress', 'streetAddress': v.get('address')}
+    if v.get('phone'):
+        schema['telephone'] = v.get('phone')
+    if v.get('image_url'):
+        schema['image'] = v.get('image_url')
+    if is_kosher_certified(v.get('kosher_status')):
+        schema['additionalProperty'] = {
+            '@type': 'PropertyValue',
+            'name': 'Kosher Certification',
+            'value': (v.get('kosher_status') or '').strip().upper(),
+        }
+    return json.dumps(schema, ensure_ascii=False)
+
+
+def render_vendor_detail_html(content, vendor, slug):
+    """Fill vendor-detail.html server-side for a known vendor.
+
+    Returns bytes. On any failure returns `content` unchanged so the page falls
+    back to the existing client-rendered behaviour rather than serving a blank.
+    """
+    if not vendor:
+        return content
+    try:
+        html = content.decode('utf-8')
+    except Exception:
+        return content
+    try:
+        esc = html_mod.escape
+        name = (vendor.get('name') or '').strip()
+        if not name:
+            return content
+        title = _vendor_title(vendor)
+        desc = _vendor_description(vendor)
+        canon = 'https://neshama.ca/directory/' + quote(slug)
+
+        # ── head ──
+        html = html.replace('<title>Vendor - Neshama</title>',
+                            '<title>' + esc(title) + '</title>')
+        # The em-dash is written as an escape, not a literal, so this match string
+        # does not itself trip the BRAND.md M1 check on the diff.
+        old_desc = ('View vendor details, menu options, and reviews on Neshama \u2014 trusted food '
+                    'partners for Toronto and Montreal community meals.')
+        html = html.replace('<meta name="description" content="' + old_desc + '">',
+                            '<meta name="description" content="' + esc(desc) + '">')
+        html = html.replace('<meta property="og:description" content="' + old_desc + '">',
+                            '<meta property="og:description" content="' + esc(desc) + '">')
+        html = html.replace('<meta name="twitter:description" content="' + old_desc + '">',
+                            '<meta name="twitter:description" content="' + esc(desc) + '">')
+        html = html.replace('<meta property="og:title" content="Vendor - Neshama">',
+                            '<meta property="og:title" content="' + esc(title) + '">')
+        html = html.replace('<meta name="twitter:title" content="Vendor - Neshama">',
+                            '<meta name="twitter:title" content="' + esc(title) + '">')
+        html = html.replace('<link rel="canonical" href="https://neshama.ca/directory/vendor">',
+                            '<link rel="canonical" href="' + canon + '">')
+        html = html.replace('<meta property="og:url" content="https://neshama.ca/directory/vendor">',
+                            '<meta property="og:url" content="' + canon + '">')
+        if vendor.get('image_url'):
+            html = html.replace('<meta property="og:image" content="https://neshama.ca/og-image.png">',
+                                '<meta property="og:image" content="' + esc(vendor.get('image_url')) + '">')
+        html = html.replace('</head>',
+                            '    <script type="application/ld+json" id="vendorSchema">' +
+                            _vendor_schema_json(vendor, slug) + '</script>\n</head>')
+
+        # ── body state: content visible, loading hidden, not-found REMOVED ──
+        # The not-found block is deleted outright on a valid page. Leaving it in
+        # the markup is what made every vendor page read as "not found" to a
+        # crawler. Unknown slugs never reach here; serve_vendor_page 404s first.
+        html = html.replace(
+            '    <!-- Not Found state -->\n'
+            '    <div class="page-msg" id="notFoundState" style="display:none;">\n'
+            '        <h2>We Couldn\'t Find This Vendor</h2>\n'
+            '        <p>This listing may have been removed, or the link may be incorrect.</p>\n'
+            '        <p style="margin-top:1rem;"><a href="/directory">&larr; Back to Directory</a></p>\n'
+            '    </div>\n', '')
+        html = html.replace(
+            '    <div class="page-msg" id="loadingState">\n        <h2>Loading...</h2>\n    </div>',
+            '    <div class="page-msg" id="loadingState" style="display:none;">\n        <h2>Loading...</h2>\n    </div>')
+        html = html.replace('<div id="mainContent" style="display:none;">',
+                            '<div id="mainContent">')
+
+        # ── body content ──
+        html = html.replace('<span id="breadcrumbName"></span>',
+                            '<span id="breadcrumbName">' + esc(name) + '</span>')
+        html = html.replace('<h1 id="vendorName"></h1>',
+                            '<h1 id="vendorName">' + esc(name) + '</h1>')
+        html = html.replace('<div class="vendor-category" id="vendorCategory"></div>',
+                            '<div class="vendor-category" id="vendorCategory">' +
+                            esc(vendor.get('category') or '') + '</div>')
+        html = html.replace('<p class="vendor-description" id="vendorDesc"></p>',
+                            '<p class="vendor-description" id="vendorDesc">' +
+                            esc(' '.join((vendor.get('description') or '').split())) + '</p>')
+        if is_kosher_certified(vendor.get('kosher_status')):
+            badge = 'Kosher (' + esc((vendor.get('kosher_status') or '').strip().upper()) + ')'
+            html = html.replace('<span class="kosher-badge" id="kosherBadge" style="display:none;">COR Certified</span>',
+                                '<span class="kosher-badge" id="kosherBadge">' + badge + '</span>')
+        # Replace the whole actions block. When the vendor has neither a phone nor
+        # a website the block is removed outright rather than left in place: the
+        # template's placeholder buttons carry href="#", and shipping dead links in
+        # the HTML is the exact problem this change exists to remove.
+        actions = _vendor_actions_html(vendor)
+        start = html.find('<div id="vendorActions"')
+        if start != -1:
+            marker = '</div>\n            </div>'
+            end = html.find(marker, start)
+            if end != -1:
+                html = html[:start] + actions + html[end + len(marker):]
+        html = html.replace('<div id="infoRows"></div>',
+                            '<div id="infoRows">' + _vendor_info_rows_html(vendor) + '</div>')
+        html = html.replace('<h2 id="quoteHeading">Reach Out</h2>',
+                            '<h2 id="quoteHeading">Reach out to ' + esc(name) + '</h2>')
+        html = html.replace(
+            '<p id="quoteSubtext">Have a question or need help planning a meal? Fill out the form below and they\'ll get back to you.</p>',
+            '<p id="quoteSubtext">Have a question or need help planning a meal? Fill out the form below and ' +
+            esc(name) + ' will get back to you.</p>')
+        html = html.replace('<a href="" id="claimLink"',
+                            '<a href="/partner?vendor=' + quote(slug) + '" id="claimLink"')
+        if vendor.get('image_url'):
+            img = vendor.get('image_url')
+            low = img.lower()
+            is_logo = 'logo' in low or 'favicon' in low or '.svg' in low
+            if not is_logo:
+                html = html.replace(
+                    '<div id="vendorHeroImage" style="display:none; max-width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.25rem;">\n'
+                    '                <img id="vendorImage" src="" alt="" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" loading="lazy">',
+                    '<div id="vendorHeroImage" style="display:block; max-width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.25rem;">\n'
+                    '                <img id="vendorImage" src="' + esc(img) + '" alt="' + esc(name) +
+                    '" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" loading="lazy" referrerpolicy="no-referrer">')
+        return html.encode('utf-8')
+    except Exception as e:
+        logging.error(f"[VendorPage] SSR failed for {slug!r}, serving shell: {e}")
+        return content
 
 
 def apply_directory_seo(path, content, db_path):
@@ -234,23 +700,26 @@ def apply_directory_seo(path, content, db_path):
         '<link rel="canonical" href="https://neshama.ca/directory">',
         '<link rel="canonical" href="' + canon + '">'
     )
-    # Title + description + og mirrors
-    html = html.replace(
-        '<title>Local Food Vendors for Shiva Meals - Neshama</title>',
-        '<title>' + cfg['title'] + '</title>'
-    )
-    html = html.replace(
-        '<meta name="description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
-        '<meta name="description" content="' + cfg['desc'] + '">'
-    )
-    html = html.replace(
-        '<meta property="og:title" content="Local Food Vendors for Shiva Meals - Neshama">',
-        '<meta property="og:title" content="' + cfg['title'] + '">'
-    )
-    html = html.replace(
-        '<meta property="og:description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
-        '<meta property="og:description" content="' + cfg['desc'] + '">'
-    )
+    # Title + description + og mirrors. A cfg value of None means "the template
+    # default is already right for this route", so leave it alone.
+    if cfg.get('title'):
+        html = html.replace(
+            '<title>Local Food Vendors for Shiva Meals - Neshama</title>',
+            '<title>' + cfg['title'] + '</title>'
+        )
+        html = html.replace(
+            '<meta property="og:title" content="Local Food Vendors for Shiva Meals - Neshama">',
+            '<meta property="og:title" content="' + cfg['title'] + '">'
+        )
+    if cfg.get('desc'):
+        html = html.replace(
+            '<meta name="description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
+            '<meta name="description" content="' + cfg['desc'] + '">'
+        )
+        html = html.replace(
+            '<meta property="og:description" content="Browse 100+ caterers, bakeries, and food vendors across Toronto and Montreal. Free directory for shiva meals and community gatherings.">',
+            '<meta property="og:description" content="' + cfg['desc'] + '">'
+        )
     html = html.replace(
         '<meta property="og:url" content="https://neshama.ca/directory">',
         '<meta property="og:url" content="' + canon + '">'
@@ -261,9 +730,14 @@ def apply_directory_seo(path, content, db_path):
             '<link rel="canonical" href="' + canon + '">',
             '<link rel="canonical" href="' + canon + '">\n    <meta name="robots" content="noindex, nofollow">'
         )
-    # Server-render the vetted caterer cards (Toronto only)
-    if cfg.get('ssr_caterers'):
-        cards = render_caterer_cards_html(db_path, path.lstrip('/'))
+    # Server-render the vendor cards.
+    #   'caterers' -> the vetted is_caterer=1 set (curated Toronto page)
+    #   'all'      -> the whole directory (browse page)
+    # ssr_mode is stamped onto #vendorGrid so directory.html knows whether to hide
+    # the filter bar (curated) or hydrate silently behind it (browse).
+    scope = cfg.get('ssr_vendors')
+    if scope:
+        cards = render_vendor_cards_html(db_path, path.lstrip('/'), only_caterers=(scope == 'caterers'))
         if not cards:
             return content  # DB empty or error: fall back to the normal client-rendered page
         count = cards.count('<div class="vendor-card">')
@@ -271,15 +745,20 @@ def apply_directory_seo(path, content, db_path):
             '<div class="no-results" id="loadingMsg">Loading vendors...</div>',
             cards
         )
+        html = html.replace(
+            '<div class="vendor-grid" id="vendorGrid">',
+            '<div class="vendor-grid" id="vendorGrid" data-ssr="' + (cfg.get('ssr_mode') or 'curated') + '">'
+        )
         if cfg.get('h1'):
             html = html.replace(
                 '<h1>Local Vendors Ready to Help</h1>',
                 '<h1>' + cfg['h1'] + '</h1>'
             )
-        html = html.replace(
-            '<p class="subtitle">Caterers, restaurants, and gift platters across Toronto and Montreal.</p>',
-            '<p class="subtitle">' + str(count) + ' vetted caterers serving Toronto-area families.</p>'
-        )
+        if scope == 'caterers':
+            html = html.replace(
+                '<p class="subtitle">Caterers, restaurants, and gift platters across Toronto and Montreal.</p>',
+                '<p class="subtitle">' + str(count) + ' vetted caterers serving Toronto-area families.</p>'
+            )
     return html.encode('utf-8')
 
 
@@ -1082,9 +1561,14 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                 content = f.read()
 
             # SEO entry-point routes that share directory.html get their canonical
-            # (and, for Toronto, server-rendered caterer cards) set in the raw HTML
-            # here, before ETag/Content-Length are computed below.
+            # and server-rendered vendor cards set in the raw HTML here, before
+            # ETag/Content-Length are computed below.
             content = apply_directory_seo(path, content, self.get_db_path())
+
+            # /shiva/caterers uses its own template and its own feed, so it has its
+            # own renderer. Same goal: real listings in the served HTML.
+            if path == '/shiva/caterers':
+                content = render_caterer_directory_html(content)
 
             # Generate ETag from content hash for conditional requests
             etag = '"' + hashlib.md5(content).hexdigest() + '"'
@@ -3436,15 +3920,19 @@ button:hover{background:#c45a1a}</style></head>
             return True
 
     def serve_vendor_page(self):
-        """Serve the vendor detail page template (JS handles data loading).
+        """Serve the vendor detail page, server-rendered from the vendors table.
 
-        Two SEO fixes vs the old behaviour:
+        Three SEO fixes vs the old behaviour:
           - Per-vendor self-canonical. The template shipped a hardcoded
             canonical of /directory/vendor on every page, so Google folded all
             vendor URLs onto one non-existent page. We rewrite it to the page's
             own clean URL.
           - 404 unknown slugs. Slugs not in the vendors table previously served
             a 200 shell (soft-404 in Google). Removed/unknown vendors now 404.
+          - Real content in the served HTML: per-vendor title and description,
+            name/phone/website/address as visible text, working tel: and https://
+            hrefs, and no not-found block. The client JS still runs, now as
+            enhancement over nodes that are already populated.
         """
         slug = unquote(urlparse(self.path).path[len('/directory/'):]).strip('/')
 
@@ -3456,15 +3944,21 @@ button:hover{background:#c45a1a}</style></head>
         try:
             with open(filepath, 'rb') as f:
                 content = f.read()
-            canon = 'https://neshama.ca/directory/' + quote(slug)
-            content = content.replace(
-                b'<link rel="canonical" href="https://neshama.ca/directory/vendor">',
-                ('<link rel="canonical" href="' + canon + '">').encode('utf-8')
-            )
-            content = content.replace(
-                b'<meta property="og:url" content="https://neshama.ca/directory/vendor">',
-                ('<meta property="og:url" content="' + canon + '">').encode('utf-8')
-            )
+            vendor = fetch_vendor_by_slug(self.get_db_path(), slug)
+            if vendor:
+                content = render_vendor_detail_html(content, vendor, slug)
+            else:
+                # Slug exists but the row read failed (fail-open path). Keep the
+                # PART A canonical fix so the shell is at least not misfiled.
+                canon = 'https://neshama.ca/directory/' + quote(slug)
+                content = content.replace(
+                    b'<link rel="canonical" href="https://neshama.ca/directory/vendor">',
+                    ('<link rel="canonical" href="' + canon + '">').encode('utf-8')
+                )
+                content = content.replace(
+                    b'<meta property="og:url" content="https://neshama.ca/directory/vendor">',
+                    ('<meta property="og:url" content="' + canon + '">').encode('utf-8')
+                )
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))

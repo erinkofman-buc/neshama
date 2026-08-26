@@ -483,6 +483,15 @@
             padding-top: 0.5rem;
         }
 
+        /* Server-rendered attribute line: certification · delivery zones.
+           Plain visible text: AI crawlers read the text layer, not CSS badges. */
+        .vendor-attributes {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--sage-dark);
+            padding-top: 0.35rem;
+        }
+
         /* Order logistics line: min order · lead time */
         .vendor-meta {
             font-family: 'Source Serif 4', serif;
@@ -911,6 +920,29 @@
                 });
         }
 
+        // Browse-mode SSR: load the vendor array so filtering works, but leave the
+        // server-rendered cards on screen. On failure we simply keep the SSR cards
+        // and disable the controls, which is strictly better than blanking the page.
+        function hydrateVendors() {
+            fetch('/api/vendors')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        allVendors = data.data;
+                    } else {
+                        disableFilters();
+                    }
+                })
+                .catch(function() { disableFilters(); });
+        }
+
+        function disableFilters() {
+            var bar = document.querySelector('.filter-bar');
+            if (bar) bar.style.display = 'none';
+            var search = document.querySelector('.hero-search');
+            if (search) search.style.display = 'none';
+        }
+
         function renderVendors(vendors) {
             if (vendors.length === 0) {
                 vendorGrid.innerHTML = '<div class="no-results"><h3>No vendors match those filters</h3><p>Try broadening your search or <a href="/shiva/caterers/apply">suggest a vendor</a> you trust.</p></div>';
@@ -1078,12 +1110,26 @@
             filterVendors();
         });
 
-        // Server-rendered SEO pages (e.g. /shiva-caterers-toronto) inject the
-        // vendor cards directly into #vendorGrid. Detect them and skip the client
-        // fetch + render so we never clobber or double-render the SSR content. On
-        // those pages the curated set is fixed, so the filter bar and search are
-        // hidden rather than left to wipe the server-rendered cards on first click.
-        if (vendorGrid && vendorGrid.querySelector('.vendor-card')) {
+        // Server-rendered pages inject the vendor cards straight into #vendorGrid.
+        // The server stamps data-ssr to say which kind of page this is:
+        //
+        //   "curated"  /shiva-caterers-toronto: a fixed vetted set. Skip the fetch
+        //              entirely and hide the filter bar and search, which would
+        //              otherwise wipe the server-rendered cards on first click.
+        //
+        //   "browse"   /directory: the full directory. The cards must be in the
+        //              raw HTML for crawlers, AND search + filters must keep
+        //              working for people. So hydrate allVendors from the API but
+        //              do NOT render on load; the SSR nodes stay untouched until
+        //              the visitor actually filters, at which point the client
+        //              takes over. Progressive enhancement over existing DOM,
+        //              not a re-render of it.
+        var ssrMode = vendorGrid ? vendorGrid.getAttribute('data-ssr') : null;
+        var hasSsrCards = !!(vendorGrid && vendorGrid.querySelector('.vendor-card'));
+
+        if (hasSsrCards && ssrMode === 'browse') {
+            hydrateVendors();
+        } else if (hasSsrCards) {
             var ssrFilterBar = document.querySelector('.filter-bar');
             if (ssrFilterBar) ssrFilterBar.style.display = 'none';
             var ssrHeroSearch = document.querySelector('.hero-search');

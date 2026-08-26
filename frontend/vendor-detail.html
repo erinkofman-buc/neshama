@@ -535,6 +535,37 @@
             return div.innerHTML;
         }
 
+        // Mirror of _tel_href() in api_server.py. Both sides must agree, or the
+        // rendered page disagrees with the served HTML.
+        function telHref(phone) {
+            var digits = (phone || '').replace(/[^\d+]/g, '');
+            if (!digits) return '';
+            if (digits.charAt(0) !== '+') {
+                if (digits.length === 10) digits = '+1' + digits;
+                else if (digits.length === 11 && digits.charAt(0) === '1') digits = '+' + digits;
+            }
+            return 'tel:' + digits;
+        }
+
+        function absoluteUrl(url) {
+            url = (url || '').trim();
+            if (!url) return '';
+            return url.indexOf('://') === -1 ? 'https://' + url : url;
+        }
+
+        // Outbound clicks are logged by pinging /api/track-click and ignoring its
+        // 302. The server records the click before it redirects, so the link's own
+        // href can stay a real https:// URL instead of a robots-disallowed /api/ one.
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest && e.target.closest('a[data-track-vendor]');
+            if (!a || !a.href) return;
+            var ping = '/api/track-click?vendor=' + encodeURIComponent(a.getAttribute('data-track-vendor')) +
+                       '&dest=' + encodeURIComponent(a.href);
+            try {
+                fetch(ping, { redirect: 'manual', keepalive: true, mode: 'no-cors' }).catch(function() {});
+            } catch (err) { /* tracking must never block the click */ }
+        });
+
         function loadVendor() {
             fetch('/api/vendors/' + encodeURIComponent(slug))
                 .then(function(r) { return r.json(); })
@@ -553,7 +584,12 @@
 
         function renderVendor() {
             var v = vendor;
-            document.title = v.name + ' - Neshama';
+            // Only claim the title if the server didn't already set a per-vendor
+            // one. Overwriting it made the rendered title disagree with the title
+            // in the served HTML, which is the ambiguity this page is fixing.
+            if (document.title === 'Vendor - Neshama' || !document.title) {
+                document.title = v.name + ' - Neshama';
+            }
             var canon = document.querySelector('link[rel=canonical]');
             if (canon) canon.href = 'https://neshama.ca/directory/' + encodeURIComponent(slug);
             var ogUrl = document.querySelector('meta[property="og:url"]');
@@ -592,14 +628,19 @@
             var hasActions = false;
             if (v.phone) {
                 var callBtn = document.getElementById('callBtn');
-                callBtn.href = 'tel:' + v.phone.replace(/[^\d+]/g, '');
+                callBtn.href = telHref(v.phone);
                 callBtn.textContent = 'Call ' + v.phone;
                 callBtn.style.display = '';
                 hasActions = true;
             }
             if (v.website) {
                 var webBtn = document.getElementById('websiteBtn');
-                webBtn.href = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(v.website);
+                // Real destination, not /api/track-click: that path is Disallow'd in
+                // robots.txt, so using it as the user-facing href puts a blocked URL
+                // in the crawlable click stream. Clicks are logged by beacon below.
+                webBtn.href = absoluteUrl(v.website);
+                webBtn.setAttribute('rel', 'noopener');
+                webBtn.setAttribute('data-track-vendor', slug);
                 webBtn.textContent = 'Visit Website';
                 webBtn.style.display = '';
                 hasActions = true;
@@ -615,18 +656,17 @@
                 rows += '<div class="info-row"><span class="info-label">Area</span><span class="info-value">' + escapeHtml(v.neighborhood) + '</span></div>';
             }
             if (v.phone) {
-                rows += '<div class="info-row"><span class="info-label">Phone</span><span class="info-value"><a href="tel:' + escapeHtml(v.phone) + '">' + escapeHtml(v.phone) + '</a></span></div>';
+                rows += '<div class="info-row"><span class="info-label">Phone</span><span class="info-value"><a href="' + escapeHtml(telHref(v.phone)) + '">' + escapeHtml(v.phone) + '</a></span></div>';
             }
             if (v.website) {
-                var displayUrl = v.website.replace(/^https?:\/\//, '').replace(/\/$/, '');
-                var trackUrl = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(v.website);
-                rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(trackUrl) + '" target="_blank" rel="noopener">' + escapeHtml(displayUrl) + '</a></span></div>';
+                var siteUrl = absoluteUrl(v.website);
+                var displayUrl = siteUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+                rows += '<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="' + escapeHtml(siteUrl) + '" target="_blank" rel="noopener" data-track-vendor="' + escapeHtml(slug) + '">' + escapeHtml(displayUrl) + '</a></span></div>';
             }
             if (v.instagram) {
                 var ig = v.instagram.replace(/^@/, '');
                 var igUrl = 'https://instagram.com/' + ig;
-                var igTrackUrl = '/api/track-click?vendor=' + encodeURIComponent(slug) + '&dest=' + encodeURIComponent(igUrl);
-                rows += '<div class="info-row"><span class="info-label">Instagram</span><span class="info-value"><a href="' + escapeHtml(igTrackUrl) + '" target="_blank" rel="noopener">@' + escapeHtml(ig) + '</a></span></div>';
+                rows += '<div class="info-row"><span class="info-label">Instagram</span><span class="info-value"><a href="' + escapeHtml(igUrl) + '" target="_blank" rel="noopener" data-track-vendor="' + escapeHtml(slug) + '">@' + escapeHtml(ig) + '</a></span></div>';
             }
             if (v.kosher_status === 'COR') {
                 rows += '<div class="info-row"><span class="info-label">Kosher</span><span class="info-value">Kosher (COR)</span></div>';
@@ -668,13 +708,23 @@
             }
             schemaScript.textContent = JSON.stringify(schema);
 
-            document.getElementById('loadingState').style.display = 'none';
+            var loadingEl = document.getElementById('loadingState');
+            if (loadingEl) loadingEl.style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         }
 
         function showNotFound() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('notFoundState').style.display = 'block';
+            var loadingEl = document.getElementById('loadingState');
+            if (loadingEl) loadingEl.style.display = 'none';
+            var notFoundEl = document.getElementById('notFoundState');
+            if (notFoundEl) {
+                notFoundEl.style.display = 'block';
+                return;
+            }
+            // Server-rendered page: the not-found block was stripped because this
+            // vendor is real. A failed background refresh must not blank the page.
+            var mainEl = document.getElementById('mainContent');
+            if (mainEl) mainEl.style.display = 'block';
         }
 
         // Expose functions to global scope for onclick

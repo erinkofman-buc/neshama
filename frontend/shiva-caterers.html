@@ -314,6 +314,15 @@
         }
         .caterer-readmore:hover { text-decoration: underline; }
 
+        /* Server-rendered attribute line: certification, fulfilment, zones.
+           Plain visible text: AI crawlers read the text layer, not CSS badges. */
+        .caterer-attributes {
+            font-size: 1rem;
+            line-height: 1.55;
+            color: var(--sage-dark);
+            margin: 0.5rem 0 0.35rem;
+        }
+
         .caterer-badges {
             display: flex;
             flex-wrap: wrap;
@@ -941,7 +950,13 @@
                 html += '</div>';
 
                 html += '<div class="caterer-contact">';
-                if (c.website) html += '<a href="/api/track-click?vendor=' + encodeURIComponent(c.slug || c.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + '&dest=' + encodeURIComponent(c.website) + '" target="_blank" rel="noopener">' + escapeHtml(c.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a>';
+                if (c.website) {
+                    // Real destination, not /api/track-click, because that path is
+                    // Disallow'd in robots.txt. Clicks are logged by the beacon below.
+                    var cSlug = c.slug || c.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    var cSite = c.website.indexOf('://') === -1 ? 'https://' + c.website : c.website;
+                    html += '<a href="' + escapeHtml(cSite) + '" target="_blank" rel="noopener" data-track-vendor="' + escapeHtml(cSlug) + '">' + escapeHtml(cSite.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a>';
+                }
                 if (c.phone) html += '<a href="tel:' + escapeHtml(c.phone) + '">' + escapeHtml(c.phone) + '</a>';
                 if (c.email) html += '<a href="mailto:' + escapeHtml(c.email) + '">' + escapeHtml(c.email) + '</a>';
                 if (c.instagram) {
@@ -980,8 +995,18 @@
         // list. It is intentionally NOT sourced from /api/directory-stats, which
         // counts a different set and caused the "18 listed / 14 shown" drift.
 
-        // Initial load
-        loadCaterers();
+        // Initial load. When the server has already rendered the default list into
+        // #catererList, leave those nodes alone. Re-rendering them from the API
+        // would produce identical markup and briefly blank the page for no gain.
+        // Filters still call loadCaterers(), which takes over from that point on.
+        var catererListEl = document.getElementById('catererList');
+        if (catererListEl && catererListEl.getAttribute('data-ssr') === '1'
+            && catererListEl.querySelector('.caterer-card')) {
+            allCaterers = [];
+            syncCatererCount();
+        } else {
+            loadCaterers();
+        }
 
         // Observe partner section
         observeCards();
@@ -997,6 +1022,21 @@ if (hamburgerBtn && navLinks) {
         hamburgerBtn.setAttribute('aria-expanded', isOpen);
     });
 }
+</script>
+<script>
+// Outbound links point straight at their destination so the crawlable click
+// stream contains no robots-disallowed /api/ URLs. Click counting is preserved
+// by pinging /api/track-click and ignoring its 302: the server logs the click
+// before it redirects.
+document.addEventListener('click', function(e) {
+    var a = e.target.closest && e.target.closest('a[data-track-vendor]');
+    if (!a || !a.href) return;
+    var ping = '/api/track-click?vendor=' + encodeURIComponent(a.getAttribute('data-track-vendor')) +
+               '&dest=' + encodeURIComponent(a.href);
+    try {
+        fetch(ping, { redirect: 'manual', keepalive: true, mode: 'no-cors' }).catch(function() {});
+    } catch (err) { /* tracking must never block the click */ }
+});
 </script>
 </body>
 </html>
