@@ -13,6 +13,7 @@ import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 from subscription_manager import EmailSubscriptionManager
+from daily_digest import deduplicate_obituaries
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
@@ -287,6 +288,15 @@ class WeeklyDigestSender:
                 if o['id'] not in seen:
                     seen.add(o['id'])
                     unique_obits.append(o)
+            # Name-normalized dedup, matching daily_digest. Duplicate rows for the same
+            # person carry DIFFERENT DB ids (the id hashes source+name+date, so a
+            # preliminary entry with no date and the later full entry hash differently),
+            # so the id-dedup above cannot see them. The daily digest has run this since
+            # Apr; the weekly never did, and its 7-day window is exactly wide enough to
+            # put the preliminary and the full entry in the SAME email. That is the
+            # repeated-obituary Paperman & Sons reported.
+            # `deduplicate_obituaries` is conservative: it keeps both when in doubt.
+            unique_obits = deduplicate_obituaries(unique_obits)
             unique_obits.sort(key=lambda x: x.get('first_seen') or x.get('last_updated', ''), reverse=True)
 
             if not unique_obits:
