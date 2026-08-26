@@ -1,5 +1,17 @@
 User-agent: *
 Allow: /
+
+# Public read-only JSON endpoints. These must stay crawlable: the directory,
+# caterer and feed pages hydrate from them, so blocking /api/ wholesale stopped
+# Googlebot (the one crawler that executes JS) from ever seeing vendor data.
+# Listed above the /api/ Disallow so order-sensitive parsers read them first.
+Allow: /api/vendors
+Allow: /api/caterers
+Allow: /api/obituaries
+Allow: /api/obituary/
+Allow: /api/gift-vendors
+Allow: /api/cities
+
 Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard
