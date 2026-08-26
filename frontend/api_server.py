@@ -996,6 +996,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
         '/shiva/caterers': ('shiva-caterers.html', 'text/html'),
         '/shiva-caterers.html': ('shiva-caterers.html', 'text/html'),
         '/shiva/caterers/apply': ('shiva-caterer-apply.html', 'text/html'),
+        '/shiva/caterers/packages': ('caterer-packages.html', 'text/html'),
         '/shiva-caterer-apply.html': ('shiva-caterer-apply.html', 'text/html'),
         '/shiva-essentials': ('shiva-essentials.html', 'text/html'),
         '/shiva-essentials.html': ('shiva-essentials.html', 'text/html'),
@@ -1392,6 +1393,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_webhook(body)
         elif path == '/api/vendor/create-checkout':
             self.handle_vendor_create_checkout(body)
+        elif path == '/api/caterer-packages':
+            self.handle_caterer_packages(body)
         elif path == '/api/caterers/apply':
             self.handle_caterer_apply(body)
         elif path.startswith('/api/caterers/') and path.endswith('/approve'):
@@ -3660,6 +3663,106 @@ button:hover{background:#c45a1a}</style></head>
             self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
         except Exception as e:
             self.send_error_response(str(e))
+
+    def handle_caterer_packages(self, body):
+        """Caterer package intake (/shiva/caterers/packages). Public and
+        unauthenticated by design, same as the apply route it mirrors, so it is
+        rate limited by IP and size capped."""
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+
+        client_ip = self.headers.get('X-Forwarded-For', self.client_address[0]).split(',')[0].strip()
+
+        # Public form, so it will attract bot traffic eventually.
+        if len(body or b'') > 32 * 1024:
+            self.send_json_response({'status': 'error', 'message': 'Payload too large'}, 413)
+            return
+        if not _check_rate_limit(client_ip, 'caterer-packages', max_calls=10, window=3600):
+            logging.warning(f"[CatererPackages] rate limited {client_ip}")
+            self.send_json_response(
+                {'status': 'error', 'message': 'Too many submissions. Please try again later.'}, 429)
+            return
+
+        try:
+            data = json.loads(body)
+            result = shiva_mgr.submit_caterer_packages(data, client_ip=client_ip)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+                # Wrapped so a SendGrid failure never loses a submission we already stored.
+                try:
+                    self._send_caterer_packages_notification(data, result)
+                except Exception as e:
+                    logging.error(f"[CatererPackages] Notification failed: {e}")
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
+    def _send_caterer_packages_notification(self, data, result):
+        """Notify contact@neshama.ca that packages arrived. Mirrors the SendGrid
+        pattern in _send_caterer_apply_notifications, including its TEST MODE
+        no-op when SENDGRID_API_KEY is unset."""
+        esc = html_mod.escape
+        business = (data.get('business') or 'Unknown').strip()
+        slug = (data.get('vendor_slug') or '').strip() or 'not linked'
+        pkgs = [p for p in (data.get('packages') or []) if (p.get('name') or '').strip()][:3]
+
+        sendgrid_key = os.environ.get('SENDGRID_API_KEY')
+        if not sendgrid_key:
+            logging.info(f"[CatererPackages Email] TEST MODE - would notify contact@neshama.ca "
+                         f"about {business} ({len(pkgs)} package(s), submission #{result.get('id')})")
+            return
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+        except Exception as e:
+            logging.error(f"[CatererPackages Email] SendGrid import failed: {e}")
+            return
+
+        # Strip CRLF from the subject to prevent header injection, same defence
+        # in depth the apply route uses on raw form data.
+        safe_name = business.replace('\r', ' ').replace('\n', ' ')[:150]
+        rows = ''.join(
+            f'<tr><td style="padding:10px;border-bottom:1px solid #E8DDD4;"><strong>'
+            f'{esc((p.get("name") or "").strip())}</strong><br>'
+            f'{esc((p.get("items") or "").strip())}</td>'
+            f'<td style="padding:10px;border-bottom:1px solid #E8DDD4;">'
+            f'{esc((p.get("serves") or "").strip() or "not stated")}</td>'
+            f'<td style="padding:10px;border-bottom:1px solid #E8DDD4;">'
+            f'{esc((p.get("price") or "").strip() or "not stated")}</td></tr>'
+            for p in pkgs)
+        html = (
+            '<!DOCTYPE html><html><body style="font-family: Georgia, serif; max-width:600px;'
+            ' margin:40px auto; color:#3E2723; background:#FFF8F0; padding:40px;">'
+            '<h2 style="color:#D2691E; font-family: \'Cormorant Garamond\', Georgia, serif;">'
+            'Shiva packages received</h2>'
+            f'<p style="line-height:1.6;">{esc(business)} sent {len(pkgs)} package(s) via '
+            f'neshama.ca/shiva/caterers/packages. Submission #{result.get("id")}. '
+            f'Vendor slug: {esc(slug)}.</p>'
+            '<table style="width:100%; border-collapse:collapse; margin:20px 0; background:white;">'
+            '<tr><th style="padding:10px; text-align:left;">Package</th>'
+            '<th style="padding:10px; text-align:left;">Serves</th>'
+            '<th style="padding:10px; text-align:left;">Price</th></tr>'
+            f'{rows}</table>'
+            f'<p>Contact: {esc((data.get("contact") or "").strip() or "not given")} &middot; '
+            f'{esc((data.get("email") or "").strip())} &middot; '
+            f'{esc((data.get("phone") or "").strip() or "no phone")}</p>'
+            '<p style="color:#556258;">Status is <strong>pending</strong>. Nothing appears '
+            'on the site until it is marked live.</p></body></html>')
+
+        try:
+            sg = SendGridAPIClient(sendgrid_key)
+            msg = Mail(
+                from_email=Email('contact@neshama.ca', 'Neshama'),
+                to_emails=To('contact@neshama.ca'),
+                subject=f'Shiva packages from {safe_name}',
+                html_content=Content(MimeType.html, html))
+            sg.send(msg)
+            logging.info(f"[CatererPackages Email] Notified contact@neshama.ca about {business}")
+        except Exception as e:
+            logging.error(f"[CatererPackages Email] Send failed: {e}")
 
     def _send_caterer_apply_notifications(self, data):
         """Send admin notification to contact@neshama.ca + confirmation to applicant."""
@@ -8528,6 +8631,16 @@ def run_server(port=None):
             logging.info(f" Caterer consolidation: {len(_cat)} approved caterers synced to vendors (is_caterer=1)")
         except Exception as e:
             logging.error(f" Caterer consolidation failed: {e}")
+
+        # Caterer package intake tables. Placed here, unconditionally and outside
+        # the phase-2 try block, for the same reason consolidate_caterers is: the
+        # 2026-05-25 cold-start failure happened because a table's sole creator sat
+        # in a block that the V3 startup path skips. Idempotent DDL.
+        try:
+            shiva_mgr.ensure_caterer_package_tables()
+            logging.info(" Caterer package intake: tables ready")
+        except Exception as e:
+            logging.error(f" Caterer package table setup failed: {e}")
 
     logging.info(f"\n Press Ctrl+C to stop")
     logging.info(f"{'='*60}\n")

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Add your shiva packages | Neshama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FDFBF7; --surface:#FFFFFF; --band:#F5F1E9;
+    --ink:#2A2621; --muted:#6B6560; --faint:#8C857D;
+    --rule:#E5DFD4; --focus:#3F5D74;
+    --ok:#3F6B4F; --err:#9C3A28;
+    --terracotta:#D2691E;
+    --radius:4px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Crimson Pro', Georgia, serif;
+    font-size:20px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:44rem; margin:0 auto; padding:3rem 1.25rem 6rem;}
+
+  header{border-bottom:2px solid var(--terracotta); padding-bottom:1.5rem; margin-bottom:2.5rem;}
+  .brand{
+    font-size:.8rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--muted); font-family:'Crimson Pro', Georgia, serif;
+    font-weight:600; margin:0 0 .75rem;
+  }
+  h1{font-family:'Cormorant Garamond', Georgia, serif; font-size:2.4rem; line-height:1.15; font-weight:normal; margin:0 0 .75rem;}
+  .lede{color:var(--muted); margin:0; font-size:1.05rem;}
+
+  h2{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:1.6rem; font-weight:normal; margin:2.75rem 0 .4rem;
+    padding-top:1.5rem; border-top:1px solid var(--rule);
+  }
+  .hint{color:var(--muted); font-size:.9rem; margin:0 0 1.5rem; line-height:1.55;}
+
+  .field{margin-bottom:1.5rem;}
+  label{display:block; font-family:'Crimson Pro', Georgia, serif;
+    font-size:.9rem; font-weight:600; margin-bottom:.4rem;}
+  .opt{font-weight:400; color:var(--faint);}
+
+  input[type=text], input[type=email], input[type=tel], input[type=url], select, textarea{
+    width:100%; min-height:48px; padding:.7rem .85rem;
+    font-family:inherit; font-size:1rem; color:var(--ink);
+    background:var(--surface); border:1px solid var(--rule);
+    border-radius:var(--radius);
+  }
+  textarea{min-height:96px; resize:vertical; line-height:1.5;}
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible{
+    outline:3px solid var(--focus); outline-offset:2px;
+  }
+  input::placeholder, textarea::placeholder{color:var(--faint); opacity:1;}
+
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  @media(max-width:34rem){ .row{grid-template-columns:1fr;} body{font-size:19px;} .wrap{padding:2rem 1rem 4rem;} }
+
+  fieldset{border:0; margin:0; padding:0;}
+  legend{padding:0;}
+
+  .pkg{
+    background:var(--surface); border:1px solid var(--rule);
+    border-radius:var(--radius); padding:1.25rem 1.25rem .25rem; margin-bottom:1rem;
+  }
+  .pkg-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:1rem; font-family:'Crimson Pro', Georgia, serif;
+    font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600;
+  }
+  .remove{
+    background:none; border:0; color:var(--muted); cursor:pointer;
+    font-family:'Crimson Pro', Georgia, serif; font-size:.85rem; text-transform:none;
+    letter-spacing:0; min-height:44px; padding:0 .25rem; text-decoration:underline;
+  }
+  .remove:hover{color:var(--err);}
+
+  .add{
+    background:none; border:1px dashed var(--rule); color:var(--ink);
+    width:100%; min-height:52px; border-radius:var(--radius); cursor:pointer;
+    font-family:inherit; font-size:1rem;
+  }
+  .add:hover{border-color:var(--muted); background:var(--band);}
+  .add[hidden]{display:none;}
+
+  .submit{
+    width:100%; min-height:56px; margin-top:2.5rem;
+    background:var(--ink); color:var(--bg); border:0; border-radius:var(--radius);
+    font-family:inherit; font-size:1.05rem; cursor:pointer;
+  }
+  .submit:hover{background:#3A342D;}
+  .submit:disabled{opacity:.55; cursor:default;}
+
+  .note{color:var(--muted); font-size:.85rem; text-align:center; margin-top:1rem; line-height:1.5;}
+  .err{color:var(--err); font-size:.85rem; margin-top:.35rem; font-family:'Crimson Pro', Georgia, serif;}
+  [aria-invalid="true"]{border-color:var(--err);}
+
+  #status{margin-top:1.25rem; padding:.85rem 1rem; border-radius:var(--radius);
+    font-size:.95rem; display:none;}
+  #status.show{display:block;}
+  #status.bad{background:#F8EDEA; color:var(--err); border:1px solid #E8CFC8;}
+
+  #done{display:none; text-align:center; padding:4rem 1rem;}
+  #done.show{display:block;}
+  #done h1{margin-bottom:1rem;}
+  #done p{color:var(--muted); max-width:32rem; margin:0 auto 1rem;}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div id="done" role="status" aria-live="polite">
+    <h1>Thank you</h1>
+    <p>We have your packages. They will appear on your Neshama listing within two business days, and we will email you when they are live.</p>
+    <p>If anything needs changing, reply to the email that brought you here.</p>
+  </div>
+
+  <form id="form" novalidate>
+    <header>
+      <p class="brand">Neshama</p>
+      <h1>Add your shiva packages</h1>
+      <p class="lede">Your basic listing is free and stays free. This adds what you offer and what it costs, so families can act instead of phoning to ask.</p>
+    </header>
+
+    <h2>Your business</h2>
+    <p class="hint">We have most of this already. Correct anything that is out of date.</p>
+
+    <div class="field">
+      <label for="business">Business name</label>
+      <input type="text" id="business" name="business" autocomplete="organization" required>
+      <div class="err" id="e-business" hidden>Please tell us the business name.</div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="contact">Contact person</label>
+        <input type="text" id="contact" name="contact" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+        <div class="err" id="e-email" hidden>We need an email to tell you when this is live.</div>
+      </div>
+      <div class="field">
+        <label for="ordering">Online ordering link <span class="opt">(optional)</span></label>
+        <input type="url" id="ordering" name="ordering" placeholder="https://">
+      </div>
+    </div>
+
+    <h2>Kosher status</h2>
+    <p class="hint">We list you either way and label it plainly. Families filter on this more than anything else.</p>
+
+    <div class="row">
+      <div class="field">
+        <label for="cert">Certification</label>
+        <select id="cert" name="cert">
+          <option value="">Select</option>
+          <option>COR</option>
+          <option>MK</option>
+          <option>Badatz</option>
+          <option>Other certification</option>
+          <option>Not certified</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="kind">Dairy, meat or pareve</label>
+        <select id="kind" name="kind">
+          <option value="">Select</option>
+          <option>Dairy</option>
+          <option>Meat</option>
+          <option>Pareve</option>
+          <option>Both dairy and meat kitchens</option>
+        </select>
+      </div>
+    </div>
+
+    <h2>Your shiva packages</h2>
+    <p class="hint">Up to three. A shiva house is usually feeding ten to twenty-five people at a time, often twice a day, for up to a week. One package with a real price is worth more than a full menu.</p>
+
+    <div id="packages"></div>
+    <button type="button" class="add" id="add">Add another package</button>
+    <div class="err" id="e-pkg" hidden>Please add at least one package with a name and a price.</div>
+
+    <h2>Delivery</h2>
+
+    <div class="field">
+      <label for="areas">Areas you deliver to</label>
+      <input type="text" id="areas" name="areas" placeholder="Thornhill, North York, Forest Hill">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="fee">Delivery fee</label>
+        <input type="text" id="fee" name="fee" placeholder="$15, or free over $150">
+      </div>
+      <div class="field">
+        <label for="minimum">Minimum order</label>
+        <input type="text" id="minimum" name="minimum" placeholder="$100">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="notice">Notice required</label>
+        <input type="text" id="notice" name="notice" placeholder="24 hours">
+      </div>
+      <div class="field">
+        <label for="sunday">Available Sundays</label>
+        <select id="sunday" name="sunday">
+          <option value="">Select</option>
+          <option>Yes</option>
+          <option>No</option>
+          <option>Sometimes, call to check</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="shabbat">Friday cut-off and when you reopen</label>
+      <input type="text" id="shabbat" name="shabbat" placeholder="Orders in by Thursday 4pm, reopen Sunday 9am">
+      <p class="hint" style="margin-top:.5rem;margin-bottom:0;">Shivas run seven days. This is the question families ask most and almost no directory answers it.</p>
+    </div>
+
+    <h2>Anything else</h2>
+    <div class="field">
+      <label for="notes">What families should know <span class="opt">(optional)</span></label>
+      <textarea id="notes" name="notes" placeholder="Disposable serving platters included. We can label everything for a dairy or meat household."></textarea>
+    </div>
+
+    <button type="submit" class="submit" id="submit">Send my packages</button>
+    <div id="status" role="alert"></div>
+    <p class="note">Your packages, prices and delivery details are published on your listing, which is the point of them. The email and phone number you enter above are for us to reach you and are never published or passed to anyone else.</p>
+  </form>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var MAX = 3;
+  var params = new URLSearchParams(location.search);
+  var slug = params.get("v") || "";
+
+  // Prefill from the link in the outreach email: ?v=slug&business=...&email=...
+  ["business","contact","phone","email","ordering"].forEach(function(k){
+    var v = params.get(k);
+    if (v) { var el = document.getElementById(k); if (el) el.value = v; }
+  });
+
+  var list = document.getElementById("packages");
+  var addBtn = document.getElementById("add");
+
+  function addPackage(){
+    var n = list.children.length + 1;
+    if (n > MAX) return;
+    var box = document.createElement("fieldset");
+    box.className = "pkg";
+    box.innerHTML =
+      '<div class="pkg-head"><span>Package ' + n + '</span>' +
+      (n > 1 ? '<button type="button" class="remove">Remove</button>' : '') + '</div>' +
+      '<div class="field"><label>Package name</label>' +
+      '<input type="text" class="p-name" placeholder="Shiva tray for twelve"></div>' +
+      '<div class="field"><label>What is included</label>' +
+      '<textarea class="p-items" placeholder="Whitefish salad, egg salad, tuna, sliced lox, bagels, cream cheese, sliced vegetables, rugelach"></textarea></div>' +
+      '<div class="row"><div class="field"><label>Serves</label>' +
+      '<input type="text" class="p-serves" placeholder="10 to 12"></div>' +
+      '<div class="field"><label>Price</label>' +
+      '<input type="text" class="p-price" placeholder="$180"></div></div>';
+    list.appendChild(box);
+    renumber();
+  }
+
+  function renumber(){
+    Array.prototype.forEach.call(list.children, function(box, i){
+      box.querySelector(".pkg-head span").textContent = "Package " + (i + 1);
+    });
+    addBtn.hidden = list.children.length >= MAX;
+  }
+
+  list.addEventListener("click", function(e){
+    if (!e.target.classList.contains("remove")) return;
+    e.target.closest(".pkg").remove();
+    renumber();
+  });
+
+  addBtn.addEventListener("click", addPackage);
+  addPackage();
+
+  function collect(){
+    return Array.prototype.map.call(list.children, function(b){
+      return {
+        name:   b.querySelector(".p-name").value.trim(),
+        items:  b.querySelector(".p-items").value.trim(),
+        serves: b.querySelector(".p-serves").value.trim(),
+        price:  b.querySelector(".p-price").value.trim()
+      };
+    }).filter(function(p){ return p.name || p.price; });
+  }
+
+  function flag(id, bad){
+    var input = document.getElementById(id);
+    var err = document.getElementById("e-" + id);
+    if (input) input.setAttribute("aria-invalid", bad ? "true" : "false");
+    if (err) err.hidden = !bad;
+    return !bad;
+  }
+
+  var form = document.getElementById("form");
+  var submit = document.getElementById("submit");
+  var status = document.getElementById("status");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    status.className = "";
+
+    var packages = collect();
+    var ok = true;
+    ok = flag("business", !document.getElementById("business").value.trim()) && ok;
+    ok = flag("email", !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(document.getElementById("email").value.trim())) && ok;
+
+    var pkgBad = packages.length === 0 || !packages[0].name || !packages[0].price;
+    document.getElementById("e-pkg").hidden = !pkgBad;
+    if (pkgBad) ok = false;
+
+    if (!ok){
+      var first = form.querySelector('[aria-invalid="true"]') || list;
+      first.scrollIntoView({block:"center", behavior:"smooth"});
+      if (first.focus) first.focus();
+      return;
+    }
+
+    var payload = {
+      vendor_slug: slug,
+      business:  document.getElementById("business").value.trim(),
+      contact:   document.getElementById("contact").value.trim(),
+      phone:     document.getElementById("phone").value.trim(),
+      email:     document.getElementById("email").value.trim(),
+      ordering:  document.getElementById("ordering").value.trim(),
+      cert:      document.getElementById("cert").value,
+      kind:      document.getElementById("kind").value,
+      areas:     document.getElementById("areas").value.trim(),
+      fee:       document.getElementById("fee").value.trim(),
+      minimum:   document.getElementById("minimum").value.trim(),
+      notice:    document.getElementById("notice").value.trim(),
+      sunday:    document.getElementById("sunday").value,
+      shabbat:   document.getElementById("shabbat").value.trim(),
+      notes:     document.getElementById("notes").value.trim(),
+      packages:  packages
+    };
+
+    submit.disabled = true;
+    submit.textContent = "Sending";
+
+    fetch("/api/caterer-packages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(){
+      form.style.display = "none";
+      document.getElementById("done").classList.add("show");
+      window.scrollTo(0, 0);
+    })
+    .catch(function(){
+      submit.disabled = false;
+      submit.textContent = "Send my packages";
+      status.textContent = "That did not send. Please try once more, or reply to our email with your packages and we will add them by hand.";
+      status.className = "show bad";
+    });
+  });
+})();
+</script>
+</body>
+</html>

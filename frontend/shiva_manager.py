@@ -1683,6 +1683,112 @@ class ShivaManager:
 
     # ── Caterer Partners ──────────────────────────────────────
 
+    # ── Caterer package intake (/shiva/caterers/packages) ────────────────
+    # Public, unauthenticated form, same shape as the apply route above. Caterers
+    # send their actual shiva packages so a directory listing stops being a link
+    # to a homepage and becomes something a bereaved family can act on.
+
+    def ensure_caterer_package_tables(self):
+        """Idempotent DDL for the package intake. Called at startup."""
+        conn = self._get_conn()
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS caterer_package_submissions (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                vendor_slug   TEXT,
+                business      TEXT NOT NULL,
+                contact       TEXT,
+                phone         TEXT,
+                email         TEXT NOT NULL,
+                ordering_url  TEXT,
+                cert          TEXT,
+                kind          TEXT,
+                areas         TEXT,
+                fee           TEXT,
+                minimum       TEXT,
+                notice        TEXT,
+                sunday        TEXT,
+                shabbat       TEXT,
+                notes         TEXT,
+                status        TEXT DEFAULT 'pending',
+                submitted_at  TEXT DEFAULT (datetime('now')),
+                ip            TEXT
+            )''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS caterer_packages (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                submission_id  INTEGER NOT NULL REFERENCES caterer_package_submissions(id),
+                vendor_slug    TEXT,
+                position       INTEGER,
+                name           TEXT NOT NULL,
+                items          TEXT,
+                serves         TEXT,
+                price          TEXT
+            )''')
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_pkg_slug ON caterer_packages(vendor_slug)")
+        conn.commit()
+        conn.close()
+
+    def submit_caterer_packages(self, data, client_ip=None):
+        """Store a caterer package submission plus its packages. Returns a result dict.
+
+        Deliberately permissive on the optional fields: this form goes to busy
+        caterers who are doing us a favour, so only business + email + one named
+        package are required. Everything else is stored as given or left blank.
+        """
+        def s(key, limit=500):
+            return (data.get(key) or '').strip()[:limit]
+
+        business = s('business', 200)
+        email_raw = s('email', 200)
+        packages = data.get('packages') or []
+
+        if not business:
+            return {'status': 'error', 'message': 'Business name is required'}
+        clean_email = self._validate_email(email_raw)
+        if not clean_email:
+            return {'status': 'error', 'message': 'Invalid email address'}
+        if not isinstance(packages, list) or not packages:
+            return {'status': 'error', 'message': 'At least one package is required'}
+
+        packages = packages[:3]
+        named = [p for p in packages if isinstance(p, dict) and (p.get('name') or '').strip()]
+        if not named:
+            return {'status': 'error', 'message': 'At least one package needs a name'}
+
+        vendor_slug = s('vendor_slug', 100)
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO caterer_package_submissions
+                (vendor_slug, business, contact, phone, email, ordering_url, cert, kind,
+                 areas, fee, minimum, notice, sunday, shabbat, notes, ip)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+            (vendor_slug, business, s('contact', 200), s('phone', 50), clean_email,
+             s('ordering', 500), s('cert', 50), s('kind', 60), s('areas'),
+             s('fee', 100), s('minimum', 100), s('notice', 100), s('sunday', 50),
+             s('shabbat', 300), s('notes', 2000), (client_ip or '')[:100]))
+        submission_id = cursor.lastrowid
+
+        stored = 0
+        for i, pkg in enumerate(named):
+            cursor.execute('''
+                INSERT INTO caterer_packages
+                    (submission_id, vendor_slug, position, name, items, serves, price)
+                VALUES (?,?,?,?,?,?,?)''',
+                (submission_id, vendor_slug, i,
+                 (pkg.get('name') or '').strip()[:200],
+                 (pkg.get('items') or '').strip()[:2000],
+                 (pkg.get('serves') or '').strip()[:100],
+                 (pkg.get('price') or '').strip()[:100]))
+            stored += 1
+
+        conn.commit()
+        conn.close()
+        logging.info(f"[CatererPackages] submission #{submission_id} from {business} "
+                     f"(slug={vendor_slug or 'none'}, {stored} package(s))")
+        return {'status': 'success', 'id': submission_id, 'packages': stored,
+                'message': 'Packages received'}
+
     def submit_caterer_application(self, data):
         """Submit a caterer partner application."""
         required = ['business_name', 'contact_name', 'email', 'delivery_area',
