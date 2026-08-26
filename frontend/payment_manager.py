@@ -14,6 +14,27 @@ import stripe
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
+def _as_dict(obj):
+    """Convert a Stripe resource to a plain nested dict.
+
+    stripe-python >= 8 removed dict inheritance from StripeObject, so .get() on a
+    Subscription/Session/Invoice raises instead of returning None. Everything in the
+    webhook handler expects mapping semantics. to_dict_recursive() flattens nested
+    objects (metadata especially); the fallbacks keep this working across versions
+    and let a plain dict pass through untouched for tests.
+    """
+    if obj is None or isinstance(obj, dict):
+        return obj
+    for method in ('to_dict_recursive', 'to_dict'):
+        fn = getattr(obj, method, None)
+        if callable(fn):
+            try:
+                return fn()
+            except Exception:
+                continue
+    return obj
+
+
 class PaymentManager:
     def __init__(self, db_path='neshama.db', stripe_api_key=None):
         """Initialize payment manager"""
@@ -373,10 +394,20 @@ class PaymentManager:
             WHERE email = ?
         ''', (datetime.now().isoformat(), stripe_subscription_id, email))
         
+        affected = cursor.rowcount
         conn.commit()
         conn.close()
-        
-        logging.info(f" Premium activated for {email}")
+
+        if affected:
+            logging.info(f" Premium activated for {email}")
+        else:
+            # The payer is not in `subscribers`, so this UPDATE matched nothing and
+            # the payment activated nothing. Surfaced rather than fixed: creating a
+            # subscriber row here would add a paying customer to the email digest
+            # without their consent, which is Erin's call, not a silent side effect.
+            logging.error(
+                f" [Sustainer] PAID BUT NOT ACTIVATED: no subscribers row for {email}. "
+                f"Payment succeeded; premium flag NOT set. Needs manual reconciliation.")
     
     def deactivate_premium(self, email):
         """Deactivate premium for email address"""
@@ -471,7 +502,21 @@ class PaymentManager:
             return {'status': 'error', 'message': 'Invalid signature'}
         
         event_type = event['type']
-        obj = event['data']['object']
+        event_id = event.get('id') if isinstance(event, dict) else event['id']
+
+        # stripe-python >= 8 (requirements.txt pins stripe>=8.0.0) removed dict
+        # inheritance from StripeObject. Subscript access still works, but .get()
+        # now raises:
+        #   "'get' is a dict method, but a Subscription is not a dict."
+        # Every branch below calls obj.get(...), starting with the vendor-routing
+        # check, so EVERY event type crashed with a 500 before reaching any
+        # handler. Convert once, recursively, so nested metadata is a plain dict
+        # too. This was 15/15 failed deliveries.
+        obj = _as_dict(event['data']['object'])
+
+        # Log every event received, matched or not. The absence of this is why a
+        # total webhook failure was invisible until Stripe's dashboard was read.
+        logging.info(f"[Webhook] received {event_type} id={event_id}")
 
         # ── Featured Vendor routing (vendor-side; intercept before sustainer) ──
         # Vendor events are identified by metadata.product on the checkout
@@ -487,7 +532,7 @@ class PaymentManager:
             status, trial_ends_at = 'trialing', None
             try:
                 if subscription_id:
-                    sub = stripe.Subscription.retrieve(subscription_id)
+                    sub = _as_dict(stripe.Subscription.retrieve(subscription_id))
                     status = sub.get('status', 'trialing')
                     if sub.get('trial_end'):
                         trial_ends_at = datetime.utcfromtimestamp(sub['trial_end']).isoformat()
@@ -515,7 +560,7 @@ class PaymentManager:
 
         if event_type == 'invoice.payment_failed' and obj.get('subscription'):
             try:
-                sub = stripe.Subscription.retrieve(obj['subscription'])
+                sub = _as_dict(stripe.Subscription.retrieve(obj['subscription']))
                 if _is_vendor(sub.get('metadata')):
                     logging.warning(f" Featured vendor invoice failed (grace window, NOT defeaturing): {obj['subscription']}")
                     return {'status': 'success', 'message': 'Featured vendor payment failed; grace window, not defeatured'}
@@ -525,7 +570,7 @@ class PaymentManager:
 
         # Handle different event types
         if event_type == 'checkout.session.completed':
-            session = event['data']['object']
+            session = obj  # already converted; see _as_dict above
             email = session['customer_details']['email']
             subscription_id = session.get('subscription')
             
@@ -537,7 +582,7 @@ class PaymentManager:
             }
         
         elif event_type == 'customer.subscription.deleted':
-            subscription = event['data']['object']
+            subscription = obj  # already converted; see _as_dict above
             customer_id = subscription['customer']
             
             # Find email by customer ID
@@ -551,7 +596,7 @@ class PaymentManager:
             }
         
         elif event_type == 'invoice.payment_failed':
-            invoice = event['data']['object']
+            invoice = obj  # already converted; see _as_dict above
             customer_id = invoice['customer']
             email = self.get_email_by_customer_id(customer_id)
             
@@ -564,7 +609,7 @@ class PaymentManager:
             }
         
         elif event_type == 'invoice.payment_succeeded':
-            invoice = event['data']['object']
+            invoice = obj  # already converted; see _as_dict above
             customer_id = invoice['customer']
             email = self.get_email_by_customer_id(customer_id)
             
@@ -577,7 +622,9 @@ class PaymentManager:
             }
         
         else:
-            # Unhandled event type
+            # Unhandled event type. Logged rather than silently swallowed, so a
+            # misrouted or newly-enabled event leaves a trace instead of nothing.
+            logging.info(f"[Webhook] no handler for {event_type}; acknowledged")
             return {
                 'status': 'success',
                 'message': f'Unhandled event type: {event_type}'
