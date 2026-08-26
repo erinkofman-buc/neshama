@@ -1728,6 +1728,35 @@ class ShivaManager:
         conn.commit()
         conn.close()
 
+    def set_package_submission_status(self, submission_id, status):
+        """Flip a package submission between pending / live / rejected.
+        Only 'live' submissions are ever rendered to families."""
+        if status not in ('live', 'pending', 'rejected'):
+            return {'status': 'error', 'message': 'Invalid status'}
+        try:
+            submission_id = int(submission_id)
+        except (TypeError, ValueError):
+            return {'status': 'error', 'message': 'Valid submission id required'}
+
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('SELECT business, vendor_slug FROM caterer_package_submissions WHERE id = ?',
+                       (submission_id,))
+        row = cursor.fetchone()
+        if not row:
+            conn.close()
+            return {'status': 'error', 'message': f'No submission {submission_id}'}
+        cursor.execute('UPDATE caterer_package_submissions SET status = ? WHERE id = ?',
+                       (status, submission_id))
+        conn.commit()
+        conn.close()
+        business = row[0] if not hasattr(row, 'keys') else row['business']
+        slug = row[1] if not hasattr(row, 'keys') else row['vendor_slug']
+        logging.info(f"[CatererPackages] submission #{submission_id} ({business}, "
+                     f"slug={slug or 'none'}) set to {status}")
+        return {'status': 'success', 'id': submission_id, 'new_status': status,
+                'business': business, 'vendor_slug': slug}
+
     def submit_caterer_packages(self, data, client_ip=None):
         """Store a caterer package submission plus its packages. Returns a result dict.
 

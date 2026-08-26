@@ -492,6 +492,24 @@
             padding-top: 0.35rem;
         }
 
+        /* Live shiva packages, submitted by the caterer and approved by a human.
+           Plain text list: this is the thing a family actually acts on. */
+        .vendor-packages {
+            padding-top: 0.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--dark-brown);
+        }
+        .vendor-packages-label {
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--sage-dark);
+            margin-bottom: 0.15rem;
+        }
+        .vendor-packages ul { list-style: none; padding: 0; margin: 0; }
+        .vendor-packages li { padding: 0.1rem 0; }
+
         /* Order logistics line: min order · lead time */
         .vendor-meta {
             font-family: 'Source Serif 4', serif;
@@ -1048,6 +1066,20 @@
                 if (v.neighborhood) {
                     html += '<div class="vendor-location">' + escapeHtml(v.neighborhood) + '</div>';
                 }
+                // Live shiva packages. Mirrors render_packages_html in api_server.py;
+                // the two must agree or the page changes shape when JS takes over.
+                if (v.packages && v.packages.length) {
+                    var pkgHtml = '';
+                    for (var pi = 0; pi < Math.min(v.packages.length, 3); pi++) {
+                        var pk = v.packages[pi];
+                        var bits = [escapeHtml((pk.name || '').trim())];
+                        if ((pk.serves || '').trim()) bits.push('serves ' + escapeHtml(pk.serves.trim()));
+                        if ((pk.price || '').trim()) bits.push(escapeHtml(pk.price.trim()));
+                        pkgHtml += '<li>' + bits.join(', ') + '</li>';
+                    }
+                    html += '<div class="vendor-packages"><p class="vendor-packages-label">Shiva packages</p><ul>' + pkgHtml + '</ul></div>';
+                }
+
                 // Meta line: min order · lead time (only render if at least one is present)
                 var metaParts = [];
                 if (v.min_order) metaParts.push('<span class="meta-item">' + escapeHtml(v.min_order) + '</span>');

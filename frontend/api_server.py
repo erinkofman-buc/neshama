@@ -192,6 +192,57 @@ def _vendor_attribute_line(v):
             ' &middot; '.join(esc(b) for b in bits) + '</p>')
 
 
+def fetch_live_packages(db_path):
+    """Return {vendor_slug: [package, ...]} for submissions marked live.
+
+    Only status='live' is read. A caterer's packages sit invisible at 'pending'
+    until a human approves them, so nothing a caterer types reaches a grieving
+    family unreviewed. Returns {} on any error, so a missing table or a bad row
+    degrades the card to how it looked yesterday rather than breaking the page.
+    """
+    out = {}
+    try:
+        conn = _connect_db(db_path)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT p.vendor_slug, p.name, p.items, p.serves, p.price, p.position
+            FROM caterer_packages p
+            JOIN caterer_package_submissions s ON s.id = p.submission_id
+            WHERE s.status = 'live' AND p.vendor_slug IS NOT NULL AND p.vendor_slug != ''
+            ORDER BY p.vendor_slug, p.position
+        """).fetchall()
+        conn.close()
+    except Exception as e:
+        logging.info(f"[Packages] none available ({e})")
+        return {}
+    for r in rows:
+        out.setdefault(r['vendor_slug'], []).append({
+            'name': r['name'], 'items': r['items'],
+            'serves': r['serves'], 'price': r['price'],
+        })
+    # Cap at 3 per vendor, matching the intake form.
+    return {k: v[:3] for k, v in out.items()}
+
+
+def render_packages_html(packages):
+    """Package lines for a vendor card. Visible text, not a badge or an icon:
+    this is the whole point of the intake, so a crawler and a reader both get
+    'Shiva tray for twelve, serves 12, $220' rather than a link to a homepage."""
+    if not packages:
+        return ''
+    esc = html_mod.escape
+    items = []
+    for p in packages:
+        bits = [esc((p.get('name') or '').strip())]
+        if (p.get('serves') or '').strip():
+            bits.append('serves ' + esc(p['serves'].strip()))
+        if (p.get('price') or '').strip():
+            bits.append(esc(p['price'].strip()))
+        items.append('<li>' + ', '.join(bits) + '</li>')
+    return ('<div class="vendor-packages"><p class="vendor-packages-label">Shiva packages</p>'
+            '<ul>' + ''.join(items) + '</ul></div>')
+
+
 def render_vendor_cards_html(db_path, from_slug, only_caterers=False):
     """Return server-rendered vendor-card HTML matching directory.html
     renderVendors() markup. Returns '' on empty or error so the caller can fall
@@ -213,6 +264,7 @@ def render_vendor_cards_html(db_path, from_slug, only_caterers=False):
         return ''
     if not rows:
         return ''
+    packages_by_slug = fetch_live_packages(db_path)
     esc = html_mod.escape
     parts = []
     for v in rows:
@@ -249,6 +301,7 @@ def render_vendor_cards_html(db_path, from_slug, only_caterers=False):
         if v.get('neighborhood'):
             parts.append('<div class="vendor-location">' + esc(v.get('neighborhood')) + '</div>')
         parts.append(_vendor_attribute_line(v))
+        parts.append(render_packages_html(packages_by_slug.get(v.get('slug'))))
         meta = []
         if v.get('min_order'):
             meta.append('<span class="meta-item">' + esc(v.get('min_order')) + '</span>')
@@ -1393,6 +1446,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.handle_webhook(body)
         elif path == '/api/vendor/create-checkout':
             self.handle_vendor_create_checkout(body)
+        elif path == '/admin/caterer-packages/status':
+            self.handle_admin_package_status(body)
         elif path == '/api/caterer-packages':
             self.handle_caterer_packages(body)
         elif path == '/api/caterers/apply':
@@ -3664,6 +3719,31 @@ button:hover{background:#c45a1a}</style></head>
         except Exception as e:
             self.send_error_response(str(e))
 
+    def handle_admin_package_status(self, body):
+        """Mark a package submission live or rejected. Admin-authenticated: this is
+        the gate between what a caterer typed and what a grieving family reads, so
+        it is never automatic and never public."""
+        if not self._check_admin_auth():
+            return
+        if not SHIVA_AVAILABLE:
+            self.send_json_response({'status': 'error', 'message': 'Not available'}, 503)
+            return
+        try:
+            data = json.loads(body)
+            new_status = (data.get('status') or '').strip().lower()
+            if new_status not in ('live', 'pending', 'rejected'):
+                self.send_json_response(
+                    {'status': 'error', 'message': 'status must be live, pending or rejected'}, 400)
+                return
+            result = shiva_mgr.set_package_submission_status(data.get('id'), new_status)
+            if result['status'] == 'success':
+                shiva_mgr._trigger_backup()
+            self.send_json_response(result, 200 if result['status'] == 'success' else 400)
+        except json.JSONDecodeError:
+            self.send_json_response({'status': 'error', 'message': 'Invalid JSON'}, 400)
+        except Exception as e:
+            self.send_error_response(str(e))
+
     def handle_caterer_packages(self, body):
         """Caterer package intake (/shiva/caterers/packages). Public and
         unauthenticated by design, same as the apply route it mirrors, so it is
@@ -3947,6 +4027,14 @@ button:hover{background:#c45a1a}</style></head>
                 cursor.execute('SELECT * FROM vendors ORDER BY featured DESC, name ASC')
             vendors = [dict(row) for row in cursor.fetchall()]
             conn.close()
+
+            # Attach live shiva packages so client-rendered cards show exactly what
+            # the server-rendered ones do. Key is absent when there are none.
+            packages_by_slug = fetch_live_packages(db_path)
+            for v in vendors:
+                pk = packages_by_slug.get(v.get('slug'))
+                if pk:
+                    v['packages'] = pk
 
             # Filter by city if specified
             if city_filter and city_filter.lower() in ('toronto', 'montreal'):
