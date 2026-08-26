@@ -258,7 +258,8 @@ class PaymentManager:
         Featured subscription. Cancellation flows back through the webhook."""
         if not self.stripe_api_key:
             return {'error': 'Payment system not configured'}
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         cursor.execute("SELECT stripe_customer_id FROM vendors WHERE slug = ?", (vendor_slug,))
         row = cursor.fetchone()
@@ -344,7 +345,8 @@ class PaymentManager:
     
     def get_or_create_stripe_customer(self, email):
         """Get existing Stripe customer or create new one"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         # Check if customer exists in database
@@ -383,7 +385,8 @@ class PaymentManager:
     
     def activate_premium(self, email, stripe_subscription_id=None):
         """Activate premium for email address"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -411,7 +414,8 @@ class PaymentManager:
     
     def deactivate_premium(self, email):
         """Deactivate premium for email address"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -428,7 +432,8 @@ class PaymentManager:
     
     def is_premium(self, email):
         """Check if email has active premium subscription"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -442,7 +447,8 @@ class PaymentManager:
     
     def get_premium_info(self, email):
         """Get premium subscription details for email"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
@@ -632,7 +638,8 @@ class PaymentManager:
     
     def get_email_by_customer_id(self, customer_id):
         """Get email address by Stripe customer ID"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -646,7 +653,8 @@ class PaymentManager:
     
     def get_stats(self):
         """Get premium subscription statistics"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+        conn.execute('PRAGMA busy_timeout=30000')
         cursor = conn.cursor()
         
         cursor.execute('SELECT COUNT(*) FROM subscribers WHERE premium = TRUE')
