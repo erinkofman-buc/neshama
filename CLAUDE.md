@@ -62,6 +62,7 @@
 ## Key Rules
 - Always test before committing
 - Always commit and push when done
+- Deploys: any day, any hour. Deploys are internal; the Shabbat deploy prohibition was removed per Erin 2026-06-11. The 10 PM-6 AM window is retired (2026-06-02, re-affirmed 2026-06-10: insufficient traffic to protect). Staging-before-prod stays. Reinstate a window when active shiva pages receive daily signups. RETAINED on Shabbat (audience-trust strategy, NOT deploys): the community-facing posting blackout and the scraper pause.
 - Mobile-first design (test at 375px)
 - All user-facing text must be empathetic — this serves grieving families
 - Caterer features must never feel like ads
@@ -72,6 +73,6 @@
 - Grief context: never place commercial elements (caterer links, pricing, upsells) on obituary or memorial pages — only in meal coordination flows
 - Tone check: every user-facing string should pass "would this feel okay to read the week your parent died?"
 - Caterer integration: always framed as "helpful resource" not "sponsored listing" — use language like "Browse caterers in your area" not "Our partners". Avoid defaulting to "kosher" in general caterer labels (not all vendors are kosher).
-- Accessibility: sufficient color contrast, readable font sizes (min 16px body), tappable targets (min 44px)
+- Accessibility: sufficient color contrast, readable font sizes (min 20px body on family-facing pages per Erin 2026-06-11; 16px absolute floor elsewhere), tappable targets (min 44px)
 - No orphaned pages: every page must have clear navigation back to home and feed
 - Shabbat awareness: meal coordination UI should respect Friday sunset to Saturday sunset
