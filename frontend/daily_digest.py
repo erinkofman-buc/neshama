@@ -11,7 +11,16 @@ import os
 import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
+import sys as _sys
 from subscription_manager import EmailSubscriptionManager
+
+# field_hygiene lives at the repo root next to database_setup.py so the scrapers
+# can import it too. The digests run from frontend/, hence the hop.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in _sys.path:
+    _sys.path.insert(0, _REPO_ROOT)
+from field_hygiene import display_value
+
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
@@ -255,20 +264,32 @@ class DailyDigestSender:
             if obit.get('hebrew_name'):
                 details += f'<p style="margin: 0 0 6px 0; font-size: 15px; color: #9e9488; direction: rtl; text-align: left;">{obit["hebrew_name"]}</p>'
 
-            if obit.get('funeral_datetime'):
-                detail_text = f'Funeral: {obit["funeral_datetime"]}'
-                if obit.get('funeral_location'):
-                    detail_text += f' &mdash; {obit["funeral_location"]}'
+            # Every value below goes through display_value(), which returns None
+            # for a section label, an empty non-answer, or a value that collapses
+            # to nothing once duplicated fragments are removed. Omitting a line
+            # always beats printing junk: a missing "Shiva:" line reads as "not
+            # announced yet", which is true, whereas "Shiva: Shiva Location"
+            # reads as a broken website in a bereavement email.
+            funeral_when = display_value(obit.get('funeral_datetime'))
+            funeral_where = display_value(obit.get('funeral_location'))
+            if funeral_when:
+                detail_text = f'Funeral: {funeral_when}'
+                if funeral_where:
+                    detail_text += f' &middot; {funeral_where}'
                 details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">{detail_text}</p>'
 
-            if obit.get('shiva_info'):
-                shiva_preview = obit['shiva_info'][:150]
-                if len(obit['shiva_info']) > 150:
+            shiva_value = display_value(obit.get('shiva_info'))
+            if shiva_value:
+                shiva_preview = shiva_value[:150]
+                if len(shiva_value) > 150:
                     shiva_preview += '...'
                 details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Shiva: {shiva_preview}</p>'
+            elif obit.get('shiva_private'):
+                details += '<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Shiva: private</p>'
 
-            if obit.get('burial_location'):
-                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Burial: {obit["burial_location"]}</p>'
+            burial_value = display_value(obit.get('burial_location'))
+            if burial_value:
+                details += f'<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Burial: {burial_value}</p>'
 
             if obit.get('livestream_available'):
                 details += '<p style="margin: 0 0 4px 0; font-size: 14px; color: #5c534a; line-height: 1.5;">Livestream available</p>'

@@ -210,14 +210,38 @@ class NeshamaDatabase:
         key = f"{source_norm}_{name}_{dod}"
         return hashlib.md5(key.encode()).hexdigest()
 
+    # Every field the UPDATE in upsert_obituary() writes. The content hash MUST
+    # cover all of them, or a correction to an uncovered field is computed,
+    # compared equal, and silently discarded as 'unchanged'.
+    #
+    # This was not a hypothetical. burial_location, funeral_location and the four
+    # structured shiva_* fields were all absent from the hash, so when the Steeles
+    # parser was fixed to read the real "Burial Service Location" block instead of
+    # the site's nav menu, the corrected value could not be written to any of the
+    # 348 affected rows: the scrape reported 'unchanged' and moved on. The
+    # placeholder fix would have looked deployed and changed nothing.
+    #
+    # Keep this list in sync with the UPDATE statement below. Adding a column to
+    # the UPDATE without adding it here reintroduces the same class of bug.
+    HASHED_FIELDS = (
+        'deceased_name', 'source_url', 'condolence_url', 'hebrew_name',
+        'date_of_death', 'yahrzeit_date', 'funeral_datetime', 'funeral_location',
+        'burial_location', 'shiva_info', 'obituary_text', 'livestream_url',
+        'photo_url', 'shiva_address', 'shiva_hours', 'shiva_concludes',
+        'shiva_raw', 'shiva_private',
+    )
+
     def generate_content_hash(self, obituary_data):
-        """Generate hash of content to detect changes"""
-        # Combine key fields that might change (photo_url added Apr 7, 2026)
-        content = f"{obituary_data.get('deceased_name', '')}_" \
-                  f"{obituary_data.get('funeral_datetime', '')}_" \
-                  f"{obituary_data.get('shiva_info', '')}_" \
-                  f"{obituary_data.get('livestream_url', '')}_" \
-                  f"{obituary_data.get('photo_url', '')}"
+        """Hash of every mutable field, used to detect that a re-scrape changed something.
+
+        NOTE ON DEPLOY: this formula differs from the previous one, so on the
+        first scrape after deploy every row's stored hash mismatches and each is
+        rewritten once. That is a one-time burst of 'updated' counts in the
+        scraper log, not a fault. The values written are the same or better.
+        """
+        content = '_'.join(
+            str(obituary_data.get(field, '') or '') for field in self.HASHED_FIELDS
+        )
         return hashlib.md5(content.encode()).hexdigest()
 
     def upsert_obituary(self, obituary_data):

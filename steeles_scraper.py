@@ -12,6 +12,7 @@ import re
 from datetime import datetime
 from database_setup import NeshamaDatabase
 from shiva_parser import extract_shiva_info
+from field_hygiene import clean_field
 
 # Photo delivery: Steeles uses CSS background-image on <figure>, NOT <img> tags.
 # See HQ/01-Projects/Neshama/scraper-photo-fix-plan.md for details.
@@ -63,6 +64,62 @@ class SteelesScraper:
                     links.append(full_url)
 
         return links
+
+    # Labels Steeles uses in its <h4> service headings, mapped to our fields.
+    # Compared lowercased after collapsing whitespace.
+    SERVICE_LABELS = {
+        'burial service location': 'burial',
+        'burial location': 'burial',
+        'interment location': 'burial',
+        'shiva location': 'shiva',
+        'shiva details': 'shiva',
+        'shiva information': 'shiva',
+    }
+
+    def _parse_service_blocks(self, soup):
+        """Read the structured <div class="services_item"> blocks.
+
+        Each block is an <h4> label followed by a <span> value:
+
+            <div class="services_item"><div class="service_content">
+              <div class="services_head">
+                <h4>Burial Service Location</h4>
+                <span>The Dawes Road Cemetery, 3169 St. Clair Avenue East., ...</span>
+              </div>
+            </div></div>
+
+        The same block markup is repeated inside a modal further down the page,
+        so the first occurrence of each label wins. Values that are themselves
+        placeholders are dropped rather than stored.
+        """
+        found = {}
+        for item in soup.select('.services_item'):
+            heading = item.find('h4')
+            if not heading:
+                continue
+            label = re.sub(r'\s+', ' ', heading.get_text(' ', strip=True)).strip().lower()
+            field = self.SERVICE_LABELS.get(label)
+            if not field or field in found:
+                continue
+
+            value_node = heading.find_next('span')
+            if not value_node:
+                continue
+            value = self.clean_text(value_node.get_text(' ', strip=True))
+
+            # "Shiva Private" is a real answer, not an address: the family has
+            # asked for privacy. Record the flag and leave shiva_info empty
+            # rather than printing the words as if they were a location.
+            if field == 'shiva' and value and value.strip().lower() in (
+                    'shiva private', 'private', 'private shiva'):
+                found['shiva_private'] = True
+                found['shiva'] = None
+                continue
+
+            cleaned = clean_field(value)
+            if cleaned:
+                found[field] = cleaned
+        return found
 
     def clean_text(self, text):
         """Clean and normalize text"""
@@ -160,6 +217,9 @@ class SteelesScraper:
                     data['shiva_private'] = shiva_parsed['shiva_private']
 
             # Extract funeral information
+            # (still text-matched; funeral_datetime is regex-extracted from the
+            # matched text rather than taken whole, so a nav-menu match yields
+            # no date and simply leaves the field alone)
             funeral_info = soup.find(text=re.compile(r'Funeral|Chapel Service', re.IGNORECASE))
             if funeral_info:
                 parent = funeral_info.find_parent()
@@ -179,22 +239,32 @@ class SteelesScraper:
                     if location_match:
                         data['funeral_location'] = self.clean_text(location_match.group(1))
 
-            # Extract burial information
-            burial_info = soup.find(text=re.compile(r'Burial|Cemetery', re.IGNORECASE))
-            if burial_info:
-                parent = burial_info.find_parent()
-                if parent:
-                    data['burial_location'] = self.clean_text(parent.get_text())
+            # Burial and shiva come from the page's structured service blocks.
+            #
+            # These used to be read with soup.find(text=re.compile(...)), which
+            # returns the FIRST match in document order. On every Steeles page
+            # that is the navigation menu, not the obituary:
+            #
+            #   find(text=/Cemetery/) matched <a href="/cemetery/dawes-road-cemetery/">
+            #   find(text=/Shiva/)    matched the <h4>Shiva Location</h4> heading
+            #
+            # which is why all 348 Steeles rows in production carry
+            # burial_location "Dawes Road Cemetery" and 281 carry shiva_info
+            # "Shiva Location". The heading blocklist below the old shiva branch
+            # was the right instinct aimed at the wrong layer: it enumerated
+            # headings ("shiva details", "shiva", "shiva information") and simply
+            # did not list "Shiva Location".
+            #
+            # The real markup is <div class="services_item"> holding an <h4>
+            # label and a <span> value. Read the label, take its value.
+            services = self._parse_service_blocks(soup)
 
-            # Extract shiva information
-            shiva_info = soup.find(text=re.compile(r'Shiva', re.IGNORECASE))
-            if shiva_info:
-                parent = shiva_info.find_parent()
-                if parent:
-                    text = self.clean_text(parent.get_text())
-                    # Skip heading-only values like "Shiva Details" with no actual content
-                    if text and text.lower() not in ('shiva details', 'shiva', 'shiva information'):
-                        data['shiva_info'] = text
+            if services.get('burial'):
+                data['burial_location'] = services['burial']
+            if services.get('shiva'):
+                data['shiva_info'] = services['shiva']
+            if services.get('shiva_private'):
+                data['shiva_private'] = True
 
             # Check for livestream
             livestream_link = soup.find('a', href=re.compile(r'smclive|livestream', re.IGNORECASE))

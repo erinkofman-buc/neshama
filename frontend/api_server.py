@@ -31,6 +31,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
+_REPO_ROOT = os.path.dirname(FRONTEND_DIR)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+try:
+    from field_hygiene import scrub_obituary_row
+except Exception:  # never let field hygiene take the server down
+    def scrub_obituary_row(row):
+        return row
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 # Featured Vendor payment routes are OFF by default. When unset/false the vendor
@@ -1727,7 +1735,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     {hidden_filter}
                     ORDER BY o.last_updated DESC
                 ''')
-            obituaries = [dict(row) for row in cursor.fetchall()]
+            obituaries = [scrub_obituary_row(dict(row)) for row in cursor.fetchall()]
             conn.close()
 
             # Deduplicate same-source obituaries (same name + same funeral home).
@@ -2104,7 +2112,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             conn.close()
 
             if row:
-                self.send_json_response({'status': 'success', 'data': dict(row)})
+                self.send_json_response({'status': 'success', 'data': scrub_obituary_row(dict(row))})
             else:
                 self.send_json_response({'status': 'error', 'message': 'Obituary not found'}, 404)
         except Exception as e:
