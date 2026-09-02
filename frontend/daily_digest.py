@@ -128,6 +128,31 @@ def deduplicate_obituaries(obituaries):
     return result
 
 
+def instance_fingerprint():
+    """Identify which deployment this process is, for the health report.
+
+    Two [Neshama Health] reports arrived five seconds apart on Aug 17, Aug 24 and
+    Aug 31 2026, and nothing in either email said which process sent it. That
+    ambiguity is what made the second one hard to place. Every health report now
+    names its own deployment.
+
+    Render populates the RENDER_* variables; they are absent when running locally.
+    """
+    import socket
+    parts = [
+        f"host={socket.gethostname()}",
+        f"db={os.environ.get('DATABASE_PATH', '(default relative path)')}",
+    ]
+    for label, var in (('service', 'RENDER_SERVICE_NAME'),
+                       ('branch', 'RENDER_GIT_BRANCH'),
+                       ('commit', 'RENDER_GIT_COMMIT'),
+                       ('instance', 'RENDER_INSTANCE_ID')):
+        value = os.environ.get(var)
+        if value:
+            parts.append(f"{label}={value[:12]}")
+    return ' '.join(parts)
+
+
 def _html_to_plain(html):
     """Convert HTML email to readable plain text"""
     text = html
@@ -406,6 +431,39 @@ class DailyDigestSender:
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
+
+        # GUARD: a digest run that can see obituaries but zero confirmed
+        # subscribers is not a quiet day, it is a process looking at the wrong
+        # database. Production has had 68 to 69 active subscribers all August.
+        #
+        # This is what produced the second [Neshama Health] report Erin received
+        # at 11:00:00Z on Aug 17, Aug 24 and Aug 31, each reading
+        # "Obituaries 5-6, Sent 0, Active 0, Pending 0, Unsubscribed 0" while
+        # the real run five seconds later read 54 sent and 69 active.
+        #
+        # Skip the send rather than proceeding, and make the health report say so
+        # loudly. Silently reporting zeros is what let this run undetected since
+        # at least Aug 17.
+        stats = self.subscription_manager.get_stats()
+        if stats.get('active', 0) == 0:
+            logging.error(
+                "[DailyDigest] ABORTING: 0 confirmed subscribers in %s. "
+                "This instance can see %d obituaries but has an empty subscriber "
+                "table, which means it is not the production database. "
+                "No digest sent. Instance: %s",
+                self.db_path, len(all_obituaries), instance_fingerprint()
+            )
+            result = {
+                'status': 'skipped_no_subscribers',
+                'obituaries_count': len(all_obituaries),
+                'subscribers_sent': 0,
+                'subscribers_skipped': 0,
+                'subscribers_failed': 0,
+                'instance': instance_fingerprint(),
+            }
+            self._send_health_summary(result)
+            return result
+
         logging.info(f" Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path, timeout=30)
@@ -537,9 +595,30 @@ class DailyDigestSender:
             scraper_summary = '\n'.join(scraper_lines) if scraper_lines else '  No scraper data'
             error_summary = '\n'.join(f'  - {e}' for e in errors) if errors else '  None'
 
-            plain_text = f"""Neshama Daily Health Report — {datetime.now().strftime('%B %d, %Y')}
+            # A report from an instance with no subscribers is an alarm, not a
+            # status line. Say so at the top and in the subject, so it can never
+            # again read as an ordinary quiet-looking report.
+            banner = ''
+            subject_prefix = ''
+            if stats['active'] == 0:
+                banner = (
+                    "*** NO CONFIRMED SUBSCRIBERS IN THIS DATABASE ***\n"
+                    "The digest was NOT sent. This process can see obituaries but\n"
+                    "its subscriber table is empty, so it is not reading the\n"
+                    "production database. Expect production to report ~69 active.\n"
+                    "If a second Render service (staging, a preview environment, an\n"
+                    "old worker) is running with the production SendGrid key, this\n"
+                    "is it. Check the INSTANCE line below.\n\n"
+                )
+                subject_prefix = 'NO SUBSCRIBERS - '
+
+            plain_text = f"""Neshama Daily Health Report - {datetime.now().strftime('%B %d, %Y')}
+
+{banner}INSTANCE
+  {instance_fingerprint()}
 
 DIGEST RESULTS
+  Status: {digest_result.get('status', 'success')}
   Obituaries: {obit_count}
   Sent: {sent}
   Skipped: {skipped}
@@ -562,7 +641,7 @@ ERRORS
                 message = Mail(
                     from_email=Email(self.from_email, self.from_name),
                     to_emails=To('contact@neshama.ca'),
-                    subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                    subject=f'[Neshama Health] {subject_prefix}{datetime.now().strftime("%b %d")} - {obit_count} obits, {sent} sent, {failed} failed',
                     plain_text_content=Content(MimeType.text, plain_text)
                 )
 
