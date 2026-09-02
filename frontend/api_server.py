@@ -31,6 +31,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
 if FRONTEND_DIR not in sys.path:
     sys.path.insert(0, FRONTEND_DIR)
+_REPO_ROOT = os.path.dirname(FRONTEND_DIR)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+from scraper_health import collect_source_health
+
 DB_PATH = os.environ.get('DATABASE_PATH', os.path.join(FRONTEND_DIR, '..', 'neshama.db'))
 SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes default
 # Featured Vendor payment routes are OFF by default. When unset/false the vendor
@@ -6679,22 +6684,22 @@ button:hover{background:#c45a1a}</style></head>
                 # "scraper hasn't run" (real problem) with "scraper ran but found nothing
                 # new" (normal for low-volume sources like Misaskim). Querying scraper_log
                 # answers the actual question: did the scraper run recently?
-                cursor.execute('''
-                    SELECT source, MAX(run_time) as latest
-                    FROM scraper_log
-                    WHERE source IN ('Steeles Memorial Chapel', "Benjamin's Park Memorial Chapel",
-                                     'Misaskim', 'Paperman & Sons')
-                    GROUP BY source
-                ''')
-                three_hours_ago = (datetime.now(tz=_tz.utc) - timedelta(hours=3)).isoformat()
+                # Phase 2 add-on (2026-09-02): filter on status='success'.
+                # The 2026-04-30 change correctly moved off obituaries.scraped_at
+                # and onto scraper_log, but it matched on run_time alone. A
+                # scraper that FAILS every 20 minutes writes a scraper_log row
+                # every 20 minutes, so Benjamin's read "fresh: true" here for the
+                # entire 27 days it was blocked by Cloudflare. A run that failed
+                # is not freshness, it is the opposite.
+                #
+                # Both numbers are now reported: last_successful_scrape drives
+                # the stale decision, last_new_obituary is informational so a
+                # quiet funeral home is never mistaken for a broken scraper.
                 shabbat_now = is_shabbat()
                 startup_grace = (datetime.now(tz=_tz.utc) - _SERVER_START_TIME).total_seconds() < 300
-                scraper_status = {}
-                for row in cursor.fetchall():
-                    source = row[0]
-                    latest = row[1]
-                    is_fresh = latest and latest >= three_hours_ago
-                    scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
+                scraper_status = collect_source_health(conn, shabbat=shabbat_now)
+                for _entry in scraper_status.values():
+                    _entry['fresh'] = not _entry['stale']
 
                 # If scraper thread has a recent heartbeat, it's running — stale data just means
                 # no new obituaries were posted, which is normal. Don't fail health check for this.
@@ -6722,7 +6727,7 @@ button:hover{background:#c45a1a}</style></head>
                     }
                 else:
                     # Thread is dead AND data is stale — real problem
-                    stale_sources = [s for s, v in scraper_status.items() if not v['fresh']]
+                    stale_sources = [s for s, v in scraper_status.items() if v['stale']]
                     if stale_sources:
                         all_ok = False
                     checks['scraper_freshness'] = {'ok': not stale_sources, 'sources': scraper_status}

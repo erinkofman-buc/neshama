@@ -11,6 +11,7 @@ import time
 import re
 from datetime import datetime
 from database_setup import NeshamaDatabase
+from scraper_health import BotProtectionBlocked, is_bot_challenge
 from shiva_parser import extract_shiva_info
 
 class BenjaminsScraper:
@@ -24,12 +25,28 @@ class BenjaminsScraper:
         self.db = NeshamaDatabase()
 
     def fetch_page(self, url, retries=3):
-        """Fetch page with retry logic"""
+        """Fetch page with retry logic.
+
+        Raises BotProtectionBlocked on a Cloudflare challenge so the failure is
+        NAMED in scraper_log rather than arriving as a bare "403 Client Error".
+        Retrying a managed challenge cannot succeed, so we stop immediately
+        instead of burning three attempts and a backoff every 20 minutes.
+        """
         for attempt in range(retries):
             try:
                 response = self.session.get(url, timeout=15)
+                if is_bot_challenge(response):
+                    raise BotProtectionBlocked(
+                        f"Cloudflare challenge on {url} (HTTP {response.status_code}, "
+                        f"cf-mitigated={response.headers.get('cf-mitigated')!r}). "
+                        f"The site now requires a browser challenge that plain HTTP "
+                        f"cannot pass. This is a site policy change, not a parser "
+                        f"bug, and needs a decision rather than a retry."
+                    )
                 response.raise_for_status()
                 return response.text
+            except BotProtectionBlocked:
+                raise
             except requests.exceptions.RequestException as e:
                 if attempt == retries - 1:
                     raise

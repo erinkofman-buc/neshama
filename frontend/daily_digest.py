@@ -12,6 +12,13 @@ import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 from subscription_manager import EmailSubscriptionManager
+import sys as _sys
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in _sys.path:
+    _sys.path.insert(0, _REPO_ROOT)
+from scraper_health import (
+    collect_source_health, format_health_lines, broken_sources,
+)
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
@@ -516,30 +523,36 @@ class DailyDigestSender:
             skipped = digest_result.get('subscribers_skipped', 0)
             errors = digest_result.get('errors', [])
 
-            # Check scraper freshness
+            # Scraper freshness. See scraper_health.py for why this changed:
+            # the old query was MAX(obituaries.scraped_at), which answers "when
+            # did we last store a NEW obituary", not "is the scraper working".
+            # It reported all four sources STALE every week, so a genuine 27-day
+            # Benjamin's outage was indistinguishable from three quiet weekends.
             conn = sqlite3.connect(self.db_path, timeout=30)
-            cursor = conn.cursor()
-            cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
-            scraper_lines = []
-            for row in cursor.fetchall():
-                source, latest = row
-                if latest:
-                    try:
-                        hours_ago = round((datetime.now() - datetime.fromisoformat(latest)).total_seconds() / 3600, 1)
-                        status = 'OK' if hours_ago < 6 else 'STALE'
-                        scraper_lines.append(f"  {source}: {hours_ago}h ago ({status})")
-                    except Exception:
-                        scraper_lines.append(f"  {source}: {latest}")
-                else:
-                    scraper_lines.append(f"  {source}: no data")
-            conn.close()
+            try:
+                health = collect_source_health(conn)
+            finally:
+                conn.close()
 
-            scraper_summary = '\n'.join(scraper_lines) if scraper_lines else '  No scraper data'
+            scraper_summary = format_health_lines(health)
+            broken = broken_sources(health)
             error_summary = '\n'.join(f'  - {e}' for e in errors) if errors else '  None'
 
-            plain_text = f"""Neshama Daily Health Report — {datetime.now().strftime('%B %d, %Y')}
+            # A broken scraper belongs in the subject line, not buried in a
+            # block that cried STALE four times a week for months.
+            scraper_alert = ''
+            scraper_banner = ''
+            if broken:
+                scraper_alert = f'SCRAPER DOWN ({len(broken)}) - '
+                scraper_banner = (
+                    '*** SCRAPER NOT SUCCEEDING: ' + ', '.join(broken) + ' ***\n'
+                    'These sources have not completed a successful scrape within\n'
+                    'three cron intervals. This is a real failure, not a quiet week.\n\n'
+                )
 
-DIGEST RESULTS
+            plain_text = f"""Neshama Daily Health Report - {datetime.now().strftime('%B %d, %Y')}
+
+{scraper_banner}DIGEST RESULTS
   Obituaries: {obit_count}
   Sent: {sent}
   Skipped: {skipped}
@@ -562,7 +575,9 @@ ERRORS
                 message = Mail(
                     from_email=Email(self.from_email, self.from_name),
                     to_emails=To('contact@neshama.ca'),
-                    subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                    subject=(f'[Neshama Health] {scraper_alert}'
+                             f'{datetime.now().strftime("%b %d")} - {obit_count} obits, '
+                             f'{sent} sent, {failed} failed'),
                     plain_text_content=Content(MimeType.text, plain_text)
                 )
 
