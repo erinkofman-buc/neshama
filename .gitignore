@@ -58,7 +58,11 @@ neshama-code.tar.gz
 
 # Claude Code config (contains auth tokens)
 .mcp.json
-.claude/
+# Ignore .claude/* rather than .claude/, because git cannot re-include a
+# file whose parent directory is excluded. This lets shared slash commands
+# be tracked while settings.local.json, skills/ and worktrees/ stay ignored.
+.claude/*
+!.claude/commands/
 
 # ── Data dumps, exports, and binaries that must never be committed (added 2026-06-02) ──
 # Database backups / dumps (the backups/ dir holds 18MB+ prod JSON dumps)
