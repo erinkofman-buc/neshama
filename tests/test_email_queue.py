@@ -51,6 +51,24 @@ class EmailQueueTestBase(unittest.TestCase):
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
 
+        # email_daily_cap is created at runtime inside process_email_queue(),
+        # not by ShivaManager. Tests that call the private _process_* helpers
+        # directly bypass that, so four of them failed with
+        # "no such table: email_daily_cap" regardless of what they were testing.
+        # Production is unaffected: process_email_queue() always creates it
+        # before dispatching. Mirroring the DDL here rather than reaching into
+        # email_queue keeps the fixture readable; if the real schema changes,
+        # the tests that depend on the cap will fail loudly.
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS email_daily_cap (
+                recipient_email TEXT,
+                cap_date TEXT,
+                send_count INTEGER DEFAULT 0,
+                PRIMARY KEY (recipient_email, cap_date)
+            )
+        ''')
+        self.conn.commit()
+
     def tearDown(self):
         self.conn.close()
         os.close(self.db_fd)
