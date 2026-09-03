@@ -37,6 +37,21 @@ SCRAPE_INTERVAL = int(os.environ.get('SCRAPE_INTERVAL', 1200))  # 20 minutes def
 # checkout + portal endpoints return 404, so payments are genuinely closed (not
 # merely unlinked). Flip FEATURED_VENDOR_ENABLED=true in the Render env to expose.
 FEATURED_VENDOR_ENABLED = os.environ.get('FEATURED_VENDOR_ENABLED', '').lower() == 'true'
+# Monthly vendor performance email ("Your Neshama listing - monthly update").
+# OFF by default as of 2026-09-03, by Erin's decision. It had been sending
+# unapproved outbound mail to real businesses: 2 went out on 2026-09-01, but 25
+# vendors qualified a day later because the 2026-08-26 SSR deploy made vendor
+# pages indexable and views began accruing, so 2026-10-01 would have fired at
+# ~25 and climbing. The recipient rule is "any vendor with an email and >=1
+# profile view in 30 days", and 20 of those 25 sat at 1-2 views - plausibly
+# crawlers - under copy asserting "Families in the community are finding your
+# listing when they need help the most". The list also overlapped almost exactly
+# with the 14 caterers Erin is about to pitch personally, so it would have
+# undercut that outreach.
+# Re-enable only as v2 (real view threshold, honest low-traffic wording, curated
+# recipient list, caterer package-form link folded in) and only after the
+# personal outreach lands. See backlog.md "Vendor monthly report v2".
+VENDOR_REPORT_ENABLED = os.environ.get('VENDOR_REPORT_ENABLED', '').lower() == 'true'
 _SERVER_START_TIME = datetime.now(tz=_tz.utc)
 
 # ── Early Lock Recovery ─────────────────────────────────
@@ -7445,18 +7460,30 @@ def run_server(port=None):
                     run_monthly_reports(db_path=DB_PATH)
                 except Exception as e:
                     logging.error(f"[VendorReport] Error: {e}")
-            scheduler.add_job(
-                _run_vendor_report,
-                'cron',
-                day=1,
-                hour=9,
-                minute=0,
-                timezone='America/Toronto',
-                id='vendor_report',
-                name='Send monthly vendor reports',
-                max_instances=1,
-            )
-            logging.info(f"[VendorReport] Scheduler added (1st of month at 9 AM ET)")
+
+            # Gated OFF by default (see VENDOR_REPORT_ENABLED at the top of this
+            # file). The job is not registered at all when disabled, so there is
+            # no scheduled send that could fire by accident - not merely a
+            # no-op handler. Flip VENDOR_REPORT_ENABLED=true in the Render env
+            # to restore it, once v2 is ready.
+            if VENDOR_REPORT_ENABLED:
+                scheduler.add_job(
+                    _run_vendor_report,
+                    'cron',
+                    day=1,
+                    hour=9,
+                    minute=0,
+                    timezone='America/Toronto',
+                    id='vendor_report',
+                    name='Send monthly vendor reports',
+                    max_instances=1,
+                )
+                logging.info(f"[VendorReport] Scheduler added (1st of month at 9 AM ET)")
+            else:
+                logging.warning(
+                    "[VendorReport] DISABLED - monthly vendor email will NOT be sent. "
+                    "Set VENDOR_REPORT_ENABLED=true to re-enable (v2 only, see backlog)."
+                )
         except Exception as e:
             logging.error(f"[VendorReport] Failed to add scheduler job: {e}")
 

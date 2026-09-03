@@ -87,17 +87,26 @@ In the Render dashboard, go to your service > **Environment** and add:
 
 Add these DNS records:
 
+> **The Render hostname is `neshama-45gr.onrender.com`, not `neshama.onrender.com`.**
+> Corrected 2026-09-03. `neshama.onrender.com` is a DIFFERENT COMPANY'S live app
+> (it serves a page titled "Neshama - Your Mental Health Support Companion").
+> Pointing neshama.ca at it would hand the domain to a stranger's service.
+> The real service is `neshama-45gr` (service id `srv-d64g2rsr85hc73brjot0`), and
+> live DNS is already correct - `neshama.ca` resolves via `neshama-45gr.onrender.com`.
+> Verify with: `dig +short neshama.ca`
+
+
 | Type | Name | Value |
 |------|------|-------|
-| CNAME | `www` | `neshama.onrender.com` |
+| CNAME | `www` | `neshama-45gr.onrender.com` |
 | A | `@` | *(Render will provide the IP)* |
 
 Or if your registrar supports CNAME flattening (like Cloudflare):
 
 | Type | Name | Value |
 |------|------|-------|
-| CNAME | `@` | `neshama.onrender.com` |
-| CNAME | `www` | `neshama.onrender.com` |
+| CNAME | `@` | `neshama-45gr.onrender.com` |
+| CNAME | `www` | `neshama-45gr.onrender.com` |
 
 **SSL/HTTPS:** Render provides free SSL certificates automatically. After DNS propagates (5-30 minutes), https://neshama.ca will work.
 
