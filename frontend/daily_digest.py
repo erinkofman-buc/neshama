@@ -145,6 +145,73 @@ def deduplicate_obituaries(obituaries):
     return result
 
 
+def _git_sha():
+    """Best-effort git commit of the running code, host-agnostic.
+
+    The point is that the phantom is very likely NOT on Render (Erin's dashboard
+    shows one service), so RENDER_GIT_COMMIT will be empty on it. Reading the SHA
+    from the deployed .git directory works on any host and needs no git binary,
+    so whatever the phantom is running on, its health report still names the
+    commit it is running.
+    """
+    for var in ('RENDER_GIT_COMMIT', 'RAILWAY_GIT_COMMIT_SHA',
+                'SOURCE_VERSION', 'HEROKU_SLUG_COMMIT', 'GIT_COMMIT', 'GIT_SHA'):
+        val = os.environ.get(var)
+        if val:
+            return val[:12]
+    # Fall back to reading .git directly (no subprocess, no git binary needed).
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        head_path = os.path.join(repo_root, '.git', 'HEAD')
+        with open(head_path, 'r') as fh:
+            head = fh.read().strip()
+        if head.startswith('ref:'):
+            ref = head.split(' ', 1)[1].strip()
+            with open(os.path.join(repo_root, '.git', ref)) as rf:
+                return rf.read().strip()[:12]
+        return head[:12]        # detached HEAD: HEAD holds the SHA directly
+    except Exception:
+        return '(unknown)'
+
+
+def instance_fingerprint():
+    """Identify which deployment this process is, for the health report.
+
+    Two [Neshama Health] reports arrived five seconds apart on Aug 17, Aug 24 and
+    Aug 31 2026, and nothing in either email said which process sent it. That
+    ambiguity is what made the second one hard to place. Every health report now
+    names its own deployment: host, service id, git SHA, DB path.
+
+    Render populates the RENDER_* variables; other hosts populate their own, and
+    the git SHA falls back to reading .git so it is present no matter the host.
+    """
+    import socket
+
+    # Service id: whichever platform's identifier is set. This is the field most
+    # likely to name the phantom outright.
+    service = None
+    for var in ('RENDER_SERVICE_NAME', 'RENDER_SERVICE_ID',
+                'RAILWAY_SERVICE_NAME', 'FLY_APP_NAME', 'HEROKU_APP_NAME',
+                'WEBSITE_SITE_NAME', 'K_SERVICE'):
+        if os.environ.get(var):
+            service = f"{var}={os.environ[var][:24]}"
+            break
+
+    parts = [
+        f"host={socket.gethostname()}",
+        f"service={service if service else '(none set - not a known PaaS)'}",
+        f"sha={_git_sha()}",
+        f"db={os.environ.get('DATABASE_PATH', '(default relative path)')}",
+    ]
+    # Keep the finer-grained Render fields when present; harmless elsewhere.
+    for label, var in (('branch', 'RENDER_GIT_BRANCH'),
+                       ('instance', 'RENDER_INSTANCE_ID')):
+        value = os.environ.get(var)
+        if value:
+            parts.append(f"{label}={value[:12]}")
+    return ' '.join(parts)
+
+
 def _html_to_plain(html):
     """Convert HTML email to readable plain text"""
     text = html
@@ -514,6 +581,39 @@ class DailyDigestSender:
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
+
+        # GUARD: a digest run that can see obituaries but zero confirmed
+        # subscribers is not a quiet day, it is a process looking at the wrong
+        # database. Production has had 68 to 69 active subscribers all August.
+        #
+        # This is what produced the second [Neshama Health] report Erin received
+        # at 11:00:00Z on Aug 17, Aug 24 and Aug 31, each reading
+        # "Obituaries 5-6, Sent 0, Active 0, Pending 0, Unsubscribed 0" while
+        # the real run five seconds later read 54 sent and 69 active.
+        #
+        # Skip the send rather than proceeding, and make the health report say so
+        # loudly. Silently reporting zeros is what let this run undetected since
+        # at least Aug 17.
+        stats = self.subscription_manager.get_stats()
+        if stats.get('active', 0) == 0:
+            logging.error(
+                "[DailyDigest] ABORTING: 0 confirmed subscribers in %s. "
+                "This instance can see %d obituaries but has an empty subscriber "
+                "table, which means it is not the production database. "
+                "No digest sent. Instance: %s",
+                self.db_path, len(all_obituaries), instance_fingerprint()
+            )
+            result = {
+                'status': 'skipped_no_subscribers',
+                'obituaries_count': len(all_obituaries),
+                'subscribers_sent': 0,
+                'subscribers_skipped': 0,
+                'subscribers_failed': 0,
+                'instance': instance_fingerprint(),
+            }
+            self._send_health_summary(result)
+            return result
+
         logging.info(f" Sending to {len(daily_subscribers)} daily subscriber{'s' if len(daily_subscribers) != 1 else ''}\n")
 
         conn = sqlite3.connect(self.db_path, timeout=30)
@@ -651,9 +751,30 @@ class DailyDigestSender:
             scraper_summary = '\n'.join(scraper_lines) if scraper_lines else '  No scraper data'
             error_summary = '\n'.join(f'  - {e}' for e in errors) if errors else '  None'
 
-            plain_text = f"""Neshama Daily Health Report — {datetime.now().strftime('%B %d, %Y')}
+            # A report from an instance with no subscribers is an alarm, not a
+            # status line. Say so at the top and in the subject, so it can never
+            # again read as an ordinary quiet-looking report.
+            banner = ''
+            subject_prefix = ''
+            if stats['active'] == 0:
+                banner = (
+                    "*** NO CONFIRMED SUBSCRIBERS IN THIS DATABASE ***\n"
+                    "The digest was NOT sent. This process can see obituaries but\n"
+                    "its subscriber table is empty, so it is not reading the\n"
+                    "production database. Expect production to report ~69 active.\n"
+                    "If a second Render service (staging, a preview environment, an\n"
+                    "old worker) is running with the production SendGrid key, this\n"
+                    "is it. Check the INSTANCE line below.\n\n"
+                )
+                subject_prefix = 'NO SUBSCRIBERS - '
+
+            plain_text = f"""Neshama Daily Health Report - {datetime.now().strftime('%B %d, %Y')}
+
+{banner}INSTANCE
+  {instance_fingerprint()}
 
 DIGEST RESULTS
+  Status: {digest_result.get('status', 'success')}
   Obituaries: {obit_count}
   Sent: {sent}
   Skipped: {skipped}
@@ -676,7 +797,7 @@ ERRORS
                 message = Mail(
                     from_email=Email(self.from_email, self.from_name),
                     to_emails=To('contact@neshama.ca'),
-                    subject=f'[Neshama Health] {datetime.now().strftime("%b %d")} — {obit_count} obits, {sent} sent, {failed} failed',
+                    subject=f'[Neshama Health] {subject_prefix}{datetime.now().strftime("%b %d")} - {obit_count} obits, {sent} sent, {failed} failed',
                     plain_text_content=Content(MimeType.text, plain_text)
                 )
 
