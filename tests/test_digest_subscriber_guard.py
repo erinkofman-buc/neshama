@@ -217,14 +217,49 @@ class FingerprintTests(unittest.TestCase):
         with patch.dict(os.environ, {'RENDER_SERVICE_NAME': 'neshama-staging',
                                      'RENDER_GIT_BRANCH': 'staging'}):
             fp = instance_fingerprint()
-            self.assertIn('service=neshama-sta', fp)
+            self.assertIn('service=RENDER_SERVICE_NAME=neshama-staging', fp)
             self.assertIn('branch=staging', fp)
+
+    def test_fingerprint_names_a_non_render_platform(self):
+        """The phantom is probably not on Render; a Railway/Fly/Heroku id must show."""
+        for env, needle in (
+            ({'RAILWAY_SERVICE_NAME': 'neshama-web'}, 'RAILWAY_SERVICE_NAME=neshama-web'),
+            ({'FLY_APP_NAME': 'neshama'}, 'FLY_APP_NAME=neshama'),
+            ({'HEROKU_APP_NAME': 'neshama-old'}, 'HEROKU_APP_NAME=neshama-old'),
+        ):
+            with self.subTest(env=env):
+                for v in ('RENDER_SERVICE_NAME', 'RENDER_SERVICE_ID',
+                          'RAILWAY_SERVICE_NAME', 'FLY_APP_NAME',
+                          'HEROKU_APP_NAME', 'WEBSITE_SITE_NAME', 'K_SERVICE'):
+                    os.environ.pop(v, None)
+                with patch.dict(os.environ, env):
+                    self.assertIn(needle, instance_fingerprint())
+
+    def test_fingerprint_always_carries_a_git_sha(self):
+        """A commit must appear no matter the host - this is how the phantom
+        tells us which code it runs even off a known PaaS."""
+        for v in ('RENDER_GIT_COMMIT', 'RAILWAY_GIT_COMMIT_SHA', 'SOURCE_VERSION',
+                  'HEROKU_SLUG_COMMIT', 'GIT_COMMIT', 'GIT_SHA'):
+            os.environ.pop(v, None)
+        fp = instance_fingerprint()
+        self.assertIn('sha=', fp)
+        # Reading .git resolves a real 12-hex SHA on this checkout.
+        sha = fp.split('sha=')[1].split(' ')[0]
+        self.assertTrue(sha == '(unknown)' or len(sha) == 12, f'unexpected sha={sha!r}')
+
+    def test_fingerprint_env_git_sha_wins_over_disk(self):
+        with patch.dict(os.environ, {'RENDER_GIT_COMMIT': 'abcdef123456deadbeef'}):
+            self.assertIn('sha=abcdef123456', instance_fingerprint())
 
     def test_fingerprint_survives_a_bare_local_environment(self):
         for var in ('RENDER_SERVICE_NAME', 'RENDER_GIT_BRANCH',
                     'RENDER_GIT_COMMIT', 'RENDER_INSTANCE_ID', 'DATABASE_PATH'):
             os.environ.pop(var, None)
-        self.assertIn('host=', instance_fingerprint())
+        fp = instance_fingerprint()
+        self.assertIn('host=', fp)
+        self.assertIn('service=', fp)
+        self.assertIn('sha=', fp)
+        self.assertIn('db=', fp)
 
 
 if __name__ == '__main__':

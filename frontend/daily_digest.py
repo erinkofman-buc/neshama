@@ -128,24 +128,66 @@ def deduplicate_obituaries(obituaries):
     return result
 
 
+def _git_sha():
+    """Best-effort git commit of the running code, host-agnostic.
+
+    The point is that the phantom is very likely NOT on Render (Erin's dashboard
+    shows one service), so RENDER_GIT_COMMIT will be empty on it. Reading the SHA
+    from the deployed .git directory works on any host and needs no git binary,
+    so whatever the phantom is running on, its health report still names the
+    commit it is running.
+    """
+    for var in ('RENDER_GIT_COMMIT', 'RAILWAY_GIT_COMMIT_SHA',
+                'SOURCE_VERSION', 'HEROKU_SLUG_COMMIT', 'GIT_COMMIT', 'GIT_SHA'):
+        val = os.environ.get(var)
+        if val:
+            return val[:12]
+    # Fall back to reading .git directly (no subprocess, no git binary needed).
+    try:
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        head_path = os.path.join(repo_root, '.git', 'HEAD')
+        with open(head_path, 'r') as fh:
+            head = fh.read().strip()
+        if head.startswith('ref:'):
+            ref = head.split(' ', 1)[1].strip()
+            with open(os.path.join(repo_root, '.git', ref)) as rf:
+                return rf.read().strip()[:12]
+        return head[:12]        # detached HEAD: HEAD holds the SHA directly
+    except Exception:
+        return '(unknown)'
+
+
 def instance_fingerprint():
     """Identify which deployment this process is, for the health report.
 
     Two [Neshama Health] reports arrived five seconds apart on Aug 17, Aug 24 and
     Aug 31 2026, and nothing in either email said which process sent it. That
     ambiguity is what made the second one hard to place. Every health report now
-    names its own deployment.
+    names its own deployment: host, service id, git SHA, DB path.
 
-    Render populates the RENDER_* variables; they are absent when running locally.
+    Render populates the RENDER_* variables; other hosts populate their own, and
+    the git SHA falls back to reading .git so it is present no matter the host.
     """
     import socket
+
+    # Service id: whichever platform's identifier is set. This is the field most
+    # likely to name the phantom outright.
+    service = None
+    for var in ('RENDER_SERVICE_NAME', 'RENDER_SERVICE_ID',
+                'RAILWAY_SERVICE_NAME', 'FLY_APP_NAME', 'HEROKU_APP_NAME',
+                'WEBSITE_SITE_NAME', 'K_SERVICE'):
+        if os.environ.get(var):
+            service = f"{var}={os.environ[var][:24]}"
+            break
+
     parts = [
         f"host={socket.gethostname()}",
+        f"service={service if service else '(none set - not a known PaaS)'}",
+        f"sha={_git_sha()}",
         f"db={os.environ.get('DATABASE_PATH', '(default relative path)')}",
     ]
-    for label, var in (('service', 'RENDER_SERVICE_NAME'),
-                       ('branch', 'RENDER_GIT_BRANCH'),
-                       ('commit', 'RENDER_GIT_COMMIT'),
+    # Keep the finer-grained Render fields when present; harmless elsewhere.
+    for label, var in (('branch', 'RENDER_GIT_BRANCH'),
                        ('instance', 'RENDER_INSTANCE_ID')):
         value = os.environ.get(var)
         if value:
