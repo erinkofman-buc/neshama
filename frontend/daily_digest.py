@@ -15,12 +15,16 @@ from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 import sys as _sys
 from subscription_manager import EmailSubscriptionManager
 
-# field_hygiene lives at the repo root next to database_setup.py so the scrapers
-# can import it too. The digests run from frontend/, hence the hop.
+# field_hygiene and scraper_health live at the repo root next to
+# database_setup.py so the scrapers can import them too. The digests run from
+# frontend/, hence the hop.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in _sys.path:
     _sys.path.insert(0, _REPO_ROOT)
 from field_hygiene import display_value
+from scraper_health import (
+    collect_source_health, format_health_lines, broken_sources,
+)
 
 import logging
 
@@ -730,34 +734,29 @@ class DailyDigestSender:
             skipped = digest_result.get('subscribers_skipped', 0)
             errors = digest_result.get('errors', [])
 
-            # Check scraper freshness
+            # Scraper freshness. See scraper_health.py for why this changed:
+            # the old query was MAX(obituaries.scraped_at), which answers "when
+            # did we last store a NEW obituary", not "is the scraper working".
+            # It reported all four sources STALE every week, so a genuine 27-day
+            # Benjamin's outage was indistinguishable from three quiet weekends.
             conn = sqlite3.connect(self.db_path, timeout=30)
-            cursor = conn.cursor()
-            cursor.execute('SELECT source, MAX(scraped_at) as latest FROM obituaries GROUP BY source')
-            scraper_lines = []
-            for row in cursor.fetchall():
-                source, latest = row
-                if latest:
-                    try:
-                        hours_ago = round((datetime.now() - datetime.fromisoformat(latest)).total_seconds() / 3600, 1)
-                        status = 'OK' if hours_ago < 6 else 'STALE'
-                        scraper_lines.append(f"  {source}: {hours_ago}h ago ({status})")
-                    except Exception:
-                        scraper_lines.append(f"  {source}: {latest}")
-                else:
-                    scraper_lines.append(f"  {source}: no data")
-            conn.close()
+            try:
+                health = collect_source_health(conn)
+            finally:
+                conn.close()
 
-            scraper_summary = '\n'.join(scraper_lines) if scraper_lines else '  No scraper data'
+            scraper_summary = format_health_lines(health)
+            broken = broken_sources(health)
             error_summary = '\n'.join(f'  - {e}' for e in errors) if errors else '  None'
 
-            # A report from an instance with no subscribers is an alarm, not a
-            # status line. Say so at the top and in the subject, so it can never
-            # again read as an ordinary quiet-looking report.
+            # Two independent alarms, both of which belong at the top and in
+            # the subject rather than buried in a block a reader has learned to
+            # skim. They can fire together.
             banner = ''
             subject_prefix = ''
+
             if stats['active'] == 0:
-                banner = (
+                banner += (
                     "*** NO CONFIRMED SUBSCRIBERS IN THIS DATABASE ***\n"
                     "The digest was NOT sent. This process can see obituaries but\n"
                     "its subscriber table is empty, so it is not reading the\n"
@@ -766,7 +765,15 @@ class DailyDigestSender:
                     "old worker) is running with the production SendGrid key, this\n"
                     "is it. Check the INSTANCE line below.\n\n"
                 )
-                subject_prefix = 'NO SUBSCRIBERS - '
+                subject_prefix += 'NO SUBSCRIBERS - '
+
+            if broken:
+                banner += (
+                    '*** SCRAPER NOT SUCCEEDING: ' + ', '.join(broken) + ' ***\n'
+                    'These sources have not completed a successful scrape within\n'
+                    'three cron intervals. This is a real failure, not a quiet week.\n\n'
+                )
+                subject_prefix += f'SCRAPER DOWN ({len(broken)}) - '
 
             plain_text = f"""Neshama Daily Health Report - {datetime.now().strftime('%B %d, %Y')}
 
@@ -797,7 +804,9 @@ ERRORS
                 message = Mail(
                     from_email=Email(self.from_email, self.from_name),
                     to_emails=To('contact@neshama.ca'),
-                    subject=f'[Neshama Health] {subject_prefix}{datetime.now().strftime("%b %d")} - {obit_count} obits, {sent} sent, {failed} failed',
+                    subject=(f'[Neshama Health] {subject_prefix}'
+                             f'{datetime.now().strftime("%b %d")} - {obit_count} obits, '
+                             f'{sent} sent, {failed} failed'),
                     plain_text_content=Content(MimeType.text, plain_text)
                 )
 
