@@ -47,6 +47,7 @@ then decide. Back up /data/neshama.db before --execute.
 """
 
 import os
+import re
 import sqlite3
 import sys
 from collections import defaultdict
@@ -55,6 +56,72 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import dedupe_obituaries_2026_08_26 as base  # noqa: E402
 from obituary_identity import source_key      # noqa: E402
+
+
+# Parentheticals that are OPERATIONAL NOTICES, not part of a person's name.
+#
+# Steeles appends service logistics to the name field, so one man arrives as
+# three rows: "Joseph Hayeems", "Joseph Hayeems (Start Time May Be Delayed)" and
+# "Joseph Hayeems (Funeral Rescheduled to 12:00 p.m.)" - all three with the SAME
+# date_of_death, which is a clean demonstration that the name, not the date, is
+# what forks the old identity hash.
+#
+# This matters here because Erin's 2026-08-26 "most complete name wins by length"
+# rule would then pick "Joseph Hayeems (Funeral Rescheduled to 12:00 p.m.)" as the
+# surviving name - enshrining a scheduling note as a dead man's name on his own
+# memorial page. That rule is still right for what it was written for: it is what
+# preserves "Dr. Randy Leifer" over "Randy Leifer" and "Yvonne Hazan (née Sasson)"
+# over "Yvonne Hazan". It simply cannot tell a née clause from a logistics note.
+#
+# Measured against the production snapshot of 2026-09-03: 255 obituary names
+# contain a parenthetical, 253 of them are née / maiden / nickname clauses that
+# MUST be preserved, and exactly 2 are operational - both Hayeems. So this rule
+# separates them with no false positives on real data.
+# Two groups. The first is verb STEMS and deliberately has no trailing word
+# boundary, so "Delayed", "Rescheduled", "Postponed", "Cancelled" all match; a
+# trailing \b there would silently match none of them. The second is whole
+# words. "chang" is NOT a stem: Chang is a surname and appears in née clauses,
+# so only the whole words "change"/"changed" count.
+_OPERATIONAL_PAREN = re.compile(
+    r'\b(?:delay|reschedul|postpon|cancel|updat|correct|revis)'
+    r'|\b(?:changed?|moved|new time|start time|time change|funeral|shiva|'
+    r'burial|service|graveside|livestream|p\.?m\.?|a\.?m\.?|today|tomorrow|'
+    r'note)\b',
+    re.IGNORECASE,
+)
+
+
+def strip_operational_parentheticals(value):
+    """Remove '(Funeral Rescheduled...)'-style notices, keep '(née Sasson)'.
+
+    Only drops a parenthetical whose CONTENTS look like service logistics. A
+    parenthetical holding a name is left exactly as it is.
+    """
+    if not value:
+        return value
+    out = re.sub(
+        r'\s*\(([^)]*)\)',
+        lambda m: '' if _OPERATIONAL_PAREN.search(m.group(1)) else m.group(0),
+        str(value),
+    )
+    return ' '.join(out.split())
+
+
+def choose_name(cluster):
+    """Pick the surviving deceased_name for a merged cluster.
+
+    Erin's rule (most complete wins) applied to names that have had operational
+    notices stripped first, so a scheduling note can never win on length.
+    """
+    candidates = []
+    for row in cluster:
+        cleaned = base.clean_name(row.get('deceased_name'))
+        if not cleaned:
+            continue
+        candidates.append(strip_operational_parentheticals(cleaned) or cleaned)
+    if not candidates:
+        return None
+    return max(candidates, key=len)
 
 
 def build_plan_by_source_key(conn):
@@ -93,10 +160,9 @@ def build_plan_by_source_key(conn):
                     merged[field] = min(values) if field == 'first_seen' else max(values)
                 continue
             if field == 'deceased_name':
-                names = [base.clean_name(r.get(field)) for r in cluster
-                         if base.clean_name(r.get(field))]
-                if names:
-                    merged[field] = max(names, key=len)
+                chosen = choose_name(cluster)
+                if chosen:
+                    merged[field] = chosen
                 continue
             value = survivor.get(field)
             for other in dropped:
