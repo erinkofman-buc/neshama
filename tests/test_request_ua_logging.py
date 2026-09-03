@@ -15,6 +15,7 @@ import logging
 import sqlite3
 import tempfile
 import threading
+import time
 import unittest
 import http.client
 from http.server import ThreadingHTTPServer
@@ -48,6 +49,11 @@ class RequestUALoggingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.db_fd, cls.db_path = tempfile.mkstemp(suffix='.db')
+        # Remember what DATABASE_PATH was so tearDownClass can put it back.
+        # Without this the temp path leaks into every test that runs after this
+        # class in the same process, which is the sort of cross-test coupling
+        # that makes a suite fail differently depending on ordering.
+        cls._prev_database_path = os.environ.get('DATABASE_PATH')
         os.environ['DATABASE_PATH'] = cls.db_path
         # Minimal table so the server boots cleanly.
         conn = sqlite3.connect(cls.db_path)
@@ -75,6 +81,10 @@ class RequestUALoggingTest(unittest.TestCase):
         cls.server.shutdown()
         cls.server.server_close()
         logging.getLogger().removeHandler(cls.log_handler)
+        if cls._prev_database_path is None:
+            os.environ.pop('DATABASE_PATH', None)
+        else:
+            os.environ['DATABASE_PATH'] = cls._prev_database_path
         os.close(cls.db_fd)
         os.unlink(cls.db_path)
 
@@ -88,14 +98,46 @@ class RequestUALoggingTest(unittest.TestCase):
         finally:
             conn.close()
 
+    def _await_log_lines(self, prefix, since, timeout=5.0):
+        """Wait for log lines starting with `prefix` to appear after index `since`.
+
+        api_server calls _log_request() AFTER the response has been written
+        (api_server.py:1368 and :1413, both after end_headers()). The request is
+        served on a ThreadingHTTPServer worker thread, so the client can receive
+        and close the response before that worker gets scheduled again to emit
+        the log record. Reading self.log_handler.lines immediately after the
+        response is therefore a read-before-write race.
+
+        Measured on this machine: 0 failures in 40 requests on an idle box, but
+        2 failures in 60 requests under CPU load of the kind a full pytest run
+        creates - roughly 3 percent, which matches the observed "passes alone,
+        fails intermittently in the suite" behaviour. In every failing case the
+        line arrived intact a fraction of a second later, so the log itself was
+        never wrong; only the test's timing was.
+
+        Polling rather than sleeping a fixed amount keeps the fast path fast:
+        the assertion returns as soon as the line lands.
+        """
+        deadline = time.monotonic() + timeout
+        while True:
+            lines = [ln for ln in self.log_handler.lines[since:]
+                     if ln.startswith(prefix)]
+            if lines:
+                return lines
+            if time.monotonic() >= deadline:
+                return []
+            time.sleep(0.02)
+
     def test_head_request_logs_user_agent(self):
         before = len(self.log_handler.lines)
         status = self._head('/feed', DISTINCTIVE_UA)
         self.assertEqual(status, 200)
 
-        new_lines = self.log_handler.lines[before:]
-        api_lines = [ln for ln in new_lines if ln.startswith('[API] HEAD /feed')]
-        self.assertTrue(api_lines, f'no [API] HEAD log line captured; got: {new_lines[-5:]}')
+        api_lines = self._await_log_lines('[API] HEAD /feed', before)
+        self.assertTrue(
+            api_lines,
+            'no [API] HEAD log line captured within the timeout; got: '
+            f'{self.log_handler.lines[before:][-5:]}')
 
         ua_line = next((ln for ln in api_lines if f'UA="{DISTINCTIVE_UA}"' in ln), None)
         self.assertIsNotNone(
@@ -119,9 +161,12 @@ class RequestUALoggingTest(unittest.TestCase):
         finally:
             conn.close()
 
-        new_lines = self.log_handler.lines[before:]
-        head_lines = [ln for ln in new_lines if ln.startswith('[API] HEAD /help')]
-        self.assertTrue(head_lines, f'no HEAD /help log line; got {new_lines[-5:]}')
+        # Same race as above: wait for the line rather than reading immediately.
+        head_lines = self._await_log_lines('[API] HEAD /help', before)
+        self.assertTrue(
+            head_lines,
+            'no HEAD /help log line within the timeout; got '
+            f'{self.log_handler.lines[before:][-5:]}')
         self.assertTrue(any('UA="-"' in ln for ln in head_lines),
                         f'expected UA="-" placeholder, got {head_lines}')
 
