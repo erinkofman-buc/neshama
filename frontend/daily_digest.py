@@ -8,11 +8,19 @@ Run via cron: 0 7 * * * /path/to/daily_digest.py
 import sqlite3
 from datetime import datetime, timedelta
 import os
+import sys as _sys
 import re as _re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content, MimeType
 from subscription_manager import EmailSubscriptionManager
 import logging
+
+# obituary_identity lives at the repo root next to database_setup.py, so the
+# scrapers can import it too. daily_digest runs from frontend/, hence the hop.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in _sys.path:
+    _sys.path.insert(0, _REPO_ROOT)
+from obituary_identity import announce_key
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
@@ -190,6 +198,71 @@ class DailyDigestSender:
         conn.close()
 
         return obituaries
+
+    # ── digest sent-log ───────────────────────────────────────────────────
+    # Independent of the identity key. Even if a key bug ever mints a second
+    # row for someone, the sent-log refuses to announce that person twice,
+    # because it is keyed on the funeral home's own id, not on our row id.
+
+    def announced_keys(self, digest_type='daily'):
+        """Every announce_key this digest type has already sent."""
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT announce_key FROM announced_obituaries WHERE digest_type = ?',
+                (digest_type,)
+            )
+            return {row[0] for row in cursor.fetchall()}
+        except sqlite3.OperationalError as e:
+            # Table not created yet (first boot after deploy). Announce normally.
+            logging.info(f"[SentLog] No sent-log yet ({e}) - proceeding without it")
+            return set()
+        finally:
+            conn.close()
+
+    def filter_unannounced(self, obituaries, announced):
+        """Drop obituaries already announced, loudly enough to be greppable."""
+        kept = []
+        for obit in obituaries:
+            key = announce_key(
+                obit.get('source'), obit.get('source_url'), obit.get('id')
+            )
+            if key in announced:
+                logging.info(
+                    f"[SentLog] Suppressing repeat announcement: "
+                    f"{obit.get('deceased_name')!r} ({key})"
+                )
+                continue
+            kept.append(obit)
+        return kept
+
+    def record_announced(self, obituaries, digest_type='daily'):
+        """Mark obituaries as announced. INSERT OR IGNORE - idempotent."""
+        if not obituaries:
+            return 0
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        now = datetime.now().isoformat()
+        written = 0
+        try:
+            cursor = conn.cursor()
+            for obit in obituaries:
+                key = announce_key(
+                    obit.get('source'), obit.get('source_url'), obit.get('id')
+                )
+                cursor.execute(
+                    'INSERT OR IGNORE INTO announced_obituaries '
+                    '(announce_key, digest_type, obituary_id, announced_at) '
+                    'VALUES (?, ?, ?, ?)',
+                    (key, digest_type, obit.get('id'), now)
+                )
+                written += cursor.rowcount
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            logging.error(f"[SentLog] Could not record announcements: {e}")
+        finally:
+            conn.close()
+        return written
     
     def generate_quiet_day_html(self):
         """Generate HTML email for days with no new obituaries"""
@@ -389,8 +462,13 @@ class DailyDigestSender:
         logging.info(f" Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"{'='*70}\n")
 
-        # Get all new obituaries (unfiltered) to check if there's anything new
-        all_obituaries = self.get_new_obituaries(hours=24)
+        # Get all new obituaries (unfiltered) to check if there's anything new.
+        # The sent-log filter runs here so a person announced yesterday cannot
+        # reappear today, whatever happened to their row in between.
+        announced = self.announced_keys('daily')
+        all_obituaries = self.filter_unannounced(
+            self.get_new_obituaries(hours=24), announced
+        )
 
         quiet_day = not all_obituaries
 
@@ -401,8 +479,17 @@ class DailyDigestSender:
             logging.info(f" Found {len(all_obituaries)} new obituar{'y' if len(all_obituaries) == 1 else 'ies'}")
 
         # Pre-fetch location-filtered obituary lists, deduplicated
-        toronto_obits = deduplicate_obituaries(self.get_new_obituaries(hours=24, location='toronto')) if not quiet_day else []
-        montreal_obits = deduplicate_obituaries(self.get_new_obituaries(hours=24, location='montreal')) if not quiet_day else []
+        toronto_obits = deduplicate_obituaries(self.filter_unannounced(
+            self.get_new_obituaries(hours=24, location='toronto'), announced
+        )) if not quiet_day else []
+        montreal_obits = deduplicate_obituaries(self.filter_unannounced(
+            self.get_new_obituaries(hours=24, location='montreal'), announced
+        )) if not quiet_day else []
+
+        # Everything actually placed in at least one subscriber's email. Recorded
+        # only after a successful send, so a total SendGrid outage does not
+        # permanently suppress an obituary nobody ever received.
+        announced_this_run = {}
 
         # Get daily subscribers with preferences
         daily_subscribers = self.subscription_manager.get_subscribers_by_preference(frequency='daily')
@@ -462,6 +549,8 @@ class DailyDigestSender:
                     logging.info(f" {email} (quiet day)")
                 else:
                     logging.info(f" {email} ({len(unique_obits)} obits)")
+                    for _o in unique_obits:
+                        announced_this_run[_o['id']] = _o
                 cursor.execute('''
                     UPDATE subscribers
                     SET last_email_sent = ?
@@ -475,6 +564,10 @@ class DailyDigestSender:
 
         conn.commit()
         conn.close()
+
+        recorded = self.record_announced(list(announced_this_run.values()), 'daily')
+        if recorded:
+            logging.info(f"[SentLog] Recorded {recorded} newly-announced obituaries")
 
         logging.info(f"\n{'='*70}")
         logging.info(f" SUMMARY")

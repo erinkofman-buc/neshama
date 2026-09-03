@@ -10,6 +10,11 @@ import hashlib
 from datetime import datetime
 import os
 
+from obituary_identity import (
+    source_key as compute_source_key,
+    names_look_unrelated,
+)
+
 class NeshamaDatabase:
     def __init__(self, db_path=None):
         """Initialize database connection"""
@@ -67,6 +72,7 @@ class NeshamaDatabase:
 
         # Add shiva columns to existing tables (safe to run multiple times)
         for col, col_type in [
+            ('source_key', 'TEXT'),
             ('shiva_address', 'TEXT'),
             ('shiva_hours', 'TEXT'),
             ('shiva_concludes', 'TEXT'),
@@ -87,6 +93,32 @@ class NeshamaDatabase:
             self.cursor.execute('UPDATE obituaries SET first_seen = last_updated WHERE first_seen IS NULL')
         except sqlite3.OperationalError:
             pass
+
+        # Backfill source_key for rows that predate it. Only ever writes rows
+        # where it is NULL, so this is idempotent and costs one pass on the
+        # first startup after deploy. Row ids are untouched - the oldest id
+        # always survives, so no existing /obituary/<id> URL breaks.
+        try:
+            self.cursor.execute(
+                'SELECT id, source, source_url FROM obituaries WHERE source_key IS NULL'
+            )
+            pending = self.cursor.fetchall()
+            for row_id, src, url in pending:
+                key = compute_source_key(src, url)
+                if key:
+                    self.cursor.execute(
+                        'UPDATE obituaries SET source_key = ? WHERE id = ?', (key, row_id)
+                    )
+            if pending:
+                logging.info(f"[Identity] Backfilled source_key for {len(pending)} obituaries")
+        except sqlite3.OperationalError as e:
+            logging.warning(f"[Identity] source_key backfill skipped: {e}")
+
+        # NOTE: announced_obituaries is deliberately NOT seeded with existing
+        # rows. The digest already filters to a 24h first_seen window, so an
+        # empty sent-log reproduces exactly today's normal behaviour and then
+        # starts suppressing repeats. Seeding would instead swallow the first
+        # legitimate announcement of anything scraped in the last 24 hours.
 
         # Comments table - linked to obituaries
         self.cursor.execute('''
@@ -125,6 +157,34 @@ class NeshamaDatabase:
         self.cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_comments_obituary
             ON comments(obituary_id)
+        ''')
+
+        # Stable identity lookup (see obituary_identity.py). Not UNIQUE: existing
+        # rows predate the key and 74 source_keys currently carry more than one
+        # row. Those are merged by a separate, explicitly-run migration; until
+        # then the index only has to make the lookup fast.
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_obituary_source_key
+            ON obituaries(source_key)
+        ''')
+
+        # Digest sent-log - the belt-and-suspenders guarantee that a person is
+        # never announced twice, independent of whether the identity key is
+        # correct. Keyed on the person (source_key), not the row id, so even a
+        # duplicate row cannot produce a second announcement.
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS announced_obituaries (
+                announce_key TEXT NOT NULL,
+                digest_type  TEXT NOT NULL DEFAULT 'daily',
+                obituary_id  TEXT NOT NULL,
+                announced_at TEXT NOT NULL,
+                PRIMARY KEY (announce_key, digest_type)
+            )
+        ''')
+
+        self.cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_announced_at
+            ON announced_obituaries(announced_at)
         ''')
 
         # Scraper log table for monitoring
@@ -200,7 +260,16 @@ class NeshamaDatabase:
         self.close()
 
     def generate_obituary_id(self, source, deceased_name, date_of_death):
-        """Generate unique ID for obituary using hash"""
+        """Legacy identity hash - md5(source + normalized_name + date_of_death).
+
+        RETAINED, not removed. It is still how a brand-new row's primary key is
+        minted, so that existing /obituary/<id> URLs keep resolving and the
+        oldest-id-survives rule from the 2026-08-26 merge continues to hold.
+
+        It is no longer used to *find* an existing row - see upsert_obituary().
+        Both of its content inputs are mutable, which is what produced the
+        duplicate announcements this key was blamed for.
+        """
         # Normalize name: strip zero-width chars, whitespace, collapse spaces, lowercase
         import unicodedata
         clean_name = ''.join(c for c in deceased_name if unicodedata.category(c) != 'Cf')
@@ -242,15 +311,79 @@ class NeshamaDatabase:
         if obituary_data.get('date_of_death'):
             obituary_data['date_of_death'] = ' '.join(obituary_data['date_of_death'].split())
 
-        # Check if obituary exists by ID (exact name match)
-        self.cursor.execute('SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,))
-        existing = self.cursor.fetchone()
+        # ── Identity lookup ───────────────────────────────────────────────
+        # Order matters. The funeral-home-assigned key comes first because it is
+        # the only one that survives a name or date correction; the legacy hash
+        # is the fallback for rows that predate the key or have no usable URL.
+        #
+        # HISTORY: funeral_datetime fallback matching was removed earlier (it
+        # merged two different people at the same home with similar times). The
+        # replacement was "name-based hash as the sole matching key", which
+        # traded that bug for this one: a home correcting a name minted a second
+        # row. source_key has neither failure mode - two different people get two
+        # different URLs from the home, so they stay two rows by construction.
+        src_key = compute_source_key(
+            obituary_data['source'], obituary_data.get('source_url')
+        )
 
-        # REMOVED: funeral_datetime fallback matching (caused name overwrite bug — two different
-        # people at the same funeral home with similar times got merged into one record).
-        # Funeral homes often post preliminary listings then update them, so we rely on the
-        # name-based ID hash as the sole matching key. Duplicates from name typo corrections
-        # are preferable to silently merging two different people's records.
+        existing = None
+        matched_by = None
+        row_id = obit_id
+
+        if src_key:
+            self.cursor.execute(
+                'SELECT id, content_hash, deceased_name FROM obituaries '
+                'WHERE source_key = ? ORDER BY first_seen ASC LIMIT 1',
+                (src_key,)
+            )
+            found = self.cursor.fetchone()
+            if found:
+                existing = (found[0], found[1])
+                row_id = found[0]          # oldest id survives - URL stays valid
+                matched_by = 'source_key'
+                # Advisory only. A funeral home reusing a URL for a different
+                # person would surface here rather than silently overwriting.
+                if names_look_unrelated(found[2], obituary_data['deceased_name']):
+                    logging.warning(
+                        f"[Identity] source_key {src_key} now carries an unrelated "
+                        f"name: stored={found[2]!r} incoming={obituary_data['deceased_name']!r} "
+                        f"- treating as an update; verify this is the same person."
+                    )
+
+        if existing is None:
+            self.cursor.execute(
+                'SELECT id, content_hash FROM obituaries WHERE id = ?', (obit_id,)
+            )
+            found = self.cursor.fetchone()
+            if found:
+                existing = found
+                row_id = found[0]
+                matched_by = 'legacy_id'
+
+        if existing is None and src_key and obituary_data.get('source_url'):
+            # Self-heal: a row written before source_key existed whose legacy
+            # hash no longer matches because a mutable field has since changed.
+            # This is the migration hazard - without it, the first scrape after
+            # deploy forks every row that gains a date_of_death or a corrected
+            # name. create_tables() also backfills source_key at startup, but
+            # that runs inside a try/except and must not be the only guard.
+            url = str(obituary_data['source_url']).strip().rstrip('/').lower()
+            self.cursor.execute(
+                'SELECT id, content_hash FROM obituaries '
+                'WHERE source_key IS NULL AND source = ? '
+                "AND LOWER(RTRIM(source_url, '/')) = ? "
+                'ORDER BY first_seen ASC LIMIT 1',
+                (obituary_data['source'], url)
+            )
+            found = self.cursor.fetchone()
+            if found:
+                existing = found
+                row_id = found[0]
+                matched_by = 'source_url_backfill'
+                logging.info(
+                    f"[Identity] Adopted un-keyed legacy row {row_id} "
+                    f"for {src_key} (would previously have forked)"
+                )
 
         if existing:
             # Update if content changed
@@ -277,7 +410,8 @@ class NeshamaDatabase:
                         shiva_hours = ?,
                         shiva_concludes = ?,
                         shiva_raw = ?,
-                        shiva_private = ?
+                        shiva_private = ?,
+                        source_key = COALESCE(source_key, ?)
                     WHERE id = ?
                 ''', (
                     obituary_data['deceased_name'],
@@ -301,7 +435,8 @@ class NeshamaDatabase:
                     obituary_data.get('shiva_concludes'),
                     obituary_data.get('shiva_raw'),
                     1 if obituary_data.get('shiva_private') else 0,
-                    obit_id
+                    src_key,
+                    row_id
                 ))
                 action = 'updated'
             else:
@@ -317,8 +452,8 @@ class NeshamaDatabase:
                     livestream_available, photo_url, city, scraped_at,
                     first_seen, last_updated, content_hash,
                     shiva_address, shiva_hours, shiva_concludes,
-                    shiva_raw, shiva_private
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    shiva_raw, shiva_private, source_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 obit_id,
                 obituary_data['source'],
@@ -346,12 +481,13 @@ class NeshamaDatabase:
                 obituary_data.get('shiva_concludes'),
                 obituary_data.get('shiva_raw'),
                 1 if obituary_data.get('shiva_private') else 0,
+                src_key,
             ))
             action = 'inserted'
 
         self.conn.commit()
         self.close()
-        return obit_id, action
+        return row_id, action
 
     def upsert_comment(self, obituary_id, comment_data):
         """Insert comment if it doesn't already exist"""
