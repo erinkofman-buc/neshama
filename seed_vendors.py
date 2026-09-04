@@ -252,7 +252,10 @@ VENDORS = [
         'name': 'Jem Salads',
         'category': 'Restaurants',
         'description': 'Fresh, wholesome salad platters and prepared meals with generous portions. Great option for lighter shiva meals. Platters for 10-50+ guests with flexible delivery timing.',
-        'address': '441 Clark Ave W, Toronto, ON',
+        # No street address: jemsalads.com publishes none (delivery-only, "Toronto ON").
+        # The previous value was Golden Chopsticks' address, copied in error
+        # (data-quality-backlog, reported 2026-04-09; corrected 2026-09-04).
+        'address': '',
         'neighborhood': 'North York',
         'phone': '(416) 886-1804',
         'email': 'jem.salads@gmail.com',
