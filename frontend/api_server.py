@@ -986,6 +986,22 @@ try:
 except Exception as e:
     EMAIL_QUEUE_AVAILABLE = False
     logging.info(f" Email queue: Not available ({e})")
+def family_phrase(name):
+    """Wrap a family name for a sentence without doubling the word "family".
+
+    Organizers type the name themselves and most type "The Gorelik Family",
+    so "for the {name} family" rendered "for the The Gorelik Family family"
+    in the signup confirmation. Bare surnames still get wrapped.
+    """
+    n = (name or '').strip()
+    if re.search(r'\bfamily\b', n, re.IGNORECASE):
+        if re.fullmatch(r'(the\s+)?family', n, re.IGNORECASE):
+            return 'the family'
+        return n if re.match(r'the\b', n, re.IGNORECASE) else 'the ' + n
+    n = re.sub(r'^the\s+', '', n, flags=re.IGNORECASE)
+    return f'the {n} family' if n else 'the family'
+
+
 
 class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
@@ -5124,7 +5140,7 @@ button:hover{background:#c45a1a}</style></head>
 <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:2rem;color:#3E2723;">
     <div style="text-align:center;margin-bottom:1.5rem;">
         <h1 style="font-size:1.6rem;font-weight:400;color:#3E2723;margin:0;">Your shiva page is ready</h1>
-        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">for the {html_mod.escape(family_name)} family</p>
+        <p style="color:#8a9a8d;font-size:1.05rem;margin-top:0.25rem;">for {html_mod.escape(family_phrase(family_name))}</p>
     </div>
     <p style="font-size:1rem;line-height:1.6;">
         Thank you for taking care of this. The community can now sign up to bring meals

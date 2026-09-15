@@ -695,6 +695,14 @@
         }
     }
 
+    // Organizers type the family name themselves, and most type "The Gorelik
+    // Family". Only add the word when it is not already there.
+    function familyLabel(name) {
+        var n = (name || '').trim();
+        if (!n || /^(the\s+)?family$/i.test(n)) return 'Family';
+        return /\bfamily\b/i.test(n) ? n : n + ' Family';
+    }
+
     function escapeHTML(str) {
         if (!str) return '';
         const div = document.createElement('div');
@@ -921,7 +929,7 @@
             <div style="background:white;border-radius:0.75rem;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
                     <div>
-                        <strong style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#3E2723;">${escapeHTML(s.family_name)} Family</strong>
+                        <strong style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#3E2723;">${escapeHTML(familyLabel(s.family_name))}</strong>
                         <div style="font-size:0.9rem;color:#6b7c6e;margin-top:0.25rem;">
                             ${escapeHTML(s.shiva_start_date || '')} — ${escapeHTML(s.shiva_end_date || '')}
                             &middot; Organized by ${escapeHTML(s.organizer_name || '')}

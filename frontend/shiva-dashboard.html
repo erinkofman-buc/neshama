@@ -1191,6 +1191,18 @@
         }
 
         // -- Utilities --
+        // "The Gorelik Family" must read "for The Gorelik Family", not
+        // "for the The Gorelik Family family". Wrap only bare surnames.
+        function familyPhrase(name) {
+            var n = (name || '').trim();
+            if (/\bfamily\b/i.test(n)) {
+                if (/^(the\s+)?family$/i.test(n)) return 'the family';
+                return /^the\b/i.test(n) ? n : 'the ' + n;
+            }
+            n = n.replace(/^the\s+/i, '');
+            return n ? 'the ' + n + ' family' : 'the family';
+        }
+
         function escapeHtml(str) {
             if (!str) return '';
             var div = document.createElement('div');
@@ -1356,7 +1368,7 @@
             var d = supportData;
 
             // Header
-            document.getElementById('heroTitle').textContent = "You're organizing meals for the " + (d.family_name || 'Family') + ' family';
+            document.getElementById('heroTitle').textContent = "You're organizing meals for " + familyPhrase(d.family_name);
             document.title = (d.family_name || 'Shiva') + ' Dashboard - Neshama';
 
             if (d.shiva_start_date && d.shiva_end_date) {
@@ -1722,7 +1734,7 @@
                     supportData.dietary_restrictions = JSON.stringify(payload.dietary_restrictions);
                     supportData.family_notes = payload.family_notes;
                     // Re-render affected sections
-                    document.getElementById('heroTitle').textContent = "You're organizing meals for the " + (payload.family_name || 'Family') + ' family';
+                    document.getElementById('heroTitle').textContent = "You're organizing meals for " + familyPhrase(payload.family_name);
                     if (payload.shiva_start_date && payload.shiva_end_date) {
                         document.getElementById('heroDates').textContent = formatDateRange(payload.shiva_start_date, payload.shiva_end_date);
                     }
