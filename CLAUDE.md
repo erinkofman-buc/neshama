@@ -3,7 +3,7 @@
 ## Architecture
 - Python/SQLite backend (api_server.py + shiva_manager.py)
 - Static HTML/CSS/JS frontend (no framework)
-- Deployed on Render with auto-deploy from GitHub main branch
+- Deployed on Render, service `neshama` (srv-d64g2rsr85hc73brjot0). Auto-deploy is OFF (verified via the Render API 2026-09-15): merging to main does NOT deploy. Erin triggers each deploy by hand in the Render dashboard, then runs `/qa post`.
 - Database: SQLite at local path (MUST persist across deploys)
 - Email: SendGrid
 - Payments: Stripe (test mode, not activated)
@@ -62,7 +62,7 @@
 ## Key Rules
 - Always test before committing
 - Always commit and push when done
-- Deploys: any day, any hour. Deploys are internal; the Shabbat deploy prohibition was removed per Erin 2026-06-11. The 10 PM-6 AM window is retired (2026-06-02, re-affirmed 2026-06-10: insufficient traffic to protect). Staging-before-prod stays. Reinstate a window when active shiva pages receive daily signups. RETAINED on Shabbat (audience-trust strategy, NOT deploys): the community-facing posting blackout and the scraper pause.
+- Deploys: any day, any hour. Deploys are internal; the Shabbat deploy prohibition was removed per Erin 2026-06-11. The 10 PM-6 AM window is retired (2026-06-02, re-affirmed 2026-06-10: insufficient traffic to protect). Staging-before-prod is RETIRED (2026-09-15): the "staging" Render service never existed. The Render account holds exactly two web services, `neshama` (main) and the `neshama PR #1` preview on feature/shiva-meal-planner-v2, which was the phantom digest sender and was suspended 2026-09-15 (delete it and its disk after the 2026-09-21 check confirms one health report). The substitute gate from the 2026-09-04 ruling is now the permanent gate for every push to main: full test suite, local run against a fresh prod snapshot, scrape simulation, adversarial pass, rollback statement with schema-change check. Work on a feature branch; Erin pushes main herself. Reinstate a window when active shiva pages receive daily signups. RETAINED on Shabbat (audience-trust strategy, NOT deploys): the community-facing posting blackout and the scraper pause.
 - Mobile-first design (test at 375px)
 - All user-facing text must be empathetic — this serves grieving families
 - Caterer features must never feel like ads
