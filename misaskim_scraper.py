@@ -100,6 +100,36 @@ def _is_listing_link(href):
     return True
 
 
+# Text the listing card wraps around the name. The card's <a> carries no heading,
+# so the name is recovered from the anchor's full text and everything from the
+# first piece of card chrome onward is dropped.
+#
+# Why this exists: BeautifulSoup's get_text(strip=True) joins text nodes with NO
+# separator, so 'RAV DOVID SCHUR Z"L' + 'All Shiva Listings' arrived as
+# 'RAV DOVID SCHUR Z"LAll Shiva Listings'. The old replace('Shiva Listings', '')
+# then left "All" glued to the honorific, and the donation amount 'C$180' lost
+# its digits to the '0% of C$0 goal' regex, leaving a bare 'C$'. Both reached
+# production names on 2026-09-14/15 ('RAV DOVID SCHUR Z"LAll C$'), and the
+# changing suffix forked a second row for the same man.
+_CARD_CHROME_RE = re.compile(
+    r'\s*(?:'
+    r'All Shiva Listings|Shiva Listings|Become a Shiva Listing'
+    r'|Donate (?:in memory|to this campaign)|View shiva information'
+    r'|C\$\s*[\d,.]*|\d+(?:\.\d+)?\s*%\s*of\b'
+    r').*$',
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _name_from_card_text(text):
+    """Return the name that precedes the card's action / fundraising chrome."""
+    if not text:
+        return ''
+    name = _CARD_CHROME_RE.sub('', text)
+    name = re.sub(r'\s{2,}', ' ', name).strip(' \t\n-|\u00b7')
+    return name
+
+
 def _name_from_slug(slug):
     """Convert a URL slug to a human-readable name."""
     # Remove trailing _1, _2 suffixes (duplicate slugs on Misaskim)
@@ -139,23 +169,17 @@ def scrape_listings_page(url):
             continue
         found_slugs.add(slug)
 
-        # Extract name from heading inside the card
+        # Extract name from heading inside the card. Always join text nodes
+        # with a space: strip=True alone glues adjacent nodes together.
         name_text = None
         heading = link.find(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
         if heading:
-            name_text = heading.get_text(strip=True)
+            name_text = _name_from_card_text(heading.get_text(' ', strip=True))
 
-        # Try the full text of the <a>, stripping common action/fundraising text
+        # No heading (the live cards have none): the name is the text that
+        # precedes the card's nav / donate / progress chrome.
         if not name_text:
-            full_text = link.get_text(strip=True)
-            for remove in ['Donate in memory', 'Donate in Memory',
-                           'View shiva information', 'View Shiva Information',
-                           'Shiva Listings', 'shiva listings',
-                           'Become a Shiva Listing',
-                           'C$0', '0.0% of C$0 goal',
-                           'Donate to this campaign']:
-                full_text = full_text.replace(remove, '')
-            name_text = full_text.strip()
+            name_text = _name_from_card_text(link.get_text(' ', strip=True))
 
         # Clean residual fundraising text
         if name_text:
