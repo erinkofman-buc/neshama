@@ -6712,6 +6712,26 @@ button:hover{background:#c45a1a}</style></head>
                     is_fresh = latest and latest >= three_hours_ago
                     scraper_status[source] = {'latest': latest, 'fresh': is_fresh}
 
+                # Benjamin's arrives by their listing e-mail, not by scraper
+                # (decisions-log 2026-09-15). benjamins_newsletter.record_issue()
+                # writes a scraper_log row whose run_time is the ISSUE's own send
+                # time, so freshness here is the age of the newest issue ingested.
+                # Two issues arrive a day; older than 24 h is stale. Until the
+                # first issue has been ingested the source is PAUSED, not stale.
+                cursor.execute('''
+                    SELECT MAX(run_time) FROM scraper_log
+                    WHERE source = "Benjamin's Park Memorial Chapel" AND status = 'newsletter'
+                ''')
+                newest_issue = cursor.fetchone()[0]
+                if newest_issue:
+                    day_ago = (datetime.now(tz=_tz.utc) - timedelta(hours=24)).replace(tzinfo=None).isoformat()
+                    scraper_status["Benjamin's Park Memorial Chapel"] = {
+                        'latest': newest_issue, 'fresh': newest_issue >= day_ago, 'via': 'newsletter'}
+                else:
+                    scraper_status["Benjamin's Park Memorial Chapel"] = {
+                        'latest': None, 'fresh': True, 'paused': True, 'via': 'newsletter',
+                        'note': 'awaiting first newsletter poll'}
+
                 # If scraper thread has a recent heartbeat, it's running — stale data just means
                 # no new obituaries were posted, which is normal. Don't fail health check for this.
                 scraper_heartbeat = _periodic_scraper_status.get('last_heartbeat')
@@ -7301,6 +7321,41 @@ def run_server(port=None):
             )
         else:
             logging.info("[Scheduler] Email queue not available — skipping email queue job")
+
+        # Benjamin's listing-newsletter poll, every 4 hours (decisions-log
+        # 2026-09-15). Runs as a subprocess, like master_scraper, so a parser
+        # fault cannot take the server down. Not scheduled at all until the
+        # IMAP env vars exist, so a deploy without them changes nothing.
+        if os.environ.get('BENJAMINS_IMAP_USER') and os.environ.get('BENJAMINS_IMAP_PASSWORD'):
+            def _poll_benjamins_newsletter():
+                if is_shabbat():
+                    logging.info("[Benjamins newsletter] Shabbat, poll skipped")
+                    return
+                try:
+                    r = subprocess.run(
+                        [sys.executable, 'benjamins_newsletter.py'],
+                        capture_output=True, text=True,
+                        cwd=os.path.join(FRONTEND_DIR, '..'), timeout=180,
+                    )
+                    logging.info(f"[Benjamins newsletter] rc={r.returncode} {(r.stdout or '')[-300:].strip()}")
+                    if r.returncode != 0:
+                        logging.error(f"[Benjamins newsletter] stderr: {(r.stderr or '')[-500:].strip()}")
+                except Exception as e:
+                    # One cycle lost, nothing retried inside the window.
+                    logging.error(f"[Benjamins newsletter] poll failed, cycle skipped: {e}")
+
+            scheduler.add_job(
+                _poll_benjamins_newsletter,
+                'interval',
+                hours=4,
+                id='benjamins_newsletter',
+                name="Poll Benjamin's listing newsletter",
+                max_instances=1,
+                next_run_time=datetime.now(tz=_tz.utc) + timedelta(minutes=2),
+            )
+            logging.info("[Benjamins newsletter] Scheduler added (every 4 h, first poll in 2 min)")
+        else:
+            logging.info("[Benjamins newsletter] BENJAMINS_IMAP_USER/PASSWORD not set, poll not scheduled")
 
         # Add yahrzeit daily processor (9 AM Toronto time)
         if YAHRZEIT_AVAILABLE:

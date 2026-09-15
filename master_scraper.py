@@ -35,9 +35,13 @@ except ImportError:
 class MasterScraper:
     def __init__(self):
         # Original 4 scrapers — unchanged
+        # Benjamin's is PAUSED here (2026-09-15): their rebuilt site serves a
+        # Cloudflare challenge to datacenter IPs and the old ASP.NET parser finds
+        # nothing on it anyway. Benjamin's now arrives through their listing
+        # e-mail - see benjamins_newsletter.py, polled by the api_server
+        # scheduler. BenjaminsScraper stays importable for manual single runs.
         self.scrapers = [
             ('Steeles', SteelesScraper()),
-            ('Benjamin\'s', BenjaminsScraper()),
             ('Paperman', PapermanScraper()),
             ('Misaskim', MisakimScraper())
         ]
