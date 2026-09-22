@@ -7599,6 +7599,27 @@ def run_server(port=None):
         except Exception as e:
             logging.error(f"[ScraperLogPrune] Failed to add scheduler job: {e}")
 
+        # Daily database backup (4:30 AM ET, after the 4 AM scraper_log prune).
+        # Write-triggered backups can go a whole day without firing, and the
+        # Mac off-box pull fails any backup older than 26 hours, so this
+        # guarantees at least one fresh backup.db.gz per day.
+        if SHIVA_AVAILABLE:
+            try:
+                scheduler.add_job(
+                    shiva_mgr.backup_to_file,
+                    'cron',
+                    hour=4,
+                    minute=30,
+                    timezone='America/Toronto',
+                    id='daily_db_backup',
+                    name='Daily SQLite backup to backup.db.gz',
+                    max_instances=1,
+                    coalesce=True,
+                )
+                logging.info("[Backup] Scheduler added (daily 4:30 AM ET)")
+            except Exception as e:
+                logging.error(f"[Backup] Failed to add scheduler job: {e}")
+
         scheduler.start()
         logging.info(f"[Scheduler] APScheduler started — all background jobs active")
     except Exception as e:
@@ -8714,7 +8735,7 @@ def run_server(port=None):
         # Auto-restore from backup if critical tables are empty
         try:
             if shiva_mgr.needs_restore():
-                logging.info("[Startup] Critical tables empty — restoring from backup.json...")
+                logging.info("[Startup] Critical tables empty - restoring from backup.db.gz (or legacy backup.json)...")
                 shiva_mgr.restore_from_file()
             else:
                 logging.info(" Backup restore: not needed")

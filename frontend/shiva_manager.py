@@ -11,10 +11,21 @@ import uuid
 import secrets
 import os
 import json
+import gzip
+import shutil
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+
+# One backup at a time per process. Around 26 write paths call
+# _trigger_backup(), and each used to start its own unlocked full export, so a
+# burst of writes could build several copies of the database in memory at once.
+# _BACKUP_RUN_LOCK serializes every backup (triggered or scheduled);
+# _BACKUP_STATE coalesces triggers that land while one is already running.
+_BACKUP_RUN_LOCK = threading.Lock()
+_BACKUP_STATE_LOCK = threading.Lock()
+_BACKUP_STATE = {}  # abspath(db) -> {'running': bool, 'dirty': bool}
 
 
 class ShivaManager:
@@ -2302,19 +2313,105 @@ class ShivaManager:
             'tables': tables
         }
 
+    # Pages copied per backup step (4 MB at the default 4096-byte page size)
+    BACKUP_PAGES_PER_STEP = 1024
+
+    def _get_db_backup_path(self):
+        """Return backup.db.gz path next to the database file."""
+        return os.path.join(os.path.dirname(os.path.abspath(self.db_path)), 'backup.db.gz')
+
     def backup_to_file(self):
-        """Write all critical tables to backup.json next to the database."""
+        """Snapshot the whole database to backup.db.gz next to it.
+
+        Uses SQLite's online backup API, so pages go disk to disk and Python
+        memory stays flat however big the database gets. The old JSON export
+        built every row as a dict (85 MB peak on the 2026-09-03 snapshot, growing
+        with the data; ~28 MB flat now), could run several at once, and was a
+        suspect in the 2026-09-20 OOM restart. Blocks until any running backup
+        finishes.
+        Returns a summary dict, or None on error.
+        """
+        with _BACKUP_RUN_LOCK:
+            try:
+                return self._write_db_backup()
+            except Exception as e:
+                logging.error(f"[Backup] Error: {e}")
+                return None
+
+    def _write_db_backup(self):
+        gz_path = self._get_db_backup_path()
+        copy_tmp = gz_path[:-len('.gz')] + '.tmp'
+        gz_tmp = gz_path + '.tmp'
+
+        # Leftovers from a run that was killed mid-write
+        for stale in (copy_tmp, copy_tmp + '-journal', copy_tmp + '-wal', copy_tmp + '-shm', gz_tmp):
+            if os.path.exists(stale):
+                os.remove(stale)
+
         try:
-            data = self.get_backup_data()
-            backup_path = self._get_backup_path()
-            tmp_path = backup_path + '.tmp'
-            with open(tmp_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            os.replace(tmp_path, backup_path)
-            row_count = sum(len(rows) for rows in data['tables'].values())
-            logging.info(f"[Backup] Saved {row_count} rows to {backup_path}")
-        except Exception as e:
-            logging.error(f"[Backup] Error: {e}")
+            src = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+            dst = sqlite3.connect(copy_tmp, isolation_level=None)
+            try:
+                src.execute('PRAGMA busy_timeout=30000')
+                # Hold one read transaction across every step so the copy is a
+                # single consistent snapshot. In WAL mode this never blocks
+                # writers, and it stops the backup restarting from page 1 each
+                # time a request writes between steps.
+                src.execute('BEGIN')
+                src.execute('SELECT COUNT(*) FROM sqlite_master').fetchone()
+                exported_at = datetime.now(timezone.utc).isoformat(timespec='seconds')
+                src.backup(dst, pages=self.BACKUP_PAGES_PER_STEP, sleep=0.01)
+                src.execute('COMMIT')
+
+                # Record when and what, inside the copy itself, so the off-box
+                # pull can check freshness without trusting file mtimes.
+                tables = [r[0] for r in dst.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%' AND name != '_backup_meta' ORDER BY name"
+                )]
+                meta = [('format', 'sqlite-v1'), ('exported_at', exported_at)]
+                total_rows = 0
+                for table in tables:
+                    n = dst.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+                    total_rows += n
+                    meta.append((f'rows.{table}', str(n)))
+                dst.execute('BEGIN')
+                dst.execute('DROP TABLE IF EXISTS _backup_meta')
+                dst.execute('CREATE TABLE _backup_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+                dst.executemany('INSERT INTO _backup_meta (key, value) VALUES (?, ?)', meta)
+                dst.execute('COMMIT')
+                # The copy inherits WAL mode from the source header; switch it
+                # back so the file is self-contained with no -wal/-shm sidecars.
+                dst.execute('PRAGMA journal_mode=DELETE')
+            finally:
+                dst.close()
+                src.close()
+
+            # Stream-compress in 1 MB chunks, then fsync and swap in atomically
+            with open(copy_tmp, 'rb') as fin, open(gz_tmp, 'wb') as raw:
+                with gzip.GzipFile(fileobj=raw, mode='wb', compresslevel=6) as fout:
+                    shutil.copyfileobj(fin, fout, 1024 * 1024)
+                raw.flush()
+                os.fsync(raw.fileno())
+            os.replace(gz_tmp, gz_path)
+            try:
+                dir_fd = os.open(os.path.dirname(gz_path), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
+            except OSError:
+                pass
+        finally:
+            for tmp in (copy_tmp, copy_tmp + '-journal', gz_tmp):
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+
+        size = os.path.getsize(gz_path)
+        logging.info(f"[Backup] Saved {total_rows} rows ({len(tables)} tables) to {gz_path} "
+                     f"({size} bytes gz, exported_at={exported_at})")
+        return {'path': gz_path, 'bytes': size, 'exported_at': exported_at,
+                'tables': len(tables), 'rows': total_rows}
 
     def restore_from_data(self, data):
         """Restore tables from a backup data dict. Uses INSERT OR IGNORE to avoid duplicates."""
@@ -2347,8 +2444,71 @@ class ShivaManager:
         logging.info(f"[Restore] Restored {restored} rows across {len(all_tables)} tables")
         return restored
 
+    def _restore_from_db_backup(self, gz_path):
+        """Restore BACKUP_TABLES from a backup.db.gz. INSERT OR IGNORE, like restore_from_data."""
+        restore_tmp = gz_path[:-len('.gz')] + '.restore.tmp'
+        sidecars = (restore_tmp, restore_tmp + '-journal', restore_tmp + '-wal', restore_tmp + '-shm')
+        for stale in sidecars:
+            if os.path.exists(stale):
+                os.remove(stale)
+        try:
+            with gzip.open(gz_path, 'rb') as fin, open(restore_tmp, 'wb') as fout:
+                shutil.copyfileobj(fin, fout, 1024 * 1024)
+
+            conn = sqlite3.connect(self.db_path, timeout=30, isolation_level=None)
+            conn.execute('PRAGMA busy_timeout=30000')
+            conn.execute('ATTACH DATABASE ? AS bk', (restore_tmp,))
+            try:
+                try:
+                    row = conn.execute("SELECT value FROM bk._backup_meta WHERE key = 'exported_at'").fetchone()
+                    exported_at = row[0] if row else 'unknown'
+                except sqlite3.Error:
+                    exported_at = 'unknown'
+                logging.info(f"[Restore] Loading backup.db.gz from {exported_at}")
+
+                restored = 0
+                conn.execute('BEGIN')
+                for table in self.BACKUP_TABLES:
+                    # Copy only columns both sides have, so an older backup
+                    # still restores into a newer schema (and vice versa)
+                    main_cols = [r[1] for r in conn.execute(f'PRAGMA main.table_info("{table}")')]
+                    bk_cols = {r[1] for r in conn.execute(f'PRAGMA bk.table_info("{table}")')}
+                    cols = [c for c in main_cols if c in bk_cols]
+                    if not cols:
+                        continue
+                    col_names = ', '.join(f'"{c}"' for c in cols)
+                    try:
+                        cur = conn.execute(
+                            f'INSERT OR IGNORE INTO main."{table}" ({col_names}) '
+                            f'SELECT {col_names} FROM bk."{table}"'
+                        )
+                        restored += cur.rowcount
+                    except sqlite3.Error as e:
+                        logging.info(f"[Restore] Skipping {table}: {e}")
+                conn.execute('COMMIT')
+            finally:
+                if conn.in_transaction:
+                    conn.execute('ROLLBACK')
+                conn.execute('DETACH DATABASE bk')
+                conn.close()
+        finally:
+            for tmp in sidecars:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+
+        logging.info(f"[Restore] Restored {restored} rows across {len(self.BACKUP_TABLES)} tables")
+        return restored
+
     def restore_from_file(self):
-        """Restore from backup.json if it exists."""
+        """Restore from backup.db.gz, or from the legacy backup.json if no .db.gz exists."""
+        gz_path = self._get_db_backup_path()
+        if os.path.exists(gz_path):
+            try:
+                return self._restore_from_db_backup(gz_path)
+            except Exception as e:
+                logging.error(f"[Restore] Error reading backup.db.gz: {e}")
+                return 0
+
         backup_path = self._get_backup_path()
         if not os.path.exists(backup_path):
             logging.info("[Restore] No backup file found")
@@ -2363,9 +2523,8 @@ class ShivaManager:
             return 0
 
     def needs_restore(self):
-        """Return True if shiva_support table is empty AND backup.json exists."""
-        backup_path = self._get_backup_path()
-        if not os.path.exists(backup_path):
+        """Return True if shiva_support table is empty AND backup.db.gz or backup.json exists."""
+        if not (os.path.exists(self._get_db_backup_path()) or os.path.exists(self._get_backup_path())):
             return False
         try:
             conn = self._get_conn()
@@ -2378,9 +2537,36 @@ class ShivaManager:
             return True
 
     def _trigger_backup(self):
-        """Run backup_to_file in a background thread to avoid slowing responses."""
-        thread = threading.Thread(target=self.backup_to_file, daemon=True)
+        """Run backup_to_file in a background thread to avoid slowing responses.
+
+        Coalesces: if a backup for this database is already running, mark it
+        dirty and return. The running worker then does exactly one more pass
+        when it finishes, which captures every write that arrived meanwhile.
+        """
+        key = os.path.abspath(self.db_path)
+        with _BACKUP_STATE_LOCK:
+            state = _BACKUP_STATE.setdefault(key, {'running': False, 'dirty': False})
+            if state['running']:
+                state['dirty'] = True
+                return
+            state['running'] = True
+        thread = threading.Thread(target=self._backup_worker, args=(state,), daemon=True, name='backup')
         thread.start()
+
+    def _backup_worker(self, state):
+        try:
+            while True:
+                self.backup_to_file()
+                with _BACKUP_STATE_LOCK:
+                    if not state['dirty']:
+                        state['running'] = False
+                        return
+                    state['dirty'] = False
+        except Exception as e:
+            logging.error(f"[Backup] Worker error: {e}")
+            with _BACKUP_STATE_LOCK:
+                state['running'] = False
+                state['dirty'] = False
 
     # ── Email Verification ────────────────────────────────────
 
