@@ -98,6 +98,35 @@ class MemorialBodyTests(unittest.TestCase):
         # A non-http livestream url is dropped, not rendered as a link.
         self.assertNotIn('javascript:alert', html)
 
+    def test_street_addresses_stripped_from_obituary_text(self):
+        text = ('Shiva will be held at the home of Dan and Shelley, 12 Secret Crescent '
+                'North York M2P 1L7, from 2 to 4.')
+        html = api_server.render_memorial_body(TEMPLATE, self.row(obituary_text=text))
+        self.assertNotIn('Secret Crescent', html)
+        self.assertNotIn('M2P 1L7', html)
+        self.assertIn('home of Dan and Shelley, (address not shown), from 2 to 4.', html)
+
+    def test_address_forms_seen_in_production(self):
+        strip = api_server.strip_street_addresses
+        cases = {
+            '34 Mellowood Drive, Toronto, Ontario, M2L 2E3, Monday': '(address not shown), Monday',
+            'at 409 Russell Hill Road, Toronto, Ontario M4V 2V3. Memorial': 'at (address not shown). Memorial',
+            '251 avenue des Pins Ouest, Montreal, QC, H2W 1R6.': '(address not shown).',
+            "lieu à 1639 Rue de l'Everest, Montréal, QC H4R 2Y5.": 'lieu à (address not shown).',
+            '(2401 2e Rue, Sainte-Sophie, Quebec, J5J 1N6).': '((address not shown)).',
+            'at 2333 rue Sherbrooke Ouest Wednesday at 11': 'at (address not shown) Wednesday at 11',
+            '(5380 Bourret ave, Montreal, QC, H3X 1J2)': '((address not shown))',
+        }
+        for given, expected in cases.items():
+            self.assertEqual(strip(given), expected, given)
+
+    def test_dates_counts_and_plots_are_not_addresses(self):
+        strip = api_server.strip_street_addresses
+        for text in ('passed away on Monday, March 2, 2026 at 10:00 a.m.',
+                     'Beth Tzedek Memorial Park, Section 5 Row 3.',
+                     'survived by 3 grandchildren and 12 Great grandchildren. Born 1932.'):
+            self.assertEqual(strip(text), text)
+
     def test_nameless_row_leaves_template_untouched(self):
         self.assertEqual(api_server.render_memorial_body(TEMPLATE, self.row(deceased_name='')), TEMPLATE)
 

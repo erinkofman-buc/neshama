@@ -890,6 +890,50 @@ def _memorial_initials(name):
     return (parts[0][0] + parts[-1][0]).upper()
 
 
+# Street addresses in funeral-home obituary text are almost always the shiva
+# house ("Shiva is at the home of ..., 12 Example Crescent, North York M2P 1L7").
+# The server-rendered copy is what every crawler and AI reader gets, so the
+# addresses are taken out of it (Erin's ruling 2026-09-22). People still see the
+# full text: the client re-renders it from /api/obituary/.
+_STREET_TYPES = (
+    r'Street|St|Avenue|Ave|Road|Rd|Crescent|Cres|Cr|Drive|Dr|Court|Ct|Crt|Boulevard|Blvd|'
+    r'Lane|Ln|Way|Place|Pl|Circle|Cir|Trail|Trl|Terrace|Terr|Gate|Gt|Parkway|Pkwy|Heights|Hts|'
+    r'Square|Sq|Grove|Gr|Close|Mews|Path|Line|Sideroad|Highway|Hwy|Gardens|Gdns|Walk|Row'
+)
+_FR_TYPES = r'rue|avenue|av\.|ave\.?|boulevard|boul\.|blvd\.?|chemin|ch\.|place|croissant|mont\u00e9e|c\u00f4te'
+_POSTAL = r'[A-Z]\d[A-Z][ -]?\d[A-Z]\d'
+# Words that end a street name rather than continue it
+_STOP = (r'(?!(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|lundi|mardi|mercredi|jeudi|'
+         r'vendredi|samedi|dimanche|January|February|March|April|May|June|July|August|September|'
+         r'October|November|December|Shiva|Donations|Funeral|Service|Interment|Visitation|In|At|'
+         r'From|And|Et|The)\b)')
+_NAME_WORD = _STOP + r"(?:[A-Z\u00c0-\u00dd0-9][\w'\u2019.-]*|(?:des|du|de|la|le)\b|l['\u2019][\w-]+)"
+_ADDRESS_TAIL = (
+    r'(?:\s+(?:North|South|East|West|Est|Ouest|Nord|Sud|N|S|E|W|O)\b\.?)?'
+    r'(?:,?\s*(?:Unit|Apt\.?|Suite|#)\s*[\w-]+)?'
+    # City and province, taken only when a postal code actually follows
+    r"(?:(?:,?\s+[A-Z\u00c0-\u00dd][\w'\u2019.-]*){0,4},?\s*"
+    r'(?:ON|Ont\.?|Ontario|QC|Que\.?|Quebec|Qu\u00e9bec)?,?\s*' + _POSTAL + r')?'
+)
+_ADDRESS_RE = re.compile(
+    # English form: 12 Example Crescent / 1-45 St. Clair Avenue West / 5380 Bourret ave
+    r'\b\d{1,5}[A-Za-z]?(?:-\d{1,5})?,?\s+(?:[A-Z\u00c0-\u00dd0-9][\w\'\u2019.-]*\s+){1,4}'
+    r'(?i:' + _STREET_TYPES + r'|Rue)\b\.?' + _ADDRESS_TAIL +
+    # French form: 4500 rue Sherbrooke Ouest / 251 avenue des Pins Ouest / 1639 Rue de l'Everest
+    r'|\b\d{1,5}[A-Za-z]?,?\s+(?i:' + _FR_TYPES + r')\s+' + _NAME_WORD + r'(?:[\s-]+' + _NAME_WORD + r'){0,4}' +
+    _ADDRESS_TAIL +
+    # A postal code on its own
+    r'|\b' + _POSTAL + r'\b'
+)
+
+
+def strip_street_addresses(text):
+    """Replace street addresses and postal codes in free text with '(address not shown)'."""
+    if not text:
+        return text
+    return _ADDRESS_RE.sub('(address not shown)', text)
+
+
 def _safe_http_url(url):
     url = (url or '').strip()
     return url if url.lower().startswith(('http://', 'https://')) else ''
@@ -944,8 +988,9 @@ def render_memorial_body(html, row):
             html = html.replace('<div class="hero-dates" id="heroDates"></div>',
                                 '<div class="hero-dates" id="heroDates">' + dates + '</div>')
 
-        # ── obituary text ── (textContent on the client, so escaped plain text here)
-        text = (row.get('obituary_text') or '').strip()
+        # ── obituary text ── (textContent on the client, so escaped plain text here;
+        # street addresses removed, see strip_street_addresses)
+        text = strip_street_addresses((row.get('obituary_text') or '').strip())
         if text:
             html = html.replace(
                 '<section class="memorial-section" id="obituarySection" style="display: none;">',
@@ -2458,7 +2503,7 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
 
             name = html_mod.escape(row['deceased_name'] or 'Memorial')
             obit_text = row['obituary_text'] or ''
-            clean_text = re.sub(r'<[^>]+>', '', obit_text).strip()
+            clean_text = strip_street_addresses(re.sub(r'<[^>]+>', '', obit_text).strip())
             desc = clean_text[:160] + '...' if len(clean_text) > 160 else clean_text
             desc = html_mod.escape(desc) if desc else f'Remembering {name}. Leave a tribute, light a candle, and share memories with family and community on Neshama.'
             photo = row['photo_url'] or 'https://neshama.ca/og-image.png'
