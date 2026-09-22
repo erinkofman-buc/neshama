@@ -815,6 +815,226 @@ def apply_directory_seo(path, content, db_path):
     return html.encode('utf-8')
 
 
+# ── Memorial server-render ───────────────────────────────
+# memorial.html shipped as a pure JS shell: a spinner, an empty hero, and a
+# "We Couldn't Find This Memorial" block in the markup of EVERY page. Between
+# 2026-05-19 and 2026-08-26 robots.txt also blocked /api/obituary/, so Googlebot's
+# render hit the catch branch and saw that block on a 200. That is the soft-404
+# bucket in Search Console. These helpers fill the body server-side the same way
+# the vendor pages are filled; the client JS stays as enhancement.
+#
+# The shiva card is deliberately NOT server-rendered. It can carry the shiva
+# house address, and the standing rule is that a shiva address is never put in
+# front of crawlers. The client JS still adds it for people, exactly as before.
+
+_MEMORIAL_ORDER = "COALESCE(first_seen, last_updated, ''), id"
+
+
+def fetch_memorial_row(db_path, obit_id):
+    """Return the obituary row dict for this id (hidden rows included), or None.
+    Read-only; never raises."""
+    if not obit_id:
+        return None
+    try:
+        conn = _connect_db(db_path)
+        conn.row_factory = sqlite3.Row
+        row = conn.execute('SELECT * FROM obituaries WHERE id = ?', (obit_id,)).fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except Exception:
+        return None
+
+
+def memorial_canonical_id(db_path, row):
+    """The id this memorial should declare as canonical.
+
+    Rows that share a source_key are the same person listed twice (the
+    funeral home's own URL id is the identity since 2026-09-02). Until the
+    merge script folds them, every copy points at the survivor the merge will
+    keep: oldest first_seen, then id, the same ordering as
+    merge_obituaries_by_source_key_2026_09_02.py. Falls back to the row's own
+    id on any doubt.
+    """
+    own = row.get('id')
+    key = row.get('source_key')
+    if not key:
+        return own
+    try:
+        conn = _connect_db(db_path)
+        hit = conn.execute(
+            'SELECT id FROM obituaries WHERE source_key = ? AND COALESCE(hidden, 0) = 0 '
+            'ORDER BY ' + _MEMORIAL_ORDER + ' LIMIT 1', (key,)).fetchone()
+        conn.close()
+        return hit[0] if hit else own
+    except Exception:
+        return own
+
+
+def _memorial_date(value):
+    """'2026-09-14' -> 'Monday, September 14, 2026'. Anything else is returned as-is."""
+    if not value:
+        return ''
+    try:
+        d = datetime.strptime(str(value).strip()[:10], '%Y-%m-%d')
+        return d.strftime('%A, %B ') + str(d.day) + d.strftime(', %Y')
+    except ValueError:
+        return str(value).strip()
+
+
+def _memorial_initials(name):
+    parts = (name or '').split()
+    if not parts:
+        return '?'
+    if len(parts) == 1:
+        return parts[0][0].upper()
+    return (parts[0][0] + parts[-1][0]).upper()
+
+
+def _safe_http_url(url):
+    url = (url or '').strip()
+    return url if url.lower().startswith(('http://', 'https://')) else ''
+
+
+def render_memorial_body(html, row):
+    """Fill the memorial.html body for a known obituary. Mirrors the client's
+    populateHero / populateObituary / populateServices / populateSourceLink,
+    minus the shiva card. Returns `html` unchanged on any failure."""
+    try:
+        esc = html_mod.escape
+        name = (row.get('deceased_name') or '').strip()
+        if not name:
+            return html
+
+        # ── body state: content visible, loading hidden, not-found REMOVED ──
+        html = html.replace(
+            '    <!-- Error State (hidden by default) -->\n'
+            '    <div class="memorial-container" id="errorState" style="display: none;">\n'
+            '        <div class="error-state">\n'
+            '            <h2>We Couldn\'t Find This Memorial</h2>\n'
+            '            <p>The memorial you\'re looking for may have been removed, or the link may be incorrect.</p>\n'
+            '            <a href="/feed">Return to Listings</a>\n'
+            '        </div>\n'
+            '    </div>\n', '')
+        html = html.replace('<div class="memorial-container" id="pageLoading">',
+                            '<div class="memorial-container" id="pageLoading" style="display: none;">')
+        html = html.replace('<div class="memorial-container" id="memorialContent" style="display: none;">',
+                            '<div class="memorial-container" id="memorialContent" data-ssr="1">')
+
+        # ── hero ──
+        photo = _safe_http_url(row.get('photo_url'))
+        if photo:
+            photo_html = ('<div class="hero-photo-wrapper"><img src="' + esc(photo) +
+                          '" alt="Photo of ' + esc(name) + '"></div>')
+        else:
+            photo_html = '<div class="hero-initials">' + esc(_memorial_initials(name)) + '</div>'
+        html = html.replace('<div id="heroPhotoArea"></div>',
+                            '<div id="heroPhotoArea">' + photo_html + '</div>')
+        html = html.replace('<h1 class="hero-name" id="heroName"></h1>',
+                            '<h1 class="hero-name" id="heroName">' + esc(name) + '</h1>')
+        hebrew = (row.get('hebrew_name') or '').strip()
+        if hebrew:
+            html = html.replace('<p class="hero-hebrew" id="heroHebrew" style="display: none;"></p>',
+                                '<p class="hero-hebrew" id="heroHebrew">' + esc(hebrew) + '</p>')
+        dates = ''
+        if row.get('date_of_death'):
+            dates += '<span>Date of Passing: ' + esc(_memorial_date(row['date_of_death'])) + '</span>'
+        if row.get('yahrzeit_date'):
+            dates += '<span>Yahrzeit: ' + esc(str(row['yahrzeit_date'])) + '</span>'
+        if dates:
+            html = html.replace('<div class="hero-dates" id="heroDates"></div>',
+                                '<div class="hero-dates" id="heroDates">' + dates + '</div>')
+
+        # ── obituary text ── (textContent on the client, so escaped plain text here)
+        text = (row.get('obituary_text') or '').strip()
+        if text:
+            html = html.replace(
+                '<section class="memorial-section" id="obituarySection" style="display: none;">',
+                '<section class="memorial-section visible" id="obituarySection">')
+            html = html.replace('<div class="obituary-text" id="obituaryText"></div>',
+                                '<div class="obituary-text" id="obituaryText">' + esc(text) + '</div>')
+
+        # ── services: funeral, burial, livestream (no shiva card, see above) ──
+        # Icon slots stay empty here (BRAND.md M2b); the client redraws the cards
+        # with their icons on load.
+        cards = ''
+        if row.get('funeral_datetime') or row.get('funeral_location'):
+            detail = esc(row.get('funeral_datetime') or '')
+            if row.get('funeral_location'):
+                detail += '<br>' + esc(row['funeral_location'])
+            cards += ('<div class="service-card"><div class="service-card-icon"></div>'
+                      '<div class="service-card-content"><div class="service-card-title">Funeral Service</div>'
+                      '<div class="service-card-detail">' + detail + '</div></div></div>')
+        if row.get('burial_info'):
+            cards += ('<div class="service-card"><div class="service-card-icon"></div>'
+                      '<div class="service-card-content"><div class="service-card-title">Burial</div>'
+                      '<div class="service-card-detail">' + esc(row['burial_info']) + '</div></div></div>')
+        live = _safe_http_url(row.get('livestream_url'))
+        if live:
+            cards += ('<div class="service-card"><div class="service-card-icon"></div>'
+                      '<div class="service-card-content"><div class="service-card-title">Livestream</div>'
+                      '<div class="service-card-detail"><a href="' + esc(live) + '" class="livestream-link" '
+                      'target="_blank" rel="noopener noreferrer">Watch Livestream &#x2197;</a></div></div></div>')
+        if cards:
+            html = html.replace(
+                '<section class="memorial-section" id="servicesSection" style="display: none;">',
+                '<section class="memorial-section visible" id="servicesSection">')
+            html = html.replace('<div class="service-cards" id="serviceCards"></div>',
+                                '<div class="service-cards" id="serviceCards">' + cards + '</div>')
+
+        # ── source link ──
+        condolence = _safe_http_url(row.get('condolence_url'))
+        if condolence:
+            html = html.replace('<section class="source-link-section" id="sourceLinkSection" style="display: none;">',
+                                '<section class="source-link-section" id="sourceLinkSection">')
+            html = html.replace('<a class="source-link-btn" id="sourceLink" href="#"',
+                                '<a class="source-link-btn" id="sourceLink" href="' + esc(condolence) + '"')
+            html = html.replace('<span id="sourceName"></span>',
+                                '<span id="sourceName">' + esc(row.get('source') or 'Funeral Home') + '</span>')
+        return html
+    except Exception as e:
+        logging.error(f"[Memorial] SSR render failed: {e}")
+        return html
+
+
+# ── Sitemap ──────────────────────────────────────────────
+# frontend/sitemap.xml holds the hand-curated static pages. /sitemap.xml serves
+# those plus every public memorial and every vendor page, read from the DB on
+# each request (a few hundred ms of SQLite at most; Google fetches it rarely).
+# Memorial rows that share a source_key contribute ONE url, the survivor, so
+# the sitemap never lists a page whose canonical points elsewhere.
+
+def build_sitemap_xml(static_xml, db_path):
+    """Return the full sitemap as bytes. Static entries are passed through
+    untouched; DB entries are appended before </urlset>. On a DB failure the
+    static sitemap is returned as-is."""
+    esc = html_mod.escape
+    entries = []
+    try:
+        conn = _connect_db(db_path)
+        memorials = conn.execute(
+            'SELECT id, last_updated FROM ('
+            '  SELECT id, last_updated, ROW_NUMBER() OVER ('
+            "    PARTITION BY COALESCE(source_key, 'id:' || id)"
+            '    ORDER BY ' + _MEMORIAL_ORDER + ') AS rn'
+            '  FROM obituaries WHERE COALESCE(hidden, 0) = 0'
+            ') WHERE rn = 1 ORDER BY last_updated DESC').fetchall()
+        vendors = conn.execute(
+            "SELECT slug FROM vendors WHERE slug IS NOT NULL AND TRIM(slug) != '' ORDER BY slug").fetchall()
+        conn.close()
+    except Exception as e:
+        logging.error(f"[Sitemap] DB read failed, serving static entries only: {e}")
+        return static_xml
+    for obit_id, last_updated in memorials:
+        lastmod = str(last_updated or '')[:10]
+        entries.append('  <url><loc>https://neshama.ca/memorial/' + esc(quote(str(obit_id))) + '</loc>' +
+                       ('<lastmod>' + lastmod + '</lastmod>' if re.match(r'\d{4}-\d{2}-\d{2}$', lastmod) else '') +
+                       '</url>')
+    for (slug,) in vendors:
+        entries.append('  <url><loc>https://neshama.ca/directory/' + esc(quote(slug.strip())) + '</loc></url>')
+    xml = static_xml.decode('utf-8')
+    return xml.replace('</urlset>', '\n'.join(entries) + '\n</urlset>').encode('utf-8')
+
+
 # ── Rate Limiter ─────────────────────────────────────────
 # Simple in-memory rate limiter for email-sending endpoints.
 # Keyed by (client_ip, endpoint). Allows max N calls per window.
@@ -1272,6 +1492,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.end_headers()
         elif path.startswith('/memorial/'):
             self.serve_memorial_page()
+        elif path == '/sitemap.xml':
+            self.serve_sitemap()
         # Yahrzeit confirm/unsubscribe routes
         elif path.startswith('/yahrzeit/confirm/'):
             token = path[len('/yahrzeit/confirm/'):]
@@ -2222,16 +2444,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.send_404()
             return
 
-        try:
-            db_path = self.get_db_path()
-            conn = _connect_db(db_path)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute('SELECT deceased_name, obituary_text, photo_url, source FROM obituaries WHERE id = ?', (obit_id,))
-            row = cursor.fetchone()
-            conn.close()
-        except Exception:
-            row = None
+        db_path = self.get_db_path()
+        row = fetch_memorial_row(db_path, obit_id)
 
         if not row:
             self.send_404()
@@ -2249,6 +2463,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             desc = html_mod.escape(desc) if desc else f'Remembering {name}. Leave a tribute, light a candle, and share memories with family and community on Neshama.'
             photo = row['photo_url'] or 'https://neshama.ca/og-image.png'
             memorial_url = f'https://neshama.ca/memorial/{obit_id}'
+            # Duplicate listings of one person declare the survivor as canonical.
+            canonical_url = f'https://neshama.ca/memorial/{memorial_canonical_id(db_path, row)}'
 
             html = html.replace(
                 '<title>Memorial - Neshama</title>',
@@ -2280,8 +2496,15 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             )
             html = html.replace(
                 '<link rel="canonical" href="https://neshama.ca/memorial">',
-                f'<link rel="canonical" href="{memorial_url}">'
+                f'<link rel="canonical" href="{canonical_url}">'
             )
+            # Hidden rows (junk/test entries flagged via admin) still open for
+            # anyone holding the link, but are kept out of the index.
+            if row.get('hidden'):
+                html = html.replace(
+                    f'<link rel="canonical" href="{canonical_url}">',
+                    f'<link rel="canonical" href="{canonical_url}">\n    <meta name="robots" content="noindex">'
+                )
             if row['photo_url']:
                 html = html.replace(
                     '<meta property="og:image" content="https://neshama.ca/og-image.png">',
@@ -2292,6 +2515,8 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
                     f'<meta name="twitter:image" content="{html_mod.escape(photo)}">'
                 )
 
+            html = render_memorial_body(html, row)
+
             content = html.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -2301,6 +2526,22 @@ class NeshamaAPIHandler(BaseHTTPRequestHandler):
             self.wfile.write(content)
         except FileNotFoundError:
             self.send_404()
+
+    def serve_sitemap(self):
+        """Static sitemap.xml plus every public memorial and vendor page."""
+        try:
+            with open(os.path.join(FRONTEND_DIR, 'sitemap.xml'), 'rb') as f:
+                static_xml = f.read()
+        except FileNotFoundError:
+            self.send_404()
+            return
+        content = build_sitemap_xml(static_xml, self.get_db_path())
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/xml; charset=utf-8')
+        self.send_header('Content-Length', str(len(content)))
+        self.send_header('Cache-Control', 'public, max-age=3600')
+        self.end_headers()
+        self.wfile.write(content)
 
     # ── API: Tributes ─────────────────────────────────────────
 

@@ -1755,6 +1755,13 @@
                 })
                 .catch(function() {
                     hide('pageLoading');
+                    // Server-rendered page: the not-found block was stripped because
+                    // this memorial is real. A failed background refresh must not blank it.
+                    var content = document.getElementById('memorialContent');
+                    if (content && content.getAttribute('data-ssr')) {
+                        show('memorialContent');
+                        return;
+                    }
                     show('errorState');
                 });
         }
